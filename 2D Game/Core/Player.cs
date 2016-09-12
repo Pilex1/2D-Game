@@ -8,7 +8,7 @@ namespace Game {
     class Player : Rectangle {
 
         public static bool[] Keys { get; private set; } = new bool[100];
-        public const int W = 0, A = 1, S = 2, D = 3;
+        public const int W = 0, A = 1, S = 2, D = 3, Space = 4;
 
         public static Player Instance { get; private set; }
 
@@ -17,6 +17,7 @@ namespace Game {
 
         private Player() : base(new Vector2(1, 2), new Vector2(0, 0), new Vector4[] { new Vector4(1, 0, 0, 1), new Vector4(0, 1, 0, 1), new Vector4(0, 0, 1, 1), new Vector4(1, 0, 1, 1) }) {
             Speed = 0.5f;
+            JumpPowerMax = 10;
         }
 
         public static void Init() {
@@ -39,9 +40,11 @@ namespace Game {
                 if (Keys[W]) {
                     Instance.MoveUp();
                 }else {
-                    Instance.MoveDown();
+                    Falling = true;
                 }
+                Instance.MoveDown();
             }
+
             Hitbox.Position = Position;
         }
 
@@ -81,6 +84,7 @@ namespace Game {
             if (key == 'a') Keys[A] = true;
             if (key == 's') Keys[S] = true;
             if (key == 'd') Keys[D] = true;
+            if (key == ' ') Keys[Space] = true;
             if (key == 'f') Flying = !Flying;
             if (key == 'r') Renderer.DrawingMode = Renderer.DrawingMode == PolygonMode.Fill ? PolygonMode.Line : PolygonMode.Fill;
             if (key == 'e') GameLogic.RemoveAllEntities();
@@ -91,11 +95,12 @@ namespace Game {
             if (key == 'a') Keys[A] = false;
             if (key == 's') Keys[S] = false;
             if (key == 'd') Keys[D] = false;
+            if (key == ' ') Keys[Space] = false;
         }
 
-        public static Vector2 ToPlayer(Vector2 pos) => new Vector2(Instance.Position.x - pos.x, Instance.Position.y - pos.y).Normalize();
+        public static Vector2 ToPlayer(Vector2 pos) { return new Vector2(Instance.Position.x - pos.x, Instance.Position.y - pos.y).Normalize(); }
 
-        public static bool Intersecting(Entity entity) => Instance.Hitbox.Intersecting(entity.Hitbox);
+        public static bool Intersecting(Entity entity) { return Instance.Hitbox.Intersecting(entity.Hitbox); }
 
     }
 

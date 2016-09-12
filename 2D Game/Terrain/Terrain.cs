@@ -9,9 +9,10 @@ namespace Game {
     }
     static class Terrain {
 
-        public static TexturedModel Model { get; private set; }
+        public static LightingTexturedModel Model { get; private set; }
 
-        private static Tile[,] Tiles;
+        internal static Tile[,] Tiles;
+        internal static int[,] Lightings;
         public static int MaxHeight { get; private set; }
         public static int MaxWidth { get; private set; }
 
@@ -20,23 +21,28 @@ namespace Game {
         private const int TerrainTextureSize = 16;
 
         public static void Init() {
-            Tiles = TerrainGen.Generate(314159);
+            TerrainGen.Generate(314159);
+
             MaxWidth = Tiles.GetLength(0) - 1;
             MaxHeight = Tiles.GetLength(1) - 1;
 
             VBO<Vector2> vertices;
             VBO<int> elements;
             VBO<Vector2> uvs;
-            CalculateMesh(out vertices, out elements, out uvs);
+            VBO<float> lightings;
+            CalculateMesh(out vertices, out elements, out uvs, out lightings);
+
 
             Texture texture = new Texture("Terrain/TerrainTextures.png");
-            Model = new TexturedModel(vertices, elements, BeginMode.TriangleStrip, texture, uvs);
+            Model = new LightingTexturedModel(vertices, elements, BeginMode.TriangleStrip, texture, uvs, lightings);
 
         }
 
-        public static void CalculateMesh(out VBO<Vector2> vertices, out VBO<int> elements, out VBO<Vector2> uvs) {
+        public static void CalculateMesh(out VBO<Vector2> vertices, out VBO<int> elements, out VBO<Vector2> uvs, out VBO<float> lightings) {
             List<Vector2> verticesList = new List<Vector2>();
             List<Vector2> uvList = new List<Vector2>();
+            TerrainGen.CalculateLighting();
+            List<float> lightingsList = new List<float>();
             for (int i = 0; i < Tiles.GetLength(0); i++) {
 
                 for (int j = 0; j < Tiles.GetLength(1); j++) {
@@ -47,6 +53,9 @@ namespace Game {
                         float y = ((float)((int)t / TerrainTextureSize)) / TerrainTextureSize;
                         float s = 1f / TerrainTextureSize;
                         float h = 1f / (TerrainTextureSize * TerrainTextureSize * 2);
+
+                        //top left, bottom left, top right, bottom right
+
                         verticesList.AddRange(new Vector2[] {
                             new Vector2(i,j+1),
                             new Vector2(i,j),
@@ -59,11 +68,16 @@ namespace Game {
                             new Vector2(x+s-h,y+s-h),
                             new Vector2(x+s-h,y+h)
                         });
+                        float val = (float)Lightings[i, j] / Light.MaxLightLevel;
+                        lightingsList.AddRange(new float[] {
+                            val,val,val,val
+                        });
                     }
                 }
             }
             vertices = new VBO<Vector2>(verticesList.ToArray(), Hint: BufferUsageHint.DynamicDraw);
             uvs = new VBO<Vector2>(uvList.ToArray());
+            lightings = new VBO<float>(lightingsList.ToArray());
 
             int[] elementsArr = new int[verticesList.Count];
             for (int i = 0; i < elementsArr.Length; i++) {
@@ -72,8 +86,6 @@ namespace Game {
             elements = new VBO<int>(elementsArr, BufferTarget.ElementArrayBuffer);
 
         }
-
-
 
         public static bool WillCollide(Entity entity, Vector2 offset) {
 
@@ -96,7 +108,7 @@ namespace Game {
             return false;
         }
 
-        public static bool IsColliding(Entity entity) => WillCollide(entity, Vector2.Zero);
+        public static bool IsColliding(Entity entity) { return WillCollide(entity, Vector2.Zero); }
 
         public static Vector2 CorrectTerrainCollision(Entity entity) {
             int height = -1;
@@ -125,9 +137,16 @@ namespace Game {
             return true;
         }
 
+        internal static int HighestPoint(int x) {
+            for (int i = Tiles.GetLength(1) - 1; i > 0; i--) {
+                if (Tiles[x, i] != Tile.Air) return i + 1;
+            }
+            return 1;
+        }
 
-        public static Tile TileAt(int x, int y) => Tiles[x, y];
-        public static Tile TileAt(float x, float y) => TileAt((int)x, (int)y);
+
+        public static Tile TileAt(int x, int y) { return x < 0 || x > MaxWidth || y < 0 || y > MaxHeight ? Tile.Air : Tiles[x, y]; }
+        public static Tile TileAt(float x, float y) { return TileAt((int)x, (int)y); }
 
         public static void BreakTile(int x, int y) {
             if (x < 0 || x > MaxWidth || y < 0 || y > MaxHeight) return;
@@ -147,9 +166,11 @@ namespace Game {
                 VBO<Vector2> vertices;
                 VBO<int> elements;
                 VBO<Vector2> uvs;
-                CalculateMesh(out vertices, out elements, out uvs);
+                VBO<float> lightings;
+                CalculateMesh(out vertices, out elements, out uvs, out lightings);
                 Model.Vertices = vertices;
                 Model.Elements = elements;
+                Model.Lightings = lightings;
                 Model.UVs = uvs;
             }
             TerrainChanged = false;
@@ -157,27 +178,37 @@ namespace Game {
 
     }
 
-    static class TerrainGen {
+    internal static class TerrainGen {
 
-        private static Tile[,] Tiles;
-        private static Random Rand;
+        internal static Random Rand;
 
         private static void SetTile(int x, int y, Tile tile) {
-            if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return;
-            Tiles[x, y] = tile;
+            if (x < 0 || x >= Terrain.Tiles.GetLength(0) || y < 0 || y >= Terrain.Tiles.GetLength(1)) return;
+            Terrain.Tiles[x, y] = tile;
         }
 
-        internal static Tile[,] Generate(int seed) {
+        private static void SetLighting(int x, int y, int lighting) {
+            if (x < 0 || x >= Terrain.Lightings.GetLength(0) || y < 0 || y >= Terrain.Lightings.GetLength(1)) return;
+            if (lighting > Terrain.Lightings[x, y]) Terrain.Lightings[x, y] = lighting;
+        }
+
+        internal static void Generate(int seed) {
             Rand = new Random(seed);
+
+            GenerateTerrain();
+        }
+
+        #region Terrain
+        private static void GenerateTerrain() {
             int size = 1000;
             int maxHeight = 20;
             int freq = 100;
             int wavelength = size / freq;
-            Tiles = new Tile[size, 256];
+            Terrain.Tiles = new Tile[size, 256];
 
-            for (int i = 0; i < Tiles.GetLength(0); i++) {
-                for (int j = 0; j < Tiles.GetLength(1); j++) {
-                    Tiles[i, j] = Tile.Air;
+            for (int i = 0; i < Terrain.Tiles.GetLength(0); i++) {
+                for (int j = 0; j < Terrain.Tiles.GetLength(1); j++) {
+                    SetTile(i, j, Tile.Air);
                 }
             }
 
@@ -190,9 +221,9 @@ namespace Game {
                     int x = i * wavelength + j;
 
                     for (int k = 0; k <= y; k++) {
-                        if (k <= y - 10 + 3 * Rand.NextDouble()) Tiles[x, k] = Tile.Stone;
-                        else if (k <= y - 3 + 2 * Rand.NextDouble()) Tiles[x, k] = Tile.Dirt;
-                        else Tiles[x, k] = Tile.Grass;
+                        if (k <= y - 10 + 3 * Rand.NextDouble()) SetTile(x, k, Tile.Stone);
+                        else if (k <= y - 3 + 2 * Rand.NextDouble()) SetTile(x, k, Tile.Dirt);
+                        else SetTile(x, k, Tile.Grass);
                     }
 
                     if (x == 0) continue;
@@ -205,14 +236,12 @@ namespace Game {
             }
 
             //generate bedrock
-            for (int i = 0; i < Tiles.GetLength(0); i++) {
+            for (int i = 0; i < Terrain.Tiles.GetLength(0); i++) {
                 int y = (int)(1 + 5 * Rand.NextDouble());
                 for (int j = 0; j < y; j++) {
-                    Tiles[i, j] = Tile.Bedrock;
+                    SetTile(i, j, Tile.Bedrock);
                 }
             }
-
-            return Tiles;
         }
 
         private static void Tree(int x, int y) {
@@ -253,6 +282,43 @@ namespace Game {
                 yPointer++;
             }
         }
+        #endregion Terrain
+
+        #region Lighting
+        internal static void CalculateLighting() {
+
+            Terrain.Lightings = new int[Terrain.Tiles.GetLength(0), Terrain.Tiles.GetLength(1)];
+
+            //calculate lightings for each tile
+            //sun lighting
+            for (int i = 0; i < Terrain.Tiles.GetLength(0); i++) {
+                int highest = Terrain.HighestPoint(i);
+                SpreadLighting(i, highest, Light.MaxLightLevel);
+            }
+            //artificial lighting
+
+        }
+
+
+        private static void SpreadLighting(int x, int y, int strength) {
+            for (int i = 0; i < strength; i++) {
+                DiamondLighting(x, y, i, strength - i);
+            }
+        }
+
+        private static void DiamondLighting(int x, int y, int radius, int strength) {
+            int i = 0;
+            for (int j = -radius; j <= radius; j++) {
+
+                SetLighting(x - i, y + j, strength);
+                SetLighting(x + i, y + j, strength);
+
+                if (j < 0) i++;
+                else i--;
+            }
+        }
+        #endregion Lighting
+
 
         private static int CatmullRomCubicInterpolate(float y0, float y1, float y2, float y3, float mu) {
             float a0, a1, a2, a3, mu2;

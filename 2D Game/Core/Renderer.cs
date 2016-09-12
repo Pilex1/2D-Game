@@ -111,9 +111,17 @@ namespace Game {
             TerrainShader.Use();
 
             TerrainShader["modelMatrix"].SetValue(Matrix4.Identity);
-            TexturedModel model = Terrain.Model;
+            LightingTexturedModel model = Terrain.Model;
             Gl.BindBufferToShaderAttribute(model.Vertices, TerrainShader, "vertexPosition");
             Gl.BindBufferToShaderAttribute(model.UVs, TerrainShader, "vertexUV");
+            Gl.BindBufferToShaderAttribute(model.Lightings, TerrainShader, "vertexLighting");
+
+            //uint location = (uint)Gl.GetAttribLocation(TerrainShader.ProgramID, "vertexLighting");
+            //Gl.EnableVertexAttribArray(location);
+            //Gl.BindBuffer(model.Lightings);
+            //Gl.VertexAttribPointer(location, 1, model.Lightings.PointerType, true, 0, IntPtr.Zero);
+
+
             Gl.BindBuffer(model.Elements);
             Gl.BindTexture(model.Texture);
             Gl.DrawElements(model.DrawingMode, model.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);

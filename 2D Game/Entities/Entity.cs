@@ -12,10 +12,11 @@ namespace Game {
         protected bool CorrectCollisions;
         protected bool UseGravity;
 
-        private float JumpPowerMax;
-        private float JumpPower = 0;
+        protected float JumpPowerMax;
+        private float Jump = 0;
+        protected bool Falling = false;
         private float dy = 0;
-        private const float gravity = 0.02f;
+        private const float gravity = 0.015f;
 
         private Vector2 position = new Vector2(0, 0);
         public Vector2 Position {
@@ -38,27 +39,32 @@ namespace Game {
             if (CorrectCollisions) CorrectTerrainCollision();
         }
 
-        public virtual Matrix4 ModelMatrix() => Matrix4.CreateTranslation(new Vector3(Position.x, Position.y, 0));
+        public virtual Matrix4 ModelMatrix() { return Matrix4.CreateTranslation(new Vector3(Position.x, Position.y, 0)); }
 
         public void MoveLeft() {
-            if (Terrain.WillCollide(this, new Vector2(-1,0))) Position = new Vector2((int)Position.x, Position.y);
+            if (Terrain.WillCollide(this, new Vector2(-1, 0))) Position = new Vector2((int)Position.x, Position.y);
             else Position += new Vector2(-Speed, 0);
         }
 
         public void MoveRight() {
             if (Terrain.WillCollide(this, new Vector2(1, 0))) Position = new Vector2((int)Position.x, Position.y);
-            else Position += new Vector2(Speed, 0); 
+            else Position += new Vector2(Speed, 0);
         }
 
         public void MoveUp() {
             if (UseGravity) {
-
-            }else {
+                if (!Falling && Jump <= JumpPowerMax && !Terrain.WillCollide(this, new Vector2(0, 1))) {
+                    Jump += Speed;
+                    Position += new Vector2(0, Speed);
+                } else {
+                    if (!Falling) Falling = true;
+                }
+            } else {
                 dy = 0;
                 if (Terrain.WillCollide(this, new Vector2(0, 1))) Position = new Vector2(Position.x, (int)Position.y);
                 else Position += new Vector2(0, Speed);
             }
-           
+
         }
 
         public void MoveDown() {
@@ -66,19 +72,21 @@ namespace Game {
             if (UseGravity) {
                 dy += gravity;
                 offset = new Vector2(0, -dy);
-            }else {
+            } else {
                 offset = new Vector2(0, -Speed);
             }
 
             if (Terrain.WillCollide(this, offset)) {
                 dy = 0;
+                Jump = 0;
+                Falling = false;
                 Position = new Vector2(Position.x, (int)(Position.y));
             } else {
                 Position += offset;
             }
         }
 
-        public bool InAir() => !Terrain.WillCollide(this, new Vector2(0, -Speed));
+        public bool InAir() { return !Terrain.WillCollide(this, new Vector2(0, -Speed)); }
 
         protected void CorrectTerrainCollision() {
             Position = Terrain.CorrectTerrainCollision(this);

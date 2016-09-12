@@ -33,7 +33,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="OpenGL">
+    <Reference Include="OpenGL, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\OpenGL.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -58,6 +59,7 @@
     <Compile Include="Core\Renderer.cs" />
     <Compile Include="Entities\Rectangle.cs" />
     <Compile Include="Entities\Shooter.cs" />
+    <Compile Include="Terrain\Light.cs" />
     <Compile Include="Terrain\Terrain.cs" />
     <Compile Include="Util\Math.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

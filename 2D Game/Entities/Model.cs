@@ -36,6 +36,14 @@ namespace Game.Entities {
         }
     }
 
+    class LightingTexturedModel :TexturedModel {
+        public VBO<float> Lightings { get; set; }
+
+        public LightingTexturedModel(VBO<Vector2> vertices, VBO<int> elements, BeginMode drawingMode, Texture texture, VBO<Vector2> uvs, VBO<float> lightings) : base(vertices, elements, drawingMode, texture, uvs) {
+            Lightings = lightings;
+        }
+    }
+
     class ColouredModel : Model {
         public VBO<Vector4> Colours { get; protected set; }
         public ColouredModel(VBO<Vector2> vertices, VBO<int> elements, VBO<Vector4> colours, BeginMode drawingMode):base(vertices,elements,drawingMode) {
