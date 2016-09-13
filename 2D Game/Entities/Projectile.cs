@@ -2,6 +2,8 @@
 using OpenGL;
 using System.Diagnostics;
 using Game.Entities;
+using Game.Assets;
+using Game.Terrains;
 
 namespace Game {
     class Projectile : Rectangle {
@@ -15,7 +17,7 @@ namespace Game {
 
         private static readonly float Sqrt2 = (float)Math.Sqrt(2);
 
-        public Projectile(Vector2 position, Vector2 velocity, Vector4 colour, int life) : base(new Vector2(1, 1), position, new Vector4[] { colour, colour, colour, colour }, new RectangularHitbox(position - new Vector2((1 - Sqrt2) / 2, (1 - Sqrt2) / 2), new Vector2(Sqrt2, Sqrt2)), 0) {
+        public Projectile(Vector2 position, Vector2 velocity, Vector4 colour, int life) : base(new Vector2(1, 1), position, new Vector4[] { colour, colour, colour, colour },PolygonMode.Fill, new RectangularHitbox(position - new Vector2((1 - Sqrt2) / 2, (1 - Sqrt2) / 2), new Vector2(Sqrt2, Sqrt2)), 0) {
             Velocity = velocity;
             Life = life;
             CorrectCollisions = false;

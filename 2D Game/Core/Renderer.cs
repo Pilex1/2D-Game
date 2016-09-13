@@ -5,6 +5,9 @@ using Game.Entities;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using Game.Interaction;
+using Game.Util;
+using Game.Terrains;
 
 namespace Game {
     static class Renderer {
@@ -18,14 +21,7 @@ namespace Game {
         public static Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(FOV, (float)Program.Width / Program.Height, Near, Far);
         public static Matrix4 viewMatrix;
 
-        private static PolygonMode drawingMode = PolygonMode.Fill;
-        public static PolygonMode DrawingMode {
-            get { return drawingMode; }
-            set {
-                drawingMode = value;
-                Gl.PolygonMode(MaterialFace.FrontAndBack, drawingMode);
-            }
-        }
+        public static BoolSwitch RenderWireframe = new BoolSwitch(false);
 
         public static void Init() {
             //GL Stuff
@@ -57,9 +53,6 @@ namespace Game {
             TerrainShader.Use();
             TerrainShader["projectionMatrix"].SetValue(projectionMatrix);
 
-            GuiShader.Use();
-            GuiShader["position"].SetValue(new Vector2(-1, -1));
-
         }
 
         private static void UpdateViewMatrix() {
@@ -77,17 +70,38 @@ namespace Game {
 
             RenderEntities();
             RenderTerrain();
-            RenderHealthbar();
+           // RenderGUIs();
         }
 
-        private static void RenderHealthbar() {
-            GuiShader.Use();
+        private static void RenderGUIs() {
+         //   GuiShader.Use();
 
-            Healthbar.CalculateVertices();
-            Gl.BindBufferToShaderAttribute(Healthbar.Vertices, GuiShader, "vertexPosition");
-            Gl.BindBufferToShaderAttribute(Healthbar.Colours, GuiShader, "colour");
-            Gl.BindBuffer(Healthbar.Elements);
-            Gl.DrawElements(BeginMode.TriangleStrip, Healthbar.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+         //   Healthbar.Update();
+        //    RenderInstanceGUI(Healthbar.Model, new Vector2((2-Healthbar.BarWidth)/2,0.01+Hotbar.Size));
+
+            //RenderInstanceGUI(Hotbar.TexturedItems, new Vector2((2 - Inventory.InvColumns * Hotbar.Size) / 2, 0));
+           // Gl.LineWidth(7);
+           // RenderInstanceGUI(Hotbar.Frame, new Vector2((2-Inventory.InvColumns*Hotbar.Size)/2,0));
+            //Gl.LineWidth(3);
+         //   RenderInstanceGUI(Hotbar.Background, new Vector2((2 - Inventory.InvColumns * Hotbar.Size) / 2, 0));
+            
+        }
+
+        private static void RenderInstanceGUI(Model model, Vector2 position) {
+            GuiShader["position"].SetValue(position);
+            Gl.BindBufferToShaderAttribute(model.Vertices, GuiShader, "vertexPosition");
+            if (model is ColouredModel) {
+                GuiShader["useTexture"].SetValue(false);
+                Gl.BindBufferToShaderAttribute(((ColouredModel)model).Colours, GuiShader, "colour");
+            } else if (model is TexturedModel) {
+                GuiShader["useTexture"].SetValue(true);
+                Gl.BindTexture(((TexturedModel)model).Texture);
+                Gl.BindBufferToShaderAttribute(((TexturedModel)model).UVs, GuiShader,"uv");
+            }
+            Gl.BindBuffer(model.Elements);
+            if (RenderWireframe.Value()) Gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+            else Gl.PolygonMode(MaterialFace.FrontAndBack, model.PolyMode);
+            Gl.DrawElements(model.DrawingMode, model.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
         }
 
         private static void RenderEntities() {
@@ -95,16 +109,20 @@ namespace Game {
 
             GameLogic.Entities.Add(Player.Instance);
             foreach (Entity entity in GameLogic.Entities) {
-                EntityShader["modelMatrix"].SetValue(entity.ModelMatrix());
-                //TODO: support for both coloured and textured models
-                ColouredModel model = (ColouredModel)entity.Model;
-
-                Gl.BindBufferToShaderAttribute(model.Vertices, EntityShader, "vertexPosition");
-                Gl.BindBufferToShaderAttribute(model.Colours, EntityShader, "colour");
-                Gl.BindBuffer(model.Elements);
-                Gl.DrawElements(model.DrawingMode, model.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+                RenderInstanceEntity(entity);
             }
             GameLogic.Entities.Remove(Player.Instance);
+        }
+
+        private static void RenderInstanceEntity(Entity entity) {
+            EntityShader["modelMatrix"].SetValue(entity.ModelMatrix());
+            ColouredModel model = (ColouredModel)entity.Model;
+            Gl.BindBufferToShaderAttribute(model.Vertices, EntityShader, "vertexPosition");
+            Gl.BindBufferToShaderAttribute(model.Colours, EntityShader, "colour");
+            Gl.BindBuffer(model.Elements);
+            if (RenderWireframe.Value()) Gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+            else Gl.PolygonMode(MaterialFace.FrontAndBack, model.PolyMode);
+            Gl.DrawElements(model.DrawingMode, model.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
         }
 
         private static void RenderTerrain() {
@@ -115,15 +133,10 @@ namespace Game {
             Gl.BindBufferToShaderAttribute(model.Vertices, TerrainShader, "vertexPosition");
             Gl.BindBufferToShaderAttribute(model.UVs, TerrainShader, "vertexUV");
             Gl.BindBufferToShaderAttribute(model.Lightings, TerrainShader, "vertexLighting");
-
-            //uint location = (uint)Gl.GetAttribLocation(TerrainShader.ProgramID, "vertexLighting");
-            //Gl.EnableVertexAttribArray(location);
-            //Gl.BindBuffer(model.Lightings);
-            //Gl.VertexAttribPointer(location, 1, model.Lightings.PointerType, true, 0, IntPtr.Zero);
-
-
             Gl.BindBuffer(model.Elements);
             Gl.BindTexture(model.Texture);
+            if (RenderWireframe.Value()) Gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+            else Gl.PolygonMode(MaterialFace.FrontAndBack, model.PolyMode);
             Gl.DrawElements(model.DrawingMode, model.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
         }
 

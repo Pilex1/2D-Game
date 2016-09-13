@@ -1,6 +1,7 @@
 ﻿using System;
 using OpenGL;
 using Game.Entities;
+using Game.Terrains;
 
 namespace Game {
     abstract class Entity {
@@ -43,18 +44,18 @@ namespace Game {
 
         public void MoveLeft() {
             if (Terrain.WillCollide(this, new Vector2(-1, 0))) Position = new Vector2((int)Position.x, Position.y);
-            else Position += new Vector2(-Speed, 0);
+            else Position += new Vector2(-Speed*GameLogic.DeltaTime, 0);
         }
 
         public void MoveRight() {
             if (Terrain.WillCollide(this, new Vector2(1, 0))) Position = new Vector2((int)Position.x, Position.y);
-            else Position += new Vector2(Speed, 0);
+            else Position += new Vector2(Speed * GameLogic.DeltaTime, 0);
         }
 
         public void MoveUp() {
             if (UseGravity) {
                 if (!Falling && Jump <= JumpPowerMax && !Terrain.WillCollide(this, new Vector2(0, 1))) {
-                    Jump += Speed;
+                    Jump += Speed* GameLogic.DeltaTime;
                     Position += new Vector2(0, Speed);
                 } else {
                     if (!Falling) Falling = true;
@@ -62,7 +63,7 @@ namespace Game {
             } else {
                 dy = 0;
                 if (Terrain.WillCollide(this, new Vector2(0, 1))) Position = new Vector2(Position.x, (int)Position.y);
-                else Position += new Vector2(0, Speed);
+                else Position += new Vector2(0, Speed * GameLogic.DeltaTime);
             }
 
         }
@@ -70,10 +71,10 @@ namespace Game {
         public void MoveDown() {
             Vector2 offset;
             if (UseGravity) {
-                dy += gravity;
+                dy += gravity * GameLogic.DeltaTime;
                 offset = new Vector2(0, -dy);
             } else {
-                offset = new Vector2(0, -Speed);
+                offset = new Vector2(0, -Speed * GameLogic.DeltaTime);
             }
 
             if (Terrain.WillCollide(this, offset)) {

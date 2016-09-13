@@ -2,13 +2,18 @@
 
 in vec2 vertexPosition;
 
+in vec2 uv;
 in vec4 colour;
+
+out vec2 outUV;
+out vec4 outColour;
 
 uniform vec2 position;
 
-out vec4 outColour;
+const vec2 offset = vec2(-1, -1);
 
 void main(void) {
-	gl_Position = vec4(position + vertexPosition, 0.0, 1.0);
+	gl_Position = vec4(offset + position + vertexPosition, 0.0, 1.0);
+	outUV = uv;
 	outColour = colour;
 }

@@ -4,25 +4,37 @@ using OpenGL;
 using Tao.FreeGlut;
 using System.Diagnostics;
 using Game.Entities;
+using Game.Terrains;
 
 namespace Game {
     static class GameLogic {
-        public static List<Entity> Entities { get; private set; } = new List<Entity>();
+        public static List<Entity> Entities { get; private set; }
         private static List<Entity> BatchEntities = new List<Entity>();
         private static List<Entity> BatchRemoveEntities = new List<Entity>();
 
+        private static Stopwatch Watch = new Stopwatch();
+        public static float DeltaTime { get; private set; }
+        private static float PrevTime;
+
         public static void Init() {
+            Entities = new List<Entity>();
+
             Terrain.Init();
             Player.Init();
             Renderer.Init();
-            Healthbar.Init(20);
             for (int i = 1;i <= 1; i++) {
-                AddEntity(new Shooter(new Vector2(i*20, 0), 50, 300));
+                //AddEntity(new Shooter(new Vector2(520, 0), 50, 300));
             }
             
         }
 
         public static void Update() {
+
+            Watch.Stop();
+            DeltaTime = (Watch.ElapsedMilliseconds - PrevTime) / 1000 * 60;
+            PrevTime = Watch.ElapsedMilliseconds;
+            Watch.Start();
+
             //new entities to be added to the world
             Entities.AddRange(BatchEntities);
             BatchEntities.Clear();
