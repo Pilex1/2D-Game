@@ -7,6 +7,9 @@ using Game.Assets;
 namespace Game.Terrains {
     static class Terrain {
 
+        public static bool UpdateLighting = true;
+        public static bool UpdatePosition = true;
+
         public static LightingTexturedModel Model { get; private set; }
 
         internal static Tile[,] Tiles;
@@ -15,8 +18,6 @@ namespace Game.Terrains {
 
         public static int MaxHeight { get; private set; }
         public static int MaxWidth { get; private set; }
-
-        private static bool RecalculateMesh = false;
 
         private const int TerrainTextureSize = 16;
 
@@ -29,23 +30,58 @@ namespace Game.Terrains {
             VBO<Vector2> vertices;
             VBO<int> elements;
             VBO<Vector2> uvs;
-            VBO<float> lightings;
-            CalculateMesh(Player.StartX,out vertices, out elements, out uvs, out lightings);
+            CalculateMesh(out vertices, out elements, out uvs);
 
+            Lighting.CalculateLighting();
+            VBO<float> lightings;
+            CalculateLightingMesh(out lightings);
 
             Texture texture = new Texture(Asset.TextureFile);
-            Model = new LightingTexturedModel(vertices, elements, BeginMode.TriangleStrip,PolygonMode.Fill, texture, uvs, lightings);
+            Model = new LightingTexturedModel(vertices, elements, BeginMode.TriangleStrip, PolygonMode.Fill, texture, uvs, lightings);
 
         }
 
-        public static void CalculateMesh(int posX, out VBO<Vector2> vertices, out VBO<int> elements, out VBO<Vector2> uvs, out VBO<float> lightings) {
+        public static void CalculateLightingMesh(out VBO<float> lightings) {
+            int posX, posY;
+            if (Player.Instance != null) {
+                posX = (int)Player.Instance.Position.x;
+                posY = (int)Player.Instance.Position.y;
+            } else {
+                posX = Player.StartX;
+                posY = Player.StartY;
+            }
+            List<float> lightingsList = new List<float>();
+            int startX = (int)(posX + Renderer.zoom / 2), endX = (int)(posX - Renderer.zoom / 2);
+            for (int i = startX >= 0 ? startX : 0; i <= (endX < Tiles.GetLength(0) ? endX : Tiles.GetLength(0) - 1); i++) {
+                int startY = (int)(posY + Renderer.zoom / 2 / Program.AspectRatio), endY = (int)(posY - Renderer.zoom / 2 / Program.AspectRatio);
+                for (int j = startY >= 0 ? startY : 0; j <= (endY < Tiles.GetLength(1) ? endY : Tiles.GetLength(1) - 1); j++) {
+                    if (Tiles[i, j] != Tile.Air) {
+                        float val = (float)Lightings[i, j] / Light.MaxLightLevel;
+                        lightingsList.AddRange(new float[] {
+                            val,val,val,val
+                        });
+                    }
+                }
+            }
+            lightings = new VBO<float>(lightingsList.ToArray());
+        }
+
+        public static void CalculateMesh(out VBO<Vector2> vertices, out VBO<int> elements, out VBO<Vector2> uvs) {
+            int posX, posY;
+            if (Player.Instance != null) {
+                posX = (int)Player.Instance.Position.x;
+                posY = (int)Player.Instance.Position.y;
+            }else {
+                posX = Player.StartX;
+                posY = Player.StartY;
+            }
             List<Vector2> verticesList = new List<Vector2>();
             List<Vector2> uvList = new List<Vector2>();
-            Lighting.CalculateLighting(posX);
-            List<float> lightingsList = new List<float>();
-            for (int i = (int)(posX-Renderer.zoom/2); i < (int)(posX+Renderer.zoom/2); i++) {
 
-                for (int j = 0; j < Tiles.GetLength(1); j++) {
+            int startX = (int)(posX + Renderer.zoom / 2), endX = (int)(posX - Renderer.zoom / 2);
+            for (int i = startX >= 0 ? startX : 0; i <= (endX < Tiles.GetLength(0) ? endX : Tiles.GetLength(0) - 1); i++) {
+                int startY = (int)(posY + Renderer.zoom / 2 / Program.AspectRatio), endY = (int)(posY - Renderer.zoom / 2 / Program.AspectRatio);
+                for (int j = startY >= 0 ? startY : 0; j <= (endY < Tiles.GetLength(1) ? endY : Tiles.GetLength(1) - 1); j++) {
                     if (Tiles[i, j] != Tile.Air) {
                         Tile t = Tiles[i, j];
 
@@ -55,7 +91,6 @@ namespace Game.Terrains {
                         float h = 1f / (TerrainTextureSize * TerrainTextureSize * 2);
 
                         //top left, bottom left, top right, bottom right
-
                         verticesList.AddRange(new Vector2[] {
                             new Vector2(i,j+1),
                             new Vector2(i,j),
@@ -68,28 +103,22 @@ namespace Game.Terrains {
                             new Vector2(x+s-h,y+s-h),
                             new Vector2(x+s-h,y+h)
                         });
-                        float val = (float)Lightings[i, j] / Light.MaxLightLevel;
-                        lightingsList.AddRange(new float[] {
-                            val,val,val,val
-                        });
                     }
                 }
             }
             vertices = new VBO<Vector2>(verticesList.ToArray(), Hint: BufferUsageHint.DynamicDraw);
-            uvs = new VBO<Vector2>(uvList.ToArray());
-            lightings = new VBO<float>(lightingsList.ToArray());
+            uvs = new VBO<Vector2>(uvList.ToArray(), Hint: BufferUsageHint.DynamicDraw);
 
             int[] elementsArr = new int[verticesList.Count];
             for (int i = 0; i < elementsArr.Length; i++) {
                 elementsArr[i] = i;
             }
-            elements = new VBO<int>(elementsArr, BufferTarget.ElementArrayBuffer);
-
+            elements = new VBO<int>(elementsArr, BufferTarget.ElementArrayBuffer, Hint: BufferUsageHint.DynamicDraw);
         }
+
 
         public static void AddLight(Light l) {
             Lights.Add(l);
-            RecalculateMesh = true;
         }
 
         public static bool WillCollide(Entity entity, Vector2 offset) {
@@ -157,28 +186,31 @@ namespace Game.Terrains {
             if (x < 0 || x > MaxWidth || y < 0 || y > MaxHeight) return;
             if (Tiles[x, y] == Tile.Bedrock) return;
             Tiles[x, y] = Tile.Air;
-            RecalculateMesh = true;
         }
 
         public static void SetTile(int x, int y, Tile tile) {
             if (x < 0 || x > MaxWidth || y < 0 || y > MaxHeight) return;
             Tiles[x, y] = tile;
-            RecalculateMesh = true;
         }
 
         public static void Update() {
-            if (RecalculateMesh) {
+            if (UpdatePosition) {
                 VBO<Vector2> vertices;
                 VBO<int> elements;
                 VBO<Vector2> uvs;
-                VBO<float> lightings;
-                CalculateMesh((int)Player.Instance.Position.x,out vertices, out elements, out uvs, out lightings);
+                CalculateMesh(out vertices, out elements, out uvs);
                 Model.Vertices = vertices;
                 Model.Elements = elements;
-                Model.Lightings = lightings;
                 Model.UVs = uvs;
             }
-            RecalculateMesh = false;
+            if (UpdateLighting) {
+                Lighting.CalculateLighting();
+                VBO<float> lightings;
+                CalculateLightingMesh(out lightings);
+                Model.Lightings = lightings;
+            }
+            UpdatePosition = false;
+            UpdateLighting = false;
         }
 
     }

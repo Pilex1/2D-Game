@@ -1,19 +1,34 @@
 ﻿using System;
 using Game.Assets;
+using Game.Util;
 
 namespace Game.Terrains {
     class Lighting {
        
-        internal static void CalculateLighting(int posX) {
+        internal static void CalculateLighting() {
 
+            int posX, posY;
+            if (Player.Instance != null) {
+                posX = (int)Player.Instance.Position.x;
+                posY = (int)Player.Instance.Position.y;
+            } else {
+                posX = Player.StartX;
+                posY = Player.StartY;
+            }
+
+            int min = (int)(posY + Renderer.zoom / 2 / Program.AspectRatio) - Light.MaxLightLevel;
+            int max = (int)(posY - Renderer.zoom / 2 / Program.AspectRatio) + Light.MaxLightLevel;
             Terrain.Lightings = new int[Terrain.Tiles.GetLength(0), Terrain.Tiles.GetLength(1)];
 
             //calculate lightings for each tile
             //sun lighting
-            for (int i = (int)(posX - Renderer.zoom / 2); i < (int)(posX + Renderer.zoom / 2); i++) {
+            for (int i = (int)(posX + Renderer.zoom / 2)-Light.MaxLightLevel; i <=(int)(posX - Renderer.zoom / 2)+Light.MaxLightLevel; i++) {
 
                 int top, bottom;
                 LightingRange(i, out top, out bottom);
+
+                MathUtil.ClampMin(ref bottom, min);
+                MathUtil.ClampMax(ref top, max);
 
                 for (int j = bottom; j <= top; j++) {
                     SpreadLighting(i, j, Light.MaxLightLevel);

@@ -70,21 +70,21 @@ namespace Game {
 
             RenderEntities();
             RenderTerrain();
-           // RenderGUIs();
+            RenderGUIs();
         }
 
         private static void RenderGUIs() {
-         //   GuiShader.Use();
+            GuiShader.Use();
 
-         //   Healthbar.Update();
-        //    RenderInstanceGUI(Healthbar.Model, new Vector2((2-Healthbar.BarWidth)/2,0.01+Hotbar.Size));
+            Healthbar.Update();
+            RenderInstanceGUI(Healthbar.Model, new Vector2((2 - Healthbar.BarWidth) / 2, 0.01 + Hotbar.Size));
 
-            //RenderInstanceGUI(Hotbar.TexturedItems, new Vector2((2 - Inventory.InvColumns * Hotbar.Size) / 2, 0));
-           // Gl.LineWidth(7);
-           // RenderInstanceGUI(Hotbar.Frame, new Vector2((2-Inventory.InvColumns*Hotbar.Size)/2,0));
-            //Gl.LineWidth(3);
-         //   RenderInstanceGUI(Hotbar.Background, new Vector2((2 - Inventory.InvColumns * Hotbar.Size) / 2, 0));
-            
+            RenderInstanceGUI(Hotbar.TexturedItems, new Vector2((2 - Inventory.InvColumns * Hotbar.Size) / 2, 0));
+            Gl.LineWidth(7);
+            RenderInstanceGUI(Hotbar.Frame, new Vector2((2 - Inventory.InvColumns * Hotbar.Size) / 2, 0));
+            Gl.LineWidth(3);
+           // RenderInstanceGUI(Hotbar.Background, new Vector2((2 - Inventory.InvColumns * Hotbar.Size) / 2, 0));
+
         }
 
         private static void RenderInstanceGUI(Model model, Vector2 position) {

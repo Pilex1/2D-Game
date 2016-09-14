@@ -45,32 +45,55 @@ namespace Game {
         }
 
         public override void Update() {
-            if (Keys[A]) Instance.MoveLeft();
-            if (Keys[D]) Instance.MoveRight();
+            if (Keys[A]) {
+                Instance.MoveLeft();
+                Terrain.UpdatePosition = true;
+                Terrain.UpdateLighting = true;
+            }
+            if (Keys[D]) {
+                Instance.MoveRight();
+                Terrain.UpdatePosition = true;
+                Terrain.UpdateLighting = true;
+            }
             if (Flying) {
                 UseGravity = false;
-                if (Keys[W]) Instance.MoveUp();
-                if (Keys[S]) Instance.MoveDown();
+                if (Keys[W]) {
+                    Instance.MoveUp();
+                    Terrain.UpdatePosition = true;
+                    Terrain.UpdateLighting = true;
+                }
+                if (Keys[S]) {
+                    Instance.MoveDown();
+                    Terrain.UpdatePosition = true;
+                    Terrain.UpdateLighting = true;
+                }
             } else {
                 UseGravity = true;
                 if (Keys[W]) {
                     Instance.MoveUp();
+                    Terrain.UpdatePosition = true;
+                    Terrain.UpdateLighting = true;
                 } else {
                     Falling = true;
                 }
-                Instance.MoveDown();
+                if (Instance.MoveDown()) {
+                    Terrain.UpdatePosition = true;
+                    Terrain.UpdateLighting = true;
+                }
             }
 
             if (Mouse[Left]) {
                 Vector2 v = RayCast(MouseX, MouseY);
                 Terrain.BreakTile((int)v.x, (int)v.y);
+                Terrain.UpdatePosition = true;
+                Terrain.UpdateLighting = true;
             }
             if (Mouse[Right]) {
                 Vector2 v = RayCast(MouseX, MouseY);
                 Terrain.SetTile((int)v.x, (int)v.y, Tile.Sand);
+                Terrain.UpdatePosition = true;
+                Terrain.UpdateLighting = true;
             }
-            Debug.WriteLine(Mouse[Left]);
-
             Hitbox.Position = Position;
         }
 

@@ -71,7 +71,7 @@ namespace Game.Interaction {
 
             Vector2[] uvsArr = new Vector2[verticesArr.GetLength(0)];
             for (int i = 0; i < Inventory.InvColumns; i++) {
-                Item t = Item.Sword;
+                Item t = (Item)i;
                 float x = ((float)((int)t % ItemTextureSize)) / ItemTextureSize;
                 float y = ((float)((int)t / ItemTextureSize)) / ItemTextureSize;
                 float s = 1f / ItemTextureSize;

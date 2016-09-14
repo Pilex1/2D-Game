@@ -56,7 +56,7 @@ namespace Game {
             if (UseGravity) {
                 if (!Falling && Jump <= JumpPowerMax && !Terrain.WillCollide(this, new Vector2(0, 1))) {
                     Jump += Speed* GameLogic.DeltaTime;
-                    Position += new Vector2(0, Speed);
+                    Position += new Vector2(0, Speed * GameLogic.DeltaTime);
                 } else {
                     if (!Falling) Falling = true;
                 }
@@ -68,7 +68,7 @@ namespace Game {
 
         }
 
-        public void MoveDown() {
+        public bool MoveDown() {
             Vector2 offset;
             if (UseGravity) {
                 dy += gravity * GameLogic.DeltaTime;
@@ -77,14 +77,16 @@ namespace Game {
                 offset = new Vector2(0, -Speed * GameLogic.DeltaTime);
             }
 
-            if (Terrain.WillCollide(this, offset)) {
+            if (Terrain.WillCollide(this, offset)||offset==Vector2.Zero) {
                 dy = 0;
                 Jump = 0;
                 Falling = false;
                 Position = new Vector2(Position.x, (int)(Position.y));
+                return false;
             } else {
                 Position += offset;
             }
+            return true;
         }
 
         public bool InAir() { return !Terrain.WillCollide(this, new Vector2(0, -Speed)); }

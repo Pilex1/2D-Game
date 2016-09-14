@@ -9,6 +9,7 @@ namespace Game {
     static class Program {
 
         public const int Width = 1280, Height = 720;
+        public const float AspectRatio = (float)Width / Height;
        
         static void Main() {
             Init();
@@ -22,7 +23,7 @@ namespace Game {
             Glut.glutInit();
             Glut.glutInitDisplayMode(Glut.GLUT_DOUBLE | Glut.GLUT_DEPTH);
             Glut.glutInitWindowSize(Width, Height);
-            Glut.glutCreateWindow("Plexico 2D Game - Copyright Alex Tan 2016");
+            Glut.glutCreateWindow("");
 
             Glut.glutDisplayFunc(delegate () { });
             Glut.glutIdleFunc(MainGameLoop);
