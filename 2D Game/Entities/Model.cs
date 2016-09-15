@@ -22,11 +22,11 @@ namespace Game.Entities {
         }
     }
 
-    class TexturedModel :Model {
+    class TexturedModel : Model {
         public Texture Texture { get; set; }
-        public VBO<Vector2 > UVs { get; set; }
+        public VBO<Vector2> UVs { get; set; }
 
-        public TexturedModel(VBO<Vector2> vertices, VBO<int> elements, VBO<Vector2> uvs, Texture texture, BeginMode drawingMode, PolygonMode polyMode) : base(vertices,elements,drawingMode, polyMode) {
+        public TexturedModel(VBO<Vector2> vertices, VBO<int> elements, VBO<Vector2> uvs, Texture texture, BeginMode drawingMode, PolygonMode polyMode) : base(vertices, elements, drawingMode, polyMode) {
             Texture = texture;
             UVs = uvs;
         }
@@ -38,7 +38,7 @@ namespace Game.Entities {
         }
     }
 
-    class LightingTexturedModel :TexturedModel {
+    class LightingTexturedModel : TexturedModel {
         public VBO<float> Lightings { get; set; }
 
         public LightingTexturedModel(VBO<Vector2> vertices, VBO<int> elements, BeginMode drawingMode, PolygonMode polyMode, Texture texture, VBO<Vector2> uvs, VBO<float> lightings) : base(vertices, elements, uvs, texture, drawingMode, polyMode) {
@@ -48,7 +48,7 @@ namespace Game.Entities {
 
     class ColouredModel : Model {
         public VBO<Vector4> Colours { get; protected set; }
-        public ColouredModel(VBO<Vector2> vertices, VBO<int> elements, VBO<Vector4> colours, BeginMode drawingMode, PolygonMode polyMode):base(vertices,elements,drawingMode, polyMode) {
+        public ColouredModel(VBO<Vector2> vertices, VBO<int> elements, VBO<Vector4> colours, BeginMode drawingMode, PolygonMode polyMode) : base(vertices, elements, drawingMode, polyMode) {
             Colours = colours;
         }
 
@@ -71,8 +71,26 @@ namespace Game.Entities {
             return new ColouredModel(vertices, elements, new VBO<Vector4>(colours), BeginMode.TriangleStrip, polyMode);
         }
 
-        public static ColouredModel CreateRectangle(Vector2 size, Vector4 colour, PolygonMode polyMode) { return CreateRectangle(size, new Vector4[] { colour, colour, colour, colour },polyMode); }
+        public static ColouredModel CreateRectangle(Vector2 size, Vector4 colour, PolygonMode polyMode) { return CreateRectangle(size, new Vector4[] { colour, colour, colour, colour }, polyMode); }
+
+        public static ColouredModel CreateWireframeRectangle(Vector2 size, Vector4[] colours) {
+            VBO<Vector2> vertices = new VBO<Vector2>(new Vector2[] {
+                new Vector2(0, size.y),
+                new Vector2(0, 0),
+                 new Vector2(size.x, 0),
+                new Vector2(size.x, size.y)
+            });
+            VBO<int> elements = new VBO<int>(new int[] {
+                0,1,2,3
+            }, BufferTarget.ElementArrayBuffer);
+
+            return new ColouredModel(vertices, elements, new VBO<Vector4>(colours), BeginMode.LineLoop, PolygonMode.Fill);
+        }
+
+        public static ColouredModel CreateWireframeRectangle(Vector2 size, Vector4 colour) {
+            return CreateWireframeRectangle(size, new Vector4[] { colour, colour, colour, colour });
+        }
+
+
     }
-
-
 }

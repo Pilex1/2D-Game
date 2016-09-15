@@ -83,18 +83,27 @@ namespace Game {
             }
 
             if (Mouse[Left]) {
-                Vector2 v = RayCast(MouseX, MouseY);
-                Terrain.BreakTile((int)v.x, (int)v.y);
-                Terrain.UpdatePosition = true;
-                Terrain.UpdateLighting = true;
+                if (Hotbar.CurrentlySelectedItem() == Item.None) {
+                    Vector2 v = RayCast(MouseX, MouseY);
+                    Terrain.BreakTile((int)v.x, (int)v.y);
+                    Terrain.UpdatePosition = true;
+                    Terrain.UpdateLighting = true;
+                }
             }
             if (Mouse[Right]) {
                 Vector2 v = RayCast(MouseX, MouseY);
-                Terrain.SetTile((int)v.x, (int)v.y, Tile.Sand);
+                int x = (int)v.x, y = (int)v.y;
+
+                if (Hotbar.CurrentlySelectedItem() == Item.None) {
+                    TileInteract.Interact(Terrain.TileAt(x, y), x, y);
+                } else {
+                    ItemInteract.Interact(Hotbar.CurrentlySelectedItem(), x, y);
+                }
                 Terrain.UpdatePosition = true;
                 Terrain.UpdateLighting = true;
             }
             Hitbox.Position = Position;
+            
         }
 
         public static void Damage(float hp) {
@@ -106,7 +115,8 @@ namespace Game {
         }
 
         private static void OnMouseScroll(int button, int dir, int x, int y) {
-
+            if (dir < 0) Hotbar.IncrSlot();
+            if (dir > 0) Hotbar.DecrSlot();
         }
 
         private static void OnMouseMove(int x, int y) {
@@ -118,6 +128,7 @@ namespace Game {
             if (button == Glut.GLUT_LEFT_BUTTON) {
                 Mouse[Left] = (state == Glut.GLUT_DOWN);
             }
+
             if (button == Glut.GLUT_RIGHT_BUTTON) {
                 Mouse[Right] = (state == Glut.GLUT_DOWN);
             }
@@ -138,7 +149,7 @@ namespace Game {
             Vector4 rayWorldTemp = inverseViewMatrix * eyeCoords;
             Vector2 rayWorld = new Vector2(rayWorldTemp.x, rayWorldTemp.y);
 
-            Vector2 intersectTerrain = Instance.Position - rayWorld * Renderer.zoom - new Vector2(0, 1);
+            Vector2 intersectTerrain = Instance.Position - rayWorld * Renderer.zoom-new Vector2(0,1);
             return intersectTerrain;
         }
 

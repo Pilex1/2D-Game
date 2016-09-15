@@ -182,10 +182,16 @@ namespace Game.Terrains {
         public static Tile TileAt(int x, int y) { return x < 0 || x > MaxWidth || y < 0 || y > MaxHeight ? Tile.Air : Tiles[x, y]; }
         public static Tile TileAt(float x, float y) { return TileAt((int)x, (int)y); }
 
-        public static void BreakTile(int x, int y) {
-            if (x < 0 || x > MaxWidth || y < 0 || y > MaxHeight) return;
-            if (Tiles[x, y] == Tile.Bedrock) return;
+        public static Tile BreakTile(int x, int y) {
+            if (x < 0 || x > MaxWidth || y < 0 || y > MaxHeight) return Tile.Air;
+            if (Tiles[x, y] == Tile.Bedrock) return Tile.Air;
+            Tile res = Tiles[x, y];
             Tiles[x, y] = Tile.Air;
+            return res;
+        }
+
+        public static void PlaceTile(int x, int y, Tile tile) {
+            if (TileAt(x, y) == Tile.Air) SetTile(x, y, tile);
         }
 
         public static void SetTile(int x, int y, Tile tile) {

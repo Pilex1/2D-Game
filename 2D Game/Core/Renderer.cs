@@ -77,14 +77,15 @@ namespace Game {
             GuiShader.Use();
 
             Healthbar.Update();
-            RenderInstanceGUI(Healthbar.Model, new Vector2((2 - Healthbar.BarWidth) / 2, 0.01 + Hotbar.Size));
+            RenderInstanceGUI(Healthbar.Model, new Vector2((2 - Healthbar.BarWidth) / 2, 0.01 + Hotbar.SizeY));
 
-            RenderInstanceGUI(Hotbar.TexturedItems, new Vector2((2 - Inventory.InvColumns * Hotbar.Size) / 2, 0));
             Gl.LineWidth(7);
-            RenderInstanceGUI(Hotbar.Frame, new Vector2((2 - Inventory.InvColumns * Hotbar.Size) / 2, 0));
+            RenderInstanceGUI(Hotbar.CurSelected, new Vector2((2 - Inventory.InvColumns * Hotbar.SizeX) / 2 + Hotbar.CurSelectedSlot * Hotbar.SizeX, 0));
+            RenderInstanceGUI(Hotbar.TexturedItems, new Vector2((2 - Inventory.InvColumns * Hotbar.SizeX) / 2, 0));
+            RenderInstanceGUI(Hotbar.Frame, new Vector2((2 - Inventory.InvColumns * Hotbar.SizeX) / 2, 0));
             Gl.LineWidth(3);
-           // RenderInstanceGUI(Hotbar.Background, new Vector2((2 - Inventory.InvColumns * Hotbar.Size) / 2, 0));
-
+            // RenderInstanceGUI(Hotbar.Background, new Vector2((2 - Inventory.InvColumns * Hotbar.Size) / 2, 0));
+           
         }
 
         private static void RenderInstanceGUI(Model model, Vector2 position) {

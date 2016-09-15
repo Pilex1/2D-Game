@@ -10,8 +10,11 @@ namespace Game {
 
         public const int Width = 1280, Height = 720;
         public const float AspectRatio = (float)Width / Height;
+
+        public static bool FullScreen { get; private set; }
        
         static void Main() {
+
             Init();
 
             Glut.glutMainLoop();
@@ -24,11 +27,22 @@ namespace Game {
             Glut.glutInitDisplayMode(Glut.GLUT_DOUBLE | Glut.GLUT_DEPTH);
             Glut.glutInitWindowSize(Width, Height);
             Glut.glutCreateWindow("");
+            //Glut.glutGameModeString(Width+"x"+Height+":32@60");
 
             Glut.glutDisplayFunc(delegate () { });
             Glut.glutIdleFunc(MainGameLoop);
 
             GameLogic.Init();
+        }
+
+        public static void EnterFullScreen() {
+            Glut.glutEnterGameMode();
+            FullScreen = true;
+        }
+
+        public static void ExitFullScreen() {
+            Glut.glutLeaveGameMode();
+            FullScreen = false;
         }
 
         private static void MainGameLoop() {

@@ -13,5 +13,9 @@ namespace Game.Util {
         public static void ClampMax(ref int x, int max) {
             Clamp(ref x, int.MinValue, max);
         }
+
+        public static int RandInt(int min, int max) {
+            return new Random().Next(max - min + 1) + min;
+        }
     }
 }

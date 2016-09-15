@@ -8,23 +8,29 @@ namespace Game.Interaction {
         public static ColouredModel Frame;
         public static ColouredModel Background;
         public static TexturedModel TexturedItems;
+        public static ColouredModel CurSelected;
 
-        public const float Size = 0.15f;
+        public static int CurSelectedSlot { get; private set; }
+
+        public const float SizeX = 2 * 64f / Program.Width;
+        public const float SizeY = 2 * 64f / Program.Height;
         public const float ItemTextureOffset = 0.01f;
 
         private const int ItemTextureSize = 16;
 
         internal static void Init() {
+            CurSelectedSlot = 0;
             InitFrame();
-            Background = ColouredModel.CreateRectangle(new Vector2(Size * Inventory.InvColumns, Size), new Vector4(0.9f, 0.85f, 1, 0), PolygonMode.Fill);
+            Background = ColouredModel.CreateRectangle(new Vector2(SizeX * Inventory.InvColumns, SizeY), new Vector4(0.9f, 0.85f, 1, 0), PolygonMode.Fill);
             InitTexturedItems();
+            CurSelected = ColouredModel.CreateWireframeRectangle(new Vector2(SizeX, SizeY), new Vector4(0, 0, 1, 0));
         }
 
         private static void InitFrame() {
             Vector2[] verticesArr = new Vector2[2 * (Inventory.InvColumns + 1)];
             for (int i = 0; i < Inventory.InvColumns + 1; i++) {
-                verticesArr[i * 2] = new Vector2(i * Size, Size);
-                verticesArr[i * 2 + 1] = new Vector2(i * Size, 0);
+                verticesArr[i * 2] = new Vector2(i * SizeX, SizeY);
+                verticesArr[i * 2 + 1] = new Vector2(i * SizeX, 0);
             }
             VBO<Vector2> vertices = new VBO<Vector2>(verticesArr);
 
@@ -51,10 +57,10 @@ namespace Game.Interaction {
             Vector2[] verticesArr = new Vector2[4 * Inventory.InvColumns];
             for (int i = 0; i < Inventory.InvColumns; i++) {
                 //topleft, bottomleft, topright, bottomright
-                verticesArr[i * 4] = new Vector2(i * Size + ItemTextureOffset, Size - ItemTextureOffset);
-                verticesArr[i * 4 + 1] = new Vector2(i * Size + ItemTextureOffset, ItemTextureOffset);
-                verticesArr[i * 4 + 2] = new Vector2((i + 1) * Size - ItemTextureOffset, Size - ItemTextureOffset);
-                verticesArr[i * 4 + 3] = new Vector2((i + 1) * Size - ItemTextureOffset, ItemTextureOffset);
+                verticesArr[i * 4] = new Vector2(i * SizeX + ItemTextureOffset, SizeY - ItemTextureOffset);
+                verticesArr[i * 4 + 1] = new Vector2(i * SizeX + ItemTextureOffset, ItemTextureOffset);
+                verticesArr[i * 4 + 2] = new Vector2((i + 1) * SizeX - ItemTextureOffset, SizeY - ItemTextureOffset);
+                verticesArr[i * 4 + 3] = new Vector2((i + 1) * SizeX - ItemTextureOffset, ItemTextureOffset);
             }
             VBO<Vector2> vertices = new VBO<Vector2>(verticesArr);
 
@@ -69,9 +75,17 @@ namespace Game.Interaction {
             }
             VBO<int> elements = new VBO<int>(elementsArr, BufferTarget.ElementArrayBuffer);
 
-            Vector2[] uvsArr = new Vector2[verticesArr.GetLength(0)];
+           VBO<Vector2> uvs = CalcTexturedItemsUV();
+
+            Texture texture = new Texture(Asset.ItemFile);
+
+            TexturedItems = new TexturedModel(vertices, elements, uvs, texture, BeginMode.Triangles, PolygonMode.Fill);
+        }
+
+        private static VBO<Vector2> CalcTexturedItemsUV() {
+            Vector2[] uvsArr = new Vector2[4 * Inventory.InvColumns];
             for (int i = 0; i < Inventory.InvColumns; i++) {
-                Item t = (Item)i;
+                Item t = Inventory.Items[i, 0].Item1;
                 float x = ((float)((int)t % ItemTextureSize)) / ItemTextureSize;
                 float y = ((float)((int)t / ItemTextureSize)) / ItemTextureSize;
                 float s = 1f / ItemTextureSize;
@@ -82,22 +96,47 @@ namespace Game.Interaction {
                 uvsArr[i * 4 + 3] = new Vector2(x + s - h, y + h);
             }
             VBO<Vector2> uvs = new VBO<Vector2>(uvsArr);
-
-            Texture texture = new Texture(Asset.ItemFile);
-
-            TexturedItems = new TexturedModel(vertices, elements, uvs, texture, BeginMode.Triangles, PolygonMode.Fill);
+            return uvs;
         }
 
+        public static void IncrSlot() {
+            CurSelectedSlot++;
+            if (CurSelectedSlot >= Inventory.InvColumns) CurSelectedSlot = 0;
+        }
+
+        public static void DecrSlot() {
+            CurSelectedSlot--;
+            if (CurSelectedSlot < 0) CurSelectedSlot = Inventory.InvColumns-1;
+        }
+
+        public static void Update() {
+            VBO<Vector2> uvs = CalcTexturedItemsUV();
+            TexturedItems.UVs = uvs;
+        }
+
+        public static Item CurrentlySelectedItem() {
+            return Inventory.Items[CurSelectedSlot, 0].Item1;
+        }
     }
     static class Inventory {
         internal const int InvColumns = 9, InvRows = 6;
-        internal static Tuple<Item, uint>[,] items = new Tuple<Item, uint>[InvColumns, InvRows];
+        internal static Tuple<Item, uint>[,] Items = new Tuple<Item, uint>[InvColumns, InvRows];
 
         public static void Init() {
+            for (int i = 0; i < Items.GetLength(0); i++) {
+                for (int j = 0; j < Items.GetLength(1); j++) {
+                    Items[i, j] = new Tuple<Item, uint>(Item.None, 0);
+                }
+            }
+
             Hotbar.Init();
+
+            for (int i = 0; i < 7; i++) {
+                Items[i, 0] = new Tuple<Item, uint>((Item)i, 1);
+            }
+            Items[7, 0] = new Tuple<Item, uint>(Item.Tnt, 1);
+
+            Hotbar.Update();
         }
-    }
-    enum Item {
-        PurpleStone, Grass, Sand, Dirt, Wood, Leaf, Stone, Bedrock, Sword
     }
 }

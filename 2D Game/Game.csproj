@@ -49,7 +49,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Asset.cs" />
-    <Compile Include="Assets\Enums.cs" />
+    <Compile Include="Assets\Item.cs" />
+    <Compile Include="Assets\Tile.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\Hitbox.cs" />
     <Compile Include="Entities\Model.cs" />
