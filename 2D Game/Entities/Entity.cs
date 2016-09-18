@@ -17,7 +17,7 @@ namespace Game {
         private float Jump = 0;
         protected bool Falling = false;
         private float dy = 0;
-        private const float gravity = 0.015f;
+        private const float gravity = 0.008f;
 
         private Vector2 position = new Vector2(0, 0);
         public Vector2 Position {
@@ -43,27 +43,31 @@ namespace Game {
         public virtual Matrix4 ModelMatrix() { return Matrix4.CreateTranslation(new Vector3(Position.x, Position.y, 0)); }
 
         public void MoveLeft() {
-            if (Terrain.WillCollide(this, new Vector2(-1, 0))) Position = new Vector2((int)Position.x, Position.y);
-            else Position += new Vector2(-Speed*GameLogic.DeltaTime, 0);
+            Vector2 offset = new Vector2(-Speed * GameLogic.DeltaTime, 0);
+            if (Terrain.WillCollide(this, offset)) Position = new Vector2((int)Position.x, Position.y);
+            else Position += offset;
         }
 
         public void MoveRight() {
-            if (Terrain.WillCollide(this, new Vector2(1, 0))) Position = new Vector2((int)Position.x, Position.y);
-            else Position += new Vector2(Speed * GameLogic.DeltaTime, 0);
+            Vector2 offset = new Vector2(Speed * GameLogic.DeltaTime, 0);
+            if (Terrain.WillCollide(this, offset)) Position = new Vector2((int)Math.Ceiling(position.x), Position.y);
+            else Position += offset;
         }
 
         public void MoveUp() {
             if (UseGravity) {
-                if (!Falling && Jump <= JumpPowerMax && !Terrain.WillCollide(this, new Vector2(0, 1))) {
-                    Jump += Speed* GameLogic.DeltaTime;
-                    Position += new Vector2(0, Speed * GameLogic.DeltaTime);
+                Jump += Speed * GameLogic.DeltaTime;
+                Vector2 offset = new Vector2(0, Speed * GameLogic.DeltaTime);
+                if (!Falling && Jump <= JumpPowerMax && !Terrain.WillCollide(this, offset)) {
+                    Position += offset;
                 } else {
                     if (!Falling) Falling = true;
                 }
             } else {
                 dy = 0;
-                if (Terrain.WillCollide(this, new Vector2(0, 1))) Position = new Vector2(Position.x, (int)Position.y);
-                else Position += new Vector2(0, Speed * GameLogic.DeltaTime);
+                Vector2 offset = new Vector2(0, Speed * GameLogic.DeltaTime);
+                if (Terrain.WillCollide(this, offset)) Position = new Vector2(Position.x, (int)Math.Ceiling(Position.y));
+                else Position += offset;
             }
 
         }

@@ -17,8 +17,8 @@ namespace Game {
         public const int W = 0, A = 1, S = 2, D = 3, Space = 4;
         public const int Left = 0, Middle = 1, Right = 2;
 
-        public const int StartX = 500, StartY = 0;
-
+        public const int StartX = 580, StartY = 0;
+        
         public static Player Instance { get; private set; }
 
         private static bool Flying = false;
@@ -47,38 +47,32 @@ namespace Game {
         public override void Update() {
             if (Keys[A]) {
                 Instance.MoveLeft();
-                Terrain.UpdatePosition = true;
-                Terrain.UpdateLighting = true;
+                Terrain.UpdateMesh = true;
             }
             if (Keys[D]) {
                 Instance.MoveRight();
-                Terrain.UpdatePosition = true;
-                Terrain.UpdateLighting = true;
+                Terrain.UpdateMesh = true;
             }
             if (Flying) {
                 UseGravity = false;
                 if (Keys[W]) {
                     Instance.MoveUp();
-                    Terrain.UpdatePosition = true;
-                    Terrain.UpdateLighting = true;
+                    Terrain.UpdateMesh = true;
                 }
                 if (Keys[S]) {
                     Instance.MoveDown();
-                    Terrain.UpdatePosition = true;
-                    Terrain.UpdateLighting = true;
+                    Terrain.UpdateMesh = true;
                 }
             } else {
                 UseGravity = true;
                 if (Keys[W]) {
                     Instance.MoveUp();
-                    Terrain.UpdatePosition = true;
-                    Terrain.UpdateLighting = true;
+                    Terrain.UpdateMesh = true;
                 } else {
                     Falling = true;
                 }
                 if (Instance.MoveDown()) {
-                    Terrain.UpdatePosition = true;
-                    Terrain.UpdateLighting = true;
+                    Terrain.UpdateMesh = true;
                 }
             }
 
@@ -86,8 +80,6 @@ namespace Game {
                 if (Hotbar.CurrentlySelectedItem() == Item.None) {
                     Vector2 v = RayCast(MouseX, MouseY);
                     Terrain.BreakTile((int)v.x, (int)v.y);
-                    Terrain.UpdatePosition = true;
-                    Terrain.UpdateLighting = true;
                 }
             }
             if (Mouse[Right]) {
@@ -99,8 +91,6 @@ namespace Game {
                 } else {
                     ItemInteract.Interact(Hotbar.CurrentlySelectedItem(), x, y);
                 }
-                Terrain.UpdatePosition = true;
-                Terrain.UpdateLighting = true;
             }
             Hitbox.Position = Position;
             
@@ -142,14 +132,14 @@ namespace Game {
             float y = 1.0f - (2.0f * my) / Program.Height;
             Vector2 normalizedCoords = new Vector2(x, y);
             Vector4 clipCoords = new Vector4(normalizedCoords.x, normalizedCoords.y, -1, 1);
-            Vector4 eyeCoords = Renderer.projectionMatrix.Inverse() * clipCoords;
+            Vector4 eyeCoords = GameRenderer.projectionMatrix.Inverse() * clipCoords;
             eyeCoords.z = -1;
             eyeCoords.w = 0;
-            Matrix4 inverseViewMatrix = Renderer.viewMatrix.Inverse();
+            Matrix4 inverseViewMatrix = GameRenderer.viewMatrix.Inverse();
             Vector4 rayWorldTemp = inverseViewMatrix * eyeCoords;
             Vector2 rayWorld = new Vector2(rayWorldTemp.x, rayWorldTemp.y);
 
-            Vector2 intersectTerrain = Instance.Position - rayWorld * Renderer.zoom-new Vector2(0,1);
+            Vector2 intersectTerrain = Instance.Position - rayWorld * GameRenderer.zoom-new Vector2(0,1);
             return intersectTerrain;
         }
 
@@ -160,7 +150,7 @@ namespace Game {
             if (key == 'd') Keys[D] = true;
             if (key == ' ') Keys[Space] = true;
             if (key == 'f') Flying = !Flying;
-            if (key == 'r') Renderer.RenderWireframe.Toggle();
+            if (key == 'r') GameRenderer.RenderWireframe.Toggle();
             if (key == 'e') GameLogic.RemoveAllEntities();
             if (key == 27) Glut.glutLeaveMainLoop();
         }
@@ -174,7 +164,16 @@ namespace Game {
 
         public static Vector2 ToPlayer(Vector2 pos) { return new Vector2(Instance.Position.x - pos.x, Instance.Position.y - pos.y).Normalize(); }
 
-        public static bool Intersecting(Entity entity) { return Instance.Hitbox.Intersecting(entity.Hitbox); }
+        public static bool InRange(Entity entity, float maxDist) {
+            float x = entity.Position.x, y = entity.Position.y;
+            return (Instance.Position.x - x) * (Instance.Position.x - x) + (Instance.Position.y - y) * (Instance.Position.y - y) <= maxDist;
+        }
+
+        public static bool Intersecting(Entity entity) {
+            return Instance.Hitbox.Intersecting(entity.Hitbox);
+        }
+
+
 
     }
 }

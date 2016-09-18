@@ -1,5 +1,6 @@
-﻿using System;
+﻿using Game.Util;
 using OpenGL;
+using System.Drawing;
 
 namespace Game.Entities {
     abstract class Model {
@@ -35,6 +36,36 @@ namespace Game.Entities {
             base.Dispose();
             Texture.Dispose();
             UVs.Dispose();
+        }
+
+        public static TexturedModel CreateWireframeRectangle(Vector2 size, Vector4 colour) {
+            return CreateWireframeRectangle(size, new Vector4[] { colour, colour, colour, colour });
+        }
+
+        public static TexturedModel CreateWireframeRectangle(Vector2 size, Vector4[] colours) {
+            var vertices = new VBO<Vector2>(new Vector2[] {
+                new Vector2(0, size.y),
+                new Vector2(0, 0),
+                 new Vector2(size.x, 0),
+                new Vector2(size.x, size.y)
+            });
+            var uvs = new VBO<Vector2>(new Vector2[] {
+                new Vector2(0,1),
+                new Vector2(0,0),
+                new Vector2(1,0),
+                new Vector2(1,1)
+            });
+            Bitmap bmp = new Bitmap(2, 2);
+            bmp.SetPixel(0, 1, ColourUtil.ColourFromVec4(colours[0]));
+            bmp.SetPixel(0, 0, ColourUtil.ColourFromVec4(colours[1]));
+            bmp.SetPixel(1, 0, ColourUtil.ColourFromVec4(colours[2]));
+            bmp.SetPixel(1, 1, ColourUtil.ColourFromVec4(colours[3]));
+            Texture texture = new Texture(bmp);
+            var elements = new VBO<int>(new int[] {
+                0,1,2,3
+            }, BufferTarget.ElementArrayBuffer);
+
+            return new TexturedModel(vertices, elements, uvs, texture, BeginMode.LineLoop, PolygonMode.Fill);
         }
     }
 

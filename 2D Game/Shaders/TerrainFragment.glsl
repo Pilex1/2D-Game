@@ -9,5 +9,7 @@ uniform sampler2D texture;
 out vec4 fragment;
 
 void main(void) {
-	fragment = lighting * texture2D(texture, uv);
+	vec4 tex = texture2D(texture, uv);
+	if (tex.w == 0) discard;
+	fragment = lighting * tex;
 }

@@ -6,7 +6,7 @@ namespace Game {
     class Shooter : Rectangle {
 
         private int ShootCooldown;
-        private int ShootCooldownTime;
+        private float ShootCooldownTime=0;
 
         private int ProjectileLife;
 
@@ -18,12 +18,12 @@ namespace Game {
         }
 
         public override void Update() {
-            if (ShootCooldownTime == 0) {
-                Projectile proj = new Projectile(Position, (Player.ToPlayer(Position)) / 5, new Vector4(0, 1, 0, 1), ProjectileLife);
-                proj.Position += proj.Velocity;
+            if (ShootCooldownTime >= ShootCooldown) {
+                Projectile proj = new Projectile(Position, (Player.ToPlayer(Position)) / 5, new Vector4(0, 1, 0, 1), ProjectileLife,0.05f);
+                proj.Position += proj.Velocity*GameLogic.DeltaTime;
                 if (!Terrain.IsColliding(proj)) GameLogic.AddEntity(proj);
-                ShootCooldownTime = ShootCooldown;
-            } else ShootCooldownTime--;
+                ShootCooldownTime = 0;
+            } else ShootCooldownTime+=GameLogic.DeltaTime;
             MoveDown();
         }
     }

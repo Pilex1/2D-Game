@@ -1,14 +1,15 @@
-﻿using System;
-using OpenGL;
+﻿using Game.Assets;
 using Game.Entities;
-using Game.Assets;
+using Game.Util;
+using OpenGL;
+using System;
+using System.Drawing;
 
 namespace Game.Interaction {
     static class Hotbar {
-        public static ColouredModel Frame;
-        public static ColouredModel Background;
+        public static TexturedModel Frame;
         public static TexturedModel TexturedItems;
-        public static ColouredModel CurSelected;
+        public static TexturedModel CurSelected;
 
         public static int CurSelectedSlot { get; private set; }
 
@@ -21,9 +22,8 @@ namespace Game.Interaction {
         internal static void Init() {
             CurSelectedSlot = 0;
             InitFrame();
-            Background = ColouredModel.CreateRectangle(new Vector2(SizeX * Inventory.InvColumns, SizeY), new Vector4(0.9f, 0.85f, 1, 0), PolygonMode.Fill);
             InitTexturedItems();
-            CurSelected = ColouredModel.CreateWireframeRectangle(new Vector2(SizeX, SizeY), new Vector4(0, 0, 1, 0));
+            CurSelected = TexturedModel.CreateWireframeRectangle(new Vector2(SizeX, SizeY), new Vector4(0, 0, 1, 1));
         }
 
         private static void InitFrame() {
@@ -44,13 +44,13 @@ namespace Game.Interaction {
             elementsArr[2 * (Inventory.InvColumns + 1) + 3] = 2 * (Inventory.InvColumns + 1) - 1;
             VBO<int> elements = new VBO<int>(elementsArr, BufferTarget.ElementArrayBuffer);
 
-            Vector4[] coloursArr = new Vector4[verticesArr.GetLength(0)];
-            for (int i = 0; i < coloursArr.GetLength(0); i++) {
-                coloursArr[i] = new Vector4(0, 0, 0.1, 0);
+            Texture texture = ColourUtil.TexFromColour(new Vector4(0,0,0.1,1));
+            Vector2[] uvs = new Vector2[verticesArr.Length];
+            for (int i = 0; i < uvs.Length; i++) {
+                uvs[i] = new Vector2(0, 0);
             }
-            VBO<Vector4> colours = new VBO<Vector4>(coloursArr);
 
-            Frame = new ColouredModel(vertices, elements, colours, BeginMode.Lines, PolygonMode.Line);
+            Frame = new TexturedModel(vertices, elements, new VBO<Vector2>(uvs), texture, BeginMode.Lines, PolygonMode.Line);
         }
 
         private static void InitTexturedItems() {
@@ -75,7 +75,7 @@ namespace Game.Interaction {
             }
             VBO<int> elements = new VBO<int>(elementsArr, BufferTarget.ElementArrayBuffer);
 
-           VBO<Vector2> uvs = CalcTexturedItemsUV();
+            VBO<Vector2> uvs = CalcTexturedItemsUV();
 
             Texture texture = new Texture(Asset.ItemFile);
 
@@ -106,7 +106,7 @@ namespace Game.Interaction {
 
         public static void DecrSlot() {
             CurSelectedSlot--;
-            if (CurSelectedSlot < 0) CurSelectedSlot = Inventory.InvColumns-1;
+            if (CurSelectedSlot < 0) CurSelectedSlot = Inventory.InvColumns - 1;
         }
 
         public static void Update() {
@@ -131,10 +131,11 @@ namespace Game.Interaction {
 
             Hotbar.Init();
 
-            for (int i = 0; i < 7; i++) {
+            for (int i = 0; i < 5; i++) {
                 Items[i, 0] = new Tuple<Item, uint>((Item)i, 1);
             }
-            Items[7, 0] = new Tuple<Item, uint>(Item.Tnt, 1);
+            Items[5, 0] = new Tuple<Item, uint>(Item.Tnt, 1);
+            Items[6, 0] = new Tuple<Item, uint>(Item.Sapling, 1);
 
             Hotbar.Update();
         }

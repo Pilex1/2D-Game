@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Game.Entities;
 using OpenGL;
-using Game.Entities;
+using System.Drawing;
 
 namespace Game.Interaction {
     static class Healthbar {
@@ -11,7 +11,7 @@ namespace Game.Interaction {
         public static bool Dead { get; private set; }
 
         public const float BarWidth = 0.75f, BarHeight = 0.075f;
-        public static ColouredModel Model;
+        public static TexturedModel Model;
 
         public static void Init(float maxHealth) {
 
@@ -21,12 +21,17 @@ namespace Game.Interaction {
             Health = MaxHealth = maxHealth;
 
             VBO<Vector2> vertices = CalculateVertices();
-            VBO<Vector4> colours = new VBO<Vector4>(new Vector4[] { new Vector4(1, 0, 0, 1), new Vector4(1, 0, 0, 1), new Vector4(1, 0, 0, 1), new Vector4(1, 0, 0, 1), });
+            Bitmap bmp = new Bitmap(1, 1);
+            bmp.SetPixel(0, 0, Color.DarkRed);
+            Texture texture = new Texture(bmp);
+            VBO<Vector2> uvs = new VBO<Vector2>(new Vector2[] {
+               new Vector2(0,0)
+           });
             VBO<int> elements = new VBO<int>(new int[] {
                 0,1,2,3
             }, BufferTarget.ElementArrayBuffer);
 
-            Model = new ColouredModel(vertices, elements, colours, BeginMode.TriangleStrip, PolygonMode.Fill);
+            Model = new TexturedModel(vertices, elements, uvs, texture, BeginMode.TriangleStrip, PolygonMode.Fill);
         }
 
         public static void Update() {
@@ -34,7 +39,7 @@ namespace Game.Interaction {
         }
 
         private static VBO<Vector2> CalculateVertices() {
-           return new VBO<Vector2>(new Vector2[] {
+            return new VBO<Vector2>(new Vector2[] {
                 new Vector2(0,BarHeight),
                 new Vector2(0,0),
                  new Vector2(BarWidth * Health/MaxHealth,BarHeight),
@@ -50,6 +55,9 @@ namespace Game.Interaction {
             if (!Dead) {
                 Health += hp;
                 if (Health > MaxHealth) Health = MaxHealth;
+            } else {
+                //TODO
+                Revive();
             }
         }
 
@@ -60,6 +68,6 @@ namespace Game.Interaction {
                 Deaths++;
             }
         }
-        
+
     }
 }

@@ -24,15 +24,14 @@ namespace Game {
 
             Terrain.Init();
             Player.Init();
-            Renderer.Init();
+            GameRenderer.Init();
             for (int i = 1;i <= 1; i++) {
-                //AddEntity(new Shooter(new Vector2(520, 0), 50, 300));
+             //  AddEntity(new Shooter(new Vector2(475, 0), 50, 150));
             }
             
         }
 
         public static void Update() {
-
             Watch.Stop();
             ActualDeltaTime = (Watch.ElapsedMilliseconds - PrevTime) / 1000;
             PrevTime = Watch.ElapsedMilliseconds;
@@ -58,12 +57,15 @@ namespace Game {
 
             //update the player movement
             Player.Instance.Update();
-            Player.Heal(0.0005f);
+            Player.Heal(0.0005f*DeltaTime);
+            //Debug.WriteLine(Player.Instance.Position);
 
             //update entities
             foreach (Entity entity in Entities) {
                 entity.Update();
             }
+
+
 
             //update terrain
             Terrain.Update();
@@ -83,7 +85,7 @@ namespace Game {
         }
 
         public static void Render() {
-            Renderer.Render();
+            GameRenderer.Render();
         }
 
         public static void Deinit() {

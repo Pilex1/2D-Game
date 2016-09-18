@@ -4,6 +4,8 @@ using Tao.FreeGlut;
 using System.IO;
 using System.Text;
 using System.Diagnostics;
+using System.Threading;
+using Game.Util;
 
 namespace Game {
     static class Program {
@@ -14,7 +16,6 @@ namespace Game {
         public static bool FullScreen { get; private set; }
        
         static void Main() {
-
             Init();
 
             Glut.glutMainLoop();

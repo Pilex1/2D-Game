@@ -7,7 +7,7 @@
     <ProjectGuid>{2843FB7B-F229-4450-A1DA-42D371C96B65}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>_2D_Game</RootNamespace>
+    <RootNamespace>Game</RootNamespace>
     <AssemblyName>2D Game</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -61,15 +61,18 @@
     <Compile Include="Core\Program.cs" />
     <Compile Include="Entities\Projectile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Core\Renderer.cs" />
+    <Compile Include="Core\GameRenderer.cs" />
     <Compile Include="Entities\Rectangle.cs" />
     <Compile Include="Entities\Shooter.cs" />
     <Compile Include="Terrains\Light.cs" />
     <Compile Include="Terrains\Lighting.cs" />
     <Compile Include="Terrains\Terrain.cs" />
     <Compile Include="Terrains\TerrainGen.cs" />
+    <Compile Include="TitleScreen\Button.cs" />
+    <Compile Include="TitleScreen\TSRenderer.cs" />
     <Compile Include="Util\BoolSwitch.cs" />
-    <Compile Include="Util\Math.cs" />
+    <Compile Include="Util\ColourUtil.cs" />
+    <Compile Include="Util\MathUtil.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -78,7 +81,9 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="Assets\Chiller.fnt" />
     <None Include="Shaders\EntityFragment.glsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -106,17 +111,21 @@
     <None Include="Shaders\TerrainVertex.glsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Shaders\TSFragment.glsl" />
+    <None Include="Shaders\TSVertex.glsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\Chiller.png" />
     <Content Include="Assets\ItemTextures.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\TerrainTextures.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Todo.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

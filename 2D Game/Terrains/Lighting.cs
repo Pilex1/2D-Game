@@ -1,10 +1,11 @@
 ﻿using System;
 using Game.Assets;
 using Game.Util;
+using System.Diagnostics;
 
 namespace Game.Terrains {
     class Lighting {
-       
+
         internal static void CalculateLighting() {
 
             int posX, posY;
@@ -16,13 +17,13 @@ namespace Game.Terrains {
                 posY = Player.StartY;
             }
 
-            int min = (int)(posY + Renderer.zoom / 2 / Program.AspectRatio) - Light.MaxLightLevel;
-            int max = (int)(posY - Renderer.zoom / 2 / Program.AspectRatio) + Light.MaxLightLevel;
-            Terrain.Lightings = new int[Terrain.Tiles.GetLength(0), Terrain.Tiles.GetLength(1)];
+            int min = (int)(posY + GameRenderer.zoom / 2 / Program.AspectRatio) - Light.MaxLightLevel;
+            int max = (int)(posY - GameRenderer.zoom / 2 / Program.AspectRatio) + Light.MaxLightLevel;
+            Terrain.Lightings = new float[Terrain.Tiles.GetLength(0), Terrain.Tiles.GetLength(1)];
 
             //calculate lightings for each tile
             //sun lighting
-            for (int i = (int)(posX + Renderer.zoom / 2)-Light.MaxLightLevel; i <=(int)(posX - Renderer.zoom / 2)+Light.MaxLightLevel; i++) {
+            for (int i = (int)(posX + GameRenderer.zoom / 2) - Light.MaxLightLevel; i <= (int)(posX - GameRenderer.zoom / 2) + Light.MaxLightLevel; i++) {
 
                 int top, bottom;
                 LightingRange(i, out top, out bottom);
@@ -59,25 +60,16 @@ namespace Game.Terrains {
             bottom = outBottom;
         }
 
-        private static void SpreadLighting(int x, int y, int strength) {
-            for (int i = 0; i < strength; i++) {
-                DiamondLighting(x, y, i, strength - i);
+        private static void SpreadLighting(int x, int y, int radius) {
+            for (int i = -radius; i <= radius; i++) {
+                for (int j = (int)Math.Ceiling(-Math.Sqrt(radius * radius - i * i)); j <= (int)Math.Sqrt(radius * radius - i * i); j++) {
+                    float distSq = i * i + j * j;
+                    SetLighting(x + i, y + j, Light.MaxLightLevel * (radius*radius-distSq) / (radius * radius));
+                }
             }
         }
 
-        private static void DiamondLighting(int x, int y, int radius, int strength) {
-            int i = 0;
-            for (int j = -radius; j <= radius; j++) {
-
-                SetLighting(x - i, y + j, strength);
-                SetLighting(x + i, y + j, strength);
-
-                if (j < 0) i++;
-                else i--;
-            }
-        }
-
-        private static void SetLighting(int x, int y, int lighting) {
+        private static void SetLighting(int x, int y, float lighting) {
             if (x < 0 || x >= Terrain.Lightings.GetLength(0) || y < 0 || y >= Terrain.Lightings.GetLength(1)) return;
             if (lighting > Terrain.Lightings[x, y]) Terrain.Lightings[x, y] = lighting;
         }
