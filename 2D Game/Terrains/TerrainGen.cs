@@ -22,11 +22,7 @@ namespace Game.Terrains {
             Rand = new Random(seed);
 
             GenerateTerrain();
-        }
-
-        private static void SetTile(int x, int y, Tile tile) {
-            if (x < 0 || x >= Terrain.Tiles.GetLength(0) || y < 0 || y >= Terrain.Tiles.GetLength(1)) return;
-            Terrain.Tiles[x, y] = tile;
+            Lighting.Init();
         }
 
         private static void GenerateTerrain() {
@@ -34,7 +30,7 @@ namespace Game.Terrains {
             Terrain.Tiles = new Tile[Size, 256];
             for (int i = 0; i < Terrain.Tiles.GetLength(0); i++) {
                 for (int j = 0; j < Terrain.Tiles.GetLength(1); j++) {
-                    SetTile(i, j, Tile.Air);
+                    new Air(i, j);
                 }
             }
 
@@ -54,7 +50,7 @@ namespace Game.Terrains {
             for (int i = 0; i < Terrain.Tiles.GetLength(0); i++) {
                 int y = MathUtil.RandInt(Rand, 1, 6);
                 for (int j = 0; j < y; j++) {
-                    SetTile(i, j, Tile.Bedrock);
+                    new Bedrock(i, j);
                 }
             }
         }
@@ -78,9 +74,9 @@ namespace Game.Terrains {
                         int x = posX + i * WidthFactor + j;
 
                         for (int k = 0; k <= y; k++) {
-                            if (k <= y - 10 + MathUtil.RandDouble(Rand, 0, 3)) SetTile(x, k, Tile.Stone);
-                            else if (k <= y - 3 + MathUtil.RandDouble(Rand, 0, 2)) SetTile(x, k, Tile.Dirt);
-                            else SetTile(x, k, Tile.Grass);
+                            if (k <= y - 10 + MathUtil.RandDouble(Rand, 0, 3)) new Stone(x, k);
+                            else if (k <= y - 3 + MathUtil.RandDouble(Rand, 0, 2)) new Dirt(x, k);
+                            else new Grass(x, k);
                         }
                     }
                     v1 = v2;
@@ -107,9 +103,9 @@ namespace Game.Terrains {
                         int x = posX + i * WidthFactor + j;
 
                         for (int k = 0; k <= y; k++) {
-                            if (k <= y - 25 + MathUtil.RandDouble(Rand, 0, 3)) SetTile(x, k, Tile.Stone);
-                            else if (k <= y - 10 + MathUtil.RandDouble(Rand, 0, 4)) SetTile(x, k, Tile.Sandstone);
-                            else SetTile(x, k, Tile.Sand);
+                            if (k <= y - 25 + MathUtil.RandDouble(Rand, 0, 3)) new Stone(x, k);
+                            else if (k <= y - 10 + MathUtil.RandDouble(Rand, 0, 4)) new Sandstone(x, k);
+                            else new Sand(x, k);
                         }
 
                         cactusCounter++;
@@ -148,9 +144,9 @@ namespace Game.Terrains {
                         int x = posX + i * WidthFactor + j;
 
                         for (int k = 0; k <= y; k++) {
-                            if (k <= y - 3 + MathUtil.RandDouble(Rand, 0, 2)) SetTile(x, k, Tile.Stone);
-                            else if (k <= y - 2 + MathUtil.RandDouble(Rand, 0, 2)) SetTile(x, k, Tile.Dirt);
-                            else SetTile(x, k, Tile.Grass);
+                            if (k <= y - 3 + MathUtil.RandDouble(Rand, 0, 2)) new Stone(x,k);
+                            else if (k <= y - 2 + MathUtil.RandDouble(Rand, 0, 2)) new Dirt(x,k);
+                            else new Grass(x,k);
                         }
 
                         mountainCounter++;
@@ -184,7 +180,7 @@ namespace Game.Terrains {
             //generate wood
             int trunkHeight = (int)(5 + 3 * Rand.NextDouble());
             for (int i = y; i < y + trunkHeight; i++) {
-                SetTile(x, i, Tile.Wood);
+                new Wood(x,i);
             }
 
             //generate leaves
@@ -193,8 +189,8 @@ namespace Game.Terrains {
 
             for (int i = 0; i < 2 + 2 * Rand.NextDouble(); i++) {
                 for (int j = 0; j < r; j++) {
-                    SetTile(x - j, yPointer, Tile.Leaf);
-                    SetTile(x + j, yPointer, Tile.Leaf);
+                    new Leaf(x - j, yPointer);
+                    new Leaf(x + j, yPointer);
                 }
                 yPointer++;
             }
@@ -202,8 +198,8 @@ namespace Game.Terrains {
             r /= 2;
             for (int i = 0; i < 1 + 2 * Rand.NextDouble(); i++) {
                 for (int j = 0; j < r; j++) {
-                    SetTile(x - j, yPointer, Tile.Leaf);
-                    SetTile(x + j, yPointer, Tile.Leaf);
+                    new Leaf(x - j, yPointer);
+                    new Leaf(x + j, yPointer);
                 }
                 yPointer++;
             }
@@ -212,8 +208,8 @@ namespace Game.Terrains {
             if (r < 2) r = 2;
             for (int i = 0; i < 1 + 2 * Rand.NextDouble(); i++) {
                 for (int j = 0; j < r; j++) {
-                    SetTile(x - j, yPointer, Tile.Leaf);
-                    SetTile(x + j, yPointer, Tile.Leaf);
+                    new Leaf(x - j, yPointer);
+                    new Leaf(x + j, yPointer);
                 }
                 yPointer++;
             }
@@ -224,7 +220,7 @@ namespace Game.Terrains {
             int height = MathUtil.RandInt(Rand, 5, 8);
             //stem
             for (int i = 0; i < height; i++) {
-                SetTile(x, y + i, Tile.Cactus);
+                new Cactus(x,y+i);
             }
 
             if (MathUtil.RandDouble(Rand, 0, 1) < 0.8) {
@@ -237,16 +233,16 @@ namespace Game.Terrains {
             int l = MathUtil.RandInt(Rand, 1, 2);
             int r = MathUtil.RandInt(Rand, 1, 2);
             for (int i = x - l; i <= x + r; i++) {
-                SetTile(i, y, Tile.Cactus);
+                new Cactus(i,y);
             }
 
             int hl = MathUtil.RandInt(Rand, 3, 5);
             int hr = MathUtil.RandInt(Rand, 3, 5);
             for (int i = y + 1; i <= y + hl; i++) {
-                SetTile(x - l, i, Tile.Cactus);
+                new Cactus(x - l, i);
             }
             for (int i = y + 1; i <= y + hr; i++) {
-                SetTile(x + r, i, Tile.Cactus);
+                new Cactus(x + r, i);
             }
 
             if (MathUtil.RandDouble(Rand, 0, 1) < recFactor) {

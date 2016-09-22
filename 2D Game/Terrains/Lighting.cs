@@ -6,7 +6,16 @@ using System.Diagnostics;
 namespace Game.Terrains {
     static class Lighting {
 
+        internal static int[,] MaxHeights;
+
         //temporary til i get better lighting algorithm
+
+        internal static void Init() {
+            MaxHeights = new int[Terrain.Tiles.GetLength(0), Terrain.Tiles.GetLength(1)];
+
+        }
+
+
         internal static void CalculateAllLighting() {
             Terrain.Lightings = new float[Terrain.Tiles.GetLength(0), Terrain.Tiles.GetLength(1)];
             //calculate lightings for each tile
@@ -63,16 +72,18 @@ namespace Game.Terrains {
             }
         }
 
+
+
         private static void LightingRange(int cx, out int top, out int bottom) {
             int outTop = 0, outBottom = 0;
             for (int j = Terrain.Tiles.GetLength(1) - 1; j >= 0; j--) {
-                if (Terrain.TileAt(cx - 1, j) != Tile.Air || Terrain.TileAt(cx + 1, j) != Tile.Air || Terrain.TileAt(cx, j - 1) != Tile.Air) {
+                if (Terrain.TileAt(cx - 1, j).id != TileID.Air || Terrain.TileAt(cx + 1, j).id != TileID.Air || Terrain.TileAt(cx, j - 1).id != TileID.Air) {
                     outTop = j;
                     break;
                 }
             }
             for (int j = outTop; j >= 1; j--) {
-                if (Terrain.TileAt(cx, j - 1) != Tile.Air) {
+                if (Terrain.TileAt(cx, j - 1).id != TileID.Air) {
                     outBottom = j;
                     break;
                 }

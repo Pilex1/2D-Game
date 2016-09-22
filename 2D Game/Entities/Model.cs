@@ -36,7 +36,7 @@ namespace Game.Entities {
             PolyMode = polyMode;
         }
 
-        public virtual void Dispose() {
+        public virtual void CleanUp() {
             Vertices.Dispose();
             Elements.Dispose();
         }
@@ -66,8 +66,8 @@ namespace Game.Entities {
             UVs = uvs;
         }
 
-        public override void Dispose() {
-            base.Dispose();
+        public override void CleanUp() {
+            base.CleanUp();
             Texture.Dispose();
             UVs.Dispose();
         }
@@ -114,12 +114,12 @@ namespace Game.Entities {
             }
         }
 
-        public LightingTexturedModel(VBO<Vector2> vertices, VBO<int> elements, BeginMode drawingMode, PolygonMode polyMode, Texture texture, VBO<Vector2> uvs, VBO<float> lightings) : base(vertices, elements, uvs, texture, drawingMode, polyMode) {
+        public LightingTexturedModel(VBO<Vector2> vertices, VBO<int> elements, VBO<Vector2> uvs, Texture texture, VBO<float> lightings, BeginMode drawingMode, PolygonMode polyMode) : base(vertices, elements, uvs, texture, drawingMode, polyMode) {
             Lightings = lightings;
         }
 
-        public override void Dispose() {
-            base.Dispose();
+        public override void CleanUp() {
+            base.CleanUp();
             Lightings.Dispose();
         }
     }
@@ -138,8 +138,8 @@ namespace Game.Entities {
             Colours = colours;
         }
 
-        public override void Dispose() {
-            base.Dispose();
+        public override void CleanUp() {
+            base.CleanUp();
             Colours.Dispose();
         }
 

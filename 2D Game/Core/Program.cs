@@ -6,6 +6,7 @@ using System.Text;
 using System.Diagnostics;
 using System.Threading;
 using Game.Util;
+using System.Linq;
 
 namespace Game {
     static class Program {
@@ -16,13 +17,12 @@ namespace Game {
         public static bool FullScreen { get; private set; }
 
         static void Main() {
-
-
+            
             Init();
 
             Glut.glutMainLoop();
 
-            Deinit();
+            CleanUp();
         }
 
         private static void Init() {
@@ -64,8 +64,8 @@ namespace Game {
             Glut.glutSwapBuffers();
         }
 
-        private static void Deinit() {
-            GameLogic.Deinit();
+        private static void CleanUp() {
+            GameLogic.CleanUp();
         }
 
     }

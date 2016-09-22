@@ -88,6 +88,7 @@ namespace Game {
 
         public bool UpdatePosition() {
             float bouncePower = -1.2f;
+            float bouncePowerHorz = -5f;
             bool moved = false;
 
             if (UseGravity) {
@@ -97,22 +98,24 @@ namespace Game {
 
 
 
-            Tile col = Tile.Air;
+            Tile col = new Air(0, 0);
             Vector2 offset = new Vector2(0, dy * GameLogic.DeltaTime);
             if (Terrain.WillCollide(this, offset, out col)) {
                 if (dy > 0) {
                     //hit ceiling
                     Position = new Vector2(Position.x, (int)Math.Ceiling(Position.y));
                     moved = true;
-                    if (col == Tile.Bounce) {
+                    if (col.id == TileID.Bounce) {
                         dy *= bouncePower;
+                        Position += new Vector2(0, dy * GameLogic.DeltaTime);
                     } else dy = 0;
 
                 } else {
                     //hit ground
                     Position = new Vector2(Position.x, (int)Math.Floor(Position.y));
-                    if (col == Tile.Bounce) {
+                    if (col.id == TileID.Bounce) {
                         dy *= bouncePower;
+                        Position += new Vector2(0, dy * GameLogic.DeltaTime);
                         moved = true;
                     } else {
                         dy = 0;
@@ -127,14 +130,15 @@ namespace Game {
                 InAir = true;
             }
 
-            col = Tile.Air;
+            col = new Air(0, 0);
             offset = new Vector2(dx, 0);
             if (Terrain.WillCollide(this, offset, out col)) {
                 if (dx > 0) Position = new Vector2((int)Math.Ceiling(Position.x), Position.y);
                 else Position = new Vector2((int)Math.Floor(Position.x), Position.y);
 
-                if (col == Tile.Bounce) {
-                    dx *= bouncePower;
+                if (col.id == TileID.Bounce) {
+                    dx *= bouncePowerHorz;
+                    Position += new Vector2(dx * GameLogic.DeltaTime, 0);
                     moved = true;
                 } else dx = 0;
             } else {

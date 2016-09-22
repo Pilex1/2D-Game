@@ -8,9 +8,9 @@ using Game.Terrains;
 
 namespace Game {
     static class GameLogic {
-        public static List<Entity> Entities { get; private set; }
-        private static List<Entity> BatchEntities = new List<Entity>();
-        private static List<Entity> BatchRemoveEntities = new List<Entity>();
+        public static HashSet<Entity> Entities { get; private set; }
+        private static HashSet<Entity> BatchEntities = new HashSet<Entity>();
+        private static HashSet<Entity> BatchRemoveEntities = new HashSet<Entity>();
 
         private static Stopwatch Watch = new Stopwatch();
         public static float DeltaTime { get; private set; }
@@ -20,15 +20,15 @@ namespace Game {
         private static int Count;
 
         public static void Init() {
-            Entities = new List<Entity>();
+            Entities = new HashSet<Entity>();
 
             Terrain.Init();
             Player.Init();
             GameRenderer.Init();
-            for (int i = 1;i <= 1; i++) {
-             //  AddEntity(new Shooter(new Vector2(475, 0), 50, 150));
+            for (int i = 1; i <= 1; i++) {
+                //  AddEntity(new Shooter(new Vector2(475, 0), 50, 150));
             }
-            
+
         }
 
         public static void Update() {
@@ -41,23 +41,24 @@ namespace Game {
             CountTime += ActualDeltaTime;
             Count++;
             int interval = 1;
-            if (CountTime > 1f/ interval) {
-                Glut.glutSetWindowTitle("Plexico 2D Game - Copyright Alex Tan 2016 FPS: " + (Count* interval).ToString());
+            if (CountTime > 1f / interval) {
+                Glut.glutSetWindowTitle("Plexico 2D Game - Copyright Alex Tan 2016 FPS: " + (Count * interval).ToString());
                 CountTime = 0;
                 Count = 0;
             }
 
             //new entities to be added to the world
-            Entities.AddRange(BatchEntities);
+            foreach (Entity e in BatchEntities) Entities.Add(e);
             BatchEntities.Clear();
-            foreach (Entity entity in BatchRemoveEntities) {
-                Entities.Remove(entity);
-            }
+
+            foreach (Entity e in BatchRemoveEntities) Entities.Remove(e);
             BatchRemoveEntities.Clear();
+
+
 
             //update the player movement
             Player.Instance.Update();
-            Player.Heal(0.0005f*DeltaTime);
+            Player.Heal(0.0005f * DeltaTime);
             //Debug.WriteLine(Player.Instance.Position);
 
             //update entities
@@ -88,10 +89,10 @@ namespace Game {
             GameRenderer.Render();
         }
 
-        public static void Deinit() {
+        public static void CleanUp() {
             Update();
             foreach (Entity entity in Entities) {
-                entity.Model.Dispose();
+                entity.Model.CleanUp();
             }
             Entities.Clear();
         }

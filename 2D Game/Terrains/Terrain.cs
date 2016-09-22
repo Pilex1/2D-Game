@@ -5,6 +5,8 @@ using Game.Entities;
 using Game.Assets;
 using Game.Util;
 using System.Diagnostics;
+using System.Linq;
+using Game.Fluids;
 
 namespace Game.Terrains {
     static class Terrain {
@@ -15,7 +17,7 @@ namespace Game.Terrains {
 
         internal static Tile[,] Tiles;
         internal static float[,] Lightings;
-        internal static List<Light> Lights = new List<Light>();
+        internal static HashSet<Light> Lights = new HashSet<Light>();
 
         public static int MaxHeight { get; private set; }
         public static int MaxWidth { get; private set; }
@@ -43,8 +45,8 @@ namespace Game.Terrains {
             VBO<float> lightings;
             CalculateLightingMesh(out lightings);
 
-            Texture texture = new Texture(Asset.TextureFile);
-            Model = new LightingTexturedModel(vertices, elements, BeginMode.Triangles, PolygonMode.Fill, texture, uvs, lightings);
+            Texture texture = new Texture(Asset.TileTexture);
+            Model = new LightingTexturedModel(vertices, elements, uvs, texture, lightings, BeginMode.Triangles, PolygonMode.Fill);
 
         }
 
@@ -57,20 +59,22 @@ namespace Game.Terrains {
                 posX = Player.StartX;
                 posY = Player.StartY;
             }
-            List<float> lightingsList = new List<float>();
+
             int startX = (int)(posX + GameRenderer.zoom / 2), endX = (int)(posX - GameRenderer.zoom / 2);
+            int startY = (int)(posY + GameRenderer.zoom / 2 / Program.AspectRatio), endY = (int)(posY - GameRenderer.zoom / 2 / Program.AspectRatio);
+            List<float> lightingsSet = new List<float>();
             for (int i = startX >= 0 ? startX : 0; i <= (endX < Tiles.GetLength(0) ? endX : Tiles.GetLength(0) - 1); i++) {
-                int startY = (int)(posY + GameRenderer.zoom / 2 / Program.AspectRatio), endY = (int)(posY - GameRenderer.zoom / 2 / Program.AspectRatio);
+
                 for (int j = startY >= 0 ? startY : 0; j <= (endY < Tiles.GetLength(1) ? endY : Tiles.GetLength(1) - 1); j++) {
-                    if (Tiles[i, j] != Tile.Air) {
+                    if (Tiles[i, j].id != TileID.Air) {
                         float val = Lightings[i, j] / Light.MaxLightLevel;
-                        lightingsList.AddRange(new float[] {
+                        lightingsSet.AddRange(new float[] {
                             val,val,val,val
                         });
                     }
                 }
             }
-            lightings = new VBO<float>(lightingsList.ToArray());
+            lightings = new VBO<float>(lightingsSet.ToArray());
         }
 
         public static void CalculateMesh(out VBO<Vector2> vertices, out VBO<int> elements, out VBO<Vector2> uvs) {
@@ -86,14 +90,14 @@ namespace Game.Terrains {
             List<Vector2> uvList = new List<Vector2>();
 
             int startX = (int)(posX + GameRenderer.zoom / 2), endX = (int)(posX - GameRenderer.zoom / 2);
+            int startY = (int)(posY + GameRenderer.zoom / 2 / Program.AspectRatio), endY = (int)(posY - GameRenderer.zoom / 2 / Program.AspectRatio);
             for (int i = startX >= 0 ? startX : 0; i <= (endX < Tiles.GetLength(0) ? endX : Tiles.GetLength(0) - 1); i++) {
-                int startY = (int)(posY + GameRenderer.zoom / 2 / Program.AspectRatio), endY = (int)(posY - GameRenderer.zoom / 2 / Program.AspectRatio);
                 for (int j = startY >= 0 ? startY : 0; j <= (endY < Tiles.GetLength(1) ? endY : Tiles.GetLength(1) - 1); j++) {
-                    if (Tiles[i, j] != Tile.Air) {
+                    if (Tiles[i, j].id != TileID.Air) {
                         Tile t = Tiles[i, j];
 
-                        float x = ((float)((int)t % TerrainTextureSize)) / TerrainTextureSize;
-                        float y = ((float)((int)t / TerrainTextureSize)) / TerrainTextureSize;
+                        float x = ((float)((int)t.id % TerrainTextureSize)) / TerrainTextureSize;
+                        float y = ((float)((int)t.id / TerrainTextureSize)) / TerrainTextureSize;
                         float s = 1f / TerrainTextureSize;
                         //half pixel correction
                         float h = 1f / (TerrainTextureSize * TerrainTextureSize * 2);
@@ -148,13 +152,13 @@ namespace Game.Terrains {
 
             for (int i = x1; i <= x2; i++) {
                 for (int j = y1; j <= y2; j++) {
-                    if (TileInteract.IsSolid(TileAt(i, j))) {
+                    if ((Tiles[i, j] is ISolid)) {
                         collidedTile = TileAt(i, j);
                         return true;
                     }
                 }
             }
-            collidedTile = Tile.Air;
+            collidedTile = new Air(0, 0);
             return false;
         }
 
@@ -185,48 +189,31 @@ namespace Game.Terrains {
 
         private static bool Valid(int x, int y, int height) {
             for (int i = 0; i < height; i++) {
-                if (Tiles[x, y + i] != Tile.Air) return false;
+                if (Tiles[x, y + i].id != TileID.Air) return false;
             }
             return true;
         }
 
         internal static int HighestPoint(int x) {
             for (int i = Tiles.GetLength(1) - 1; i > 0; i--) {
-                if (Tiles[x, i] != Tile.Air) return i + 1;
+                if (Tiles[x, i].id != TileID.Air) return i + 1;
             }
             return 1;
         }
 
-        public static Tile TileAt(int x, int y) { return x < 0 || x > MaxWidth || y < 0 || y > MaxHeight ? Tile.Air : Tiles[x, y]; }
+        public static Tile TileAt(int x, int y) { return x < 0 || x > MaxWidth || y < 0 || y > MaxHeight ? new Air(0, 0) : Tiles[x, y]; }
         public static Tile TileAt(float x, float y) { return TileAt((int)x, (int)y); }
 
+        public static Tile BreakTile(Tile t) {
+            return BreakTile(t.x, t.y);
+        }
         public static Tile BreakTile(int x, int y) {
-            if (x < 0 || x > MaxWidth || y < 0 || y > MaxHeight) return Tile.Air;
-            if (Tiles[x, y] == Tile.Bedrock) return Tile.Air;
-            Tile res = Tiles[x, y];
-            Tiles[x, y] = Tile.Air;
+            if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return new Air(0, 0);
+            Tile res = TileAt(x, y);
+            if (res.id == TileID.Bedrock) return new Air(0, 0);
+            Tiles[x, y] = new Air(x, y);
             UpdateMesh = true;
             return res;
-        }
-
-        public static void PlaceTile(int x, int y, Tile tile) {
-            if (TileAt(x, y) == Tile.Air) {
-                if (TileInteract.IsOnlyPlaceableFromBottom(tile)) {
-                    if (TileInteract.IsSolid(TileAt(x, y - 1))) {
-                        SetTile(x, y, tile);
-                        UpdateMesh = true;
-                    }
-                } else {
-                    SetTile(x, y, tile);
-                    UpdateMesh = true;
-                }
-            }
-        }
-
-        public static void SetTile(int x, int y, Tile tile) {
-            if (x < 0 || x > MaxWidth || y < 0 || y > MaxHeight) return;
-            Tiles[x, y] = tile;
-            UpdateMesh = true;
         }
 
         public static void Update() {
@@ -248,6 +235,8 @@ namespace Game.Terrains {
 
             }
             UpdateMesh = false;
+
+            FluidsManager.Update();
         }
 
     }

@@ -66,9 +66,19 @@ namespace Game {
             }
 
 
+            if (Keys['1']) Hotbar.CurSelectedSlot = 0;
+            if (Keys['2']) Hotbar.CurSelectedSlot = 1;
+            if (Keys['3']) Hotbar.CurSelectedSlot = 2;
+            if (Keys['4']) Hotbar.CurSelectedSlot = 3;
+            if (Keys['5']) Hotbar.CurSelectedSlot = 4;
+            if (Keys['6']) Hotbar.CurSelectedSlot = 5;
+            if (Keys['7']) Hotbar.CurSelectedSlot = 6;
+            if (Keys['8']) Hotbar.CurSelectedSlot = 7;
+            if (Keys['9']) Hotbar.CurSelectedSlot = 8;
+
 
             if (Mouse[Left]) {
-                if (Hotbar.CurrentlySelectedItem() == Item.None) {
+                if (Hotbar.CurrentlySelectedItem() == ItemId.None) {
                     Vector2 v = RayCast(MouseX, MouseY);
                     Terrain.BreakTile((int)v.x, (int)v.y);
                 }
@@ -77,8 +87,11 @@ namespace Game {
                 Vector2 v = RayCast(MouseX, MouseY);
                 int x = (int)v.x, y = (int)v.y;
 
-                if (Hotbar.CurrentlySelectedItem() == Item.None) {
-                    TileInteract.Interact(Terrain.TileAt(x, y), x, y);
+                if (Hotbar.CurrentlySelectedItem() == ItemId.None) {
+                    Tile t = Terrain.TileAt(x, y);
+                    if (t is IRightInteractable) {
+                        ((IRightInteractable)t).Interact();
+                    }
                 } else {
                     ItemInteract.Interact(Hotbar.CurrentlySelectedItem(), x, y);
                 }

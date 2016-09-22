@@ -2,7 +2,8 @@
 
 namespace Game.Assets {
     static class Asset {
-        public const string TextureFile = "Assets/TerrainTextures.png";
-        public const string ItemFile = "Assets/ItemTextures.png";
+        public const string TileTexture = "Assets/TerrainTextures.png";
+        public const string ItemTexture = "Assets/ItemTextures.png";
+        public const string FluidTexture = "Assets/FluidTextures.png";
     }
 }

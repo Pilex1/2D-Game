@@ -11,7 +11,7 @@ namespace Game.Interaction {
         public static TexturedModel TexturedItems;
         public static TexturedModel CurSelected;
 
-        public static int CurSelectedSlot { get; private set; }
+        public static int CurSelectedSlot { get; set; }
 
         public const float SizeX = 2 * 64f / Program.Width;
         public const float SizeY = 2 * 64f / Program.Height;
@@ -77,7 +77,7 @@ namespace Game.Interaction {
 
             VBO<Vector2> uvs = CalcTexturedItemsUV();
 
-            Texture texture = new Texture(Asset.ItemFile);
+            Texture texture = new Texture(Asset.ItemTexture);
 
             TexturedItems = new TexturedModel(vertices, elements, uvs, texture, BeginMode.Triangles, PolygonMode.Fill);
         }
@@ -85,7 +85,7 @@ namespace Game.Interaction {
         private static VBO<Vector2> CalcTexturedItemsUV() {
             Vector2[] uvsArr = new Vector2[4 * Inventory.InvColumns];
             for (int i = 0; i < Inventory.InvColumns; i++) {
-                Item t = Inventory.Items[0, i].Item1;
+                ItemId t = Inventory.Items[0, i].Item1;
                 float x = ((float)((int)t % ItemTextureSize)) / ItemTextureSize;
                 float y = ((float)((int)t / ItemTextureSize)) / ItemTextureSize;
                 float s = 1f / ItemTextureSize;
@@ -114,7 +114,7 @@ namespace Game.Interaction {
             TexturedItems.UVs = uvs;
         }
 
-        public static Item CurrentlySelectedItem() {
+        public static ItemId CurrentlySelectedItem() {
             return Inventory.Items[0, CurSelectedSlot].Item1;
         }
     }
@@ -125,25 +125,25 @@ namespace Game.Interaction {
         public static TexturedModel CurSelected;
 
         internal const int InvColumns = 9, InvRows = 6;
-        internal static Tuple<Item, uint>[,] Items = new Tuple<Item, uint>[InvRows, InvColumns];
+        internal static Tuple<ItemId, uint>[,] Items = new Tuple<ItemId, uint>[InvRows, InvColumns];
 
         public static void Init() {
             for (int i = 0; i < Items.GetLength(0); i++) {
                 for (int j = 0; j < Items.GetLength(1); j++) {
-                    Items[i, j] = new Tuple<Item, uint>(Item.None, 0);
+                    Items[i, j] = new Tuple<ItemId, uint>(ItemId.None, 0);
                 }
             }
 
             Hotbar.Init();
 
-            Items[0, 0] = new Tuple<Item, uint>(Item.Tnt, 1);
-            Items[0, 1] = new Tuple<Item, uint>(Item.Nuke, 1);
-            Items[0, 2] = new Tuple<Item, uint>(Item.FutureMetal, 1);
-            Items[0, 3] = new Tuple<Item, uint>(Item.WeatheredStone, 1);
-            Items[0, 4] = new Tuple<Item, uint>(Item.SmoothSlab, 1);
-            Items[0, 5] = new Tuple<Item, uint>(Item.Marble, 1);
-            Items[0, 6] = new Tuple<Item, uint>(Item.Crate, 1);
-            Items[0, 7] = new Tuple<Item, uint>(Item.Bounce, 1);
+            Items[0, 0] = new Tuple<ItemId, uint>(ItemId.Tnt, 1);
+            Items[0, 1] = new Tuple<ItemId, uint>(ItemId.Nuke, 1);
+            Items[0, 2] = new Tuple<ItemId, uint>(ItemId.FutureMetal, 1);
+            Items[0, 3] = new Tuple<ItemId, uint>(ItemId.WeatheredStone, 1);
+            Items[0, 4] = new Tuple<ItemId, uint>(ItemId.SmoothSlab, 1);
+            Items[0, 5] = new Tuple<ItemId, uint>(ItemId.Marble, 1);
+            Items[0, 6] = new Tuple<ItemId, uint>(ItemId.Bounce, 1);
+            Items[0, 7] = new Tuple<ItemId, uint>(ItemId.Water, 1);
 
             Hotbar.Update();
         }

@@ -49,12 +49,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Asset.cs" />
-    <Compile Include="Assets\Item.cs" />
-    <Compile Include="Assets\Tile.cs" />
+    <Compile Include="Assets\ItemId.cs" />
+    <Compile Include="Assets\TileId.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\Hitbox.cs" />
     <Compile Include="Entities\Model.cs" />
     <Compile Include="Core\GameLogic.cs" />
+    <Compile Include="Fluids\FluidsManager.cs" />
     <Compile Include="Interaction\Healthbar.cs" />
     <Compile Include="Interaction\Inventory.cs" />
     <Compile Include="Interaction\Player.cs" />

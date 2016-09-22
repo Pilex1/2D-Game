@@ -1,4 +1,5 @@
 ﻿using Game.Entities;
+using Game.Fluids;
 using Game.Interaction;
 using Game.Terrains;
 using Game.Util;
@@ -81,7 +82,6 @@ namespace Game {
             RenderInstanceGUI(Hotbar.TexturedItems, new Vector2((2 - Inventory.InvColumns * Hotbar.SizeX) / 2, 0));
             RenderInstanceGUI(Hotbar.Frame, new Vector2((2 - Inventory.InvColumns * Hotbar.SizeX) / 2, 0));
             Gl.LineWidth(3);
-            // RenderInstanceGUI(Hotbar.Background, new Vector2((2 - Inventory.InvColumns * Hotbar.Size) / 2, 0));
 
         }
 
@@ -116,8 +116,11 @@ namespace Game {
         private static void RenderTerrain() {
             TerrainShader.Use();
 
-            TerrainShader["modelMatrix"].SetValue(Matrix4.Identity);
-            LightingTexturedModel model = Terrain.Model;
+            var terrainModel = Terrain.Model;
+            RenderInstanceTerrain(terrainModel);
+        }
+
+        private static void RenderInstanceTerrain(LightingTexturedModel model) {
             if (model.Elements.Count > 0) {
                 Gl.BindBufferToShaderAttribute(model.Vertices, TerrainShader, "vertexPosition");
                 Gl.BindBufferToShaderAttribute(model.UVs, TerrainShader, "vertexUV");
@@ -139,7 +142,7 @@ namespace Game {
             return sb.ToString();
         }
 
-        public static void Deinit() {
+        public static void CleanUp() {
             EntityShader.DisposeChildren = true;
             EntityShader.Dispose();
 
