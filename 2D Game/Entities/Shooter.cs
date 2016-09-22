@@ -24,7 +24,7 @@ namespace Game {
                 if (!Terrain.IsColliding(proj)) GameLogic.AddEntity(proj);
                 ShootCooldownTime = 0;
             } else ShootCooldownTime+=GameLogic.DeltaTime;
-            MoveDown();
+            Update();
         }
     }
 }

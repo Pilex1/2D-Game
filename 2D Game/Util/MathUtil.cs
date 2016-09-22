@@ -84,27 +84,15 @@ namespace Game.Util {
             if (min > max) return RandInt(rand, max, min);
             return rand.Next(max - min + 1) + min;
         }
-        public static int RandInt(int min, int max) {
-            if (min > max) return RandInt(max, min);
-            return RandInt(new Random(), min, max);
-        }
 
         public static float RandFloat(Random rand, float min, float max) {
             if (min > max) return RandFloat(rand, max, min);
             return (float)rand.NextDouble() * (max - min) + min;
         }
-        public static float RandFloat(float min, float max) {
-            if (min > max) return RandFloat(max, min);
-            return RandFloat(new Random(), min, max);
-        }
 
         public static double RandDouble(Random rand, double min, double max) {
             if (min > max) return RandDouble(rand, max, min);
             return rand.NextDouble() * (max - min) + min;
-        }
-        public static double RandDouble(double min, double max) {
-            if (min > max) return RandDouble(max, min);
-            return RandDouble(new Random(), min, max);
         }
 
         #endregion Random

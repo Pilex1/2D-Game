@@ -4,8 +4,27 @@ using System.Drawing;
 
 namespace Game.Entities {
     abstract class Model {
-        public VBO<Vector2> Vertices { get; set; }
-        public VBO<int> Elements { get; set; }
+        private VBO<Vector2> vertices;
+        public VBO<Vector2> Vertices {
+            get {
+                return vertices;
+            }
+            set {
+                if (vertices != null) vertices.Dispose();
+                vertices = value;
+            }
+        }
+
+        private VBO<int> elements;
+        public VBO<int> Elements {
+            get {
+                return elements;
+            }
+            set {
+                if (elements != null) elements.Dispose();
+                elements = value;
+            }
+        }
 
         public BeginMode DrawingMode { get; set; }
         public PolygonMode PolyMode { get; set; }
@@ -24,8 +43,23 @@ namespace Game.Entities {
     }
 
     class TexturedModel : Model {
-        public Texture Texture { get; set; }
-        public VBO<Vector2> UVs { get; set; }
+        private Texture texture;
+        public Texture Texture {
+            get { return texture; }
+            set {
+                if (texture != null) texture.Dispose();
+                texture = value;
+            }
+        }
+
+        private VBO<Vector2> uvs;
+        public VBO<Vector2> UVs {
+            get { return uvs; }
+            set {
+                if (uvs != null) uvs.Dispose();
+                uvs = value;
+            }
+        }
 
         public TexturedModel(VBO<Vector2> vertices, VBO<int> elements, VBO<Vector2> uvs, Texture texture, BeginMode drawingMode, PolygonMode polyMode) : base(vertices, elements, drawingMode, polyMode) {
             Texture = texture;
@@ -70,15 +104,36 @@ namespace Game.Entities {
     }
 
     class LightingTexturedModel : TexturedModel {
-        public VBO<float> Lightings { get; set; }
+
+        private VBO<float> lightings;
+        public VBO<float> Lightings {
+            get { return lightings; }
+            set {
+                if (lightings != null) lightings.Dispose();
+                lightings = value;
+            }
+        }
 
         public LightingTexturedModel(VBO<Vector2> vertices, VBO<int> elements, BeginMode drawingMode, PolygonMode polyMode, Texture texture, VBO<Vector2> uvs, VBO<float> lightings) : base(vertices, elements, uvs, texture, drawingMode, polyMode) {
             Lightings = lightings;
         }
+
+        public override void Dispose() {
+            base.Dispose();
+            Lightings.Dispose();
+        }
     }
 
     class ColouredModel : Model {
-        public VBO<Vector4> Colours { get; protected set; }
+
+        private VBO<Vector4> colours;
+        public VBO<Vector4> Colours {
+            get { return colours; }
+            set {
+                if (colours != null) colours.Dispose();
+                colours = value;
+            }
+        }
         public ColouredModel(VBO<Vector2> vertices, VBO<int> elements, VBO<Vector4> colours, BeginMode drawingMode, PolygonMode polyMode) : base(vertices, elements, drawingMode, polyMode) {
             Colours = colours;
         }

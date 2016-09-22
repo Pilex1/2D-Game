@@ -3,6 +3,8 @@ using OpenGL;
 using System.Collections.Generic;
 using Game.Entities;
 using Game.Assets;
+using Game.Util;
+using System.Diagnostics;
 
 namespace Game.Terrains {
     static class Terrain {
@@ -22,6 +24,10 @@ namespace Game.Terrains {
 
         private const float Epsilon = 0.001f;
 
+        //temporary until i get more efficient lighting algorithms
+        public static BoolSwitch UpdateLighting = false;
+
+
         public static void Init() {
             TerrainGen.Generate(314159);
 
@@ -33,7 +39,7 @@ namespace Game.Terrains {
             VBO<Vector2> uvs;
             CalculateMesh(out vertices, out elements, out uvs);
 
-            Lighting.CalculateLighting();
+            Lighting.CalculateAllLighting();
             VBO<float> lightings;
             CalculateLightingMesh(out lightings);
 
@@ -57,7 +63,7 @@ namespace Game.Terrains {
                 int startY = (int)(posY + GameRenderer.zoom / 2 / Program.AspectRatio), endY = (int)(posY - GameRenderer.zoom / 2 / Program.AspectRatio);
                 for (int j = startY >= 0 ? startY : 0; j <= (endY < Tiles.GetLength(1) ? endY : Tiles.GetLength(1) - 1); j++) {
                     if (Tiles[i, j] != Tile.Air) {
-                        float val = (float)Lightings[i, j] / Light.MaxLightLevel;
+                        float val = Lightings[i, j] / Light.MaxLightLevel;
                         lightingsList.AddRange(new float[] {
                             val,val,val,val
                         });
@@ -128,7 +134,11 @@ namespace Game.Terrains {
             Lights.Add(l);
         }
 
-        public static bool WillCollide(Entity entity, Vector2 offset) {
+        public static bool WillCollide(Entity entity, Vector2 offset, out Tile collidedTile) {
+            if (offset.x > 1) offset.x = 1;
+            if (offset.x < -1) offset.x = -1;
+            if (offset.y > 1) offset.y = 1;
+            if (offset.y < -1) offset.y = -1;
 
             int x1 = (int)(entity.Position.x + offset.x);
             int x2 = (int)(entity.Position.x + entity.Hitbox.Width + offset.x - Epsilon);
@@ -138,13 +148,20 @@ namespace Game.Terrains {
 
             for (int i = x1; i <= x2; i++) {
                 for (int j = y1; j <= y2; j++) {
-                    if (TileInteract.IsSolid(TileAt(i, j))) return true;
+                    if (TileInteract.IsSolid(TileAt(i, j))) {
+                        collidedTile = TileAt(i, j);
+                        return true;
+                    }
                 }
             }
+            collidedTile = Tile.Air;
             return false;
         }
 
-        public static bool IsColliding(Entity entity) { return WillCollide(entity, Vector2.Zero); }
+        public static bool IsColliding(Entity entity) {
+            Tile col;
+            return WillCollide(entity, Vector2.Zero, out col);
+        }
 
         public static Vector2 CorrectTerrainCollision(Entity entity) {
             int height = -1;
@@ -222,10 +239,13 @@ namespace Game.Terrains {
                 Model.Elements = elements;
                 Model.UVs = uvs;
 
-                Lighting.CalculateLighting();
+                if (UpdateLighting) {
+                    Lighting.CalculateLighting();
+                }
                 VBO<float> lightings;
                 CalculateLightingMesh(out lightings);
                 Model.Lightings = lightings;
+
             }
             UpdateMesh = false;
         }

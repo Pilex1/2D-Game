@@ -14,8 +14,10 @@ namespace Game {
         public const float AspectRatio = (float)Width / Height;
 
         public static bool FullScreen { get; private set; }
-       
+
         static void Main() {
+
+
             Init();
 
             Glut.glutMainLoop();
@@ -30,6 +32,7 @@ namespace Game {
             Glut.glutCreateWindow("");
             //Glut.glutGameModeString(Width+"x"+Height+":32@60");
 
+            Gl.Viewport(0, 0, Width, Height);
             Glut.glutDisplayFunc(delegate () { });
             Glut.glutIdleFunc(MainGameLoop);
 
@@ -47,8 +50,13 @@ namespace Game {
         }
 
         private static void MainGameLoop() {
-            Gl.Viewport(0, 0, Width, Height);
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            ErrorCode error = Gl.GetError();
+            if (error != ErrorCode.NoError) {
+                Debug.Write("Opengl ERROR: " + error);
+                Debug.Assert(false);
+            }
 
             GameLogic.Update();
             GameLogic.Render();
@@ -59,6 +67,6 @@ namespace Game {
         private static void Deinit() {
             GameLogic.Deinit();
         }
-        
+
     }
 }

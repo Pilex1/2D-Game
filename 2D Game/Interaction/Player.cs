@@ -6,6 +6,7 @@ using Game.Entities;
 using Game.Interaction;
 using Game.Assets;
 using Game.Terrains;
+using Game.Util;
 
 namespace Game {
     class Player : Rectangle {
@@ -14,22 +15,21 @@ namespace Game {
         public static bool[] Mouse { get; private set; }
         public static int MouseX { get; private set; }
         public static int MouseY { get; private set; }
-        public const int W = 0, A = 1, S = 2, D = 3, Space = 4;
         public const int Left = 0, Middle = 1, Right = 2;
 
-        public const int StartX = 580, StartY = 0;
-        
+        public const int StartX = 580, StartY = 70;
+
+        private static BoolSwitch Flying = false;
+
         public static Player Instance { get; private set; }
 
-        private static bool Flying = false;
-
-        private Player() : base(new Vector2(1, 2), new Vector2(StartX,StartY), new Vector4[] { new Vector4(1, 0, 0, 1), new Vector4(0, 1, 0, 1), new Vector4(0, 0, 1, 1), new Vector4(1, 0, 1, 1) }, PolygonMode.Fill, 10) {
-            Speed = 0.5f;
+        private Player() : base(new Vector2(1, 2), new Vector2(StartX, StartY), new Vector4[] { new Vector4(1, 0, 0, 1), new Vector4(0, 1, 0, 1), new Vector4(0, 0, 1, 1), new Vector4(1, 0, 1, 1) }, PolygonMode.Fill, 0.5f) {
+            Speed = 0.08f;
         }
 
         public static void Init() {
-            Keys = new bool[100];
-            Mouse = new bool[3]; 
+            Keys = new bool[255];
+            Mouse = new bool[3];
 
             Instance = new Player();
             Instance.CorrectTerrainCollision();
@@ -45,36 +45,27 @@ namespace Game {
         }
 
         public override void Update() {
-            if (Keys[A]) {
+            if (Keys['a']) {
                 Instance.MoveLeft();
-                Terrain.UpdateMesh = true;
             }
-            if (Keys[D]) {
+            if (Keys['d']) {
                 Instance.MoveRight();
-                Terrain.UpdateMesh = true;
+            }
+            if (Keys['w']) {
+                Instance.Jump();
             }
             if (Flying) {
-                UseGravity = false;
-                if (Keys[W]) {
-                    Instance.MoveUp();
-                    Terrain.UpdateMesh = true;
-                }
-                if (Keys[S]) {
-                    Instance.MoveDown();
-                    Terrain.UpdateMesh = true;
-                }
+                Instance.UseGravity = false;
+                if (Keys['s']) Instance.Fall();
             } else {
-                UseGravity = true;
-                if (Keys[W]) {
-                    Instance.MoveUp();
-                    Terrain.UpdateMesh = true;
-                } else {
-                    Falling = true;
-                }
-                if (Instance.MoveDown()) {
-                    Terrain.UpdateMesh = true;
-                }
+                Instance.UseGravity = true;
             }
+
+            if (Instance.UpdatePosition()) {
+                Terrain.UpdateMesh = true;
+            }
+
+
 
             if (Mouse[Left]) {
                 if (Hotbar.CurrentlySelectedItem() == Item.None) {
@@ -93,7 +84,7 @@ namespace Game {
                 }
             }
             Hitbox.Position = Position;
-            
+
         }
 
         public static void Damage(float hp) {
@@ -139,27 +130,24 @@ namespace Game {
             Vector4 rayWorldTemp = inverseViewMatrix * eyeCoords;
             Vector2 rayWorld = new Vector2(rayWorldTemp.x, rayWorldTemp.y);
 
-            Vector2 intersectTerrain = Instance.Position - rayWorld * GameRenderer.zoom-new Vector2(0,1);
+            Vector2 intersectTerrain = Instance.Position - rayWorld * GameRenderer.zoom - new Vector2(0, 1);
             return intersectTerrain;
         }
 
         private static void OnKeyboardDown(byte key, int x, int y) {
-            if (key == 'w') Keys[W] = true;
-            if (key == 'a') Keys[A] = true;
-            if (key == 's') Keys[S] = true;
-            if (key == 'd') Keys[D] = true;
-            if (key == ' ') Keys[Space] = true;
-            if (key == 'f') Flying = !Flying;
-            if (key == 'r') GameRenderer.RenderWireframe.Toggle();
+            Keys[key] = true;
+
+
+            if (key == 'l') {
+                Terrain.UpdateLighting.Toggle();
+                Terrain.UpdateMesh = true;
+            }
+            if (key == 'f') Flying.Toggle();
             if (key == 'e') GameLogic.RemoveAllEntities();
             if (key == 27) Glut.glutLeaveMainLoop();
         }
         private static void OnKeyboardUp(byte key, int x, int y) {
-            if (key == 'w') Keys[W] = false;
-            if (key == 'a') Keys[A] = false;
-            if (key == 's') Keys[S] = false;
-            if (key == 'd') Keys[D] = false;
-            if (key == ' ') Keys[Space] = false;
+            Keys[key] = false;
         }
 
         public static Vector2 ToPlayer(Vector2 pos) { return new Vector2(Instance.Position.x - pos.x, Instance.Position.y - pos.y).Normalize(); }

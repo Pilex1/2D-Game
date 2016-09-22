@@ -4,7 +4,28 @@ using Game.Util;
 using System.Diagnostics;
 
 namespace Game.Terrains {
-    class Lighting {
+    static class Lighting {
+
+        //temporary til i get better lighting algorithm
+        internal static void CalculateAllLighting() {
+            Terrain.Lightings = new float[Terrain.Tiles.GetLength(0), Terrain.Tiles.GetLength(1)];
+            //calculate lightings for each tile
+            //sun lighting
+            for (int i = 0; i <= Terrain.MaxWidth; i++) {
+
+                int top, bottom;
+                LightingRange(i, out top, out bottom);
+
+                for (int j = bottom; j <= top; j++) {
+                    SpreadLighting(i, j, Light.MaxLightLevel);
+                }
+            }
+
+            //artificial lighting
+            foreach (Light l in Terrain.Lights) {
+                SpreadLighting(l.x, l.y, l.LightLevel);
+            }
+        }
 
         internal static void CalculateLighting() {
 
@@ -64,7 +85,7 @@ namespace Game.Terrains {
             for (int i = -radius; i <= radius; i++) {
                 for (int j = (int)Math.Ceiling(-Math.Sqrt(radius * radius - i * i)); j <= (int)Math.Sqrt(radius * radius - i * i); j++) {
                     float distSq = i * i + j * j;
-                    SetLighting(x + i, y + j, Light.MaxLightLevel * (radius*radius-distSq) / (radius * radius));
+                    SetLighting(x + i, y + j, Light.MaxLightLevel * (radius * radius - distSq) / (radius * radius));
                 }
             }
         }

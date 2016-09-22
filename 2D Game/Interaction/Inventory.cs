@@ -44,7 +44,7 @@ namespace Game.Interaction {
             elementsArr[2 * (Inventory.InvColumns + 1) + 3] = 2 * (Inventory.InvColumns + 1) - 1;
             VBO<int> elements = new VBO<int>(elementsArr, BufferTarget.ElementArrayBuffer);
 
-            Texture texture = ColourUtil.TexFromColour(new Vector4(0,0,0.1,1));
+            Texture texture = ColourUtil.TexFromColour(new Vector4(0, 0, 0.1, 1));
             Vector2[] uvs = new Vector2[verticesArr.Length];
             for (int i = 0; i < uvs.Length; i++) {
                 uvs[i] = new Vector2(0, 0);
@@ -85,7 +85,7 @@ namespace Game.Interaction {
         private static VBO<Vector2> CalcTexturedItemsUV() {
             Vector2[] uvsArr = new Vector2[4 * Inventory.InvColumns];
             for (int i = 0; i < Inventory.InvColumns; i++) {
-                Item t = Inventory.Items[i, 0].Item1;
+                Item t = Inventory.Items[0, i].Item1;
                 float x = ((float)((int)t % ItemTextureSize)) / ItemTextureSize;
                 float y = ((float)((int)t / ItemTextureSize)) / ItemTextureSize;
                 float s = 1f / ItemTextureSize;
@@ -115,12 +115,17 @@ namespace Game.Interaction {
         }
 
         public static Item CurrentlySelectedItem() {
-            return Inventory.Items[CurSelectedSlot, 0].Item1;
+            return Inventory.Items[0, CurSelectedSlot].Item1;
         }
     }
     static class Inventory {
+
+        public static TexturedModel Frame;
+        public static TexturedModel TexturedItems;
+        public static TexturedModel CurSelected;
+
         internal const int InvColumns = 9, InvRows = 6;
-        internal static Tuple<Item, uint>[,] Items = new Tuple<Item, uint>[InvColumns, InvRows];
+        internal static Tuple<Item, uint>[,] Items = new Tuple<Item, uint>[InvRows, InvColumns];
 
         public static void Init() {
             for (int i = 0; i < Items.GetLength(0); i++) {
@@ -131,13 +136,31 @@ namespace Game.Interaction {
 
             Hotbar.Init();
 
-            for (int i = 0; i < 5; i++) {
-                Items[i, 0] = new Tuple<Item, uint>((Item)i, 1);
-            }
-            Items[5, 0] = new Tuple<Item, uint>(Item.Tnt, 1);
-            Items[6, 0] = new Tuple<Item, uint>(Item.Sapling, 1);
+            Items[0, 0] = new Tuple<Item, uint>(Item.Tnt, 1);
+            Items[0, 1] = new Tuple<Item, uint>(Item.Nuke, 1);
+            Items[0, 2] = new Tuple<Item, uint>(Item.FutureMetal, 1);
+            Items[0, 3] = new Tuple<Item, uint>(Item.WeatheredStone, 1);
+            Items[0, 4] = new Tuple<Item, uint>(Item.SmoothSlab, 1);
+            Items[0, 5] = new Tuple<Item, uint>(Item.Marble, 1);
+            Items[0, 6] = new Tuple<Item, uint>(Item.Crate, 1);
+            Items[0, 7] = new Tuple<Item, uint>(Item.Bounce, 1);
 
             Hotbar.Update();
+        }
+
+        private static void InitFrame() {
+            Vector2[] verticesArr = new Vector2[(InvColumns + 1) * (InvRows + 1)];
+            int ptr = 0;
+            for (int i = 0; i < InvColumns + 1; i++) {
+                for (int j = 0; j < InvRows + 1; j++) {
+                    verticesArr[i] = new Vector2(i * Hotbar.SizeX, j * Hotbar.SizeY);
+                    ptr++;
+                }
+            }
+
+            Vector2[] elementsArr = new Vector2[2 * (InvColumns + 1) + 2 * (InvRows + 1)];
+            ptr = 0;
+
         }
     }
 }

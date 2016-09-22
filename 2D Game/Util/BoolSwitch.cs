@@ -2,16 +2,19 @@
 
 namespace Game.Util {
     class BoolSwitch {
-        private bool Val;
+        private bool val;
         public BoolSwitch(bool val) {
-            Val = val;
+            this.val = val;
         }
-        public bool Toggle() {
-            Val = !Val;
-            return Val;
+        public void Toggle() {
+            val = !val;
         }
-        public bool Value() {
-            return Val;
+        public static implicit operator bool(BoolSwitch bs) {
+            return bs.val;
         }
+        public static implicit operator BoolSwitch(bool b) {
+            return new BoolSwitch(b);
+        }
+
     }
 }

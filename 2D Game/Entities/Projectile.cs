@@ -17,7 +17,7 @@ namespace Game {
 
         private static readonly float Sqrt2 = (float)Math.Sqrt(2);
 
-        public Projectile(Vector2 position, Vector2 velocity, Vector4 colour, int life, float rotationSpeed) : base(new Vector2(1, 1), position, new Vector4[] { colour, colour, colour, colour },PolygonMode.Fill, new RectangularHitbox(position - new Vector2((1 - Sqrt2) / 2, (1 - Sqrt2) / 2), new Vector2(Sqrt2, Sqrt2)), 0) {
+        public Projectile(Vector2 position, Vector2 velocity, Vector4 colour, int life, float rotationSpeed) : base(new Vector2(1, 1), position, new Vector4[] { colour, colour, colour, colour }, PolygonMode.Fill, new RectangularHitbox(position - new Vector2((1 - Sqrt2) / 2, (1 - Sqrt2) / 2), new Vector2(Sqrt2, Sqrt2)), 0) {
             Velocity = velocity;
             Life = life;
             RotationSpeed = rotationSpeed;
@@ -26,8 +26,8 @@ namespace Game {
 
         public override void Update() {
             Hitbox.Position = Position;
-            Position += Velocity*GameLogic.DeltaTime;
-            Rotation += RotationSpeed*GameLogic.DeltaTime;
+            Position += Velocity * GameLogic.DeltaTime;
+            Rotation += RotationSpeed * GameLogic.DeltaTime;
             if (Life <= 0) GameLogic.RemoveEntity(this);
             if (Terrain.IsColliding(this)) {
                 for (int i = (int)Position.x; i <= (int)Math.Ceiling(Position.x + Hitbox.Width); i++) {
@@ -41,9 +41,10 @@ namespace Game {
                 Player.Damage(1);
                 GameLogic.RemoveEntity(this);
             }
-            Life-=GameLogic.DeltaTime;
+            Life -= GameLogic.DeltaTime;
         }
 
-        public override Matrix4 ModelMatrix() {return Matrix4.CreateRotationZ(Rotation) * Matrix4.CreateTranslation(new Vector3(Position.x, Position.y, 0));}
+        public override Matrix4 ModelMatrix() { return Matrix4.CreateRotationZ(Rotation) * Matrix4.CreateTranslation(new Vector3(Position.x, Position.y, 0)); }
+
     }
 }

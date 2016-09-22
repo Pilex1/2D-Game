@@ -20,8 +20,6 @@ namespace Game {
         public static Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(FOV, (float)Program.Width / Program.Height, Near, Far);
         public static Matrix4 viewMatrix;
 
-        public static BoolSwitch RenderWireframe = new BoolSwitch(false);
-
         public static void Init() {
             //GL Stuff
             Gl.Enable(EnableCap.DepthTest);
@@ -92,10 +90,7 @@ namespace Game {
             Gl.BindBufferToShaderAttribute(model.Vertices, GuiShader, "vertexPosition");
             Gl.BindTexture(model.Texture);
             Gl.BindBufferToShaderAttribute(((TexturedModel)model).UVs, GuiShader, "uv");
-
             Gl.BindBuffer(model.Elements);
-            if (RenderWireframe.Value()) Gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-            else Gl.PolygonMode(MaterialFace.FrontAndBack, model.PolyMode);
             Gl.DrawElements(model.DrawingMode, model.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
         }
 
@@ -115,8 +110,6 @@ namespace Game {
             Gl.BindBufferToShaderAttribute(model.Vertices, EntityShader, "vertexPosition");
             Gl.BindBufferToShaderAttribute(model.Colours, EntityShader, "colour");
             Gl.BindBuffer(model.Elements);
-            if (RenderWireframe.Value()) Gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-            else Gl.PolygonMode(MaterialFace.FrontAndBack, model.PolyMode);
             Gl.DrawElements(model.DrawingMode, model.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
         }
 
@@ -131,8 +124,6 @@ namespace Game {
                 Gl.BindBufferToShaderAttribute(model.Lightings, TerrainShader, "vertexLighting");
                 Gl.BindBuffer(model.Elements);
                 Gl.BindTexture(model.Texture);
-                if (RenderWireframe.Value()) Gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-                else Gl.PolygonMode(MaterialFace.FrontAndBack, model.PolyMode);
                 Gl.DrawElements(model.DrawingMode, model.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
             }
         }
