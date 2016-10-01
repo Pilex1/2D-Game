@@ -19,7 +19,7 @@ namespace Game {
 
         public const int StartX = 580, StartY = 70;
 
-        private static BoolSwitch Flying = false;
+        private static BoolSwitch Flying = true;
 
         public static Player Instance { get; private set; }
 

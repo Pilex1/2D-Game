@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenGL;
+using System;
 
 namespace Game.Util {
 
@@ -76,6 +77,14 @@ namespace Game.Util {
         }
         public static void ClampMax(ref int x, int max) {
             Clamp(ref x, int.MinValue, max);
+        }
+        public static void Clamp(Vector3 v, Vector3 min, Vector3 max) {
+            if (v.x < min.x) v.x = min.x;
+            if (v.x > max.x) v.x = max.x;
+            if (v.y < min.y) v.y = min.y;
+            if (v.y > max.y) v.y = max.y;
+            if (v.z < min.z) v.z = min.z;
+            if (v.z > max.z) v.z = max.z;
         }
         #endregion Clamp
 

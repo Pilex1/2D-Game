@@ -98,7 +98,7 @@ namespace Game {
 
 
 
-            Tile col = new Air(0, 0);
+            Tile col;
             Vector2 offset = new Vector2(0, dy * GameLogic.DeltaTime);
             if (Terrain.WillCollide(this, offset, out col)) {
                 if (dy > 0) {
@@ -129,8 +129,7 @@ namespace Game {
                 Position += offset;
                 InAir = true;
             }
-
-            col = new Air(0, 0);
+            
             offset = new Vector2(dx, 0);
             if (Terrain.WillCollide(this, offset, out col)) {
                 if (dx > 0) Position = new Vector2((int)Math.Ceiling(Position.x), Position.y);

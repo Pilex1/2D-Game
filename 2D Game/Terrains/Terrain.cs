@@ -7,6 +7,7 @@ using Game.Util;
 using System.Diagnostics;
 using System.Linq;
 using Game.Fluids;
+using Game.Logics;
 
 namespace Game.Terrains {
     static class Terrain {
@@ -17,7 +18,6 @@ namespace Game.Terrains {
 
         internal static Tile[,] Tiles;
         internal static float[,] Lightings;
-        internal static HashSet<Light> Lights = new HashSet<Light>();
 
         public static int MaxHeight { get; private set; }
         public static int MaxWidth { get; private set; }
@@ -27,11 +27,11 @@ namespace Game.Terrains {
         private const float Epsilon = 0.001f;
 
         //temporary until i get more efficient lighting algorithms
-        public static BoolSwitch UpdateLighting = false;
+        public static BoolSwitch UpdateLighting = true;
 
 
         public static void Init() {
-            TerrainGen.Generate(314159);
+            TerrainGen.Generate(45844);
 
             MaxWidth = Tiles.GetLength(0) - 1;
             MaxHeight = Tiles.GetLength(1) - 1;
@@ -102,11 +102,13 @@ namespace Game.Terrains {
                         //half pixel correction
                         float h = 1f / (TerrainTextureSize * TerrainTextureSize * 2);
 
+                        float height = t is Fluid ? ((Fluid)t).Height : 1f;
+
                         //top left, bottom left, top right, bottom right
                         verticesList.AddRange(new Vector2[] {
-                            new Vector2(i,j+1),
+                            new Vector2(i,j+height),
                             new Vector2(i,j),
-                            new Vector2(i+1,j+1),
+                            new Vector2(i+1,j+height),
                             new Vector2(i+1,j)
                         });
                         uvList.AddRange(new Vector2[] {
@@ -133,11 +135,6 @@ namespace Game.Terrains {
             elements = new VBO<int>(elementsArr, BufferTarget.ElementArrayBuffer, Hint: BufferUsageHint.DynamicDraw);
         }
 
-
-        public static void AddLight(Light l) {
-            Lights.Add(l);
-        }
-
         public static bool WillCollide(Entity entity, Vector2 offset, out Tile collidedTile) {
             if (offset.x > 1) offset.x = 1;
             if (offset.x < -1) offset.x = -1;
@@ -152,7 +149,7 @@ namespace Game.Terrains {
 
             for (int i = x1; i <= x2; i++) {
                 for (int j = y1; j <= y2; j++) {
-                    if ((Tiles[i, j] is ISolid)) {
+                    if (TileAt(i, j) is ISolid) {
                         collidedTile = TileAt(i, j);
                         return true;
                     }
@@ -208,15 +205,30 @@ namespace Game.Terrains {
             return BreakTile(t.x, t.y);
         }
         public static Tile BreakTile(int x, int y) {
-            if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return new Air(0, 0);
+            if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return new Invalid();
             Tile res = TileAt(x, y);
-            if (res.id == TileID.Bedrock) return new Air(0, 0);
+            if (res.id == TileID.Bedrock) return new Invalid();
+            if (res is Fluid) FluidsManager.RemoveFluid((Fluid)res);
+            if (res is Logic) LogicManager.RemoveLogic((Logic)res);
             Tiles[x, y] = new Air(x, y);
             UpdateMesh = true;
             return res;
         }
 
+        internal static Tile ReplaceTile(int x, int y, TileID id) {
+            if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return new Invalid();
+            if (id == TileID.Bedrock) return new Invalid();
+            Tile res = TileAt(x, y);
+            Tiles[x, y].id = id;
+            return res;
+        }
+
         public static void Update() {
+
+
+            FluidsManager.Update();
+            LogicManager.Update();
+
             if (UpdateMesh) {
                 VBO<Vector2> vertices;
                 VBO<int> elements;
@@ -236,7 +248,6 @@ namespace Game.Terrains {
             }
             UpdateMesh = false;
 
-            FluidsManager.Update();
         }
 
     }

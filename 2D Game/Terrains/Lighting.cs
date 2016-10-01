@@ -2,17 +2,30 @@
 using Game.Assets;
 using Game.Util;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace Game.Terrains {
     static class Lighting {
 
-        internal static int[,] MaxHeights;
+        internal static int[] MaxHeights;
+
+        internal static HashSet<Light> Lights = new HashSet<Light>();
 
         //temporary til i get better lighting algorithm
 
         internal static void Init() {
-            MaxHeights = new int[Terrain.Tiles.GetLength(0), Terrain.Tiles.GetLength(1)];
+            MaxHeights = new int[Terrain.Tiles.GetLength(0)];
 
+            for (int i = 0; i < MaxHeights.Length; i++) {
+                MaxHeights[i] = HeightAt(i);
+            }
+        }
+
+        private static int HeightAt(int x) {
+            for (int j = Terrain.Tiles.GetLength(1); j >= 0; j--) {
+                if (!(Terrain.TileAt(x, j) is ISolid)) return j;
+            }
+            return 0;
         }
 
 
@@ -31,7 +44,7 @@ namespace Game.Terrains {
             }
 
             //artificial lighting
-            foreach (Light l in Terrain.Lights) {
+            foreach (Light l in Lights) {
                 SpreadLighting(l.x, l.y, l.LightLevel);
             }
         }
@@ -67,11 +80,14 @@ namespace Game.Terrains {
             }
 
             //artificial lighting
-            foreach (Light l in Terrain.Lights) {
+            foreach (Light l in Lights) {
                 SpreadLighting(l.x, l.y, l.LightLevel);
             }
         }
 
+        public static void AddLight(Light l) {
+            Lights.Add(l);
+        }
 
 
         private static void LightingRange(int cx, out int top, out int bottom) {

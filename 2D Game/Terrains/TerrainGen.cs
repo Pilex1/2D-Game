@@ -5,7 +5,7 @@ using Game.Util;
 namespace Game.Terrains {
 
     enum Biomes {
-        Plains, Desert, Mountain, Forest
+        Plains, Desert, Mountain, SnowForest, Forest,
     }
 
     internal static class TerrainGen {
@@ -28,6 +28,7 @@ namespace Game.Terrains {
         private static void GenerateTerrain() {
             //init
             Terrain.Tiles = new Tile[Size, 256];
+
             for (int i = 0; i < Terrain.Tiles.GetLength(0); i++) {
                 for (int j = 0; j < Terrain.Tiles.GetLength(1); j++) {
                     new Air(i, j);
@@ -40,7 +41,7 @@ namespace Game.Terrains {
             int biomeSizeMin = 10, biomeSizeMax = 20;
             while (ptr < Size / WidthFactor) {
                 int biomeSize = MathUtil.RandInt(Rand, biomeSizeMin, biomeSizeMax);
-                Biomes b = (Biomes)MathUtil.RandInt(Rand, 0, 2);
+                Biomes b = (Biomes)MathUtil.RandInt(Rand, 0, 3);
                 if (b == Biomes.Plains && MathUtil.RandFloat(Rand, 0, 1) < 0.8) b = Biomes.Desert;
                 h = GenBiome(ptr * WidthFactor, h, biomeSize, b);
                 ptr += biomeSize;
@@ -144,9 +145,9 @@ namespace Game.Terrains {
                         int x = posX + i * WidthFactor + j;
 
                         for (int k = 0; k <= y; k++) {
-                            if (k <= y - 3 + MathUtil.RandDouble(Rand, 0, 2)) new Stone(x,k);
-                            else if (k <= y - 2 + MathUtil.RandDouble(Rand, 0, 2)) new Dirt(x,k);
-                            else new Grass(x,k);
+                            if (k <= y - 3 + MathUtil.RandDouble(Rand, 0, 2)) new Stone(x, k);
+                            else if (k <= y - 2 + MathUtil.RandDouble(Rand, 0, 2)) new Dirt(x, k);
+                            else new Grass(x, k);
                         }
 
                         mountainCounter++;
@@ -171,16 +172,78 @@ namespace Game.Terrains {
                     v3 = v4;
                     v4 = v3 + heightsGen();
                 }
+            } else if (biome == Biomes.SnowForest) {
+                float heightVar = 15;
+
+                Func<float> heightsGen = new Func<float>(delegate () {
+                    return MathUtil.RandFloat(Rand, SeaLevel, SeaLevel + heightVar);
+                });
+
+                float v1 = posY, v2 = v1, v3 = heightsGen(), v4 = heightsGen();
+
+                int treeCounter = 0;
+                Func<int> treeGen = new Func<int>(delegate () { return MathUtil.RandInt(Rand, 15, 30); });
+                int treeDist = treeGen();
+
+                for (int i = 0; i < size; i++) {
+                    for (int j = 0; j < WidthFactor; j++) {
+                        int y = MathUtil.CatmullRomCubicInterpolate(v1, v2, v3, v4, (float)j / WidthFactor);
+                        lastHeight = y;
+                        int x = posX + i * WidthFactor + j;
+
+                        for (int k = 0; k <= y; k++) {
+                            if (k >= y - (6 + MathUtil.RandInt(Rand, 0, 3))) {
+                                new Snow(x, k);
+                            } else if (k >= 12 + MathUtil.RandInt(Rand, 0, 3)) {
+                                new Dirt(x, k);
+                            } else {
+                                new Stone(x, k);
+                            }
+                        }
+
+                        treeCounter++;
+                        if (treeCounter == treeDist) {
+                            SnowTree(x, y + 1);
+                            treeCounter = 0;
+                            treeDist = treeGen();
+                        }
+                    }
+                    v1 = v2;
+                    v2 = v3;
+                    v3 = v4;
+                    v4 = heightsGen();
+                }
             }
 
             return lastHeight;
+        }
+
+        private static void SnowTree(int x, int y) {
+            int treeheight = MathUtil.RandInt(Rand, 8, 13);
+            int branchesStartingHeight = MathUtil.RandInt(Rand, treeheight / 3, 2 * treeheight / 3);
+            for (int i = branchesStartingHeight, c = 0; i <= treeheight; i ++,c++) {
+                double ratio =1- (double)c / (treeheight - branchesStartingHeight);
+                ratio *= MathUtil.RandDouble(Rand, 0.8, 1.2);
+                double branchLength = MathUtil.RandDouble(Rand, 8, 12);
+                int l = (int)(branchLength*ratio * MathUtil.RandDouble(Rand, 0.8, 1.2)), r = (int)(branchLength*ratio * MathUtil.RandDouble(Rand, 0.8, 1.2));
+                Console.WriteLine(l+"," + r);
+                for (int j = 0; j < l; j++) {
+                    new SnowLeaf(x - j, y+i);
+                }
+                for (int j = 0; j < r; j++) {
+                    new SnowLeaf(x + j, y+i);
+                }
+            }
+            for (int i = 0; i < treeheight; i++) {
+                Terrain.ReplaceTile(x, y + i, TileID.SnowWood);
+            }
         }
 
         private static void Tree(int x, int y) {
             //generate wood
             int trunkHeight = (int)(5 + 3 * Rand.NextDouble());
             for (int i = y; i < y + trunkHeight; i++) {
-                new Wood(x,i);
+                new Wood(x, i);
             }
 
             //generate leaves
@@ -220,7 +283,7 @@ namespace Game.Terrains {
             int height = MathUtil.RandInt(Rand, 5, 8);
             //stem
             for (int i = 0; i < height; i++) {
-                new Cactus(x,y+i);
+                new Cactus(x, y + i);
             }
 
             if (MathUtil.RandDouble(Rand, 0, 1) < 0.8) {
@@ -233,7 +296,7 @@ namespace Game.Terrains {
             int l = MathUtil.RandInt(Rand, 1, 2);
             int r = MathUtil.RandInt(Rand, 1, 2);
             for (int i = x - l; i <= x + r; i++) {
-                new Cactus(i,y);
+                new Cactus(i, y);
             }
 
             int hl = MathUtil.RandInt(Rand, 3, 5);

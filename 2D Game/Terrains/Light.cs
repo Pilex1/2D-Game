@@ -3,7 +3,7 @@ using OpenGL;
 
 namespace Game {
     class Light {
-        public const int MaxLightLevel = 16;
+        public const int MaxLightLevel = 12;
 
         public int x, y;
         public int LightLevel;

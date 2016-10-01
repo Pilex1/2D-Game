@@ -11,29 +11,28 @@ namespace Game.Fluids {
 
         private const int FluidTexSize = 16;
 
-        private static HashSet<IFluid> FluidsList = new HashSet<IFluid>();
-        private static HashSet<IFluid> BatchFluids = new HashSet<IFluid>();
-        private static HashSet<IFluid> BatchRemoveFluids = new HashSet<IFluid>();
+        private static HashSet<Fluid> FluidsList = new HashSet<Fluid>();
+        private static HashSet<Fluid> BatchFluids = new HashSet<Fluid>();
+        private static HashSet<Fluid> BatchRemoveFluids = new HashSet<Fluid>();
 
-        public static void AddFluid(IFluid f) {
+        internal static void AddFluid(Fluid f) {
             BatchFluids.Add(f);
         }
 
-        public static void RemoveFluid(IFluid f) {
+        internal static void RemoveFluid(Fluid f) {
             BatchRemoveFluids.Add(f);
-            Tile t = (Tile)f;
-            Terrain.BreakTile(t);
         }
 
         public static void Update() {
 
-            foreach (IFluid f in BatchFluids) FluidsList.Add(f);
-            foreach (IFluid f in BatchRemoveFluids) FluidsList.Remove(f);
+            foreach (Fluid f in BatchFluids) FluidsList.Add(f);
+            foreach (Fluid f in BatchRemoveFluids) FluidsList.Remove(f);
+
             BatchFluids.Clear();
             BatchRemoveFluids.Clear();
 
-            foreach (IFluid f in FluidsList) {
-                f.Flow();
+            foreach (Fluid f in FluidsList) {
+                f.Update();
             }
 
         }

@@ -5,6 +5,7 @@ using Tao.FreeGlut;
 using System.Diagnostics;
 using Game.Entities;
 using Game.Terrains;
+using Game.Core;
 
 namespace Game {
     static class GameLogic {
@@ -28,7 +29,7 @@ namespace Game {
             for (int i = 1; i <= 1; i++) {
                 //  AddEntity(new Shooter(new Vector2(475, 0), 50, 150));
             }
-
+            Background.Init();
         }
 
         public static void Update() {

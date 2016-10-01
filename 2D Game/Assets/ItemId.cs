@@ -1,14 +1,14 @@
 ﻿using System;
 using Game.Terrains;
 using Game.Fluids;
+using Game.Logics;
 
 namespace Game.Assets {
     enum ItemId {
-        None, Grass, Sand, Dirt, Wood, Leaf, Stone, Bedrock, Sword, Tnt, Sapling, Crate, Brick, Metal1, SmoothSlab, WeatheredStone, Metal2, FutureMetal, SmoothSlab2, Marble, PlexSpecial, PurpleStone, Nuke, Cactus, Bounce, Water
+        None, Grass, Sand, Dirt, Wood, Leaf, Stone, Bedrock, Sword, Tnt, Sapling, Crate, Brick, Metal1, SmoothSlab, WeatheredStone, Metal2, FutureMetal, SmoothSlab2, Marble, PlexSpecial, PurpleStone, Nuke, Cactus, Bounce, Water, Wire, Switch, LogicLamp, NULL, NULL2, NULL3, Snow, SnowWood, SnowLeaf, GrassDeco, GateAnd, GateOr
     }
 
     static class ItemInteract {
-        public static object FluidManager { get; private set; }
 
         public static void Interact(ItemId item, int x, int y) {
             if (item == ItemId.PurpleStone) new PurpleStone(x, y);
@@ -34,7 +34,10 @@ namespace Game.Assets {
             else if (item == ItemId.Nuke) new Nuke(x, y);
             else if (item == ItemId.Cactus) new Cactus(x, y);
             else if (item == ItemId.Bounce) new Bounce(x, y);
-            else if (item == ItemId.Water) FluidsManager.AddFluid(new Water(x, y, 1));
+            else if (item == ItemId.Water) new Water(x, y, 1);
+            else if (item == ItemId.Wire) Wire.Create(x, y);
+            else if (item == ItemId.Switch) Switch.Create(x, y);
+            else if (item == ItemId.LogicLamp) LogicLamp.Create(x, y);
         }
     }
 }
