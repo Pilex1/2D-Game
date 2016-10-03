@@ -143,6 +143,7 @@ namespace Game.Interaction {
             Items[0, 4] = new Tuple<ItemId, uint>(ItemId.GateOr, 1);
             Items[0, 5] = new Tuple<ItemId, uint>(ItemId.GateNot, 1);
             Items[0, 6] = new Tuple<ItemId, uint>(ItemId.LogicBridge, 1);
+            Items[0, 7] = new Tuple<ItemId, uint>(ItemId.TilePusher, 1);
 
             Hotbar.Update();
         }

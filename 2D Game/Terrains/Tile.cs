@@ -10,14 +10,16 @@ namespace Game.Terrains {
 
     interface ISolid { }
 
+    interface IUnmovable { }
+
     interface ILightEmitting { }
 
     interface IRightInteractable {
         void Interact();
     }
-
+    //test123
     enum TileID {
-        Invalid = -1, Air, Grass, Sand, Dirt, Wood, Leaf, Stone, Bedrock, Tnt, Sandstone, Sapling, Crate, Brick, Metal1, SmoothSlab, WeatheredStone, Metal2, FutureMetal, SmoothSlab2, Marble, PlexSpecial, PurpleStone, Nuke, Cactus, Bounce, Water, WireOn, WireOff, SwitchOn, SwitchOff, LogicLampUnlit, LogicLampLit, Snow, SnowWood, SnowLeaf, GrassDeco, GateAnd, GateOr, GateNot, LogicBridgeOff, LogicBridgeHorzVertOn, LogicBridgeHorzOn, LogicBridgeVertOn
+        Invalid = -1, Air, Grass, Sand, Dirt, Wood, Leaf, Stone, Bedrock, Tnt, Sandstone, Sapling, Crate, Brick, Metal1, SmoothSlab, WeatheredStone, Metal2, FutureMetal, SmoothSlab2, Marble, PlexSpecial, PurpleStone, Nuke, Cactus, Bounce, Water, WireOn, WireOff, SwitchOn, SwitchOff, LogicLampUnlit, LogicLampLit, Snow, SnowWood, SnowLeaf, GrassDeco, GateAnd, GateOr, GateNot, LogicBridgeOff, LogicBridgeHorzVertOn, LogicBridgeHorzOn, LogicBridgeVertOn, TilePusherOff, TilePusherOn
     }
 
     abstract class Tile {
@@ -52,18 +54,23 @@ namespace Game.Terrains {
         public override string ToString() {
             return String.Format("{0} [{1}, {2}]", GetType().ToString(), x, y);
         }
+        public Vector2i Pos() {
+            return new Vector2i(x, y);
+        }
     }
 
-    class Invalid : Tile {
+    class Invalid : Tile, IUnmovable {
         public Invalid() : base(-1, -1, TileID.Invalid) {
         }
     }
 
-    #region Decoratives
-    class Air : Tile {
+    class Air : Tile, IUnmovable {
         public Air(int x, int y) : base(x, y, TileID.Air) {
         }
     }
+
+    #region Decoratives
+
 
     class Grass : Tile, ISolid {
         public Grass(int x, int y) : base(x, y, TileID.Grass) {

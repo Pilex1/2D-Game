@@ -70,6 +70,7 @@
     <Compile Include="Logics\NOTGate.cs" />
     <Compile Include="Logics\ORGate.cs" />
     <Compile Include="Logics\Switch.cs" />
+    <Compile Include="Logics\TilePusher.cs" />
     <Compile Include="Logics\Wire.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\GameRenderer.cs" />
@@ -85,7 +86,9 @@
     <Compile Include="Util\BoolSwitch.cs" />
     <Compile Include="Util\BoundedFloat.cs" />
     <Compile Include="Util\ColourUtil.cs" />
+    <Compile Include="Util\Direction.cs" />
     <Compile Include="Util\MathUtil.cs" />
+    <Compile Include="Util\Vector2i.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

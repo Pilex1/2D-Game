@@ -7,11 +7,13 @@ namespace Game.Logics {
 
     abstract class Logic : Tile {
 
-
         protected Logic(int x, int y, TileID id) : base(x, y, id) {
 
             LogicManager.AddLogic(this);
         }
+
+        public void SetX(int x) => this.x = x;
+        public void SetY(int y) => this.y = y;
 
         internal abstract void Update();
 
@@ -27,7 +29,6 @@ namespace Game.Logics {
 
         public PowerSource(int x, int y, TileID id) : base(x, y, id) {
         }
-
     }
 
     internal abstract class PowerTransmitter : Logic {
@@ -82,6 +83,7 @@ namespace Game.Logics {
             UpdateU();
             UpdateD();
         }
+
     }
 
     internal abstract class PowerDrain : Logic {

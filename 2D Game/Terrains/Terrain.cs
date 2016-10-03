@@ -205,21 +205,69 @@ namespace Game.Terrains {
             return 1;
         }
 
-        public static Tile TileAt(int x, int y) { return x < 0 || x > MaxWidth || y < 0 || y > MaxHeight ? new Air(0, 0) : Tiles[x, y]; }
+        public static Tile TileAt(int x, int y) { return x < 0 || x > MaxWidth || y < 0 || y > MaxHeight ? new Invalid() : Tiles[x, y]; }
         public static Tile TileAt(float x, float y) { return TileAt((int)x, (int)y); }
 
-        public static Tile BreakTile(Tile t) {
-            return BreakTile(t.x, t.y);
+        public static Tile BreakTile(Tile t, bool update = true) {
+            return BreakTile(t.x, t.y, update);
         }
-        public static Tile BreakTile(int x, int y) {
+        public static Tile BreakTile(int x, int y, bool update = true) {
             if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return new Invalid();
             Tile res = TileAt(x, y);
             if (res.id == TileID.Bedrock) return new Invalid();
-            if (res is Fluid) FluidsManager.RemoveFluid((Fluid)res);
-            if (res is Logic) LogicManager.RemoveLogic((Logic)res);
+            if (update) {
+                if (res is Fluid) FluidsManager.RemoveFluid((Fluid)res);
+                if (res is Logic) LogicManager.RemoveLogic((Logic)res);
+            }
             Tiles[x, y] = new Air(x, y);
             UpdateMesh = true;
             return res;
+        }
+
+        private static void SetTile(int x, int y, TileID id) {
+            if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return;
+            Tiles[x, y].id = id;
+        }
+
+        public static void MoveTile(int x, int y, Direction dir) {
+            switch (dir) {
+                case Direction.Left:
+                    if (TileAt(x - 1, y).id == TileID.Air) {
+                        if (TileAt(x - 1, y) is Logic)
+                            LogicManager.ModifyPosition(new Vector2i(x, y), new Vector2i(x - 1, y));
+                        SetTile(x - 1, y, TileAt(x, y).id);
+                        BreakTile(x, y, false);
+                        UpdateMesh = true;
+                    }
+                    break;
+                case Direction.Right:
+                    if (TileAt(x + 1, y).id == TileID.Air) {
+                        if (TileAt(x + 1, y) is Logic)
+                            LogicManager.ModifyPosition(new Vector2i(x, y), new Vector2i(x + 1, y));
+                        SetTile(x + 1, y, TileAt(x, y).id);
+                        BreakTile(x, y, false);
+                        UpdateMesh = true;
+                    }
+                    break;
+                case Direction.Up:
+                    if (TileAt(x, y + 1).id == TileID.Air) {
+                        if (TileAt(x, y + 1) is Logic)
+                            LogicManager.ModifyPosition(new Vector2i(x, y), new Vector2i(x, y + 1));
+                        SetTile(x, y + 1, TileAt(x, y).id);
+                        BreakTile(x, y, false);
+                        UpdateMesh = true;
+                    }
+                    break;
+                case Direction.Down:
+                    if (TileAt(x, y - 1).id == TileID.Air) {
+                        if (TileAt(x, y - 1) is Logic)
+                            LogicManager.ModifyPosition(new Vector2i(x, y), new Vector2i(x, y - 1));
+                        SetTile(x, y - 1, TileAt(x, y).id);
+                        BreakTile(x, y, false);
+                        UpdateMesh = true;
+                    }
+                    break;
+            }
         }
 
         internal static Tile ReplaceTile(int x, int y, TileID id) {
