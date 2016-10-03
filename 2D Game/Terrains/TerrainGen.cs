@@ -221,17 +221,16 @@ namespace Game.Terrains {
         private static void SnowTree(int x, int y) {
             int treeheight = MathUtil.RandInt(Rand, 8, 13);
             int branchesStartingHeight = MathUtil.RandInt(Rand, treeheight / 3, 2 * treeheight / 3);
-            for (int i = branchesStartingHeight, c = 0; i <= treeheight; i ++,c++) {
-                double ratio =1- (double)c / (treeheight - branchesStartingHeight);
+            for (int i = branchesStartingHeight, c = 0; i <= treeheight; i++, c++) {
+                double ratio = 1 - (double)c / (treeheight - branchesStartingHeight);
                 ratio *= MathUtil.RandDouble(Rand, 0.8, 1.2);
                 double branchLength = MathUtil.RandDouble(Rand, 8, 12);
-                int l = (int)(branchLength*ratio * MathUtil.RandDouble(Rand, 0.8, 1.2)), r = (int)(branchLength*ratio * MathUtil.RandDouble(Rand, 0.8, 1.2));
-                Console.WriteLine(l+"," + r);
+                int l = (int)(branchLength * ratio * MathUtil.RandDouble(Rand, 0.8, 1.2)), r = (int)(branchLength * ratio * MathUtil.RandDouble(Rand, 0.8, 1.2));
                 for (int j = 0; j < l; j++) {
-                    new SnowLeaf(x - j, y+i);
+                    new SnowLeaf(x - j, y + i);
                 }
                 for (int j = 0; j < r; j++) {
-                    new SnowLeaf(x + j, y+i);
+                    new SnowLeaf(x + j, y + i);
                 }
             }
             for (int i = 0; i < treeheight; i++) {

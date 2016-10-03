@@ -1,6 +1,7 @@
 ﻿using System;
 
 namespace Game.Util {
+
     struct BoundedFloat {
 
         public static BoundedFloat Zero = new BoundedFloat(0, 0, 0);
@@ -25,6 +26,14 @@ namespace Game.Util {
             if (val < min || val > max) throw new ArgumentException();
         }
 
+        public void Fill() {
+            val = max;
+        }
+
+        public void Empty() {
+            val = min;
+        }
+
         public static void MoveVals(ref BoundedFloat src, ref BoundedFloat dest, float val) {
             dest.val += val;
             src.val -= val;
@@ -45,10 +54,5 @@ namespace Game.Util {
                 src.val = src.min;
             }
         }
-
-        public static implicit operator float(BoundedFloat f) {
-            return f.val;
-        }
-
     }
 }

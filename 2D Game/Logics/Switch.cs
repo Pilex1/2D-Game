@@ -6,15 +6,16 @@ using Game.Terrains;
 using System.Diagnostics;
 
 namespace Game.Logics {
+
     class Switch : PowerSource, IRightInteractable, ISolid {
 
         private const float cooldown = 20; //time before it can be switched again
         private float cooldownTime = 0;
 
-        private float sourceLevel = 20;
+        private BoundedFloat src = new BoundedFloat(0, 0, 128);
 
         private Switch(int x, int y) : base(x, y, TileID.SwitchOff) {
-            powerL.max = powerR.max = powerU.max = powerD.max = sourceLevel;
+            poweroutL.max = poweroutR.max = poweroutU.max = poweroutD.max = src.max / 4;
         }
 
         public static void Create(int x, int y) {
@@ -32,17 +33,21 @@ namespace Game.Logics {
 
             cooldownTime += GameLogic.DeltaTime;
 
-            powerL.val = powerR.val = powerU.val = powerD.val = (id == TileID.SwitchOn ? sourceLevel : 0);
+            src.val = (id == TileID.SwitchOn ? src.max : 0);
+            BoundedFloat.MoveVals(ref src, ref poweroutL, src.val / 4);
+            BoundedFloat.MoveVals(ref src, ref poweroutR, src.val / 4);
+            BoundedFloat.MoveVals(ref src, ref poweroutU, src.val / 4);
+            BoundedFloat.MoveVals(ref src, ref poweroutD, src.val / 4);
 
             PowerTransmitter l = Terrain.TileAt(x - 1, y) as PowerTransmitter,
                 r = Terrain.TileAt(x + 1, y) as PowerTransmitter,
                 u = Terrain.TileAt(x, y + 1) as PowerTransmitter,
                 d = Terrain.TileAt(x, y - 1) as PowerTransmitter;
 
-            if (l != null) BoundedFloat.MoveVals(ref powerL, ref l.transLevel, powerL * GameLogic.DeltaTime);
-            if (r != null) BoundedFloat.MoveVals(ref powerR, ref r.transLevel, powerR * GameLogic.DeltaTime);
-            if (u != null) BoundedFloat.MoveVals(ref powerU, ref u.transLevel, powerU * GameLogic.DeltaTime);
-            if (d != null) BoundedFloat.MoveVals(ref powerD, ref d.transLevel, powerD * GameLogic.DeltaTime);
+            if (l != null) BoundedFloat.MoveVals(ref poweroutL, ref l.powerinR, poweroutL.val);
+            if (r != null) BoundedFloat.MoveVals(ref poweroutR, ref r.powerinL, poweroutR.val);
+            if (u != null) BoundedFloat.MoveVals(ref poweroutU, ref u.powerinD, poweroutU.val);
+            if (d != null) BoundedFloat.MoveVals(ref poweroutD, ref d.powerinU, poweroutD.val);
         }
     }
 }

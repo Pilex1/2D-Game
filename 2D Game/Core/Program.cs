@@ -22,7 +22,6 @@ namespace Game {
 
             Glut.glutMainLoop();
 
-            CleanUp();
         }
 
         private static void Init() {
@@ -35,6 +34,7 @@ namespace Game {
             Gl.Viewport(0, 0, Width, Height);
             Glut.glutDisplayFunc(delegate () { });
             Glut.glutIdleFunc(MainGameLoop);
+            Glut.glutWMCloseFunc(CleanUp);
 
             GameLogic.Init();
         }

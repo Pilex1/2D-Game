@@ -6,6 +6,7 @@ using System.Diagnostics;
 using Game.Entities;
 using Game.Terrains;
 using Game.Core;
+using System.Threading;
 
 namespace Game {
     static class GameLogic {
@@ -72,6 +73,8 @@ namespace Game {
             //update terrain
             Terrain.Update();
 
+           // Thread.Sleep(1000 / 20);
+
         }
 
         public static void AddEntity(Entity entity) {
@@ -96,6 +99,7 @@ namespace Game {
                 entity.Model.CleanUp();
             }
             Entities.Clear();
+            Terrain.CleanUp();
         }
     }
 }

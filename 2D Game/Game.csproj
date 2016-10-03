@@ -51,6 +51,7 @@
     <Compile Include="Assets\Asset.cs" />
     <Compile Include="Assets\ItemId.cs" />
     <Compile Include="Core\Background.cs" />
+    <Compile Include="Core\Serialization.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\Hitbox.cs" />
     <Compile Include="Entities\Model.cs" />
@@ -62,10 +63,11 @@
     <Compile Include="Core\Program.cs" />
     <Compile Include="Entities\Projectile.cs" />
     <Compile Include="Logics\ANDGate.cs" />
-    <Compile Include="Logics\Event.cs" />
     <Compile Include="Logics\Logic.cs" />
+    <Compile Include="Logics\LogicBridge.cs" />
     <Compile Include="Logics\LogicLamp.cs" />
     <Compile Include="Logics\LogicManager.cs" />
+    <Compile Include="Logics\NOTGate.cs" />
     <Compile Include="Logics\ORGate.cs" />
     <Compile Include="Logics\Switch.cs" />
     <Compile Include="Logics\Wire.cs" />

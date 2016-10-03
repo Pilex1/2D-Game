@@ -135,15 +135,14 @@ namespace Game.Interaction {
             }
 
             Hotbar.Init();
-
-            Items[0, 0] = new Tuple<ItemId, uint>(ItemId.Tnt, 1);
-            Items[0, 1] = new Tuple<ItemId, uint>(ItemId.Nuke, 1);
-            Items[0, 2] = new Tuple<ItemId, uint>(ItemId.Switch, 1);
-            Items[0, 3] = new Tuple<ItemId, uint>(ItemId.Wire, 1);
-            Items[0, 4] = new Tuple<ItemId, uint>(ItemId.LogicLamp, 1);
-            Items[0, 5] = new Tuple<ItemId, uint>(ItemId.Marble, 1);
-            Items[0, 6] = new Tuple<ItemId, uint>(ItemId.Bounce, 1);
-            Items[0, 7] = new Tuple<ItemId, uint>(ItemId.Water, 1);
+            
+            Items[0, 0] = new Tuple<ItemId, uint>(ItemId.Switch, 1);
+            Items[0, 1] = new Tuple<ItemId, uint>(ItemId.Wire, 1);
+            Items[0, 2] = new Tuple<ItemId, uint>(ItemId.LogicLamp, 1);
+            Items[0, 3] = new Tuple<ItemId, uint>(ItemId.GateAnd, 1);
+            Items[0, 4] = new Tuple<ItemId, uint>(ItemId.GateOr, 1);
+            Items[0, 5] = new Tuple<ItemId, uint>(ItemId.GateNot, 1);
+            Items[0, 6] = new Tuple<ItemId, uint>(ItemId.LogicBridge, 1);
 
             Hotbar.Update();
         }

@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using Game.Fluids;
 using Game.Logics;
+using Game.Core;
 
 namespace Game.Terrains {
     static class Terrain {
@@ -31,7 +32,8 @@ namespace Game.Terrains {
 
 
         public static void Init() {
-            TerrainGen.Generate(45844);
+            //TODO: deserialsie terrrain;
+            TerrainGen.Generate(4584);
 
             MaxWidth = Tiles.GetLength(0) - 1;
             MaxHeight = Tiles.GetLength(1) - 1;
@@ -75,6 +77,11 @@ namespace Game.Terrains {
                 }
             }
             lightings = new VBO<float>(lightingsSet.ToArray());
+        }
+
+        public static void CleanUp() {
+            //serialise terrain
+            //  Serialization.SaveTerrain(Tiles);
         }
 
         public static void CalculateMesh(out VBO<Vector2> vertices, out VBO<int> elements, out VBO<Vector2> uvs) {
