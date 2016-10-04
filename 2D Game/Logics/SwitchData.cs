@@ -7,16 +7,18 @@ using System.Diagnostics;
 
 namespace Game.Logics {
 
+    [Serializable]
     class SwitchData : PowerSourceData {
 
+        [NonSerialized]
         private CooldownTimer cooldown;
 
         public BoolSwitch state { get; private set; }
 
-        private BoundedFloat src = new BoundedFloat(0, 0, 128);
+        private BoundedFloat src = new BoundedFloat(0, 0, 256);
 
         public SwitchData() {
-            poweroutL.max = poweroutR.max = poweroutU.max = poweroutD.max = src.max / 4;
+            poweroutL.max = poweroutR.max = poweroutU.max = poweroutD.max = src.max;
             state = false;
             cooldown = new CooldownTimer(20);
         }
@@ -31,10 +33,13 @@ namespace Game.Logics {
         internal override void Update(int x, int y) {
 
             src.val = (state ? src.max : 0);
-            BoundedFloat.MoveVals(ref src, ref poweroutL, src.val / 4);
-            BoundedFloat.MoveVals(ref src, ref poweroutR, src.val / 4);
-            BoundedFloat.MoveVals(ref src, ref poweroutU, src.val / 4);
-            BoundedFloat.MoveVals(ref src, ref poweroutD, src.val / 4);
+            BoundedFloat.MoveVals(ref src, ref poweroutL, src.val);
+            src.val = (state ? src.max : 0);
+            BoundedFloat.MoveVals(ref src, ref poweroutR, src.val);
+            src.val = (state ? src.max : 0);
+            BoundedFloat.MoveVals(ref src, ref poweroutU, src.val);
+            src.val = (state ? src.max : 0);
+            BoundedFloat.MoveVals(ref src, ref poweroutD, src.val);
 
             PowerTransmitterData l = Terrain.TileAt(x - 1, y).tileattribs as PowerTransmitterData,
                 r = Terrain.TileAt(x + 1, y).tileattribs as PowerTransmitterData,

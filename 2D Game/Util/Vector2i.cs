@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Game.Util {
+
+    [Serializable]
     struct Vector2i {
         public int x, y;
         public Vector2i(int x, int y) {

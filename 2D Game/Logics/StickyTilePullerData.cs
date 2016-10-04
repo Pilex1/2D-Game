@@ -7,7 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Game.Logics {
+    [Serializable]
     class StickyTilePullerData : PowerDrainData {
+
+        [NonSerialized]
         private CooldownTimer cooldown;
 
         private const int MaxTiles = 32;
@@ -48,11 +51,13 @@ namespace Game.Logics {
             BoundedFloat.MoveVals(ref power, ref dissipate, dissipate.max);
         }
 
-        //returns false if the amount of pushable tiles exceeds the max limit, else returns true
+        //returns false if tiles cannot be moved, else returns true
         private bool PushTilesHelper(int x, int y, out HashSet<Vector2i> processed) {
             x++;
             processed = new HashSet<Vector2i>();
             var processing = new HashSet<Vector2i>();
+
+            if (Terrain.TileAt(x, y).enumId != TileEnum.Air) return false;
 
             processing.Add(new Vector2i(x, y));
 
@@ -64,52 +69,55 @@ namespace Game.Logics {
                 foreach (var v in list) {
 
                     processing.Remove(v);
-                    if (Terrain.TileAt(v).enumId == TileEnum.Air) continue;
 
                     Vector2i lv = new Vector2i(v.x - 1, v.y);
                     TileID l = Terrain.TileAt(lv);
-                    if (v.x - 1 > x && l.enumId != TileEnum.Air && !processed.Contains(lv)) {
+                    if (lv.x - 1 >= x && l.enumId != TileEnum.Air && !processed.Contains(lv)) {
                         processed.Add(lv);
                         Vector2i[] arr = Neighbours(lv);
                         processing.Add(lv);
                         foreach (var a in arr)
-                            processing.Add(a);
+                            if (Terrain.TileAt(a).enumId != TileEnum.Air && a.x - 1 > x)
+                                processing.Add(a);
                     } else {
                         processing.Remove(lv);
                     }
 
                     Vector2i rv = new Vector2i(v.x + 1, v.y);
                     TileID r = Terrain.TileAt(rv);
-                    if (v.x + 1 > x && r.enumId != TileEnum.Air && !processed.Contains(rv)) {
+                    if (rv.x - 1 >= x && r.enumId != TileEnum.Air && !processed.Contains(rv)) {
                         processed.Add(rv);
                         Vector2i[] arr = Neighbours(rv);
                         processing.Add(rv);
                         foreach (var a in arr)
-                            processing.Add(a);
+                            if (Terrain.TileAt(a).enumId != TileEnum.Air && a.x - 1 > x)
+                                processing.Add(a);
                     } else {
                         processing.Remove(rv);
                     }
 
                     Vector2i uv = new Vector2i(v.x, v.y + 1);
                     TileID u = Terrain.TileAt(uv);
-                    if (v.x > x && u.enumId != TileEnum.Air && !processed.Contains(uv)) {
+                    if (uv.x - 1 >= x && u.enumId != TileEnum.Air && !processed.Contains(uv)) {
                         processed.Add(uv);
                         Vector2i[] arr = Neighbours(uv);
                         processing.Add(uv);
                         foreach (var a in arr)
-                            processing.Add(a);
+                            if (Terrain.TileAt(a).enumId != TileEnum.Air && a.x - 1 > x)
+                                processing.Add(a);
                     } else {
                         processing.Remove(uv);
                     }
 
                     Vector2i dv = new Vector2i(v.x, v.y - 1);
                     TileID d = Terrain.TileAt(dv);
-                    if (v.x > x && d.enumId != TileEnum.Air && !processed.Contains(dv)) {
+                    if (dv.x - 1 >= x && d.enumId != TileEnum.Air && !processed.Contains(dv)) {
                         processed.Add(dv);
                         Vector2i[] arr = Neighbours(dv);
                         processing.Add(dv);
                         foreach (var a in arr)
-                            processing.Add(a);
+                            if (Terrain.TileAt(a).enumId != TileEnum.Air && a.x - 1 > x)
+                                processing.Add(a);
                     } else {
                         processing.Remove(dv);
                     }

@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Linq;
 
 namespace Game.Util {
 
+    [Serializable]
     struct BoundedFloat {
 
         public static BoundedFloat Zero = new BoundedFloat(0, 0, 0);
 
-        public static float Epsilon = 0.00001f;
+        private static float Epsilon = 0.00001f;
 
         private float _val;
         public float val {
@@ -24,6 +26,14 @@ namespace Game.Util {
             this.min = min;
             this.max = max;
             if (val < min || val > max) throw new ArgumentException();
+        }
+
+        public float Space() {
+            return max - val;
+        }
+
+        public float FilledRatio() {
+            return val / max;
         }
 
         public void Fill() {
@@ -55,8 +65,9 @@ namespace Game.Util {
             }
         }
 
+
         public override string ToString() {
-            return val.ToString()+" : ["+min+", "+max+"]";
+            return val.ToString() + " : [" + min + ", " + max + "]";
         }
     }
 }

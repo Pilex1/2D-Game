@@ -125,7 +125,7 @@ namespace Game.Interaction {
         public static TexturedModel CurSelected;
 
         internal const int InvColumns = 9, InvRows = 6;
-        internal static Tuple<ItemId, uint>[,] Items = new Tuple<ItemId, uint>[InvRows, InvColumns];
+        public static Tuple<ItemId, uint>[,] Items = new Tuple<ItemId, uint>[InvRows, InvColumns];
 
         public static void Init() {
             for (int i = 0; i < Items.GetLength(0); i++) {
@@ -144,7 +144,7 @@ namespace Game.Interaction {
             Items[0, 5] = new Tuple<ItemId, uint>(ItemId.GateNot, 1);
             Items[0, 6] = new Tuple<ItemId, uint>(ItemId.LogicBridge, 1);
             Items[0, 7] = new Tuple<ItemId, uint>(ItemId.StickyTilePusher, 1);
-         //   Items[0, 8] = new Tuple<ItemId, uint>(ItemId.Sand, 1);
+           Items[0, 8] = new Tuple<ItemId, uint>(ItemId.StickyTilePuller, 1);
 
             Hotbar.Update();
         }

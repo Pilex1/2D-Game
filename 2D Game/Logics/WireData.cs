@@ -6,6 +6,7 @@ using Game.Util;
 
 namespace Game.Logics {
 
+    [Serializable]
     class WireData : PowerTransmitterData {
 
         private BoundedFloat transLevel = BoundedFloat.Zero;
@@ -16,6 +17,7 @@ namespace Game.Logics {
             poweroutL.max = poweroutR.max = poweroutU.max = poweroutD.max = 64;
             powerinL.max = powerinR.max = powerinU.max = powerinD.max = 64;
             transLevel.max = 128;
+            transparent = true;
         }
 
         internal override void Update(int x, int y) {

@@ -1,6 +1,8 @@
 ﻿using System;
 
 namespace Game.Util {
+
+    [Serializable]
     class BoolSwitch {
         private bool val;
         public BoolSwitch(bool val) {

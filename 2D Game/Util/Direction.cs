@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Game.Util {
+
+    [Serializable]
     enum Direction {
         Up, Right, Down, Left
     }

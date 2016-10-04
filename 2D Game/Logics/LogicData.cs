@@ -5,10 +5,12 @@ using System;
 
 namespace Game.Logics {
 
+    [Serializable]
     internal abstract class LogicData : TileAttribs {
         internal abstract void Update(int x, int y);
     }
 
+    [Serializable]
     internal abstract class PowerSourceData : LogicData {
 
         //power available to draw from each side
@@ -18,6 +20,7 @@ namespace Game.Logics {
         protected BoundedFloat poweroutD = BoundedFloat.Zero;
     }
 
+    [Serializable]
     internal abstract class PowerTransmitterData : LogicData {
 
         //power on each side
@@ -69,6 +72,7 @@ namespace Game.Logics {
         }
     }
 
+    [Serializable]
     internal abstract class PowerDrainData : LogicData {
 
         protected BoundedFloat power = BoundedFloat.Zero;

@@ -9,7 +9,11 @@ namespace Game.Logics {
 
     static class LogicManager {
 
+        private static CooldownTimer cooldown = new CooldownTimer(1000 / 60);
+
         public static void Update() {
+            if (!cooldown.Ready()) return;
+            cooldown.Reset();
 
             var logicDict = Terrain.LogicDict;
             var list = new List<Vector2i>(logicDict.Keys);
@@ -22,6 +26,7 @@ namespace Game.Logics {
                 SwitchData switchdata = logic as SwitchData;
                 WireData wiredata = logic as WireData;
                 StickyTilePusherData tilepusherdata = logic as StickyTilePusherData;
+                StickyTilePullerData tilepullerdata = logic as StickyTilePullerData;
                 LogicLampData logiclampdata = logic as LogicLampData;
                 LogicBridgeData logicbridgedata = logic as LogicBridgeData;
 
@@ -35,6 +40,8 @@ namespace Game.Logics {
                     Terrain.TileAt(v.x, v.y).enumId = logiclampdata.state ? TileEnum.LogicLampLit : TileEnum.LogicLampUnlit;
                 } else if (logicbridgedata != null) {
                     Terrain.TileAt(v.x, v.y).enumId = logicbridgedata.stateHorz ? (logicbridgedata.stateVert ? TileEnum.LogicBridgeHorzVertOn : TileEnum.LogicBridgeHorzOn) : (logicbridgedata.stateVert ? TileEnum.LogicBridgeVertOn : TileEnum.LogicBridgeOff);
+                } else if (tilepullerdata != null) {
+                    Terrain.TileAt(v.x, v.y).enumId = tilepullerdata.state ? TileEnum.TilePullerOn : TileEnum.TilePullerOff;
                 }
             }
         }

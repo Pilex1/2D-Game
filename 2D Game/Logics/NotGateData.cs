@@ -5,6 +5,7 @@ using System;
 namespace Game.Logics {
     //inputs from the left
     //output from right iff left == 0
+    [Serializable]
     class NotGateData : PowerTransmitterData {
 
         private BoundedFloat bufferPower = BoundedFloat.Zero;

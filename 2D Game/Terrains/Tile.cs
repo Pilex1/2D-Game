@@ -9,15 +9,18 @@ using System.Threading.Tasks;
 
 namespace Game.Terrains {
 
+    [Serializable]
     class TileAttribs {
         public bool solid = true;
         public bool movable = true;
         public bool lightEmitting = false;
+        public bool transparent = false;
         public Direction rotation = Direction.Up;
 
         public virtual void Interact(int x, int y) { }
     }
 
+    [Serializable]
     class TileID {
 
         private TileEnum _enumId;

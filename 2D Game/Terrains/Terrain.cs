@@ -33,20 +33,42 @@ namespace Game.Terrains {
         //temporary until i get more efficient lighting algorithms
         public static BoolSwitch UpdateLighting = true;
 
+        internal static int[] Heights;
 
         public static void Init() {
-            //TODO: deserialsie terrrain;
-            Console.WriteLine("Generating terrain...");
-            Stopwatch watch = new Stopwatch();
-            watch.Start();
-            TerrainGen.Generate(4584);
-            watch.Stop();
-            Console.WriteLine("Terrain generation finished in " + watch.ElapsedMilliseconds + " ms");
+            LoadTerrain();
+            InitMesh();
+            Heights = new int[Tiles.GetLength(0)];
+            CalcHeights();
+        }
+
+        private static void LoadTerrain() {
+            Tiles = Serialization.LoadTerrain();
+            if (Tiles == null) {
+                Console.WriteLine("Generating terrain...");
+                Stopwatch watch = new Stopwatch();
+                watch.Start();
+                TerrainGen.Generate(4584);
+                watch.Stop();
+                Console.WriteLine("Terrain generation finished in " + watch.ElapsedMilliseconds + " ms");
+            }
             terrainGenerated = true;
+        }
 
-            MaxWidth = Tiles.GetLength(0) - 1;
-            MaxHeight = Tiles.GetLength(1) - 1;
+        private static void CalcHeights() {
+            for (int i = 0; i < Tiles.GetLength(0); i++) {
+                for (int j = Tiles.GetLength(1) - 1; j >= 0; j++) {
+                    if (!TileAt(i, j).tileattribs.transparent) {
+                        Heights[i] = j;
+                        continue;
+                    }
+                }
+            }
+        }
 
+        #region Mesh
+
+        private static void InitMesh() {
             VBO<Vector2> vertices;
             VBO<int> elements;
             VBO<Vector2> uvs;
@@ -58,10 +80,8 @@ namespace Game.Terrains {
 
             Texture texture = new Texture(Asset.TileTexture);
             Model = new LightingTexturedModel(vertices, elements, uvs, texture, lightings, BeginMode.Triangles, PolygonMode.Fill);
-
         }
 
-        #region Mesh
         public static void CalculateLightingMesh(out VBO<float> lightings) {
             int posX, posY;
             if (Player.Instance != null) {
@@ -224,7 +244,7 @@ namespace Game.Terrains {
         public static void SetTile(int x, int y, TileID tile) { SetTile(x, y, tile, true); }
         private static void SetTileNoUpdate(int x, int y, TileID tile) { SetTile(x, y, tile, false); }
         private static void SetTile(int x, int y, TileID tile, bool update) {
-            if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y > Tiles.GetLength(1)) return;
+            if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return;
             if (Tiles[x, y].enumId != TileEnum.Air) return;
             Tiles[x, y] = tile;
             LogicData logic = tile.tileattribs as LogicData;
@@ -234,6 +254,7 @@ namespace Game.Terrains {
             UpdateMesh = true;
             if (terrainGenerated)
                 Console.WriteLine(String.Format("{0} tile placed at {{{1}, {2}}}", tile.enumId.ToString(), x, y));
+            if (y > Heights[x]) Heights[x] = y;
         }
 
         public static TileID BreakTile(int x, int y) {
@@ -246,6 +267,12 @@ namespace Game.Terrains {
             UpdateMesh = true;
             if (terrainGenerated)
                 Console.WriteLine(String.Format("{0} tile removed at {{{1}, {2}}}", tile.enumId.ToString(), x, y));
+            if (y == Heights[x]) {
+                for (int j = y - 1; j >= 0; j--) {
+                    if (!TileAt(x, j).tileattribs.transparent)
+                        Heights[x] = j;
+                }
+            }
             return tile;
         }
 
@@ -336,7 +363,7 @@ namespace Game.Terrains {
 
         public static void CleanUp() {
             //serialise terrain
-            //  Serialization.SaveTerrain(Tiles);
+            Serialization.SaveTerrain(Tiles);
         }
 
     }

@@ -7,8 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Game.Logics {
+    [Serializable]
     class StickyTilePusherData : PowerDrainData {
 
+        [NonSerialized]
         private CooldownTimer cooldown;
 
         private const int MaxTiles = 32;
@@ -65,7 +67,6 @@ namespace Game.Logics {
                 foreach (var v in list) {
 
                     processing.Remove(v);
-                    if (Terrain.TileAt(v).enumId == TileEnum.Air) continue;
 
                     Vector2i lv = new Vector2i(v.x - 1, v.y);
                     TileID l = Terrain.TileAt(lv);
@@ -74,7 +75,8 @@ namespace Game.Logics {
                         Vector2i[] arr = Neighbours(lv);
                         processing.Add(lv);
                         foreach (var a in arr)
-                            processing.Add(a);
+                            if (Terrain.TileAt(a).enumId != TileEnum.Air)
+                                processing.Add(a);
                     } else {
                         processing.Remove(lv);
                     }
@@ -86,7 +88,8 @@ namespace Game.Logics {
                         Vector2i[] arr = Neighbours(rv);
                         processing.Add(rv);
                         foreach (var a in arr)
-                            processing.Add(a);
+                            if (Terrain.TileAt(a).enumId != TileEnum.Air)
+                                processing.Add(a);
                     } else {
                         processing.Remove(rv);
                     }
@@ -98,7 +101,8 @@ namespace Game.Logics {
                         Vector2i[] arr = Neighbours(uv);
                         processing.Add(uv);
                         foreach (var a in arr)
-                            processing.Add(a);
+                            if (Terrain.TileAt(a).enumId != TileEnum.Air)
+                                processing.Add(a);
                     } else {
                         processing.Remove(uv);
                     }
@@ -110,7 +114,8 @@ namespace Game.Logics {
                         Vector2i[] arr = Neighbours(dv);
                         processing.Add(dv);
                         foreach (var a in arr)
-                            processing.Add(a);
+                            if (Terrain.TileAt(a).enumId != TileEnum.Air)
+                                processing.Add(a);
                     } else {
                         processing.Remove(dv);
                     }

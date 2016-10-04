@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Game.Logics {
 
+    [Serializable]
     class LogicBridgeData : PowerTransmitterData {
 
         private BoundedFloat transLevelHorz = BoundedFloat.Zero;

@@ -54,6 +54,7 @@
     <Compile Include="Assets\Asset.cs" />
     <Compile Include="Assets\ItemId.cs" />
     <Compile Include="Core\Background.cs" />
+    <Compile Include="Core\CustomVAO.cs" />
     <Compile Include="Core\Serialization.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\Hitbox.cs" />

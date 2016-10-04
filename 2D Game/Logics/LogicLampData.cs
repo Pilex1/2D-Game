@@ -7,6 +7,7 @@ using Game.Util;
 
 namespace Game.Logics {
 
+    [Serializable]
     class LogicLampData : PowerDrainData {
 
         public bool state { get; protected set; }

@@ -78,10 +78,8 @@ namespace Game {
 
 
             if (Mouse[Left]) {
-                if (Hotbar.CurrentlySelectedItem() == ItemId.None) {
                     Vector2 v = RayCast(MouseX, MouseY);
                     Terrain.BreakTile((int)v.x, (int)v.y);
-                }
             }
             if (Mouse[Right]) {
                 Vector2 v = RayCast(MouseX, MouseY);
@@ -92,6 +90,14 @@ namespace Game {
                     Terrain.TileAt(x, y).tileattribs.Interact(x, y);
                 }
             }
+            if (Mouse[Middle]) {
+                Vector2 v = RayCast(MouseX, MouseY);
+                int x = (int)v.x, y = (int)v.y;
+                TileEnum tile = Terrain.TileAt(x, y).enumId;
+
+            }
+
+
             Hitbox.Position = Position;
 
         }
@@ -117,6 +123,10 @@ namespace Game {
         private static void OnMousePress(int button, int state, int mx, int my) {
             if (button == Glut.GLUT_LEFT_BUTTON) {
                 Mouse[Left] = (state == Glut.GLUT_DOWN);
+            }
+
+            if (button == Glut.GLUT_MIDDLE_BUTTON) {
+                Mouse[Middle] = (state == Glut.GLUT_DOWN);
             }
 
             if (button == Glut.GLUT_RIGHT_BUTTON) {
@@ -169,8 +179,5 @@ namespace Game {
         public static bool Intersecting(Entity entity) {
             return Instance.Hitbox.Intersecting(entity.Hitbox);
         }
-
-
-
     }
 }

@@ -1,5 +1,6 @@
 ﻿using OpenGL;
 using System;
+using System.Linq;
 
 namespace Game.Util {
 
@@ -149,5 +150,12 @@ namespace Game.Util {
             return x - modulus * Math.Floor(x / modulus);
         }
         #endregion Modulus
+
+        public static float Max(params float[] arr) {
+            return arr.Max();
+        }
+        public static float Min(params float[] arr) {
+            return arr.Min();
+        }
     }
 }
