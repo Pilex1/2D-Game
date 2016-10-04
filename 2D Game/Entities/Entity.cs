@@ -98,14 +98,14 @@ namespace Game {
 
 
 
-            Tile col;
+            TileID col;
             Vector2 offset = new Vector2(0, dy * GameLogic.DeltaTime);
             if (Terrain.WillCollide(this, offset, out col)) {
                 if (dy > 0) {
                     //hit ceiling
                     Position = new Vector2(Position.x, (int)Math.Ceiling(Position.y));
                     moved = true;
-                    if (col.id == TileID.Bounce) {
+                    if (col.enumId == TileEnum.Bounce) {
                         dy *= bouncePower;
                         Position += new Vector2(0, dy * GameLogic.DeltaTime);
                     } else dy = 0;
@@ -113,7 +113,7 @@ namespace Game {
                 } else {
                     //hit ground
                     Position = new Vector2(Position.x, (int)Math.Floor(Position.y));
-                    if (col.id == TileID.Bounce) {
+                    if (col.enumId == TileEnum.Bounce) {
                         dy *= bouncePower;
                         Position += new Vector2(0, dy * GameLogic.DeltaTime);
                         moved = true;
@@ -129,13 +129,13 @@ namespace Game {
                 Position += offset;
                 InAir = true;
             }
-            
+
             offset = new Vector2(dx, 0);
             if (Terrain.WillCollide(this, offset, out col)) {
                 if (dx > 0) Position = new Vector2((int)Math.Ceiling(Position.x), Position.y);
                 else Position = new Vector2((int)Math.Floor(Position.x), Position.y);
 
-                if (col.id == TileID.Bounce) {
+                if (col.enumId == TileEnum.Bounce) {
                     dx *= bouncePowerHorz;
                     Position += new Vector2(dx * GameLogic.DeltaTime, 0);
                     moved = true;

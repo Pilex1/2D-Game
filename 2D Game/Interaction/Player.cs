@@ -86,14 +86,10 @@ namespace Game {
             if (Mouse[Right]) {
                 Vector2 v = RayCast(MouseX, MouseY);
                 int x = (int)v.x, y = (int)v.y;
-
-                if (Hotbar.CurrentlySelectedItem() == ItemId.None) {
-                    Tile t = Terrain.TileAt(x, y);
-                    if (t is IRightInteractable) {
-                        ((IRightInteractable)t).Interact();
-                    }
-                } else {
+                if (Terrain.TileAt(x, y).enumId == TileEnum.Air) {
                     ItemInteract.Interact(Hotbar.CurrentlySelectedItem(), x, y);
+                } else {
+                    Terrain.TileAt(x, y).tileattribs.Interact(x, y);
                 }
             }
             Hitbox.Position = Position;

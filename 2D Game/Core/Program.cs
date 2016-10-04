@@ -11,7 +11,7 @@ using System.Linq;
 namespace Game {
     static class Program {
 
-        public const int Width = 1280, Height = 720;
+        public const int Width = 1600, Height = 900;
         public const float AspectRatio = (float)Width / Height;
 
         public static bool FullScreen { get; private set; }
@@ -35,6 +35,9 @@ namespace Game {
             Glut.glutDisplayFunc(delegate () { });
             Glut.glutIdleFunc(MainGameLoop);
             Glut.glutWMCloseFunc(CleanUp);
+
+            Console.SetWindowSize(Console.LargestWindowWidth/4, Console.LargestWindowHeight/4);
+            Console.SetWindowPosition(0, 0);
 
             GameLogic.Init();
         }

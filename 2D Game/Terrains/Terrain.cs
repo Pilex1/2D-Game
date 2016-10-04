@@ -13,11 +13,14 @@ using Game.Core;
 namespace Game.Terrains {
     static class Terrain {
 
-        public static bool UpdateMesh = true;
+        internal static bool terrainGenerated = false;
 
+        public static bool UpdateMesh = true;
         public static LightingTexturedModel Model { get; private set; }
 
-        internal static Tile[,] Tiles;
+        public static Dictionary<Vector2i, LogicData> LogicDict = new Dictionary<Vector2i, LogicData>();
+
+        internal static TileID[,] Tiles;
         internal static float[,] Lightings;
 
         public static int MaxHeight { get; private set; }
@@ -33,7 +36,13 @@ namespace Game.Terrains {
 
         public static void Init() {
             //TODO: deserialsie terrrain;
+            Console.WriteLine("Generating terrain...");
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
             TerrainGen.Generate(4584);
+            watch.Stop();
+            Console.WriteLine("Terrain generation finished in " + watch.ElapsedMilliseconds + " ms");
+            terrainGenerated = true;
 
             MaxWidth = Tiles.GetLength(0) - 1;
             MaxHeight = Tiles.GetLength(1) - 1;
@@ -52,6 +61,7 @@ namespace Game.Terrains {
 
         }
 
+        #region Mesh
         public static void CalculateLightingMesh(out VBO<float> lightings) {
             int posX, posY;
             if (Player.Instance != null) {
@@ -68,7 +78,7 @@ namespace Game.Terrains {
             for (int i = startX >= 0 ? startX : 0; i <= (endX < Tiles.GetLength(0) ? endX : Tiles.GetLength(0) - 1); i++) {
 
                 for (int j = startY >= 0 ? startY : 0; j <= (endY < Tiles.GetLength(1) ? endY : Tiles.GetLength(1) - 1); j++) {
-                    if (Tiles[i, j].id != TileID.Air) {
+                    if (Tiles[i, j].enumId != TileEnum.Air) {
                         float val = Lightings[i, j] / Light.MaxLightLevel;
                         lightingsSet.AddRange(new float[] {
                             val,val,val,val
@@ -79,10 +89,6 @@ namespace Game.Terrains {
             lightings = new VBO<float>(lightingsSet.ToArray());
         }
 
-        public static void CleanUp() {
-            //serialise terrain
-            //  Serialization.SaveTerrain(Tiles);
-        }
 
         public static void CalculateMesh(out VBO<Vector2> vertices, out VBO<int> elements, out VBO<Vector2> uvs) {
             int posX, posY;
@@ -100,16 +106,19 @@ namespace Game.Terrains {
             int startY = (int)(posY + GameRenderer.zoom / 2 / Program.AspectRatio), endY = (int)(posY - GameRenderer.zoom / 2 / Program.AspectRatio);
             for (int i = startX >= 0 ? startX : 0; i <= (endX < Tiles.GetLength(0) ? endX : Tiles.GetLength(0) - 1); i++) {
                 for (int j = startY >= 0 ? startY : 0; j <= (endY < Tiles.GetLength(1) ? endY : Tiles.GetLength(1) - 1); j++) {
-                    if (Tiles[i, j].id != TileID.Air) {
-                        Tile t = Tiles[i, j];
+                    if (Tiles[i, j].enumId != TileEnum.Air) {
+                        TileEnum t = Tiles[i, j].enumId;
 
-                        float x = ((float)((int)t.id % TerrainTextureSize)) / TerrainTextureSize;
-                        float y = ((float)((int)t.id / TerrainTextureSize)) / TerrainTextureSize;
+                        float x = ((float)((int)t % TerrainTextureSize)) / TerrainTextureSize;
+                        float y = ((float)((int)t / TerrainTextureSize)) / TerrainTextureSize;
                         float s = 1f / TerrainTextureSize;
                         //half pixel correction
                         float h = 1f / (TerrainTextureSize * TerrainTextureSize * 2);
 
-                        float height = t is Fluid ? ((Fluid)t).Height : 1f;
+                        float height = 1;
+                        //TODO
+                        //something like
+                        //float height = t.tiledata is Fluid ? ((Fluid)(t.tiledata)).height : 1;
 
                         //top left, bottom left, top right, bottom right
                         verticesList.AddRange(new Vector2[] {
@@ -141,8 +150,10 @@ namespace Game.Terrains {
             }
             elements = new VBO<int>(elementsArr, BufferTarget.ElementArrayBuffer, Hint: BufferUsageHint.DynamicDraw);
         }
+        #endregion Mesh
 
-        public static bool WillCollide(Entity entity, Vector2 offset, out Tile collidedTile) {
+        #region Collision
+        public static bool WillCollide(Entity entity, Vector2 offset, out TileID collidedTile) {
             if (offset.x > 1) offset.x = 1;
             if (offset.x < -1) offset.x = -1;
             if (offset.y > 1) offset.y = 1;
@@ -156,18 +167,18 @@ namespace Game.Terrains {
 
             for (int i = x1; i <= x2; i++) {
                 for (int j = y1; j <= y2; j++) {
-                    if (TileAt(i, j) is ISolid) {
+                    if (TileAt(i, j).tileattribs.solid) {
                         collidedTile = TileAt(i, j);
                         return true;
                     }
                 }
             }
-            collidedTile = new Air(0, 0);
+            collidedTile = TileID.Air;
             return false;
         }
 
         public static bool IsColliding(Entity entity) {
-            Tile col;
+            TileID col;
             return WillCollide(entity, Vector2.Zero, out col);
         }
 
@@ -193,95 +204,112 @@ namespace Game.Terrains {
 
         private static bool Valid(int x, int y, int height) {
             for (int i = 0; i < height; i++) {
-                if (Tiles[x, y + i].id != TileID.Air) return false;
+                if (Tiles[x, y + i].enumId != TileEnum.Air) return false;
             }
             return true;
         }
 
         internal static int HighestPoint(int x) {
             for (int i = Tiles.GetLength(1) - 1; i > 0; i--) {
-                if (Tiles[x, i].id != TileID.Air) return i + 1;
+                if (Tiles[x, i].enumId != TileEnum.Air) return i + 1;
             }
             return 1;
         }
+        #endregion Collision
 
-        public static Tile TileAt(int x, int y) { return x < 0 || x > MaxWidth || y < 0 || y > MaxHeight ? new Invalid() : Tiles[x, y]; }
-        public static Tile TileAt(float x, float y) { return TileAt((int)x, (int)y); }
+        public static TileID TileAt(Vector2i v) { return TileAt(v.x, v.y); }
+        public static TileID TileAt(int x, int y) { return x < 0 || x > MaxWidth || y < 0 || y > MaxHeight ? TileID.Invalid : Tiles[x, y]; }
+        public static TileID TileAt(float x, float y) { return TileAt((int)x, (int)y); }
 
-        public static Tile BreakTile(Tile t, bool update = true) {
-            return BreakTile(t.x, t.y, update);
-        }
-        public static Tile BreakTile(int x, int y, bool update = true) {
-            if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return new Invalid();
-            Tile res = TileAt(x, y);
-            if (res.id == TileID.Bedrock) return new Invalid();
-            if (update) {
-                if (res is Fluid) FluidsManager.RemoveFluid((Fluid)res);
-                if (res is Logic) LogicManager.RemoveLogic((Logic)res);
+        public static void SetTile(int x, int y, TileID tile) { SetTile(x, y, tile, true); }
+        private static void SetTileNoUpdate(int x, int y, TileID tile) { SetTile(x, y, tile, false); }
+        private static void SetTile(int x, int y, TileID tile, bool update) {
+            if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y > Tiles.GetLength(1)) return;
+            if (Tiles[x, y].enumId != TileEnum.Air) return;
+            Tiles[x, y] = tile;
+            LogicData logic = tile.tileattribs as LogicData;
+            if (logic != null && update) {
+                LogicDict.Add(new Vector2i(x, y), logic);
             }
-            Tiles[x, y] = new Air(x, y);
             UpdateMesh = true;
-            return res;
+            if (terrainGenerated)
+                Console.WriteLine(String.Format("{0} tile placed at {{{1}, {2}}}", tile.enumId.ToString(), x, y));
         }
 
-        private static void SetTile(int x, int y, TileID id) {
-            if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return;
-            Tiles[x, y].id = id;
+        public static TileID BreakTile(int x, int y) {
+            if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return TileID.Invalid;
+            TileID tile = TileAt(x, y);
+            if (tile.enumId == TileEnum.Air) return TileID.Air;
+            if (tile.enumId == TileEnum.Bedrock) return TileID.Invalid;
+            LogicDict.Remove(new Vector2i(x, y));
+            Tiles[x, y] = TileID.Air;
+            UpdateMesh = true;
+            if (terrainGenerated)
+                Console.WriteLine(String.Format("{0} tile removed at {{{1}, {2}}}", tile.enumId.ToString(), x, y));
+            return tile;
+        }
+
+        public static TileID BreakTile(float x, float y) {
+            return BreakTile((int)x, (int)y);
         }
 
         public static void MoveTile(int x, int y, Direction dir) {
+            Vector2i v = new Vector2i(x, y);
             switch (dir) {
                 case Direction.Left:
-                    if (TileAt(x - 1, y).id == TileID.Air) {
-                        if (TileAt(x - 1, y) is Logic)
-                            LogicManager.ModifyPosition(new Vector2i(x, y), new Vector2i(x - 1, y));
-                        SetTile(x - 1, y, TileAt(x, y).id);
-                        BreakTile(x, y, false);
+                    if (TileAt(x - 1, y).enumId == TileEnum.Air) {
+                        LogicData logic;
+                        if (LogicDict.TryGetValue(v, out logic)) {
+                            LogicDict.Remove(v);
+                            LogicDict.Add(new Vector2i(x - 1, y), logic);
+                        }
+                        SetTileNoUpdate(x - 1, y, TileAt(x, y));
+                        BreakTile(x, y);
                         UpdateMesh = true;
                     }
                     break;
                 case Direction.Right:
-                    if (TileAt(x + 1, y).id == TileID.Air) {
-                        if (TileAt(x + 1, y) is Logic)
-                            LogicManager.ModifyPosition(new Vector2i(x, y), new Vector2i(x + 1, y));
-                        SetTile(x + 1, y, TileAt(x, y).id);
-                        BreakTile(x, y, false);
+                    if (TileAt(x + 1, y).enumId == TileEnum.Air) {
+                        LogicData logic;
+                        if (LogicDict.TryGetValue(v, out logic)) {
+                            LogicDict.Remove(v);
+                            LogicDict.Add(new Vector2i(x + 1, y), logic);
+                        }
+                        SetTileNoUpdate(x + 1, y, TileAt(x, y));
+                        BreakTile(x, y);
                         UpdateMesh = true;
                     }
                     break;
                 case Direction.Up:
-                    if (TileAt(x, y + 1).id == TileID.Air) {
-                        if (TileAt(x, y + 1) is Logic)
-                            LogicManager.ModifyPosition(new Vector2i(x, y), new Vector2i(x, y + 1));
-                        SetTile(x, y + 1, TileAt(x, y).id);
-                        BreakTile(x, y, false);
+                    if (TileAt(x, y + 1).enumId == TileEnum.Air) {
+                        LogicData logic;
+                        if (LogicDict.TryGetValue(v, out logic)) {
+                            LogicDict.Remove(v);
+                            LogicDict.Add(new Vector2i(x, y + 1), logic);
+                        }
+                        SetTileNoUpdate(x, y + 1, TileAt(x, y));
+                        BreakTile(x, y);
                         UpdateMesh = true;
                     }
                     break;
                 case Direction.Down:
-                    if (TileAt(x, y - 1).id == TileID.Air) {
-                        if (TileAt(x, y - 1) is Logic)
-                            LogicManager.ModifyPosition(new Vector2i(x, y), new Vector2i(x, y - 1));
-                        SetTile(x, y - 1, TileAt(x, y).id);
-                        BreakTile(x, y, false);
+                    if (TileAt(x, y - 1).enumId == TileEnum.Air) {
+                        LogicData logic;
+                        if (LogicDict.TryGetValue(v, out logic)) {
+                            LogicDict.Remove(v);
+                            LogicDict.Add(new Vector2i(x, y - 1), logic);
+                        }
+                        SetTileNoUpdate(x, y - 1, TileAt(x, y));
+                        BreakTile(x, y);
                         UpdateMesh = true;
                     }
                     break;
             }
         }
 
-        internal static Tile ReplaceTile(int x, int y, TileID id) {
-            if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return new Invalid();
-            if (id == TileID.Bedrock) return new Invalid();
-            Tile res = TileAt(x, y);
-            Tiles[x, y].id = id;
-            return res;
-        }
-
         public static void Update() {
 
-
-            FluidsManager.Update();
+            // FluidsManager.Update();
             LogicManager.Update();
 
             if (UpdateMesh) {
@@ -303,6 +331,12 @@ namespace Game.Terrains {
             }
             UpdateMesh = false;
 
+        }
+
+
+        public static void CleanUp() {
+            //serialise terrain
+            //  Serialization.SaveTerrain(Tiles);
         }
 
     }

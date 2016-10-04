@@ -7,42 +7,39 @@ using System.Diagnostics;
 
 namespace Game.Logics {
 
-    class Switch : PowerSource, IRightInteractable, ISolid {
+    class SwitchData : PowerSourceData {
 
-        private const float cooldown = 20; //time before it can be switched again
-        private float cooldownTime = 0;
+        private CooldownTimer cooldown;
+
+        public BoolSwitch state { get; private set; }
 
         private BoundedFloat src = new BoundedFloat(0, 0, 128);
 
-        private Switch(int x, int y) : base(x, y, TileID.SwitchOff) {
+        public SwitchData() {
             poweroutL.max = poweroutR.max = poweroutU.max = poweroutD.max = src.max / 4;
+            state = false;
+            cooldown = new CooldownTimer(20);
         }
 
-        public static void Create(int x, int y) {
-            if (Terrain.TileAt(x, y).id == TileID.Air) new Switch(x, y);
-        }
-
-        public void Interact() {
-            if (cooldownTime >= cooldown) {
-                id = (id == TileID.SwitchOff ? TileID.SwitchOn : TileID.SwitchOff);
-                cooldownTime = 0;
+        public override void Interact(int x, int y) {
+            if (cooldown.Ready()) {
+                state.Toggle();
+                cooldown.Reset();
             }
         }
 
-        internal override void Update() {
+        internal override void Update(int x, int y) {
 
-            cooldownTime += GameLogic.DeltaTime;
-
-            src.val = (id == TileID.SwitchOn ? src.max : 0);
+            src.val = (state ? src.max : 0);
             BoundedFloat.MoveVals(ref src, ref poweroutL, src.val / 4);
             BoundedFloat.MoveVals(ref src, ref poweroutR, src.val / 4);
             BoundedFloat.MoveVals(ref src, ref poweroutU, src.val / 4);
             BoundedFloat.MoveVals(ref src, ref poweroutD, src.val / 4);
 
-            PowerTransmitter l = Terrain.TileAt(x - 1, y) as PowerTransmitter,
-                r = Terrain.TileAt(x + 1, y) as PowerTransmitter,
-                u = Terrain.TileAt(x, y + 1) as PowerTransmitter,
-                d = Terrain.TileAt(x, y - 1) as PowerTransmitter;
+            PowerTransmitterData l = Terrain.TileAt(x - 1, y).tileattribs as PowerTransmitterData,
+                r = Terrain.TileAt(x + 1, y).tileattribs as PowerTransmitterData,
+                u = Terrain.TileAt(x, y + 1).tileattribs as PowerTransmitterData,
+                d = Terrain.TileAt(x, y - 1).tileattribs as PowerTransmitterData;
 
             if (l != null) BoundedFloat.MoveVals(ref poweroutL, ref l.powerinR, poweroutL.val);
             if (r != null) BoundedFloat.MoveVals(ref poweroutR, ref r.powerinL, poweroutR.val);

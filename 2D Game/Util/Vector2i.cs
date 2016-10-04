@@ -12,6 +12,10 @@ namespace Game.Util {
             this.y = y;
         }
 
+        public override string ToString() {
+            return x + ", " + y;
+        }
+
         public override bool Equals(object obj) {
             if (obj == null || GetType() != obj.GetType()) {
                 return false;

@@ -143,7 +143,8 @@ namespace Game.Interaction {
             Items[0, 4] = new Tuple<ItemId, uint>(ItemId.GateOr, 1);
             Items[0, 5] = new Tuple<ItemId, uint>(ItemId.GateNot, 1);
             Items[0, 6] = new Tuple<ItemId, uint>(ItemId.LogicBridge, 1);
-            Items[0, 7] = new Tuple<ItemId, uint>(ItemId.TilePusher, 1);
+            Items[0, 7] = new Tuple<ItemId, uint>(ItemId.StickyTilePusher, 1);
+         //   Items[0, 8] = new Tuple<ItemId, uint>(ItemId.Sand, 1);
 
             Hotbar.Update();
         }
@@ -158,7 +159,7 @@ namespace Game.Interaction {
                 }
             }
 
-            Vector2[] elementsArr = new Vector2[2 * (InvColumns + 1) + 2 * (InvRows + 1)];
+            int[] elementsArr = new int[2 * (InvColumns + 1) + 2 * (InvRows + 1)];
             ptr = 0;
 
         }

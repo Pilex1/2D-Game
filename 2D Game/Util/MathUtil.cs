@@ -66,7 +66,7 @@ namespace Game.Util {
         }
     }
 
-    class MathUtil {
+    static class MathUtil {
         #region Clamp
         public static void Clamp(ref int x, int min, int max) {
             if (x < min) x = min;
@@ -137,5 +137,17 @@ namespace Game.Util {
             return (int)(a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3);
         }
         #endregion Interpolation
+
+        #region Modulus
+        public static int Mod(int x, int modulus) {
+            return ((x %= modulus) < 0) ? x + modulus : x;
+        }
+        public static float Mod(float x, float modulus) {
+            return x - modulus * (float)Math.Floor(x / modulus);
+        }
+        public static double Mod(double x, double modulus) {
+            return x - modulus * Math.Floor(x / modulus);
+        }
+        #endregion Modulus
     }
 }

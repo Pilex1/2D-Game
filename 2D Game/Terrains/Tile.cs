@@ -1,4 +1,5 @@
 ﻿using Game.Fluids;
+using Game.Logics;
 using Game.Util;
 using System;
 using System.Collections.Generic;
@@ -8,313 +9,189 @@ using System.Threading.Tasks;
 
 namespace Game.Terrains {
 
-    interface ISolid { }
+    class TileAttribs {
+        public bool solid = true;
+        public bool movable = true;
+        public bool lightEmitting = false;
+        public Direction rotation = Direction.Up;
 
-    interface IUnmovable { }
-
-    interface ILightEmitting { }
-
-    interface IRightInteractable {
-        void Interact();
-    }
-    //test12345
-    enum TileID {
-        Invalid = -1, Air, Grass, Sand, Dirt, Wood, Leaf, Stone, Bedrock, Tnt, Sandstone, Sapling, Crate, Brick, Metal1, SmoothSlab, WeatheredStone, Metal2, FutureMetal, SmoothSlab2, Marble, PlexSpecial, PurpleStone, Nuke, Cactus, Bounce, Water, WireOn, WireOff, SwitchOn, SwitchOff, LogicLampUnlit, LogicLampLit, Snow, SnowWood, SnowLeaf, GrassDeco, GateAnd, GateOr, GateNot, LogicBridgeOff, LogicBridgeHorzVertOn, LogicBridgeHorzOn, LogicBridgeVertOn, TilePusherOff, TilePusherOn
+        public virtual void Interact(int x, int y) { }
     }
 
-    abstract class Tile {
-        private TileID _id;
-        public TileID id {
-            get { return _id; }
+    class TileID {
+
+        private TileEnum _enumId;
+        public TileEnum enumId {
+            get { return _enumId; }
             set {
-                TileID prevId = _id;
-                _id = value;
-                if (prevId != _id) Terrain.UpdateMesh = true;
+                TileEnum original = _enumId;
+                _enumId = value;
+                if (_enumId != original) Terrain.UpdateMesh = true;
             }
         }
-        public int x { get; protected set; }
-        public int y { get; protected set; }
-        protected Tile(int x, int y, TileID id) {
-            this.id = id;
-            this.x = x;
-            this.y = y;
-            if (x < 0 || x >= Terrain.Tiles.GetLength(0) || y < 0 || y >= Terrain.Tiles.GetLength(1)) return;
-            if (this is ISolid && !(Terrain.TileAt(x, y) is ISolid)) {
-                Terrain.Tiles[x, y] = this;
-                Terrain.UpdateMesh = true;
-            } else if (this is Fluid && Terrain.TileAt(x, y).id == TileID.Air) {
-                Terrain.Tiles[x, y] = this;
-                Terrain.UpdateMesh = true;
-                FluidsManager.AddFluid((Fluid)this);
-            } else {
-                Terrain.Tiles[x, y] = this;
-                Terrain.UpdateMesh = true;
-            }
+        public TileAttribs tileattribs;
+
+        private TileID(TileEnum enumId) : this(enumId, new TileAttribs()) { }
+        private TileID(TileEnum enumId, TileAttribs tiledata) {
+            this.enumId = enumId;
+            this.tileattribs = tiledata;
         }
+
+        #region Special
+        public static readonly TileID Invalid = new TileID(TileEnum.Invalid, new TileAttribs { solid = false, movable = false });
+        public static readonly TileID Air = new TileID(TileEnum.Air, new TileAttribs { solid = false, movable = false });
+        public static readonly TileID Bedrock = new TileID(TileEnum.Bedrock);
+        #endregion Special
+
+
+        #region Normal
+        public static readonly TileID Grass = new TileID(TileEnum.Grass);
+        public static readonly TileID Sand = new TileID(TileEnum.Sand);
+        public static readonly TileID Dirt = new TileID(TileEnum.Dirt);
+        public static readonly TileID Wood = new TileID(TileEnum.Wood);
+        public static readonly TileID Leaf = new TileID(TileEnum.Leaf);
+        public static readonly TileID Stone = new TileID(TileEnum.Stone);
+        public static readonly TileID Sandstone = new TileID(TileEnum.Sandstone);
+        public static readonly TileID Sapling = new TileID(TileEnum.Sapling);
+        public static readonly TileID Brick = new TileID(TileEnum.Brick);
+        public static readonly TileID Metal1 = new TileID(TileEnum.Metal1);
+        public static readonly TileID SmoothSlab = new TileID(TileEnum.SmoothSlab);
+        public static readonly TileID WeatheredStone = new TileID(TileEnum.WeatheredStone);
+        public static readonly TileID Metal2 = new TileID(TileEnum.Metal2);
+        public static readonly TileID FutureMetal = new TileID(TileEnum.FutureMetal);
+        public static readonly TileID SmoothSlab2 = new TileID(TileEnum.SmoothSlab2);
+        public static readonly TileID Marble = new TileID(TileEnum.Marble);
+        public static readonly TileID PlexSpecial = new TileID(TileEnum.PlexSpecial);
+        public static readonly TileID PurpleStone = new TileID(TileEnum.PurpleStone);
+        public static readonly TileID Cactus = new TileID(TileEnum.Cactus);
+        public static readonly TileID Bounce = new TileID(TileEnum.Bounce);
+        public static readonly TileID Water = new TileID(TileEnum.Water);
+        public static readonly TileID Snow = new TileID(TileEnum.Snow);
+        public static readonly TileID SnowWood = new TileID(TileEnum.SnowWood);
+        public static readonly TileID SnowLeaf = new TileID(TileEnum.SnowLeaf);
+        public static readonly TileID GrassDeco = new TileID(TileEnum.GrassDeco, new TileAttribs { solid = false });
+        #endregion Normal
+
+
+        #region Explosives
+        public static readonly TileID Tnt = new TileID(TileEnum.Tnt, new ExplosionData { radius = 10, error = 2 });
+        public static readonly TileID Nuke = new TileID(TileEnum.Nuke, new ExplosionData { radius = 50, error = 2 });
+        #endregion Explosives
+
+        #region Logic
+        public static TileID CreateWire() { return new TileID(TileEnum.WireOff, new WireData()); }
+        public static TileID CreateSwitch() { return new TileID(TileEnum.SwitchOff, new SwitchData()); }
+        public static TileID CreateLogicLamp() { return new TileID(TileEnum.LogicLampUnlit, new LogicLampData()); }
+        public static TileID CreateGateAnd() { return new TileID(TileEnum.GateAnd, new AndGateData()); }
+        public static TileID CreateGateOr() { return new TileID(TileEnum.GateOr, new OrGateData()); }
+        public static TileID CreateGateNot() { return new TileID(TileEnum.GateNot, new NotGateData()); }
+        public static TileID CreateLogicBridge() { return new TileID(TileEnum.LogicBridgeOff, new LogicBridgeData()); }
+        public static TileID CreateTilePusher() { return new TileID(TileEnum.TilePusherOff, new StickyTilePusherData()); }
+        public static TileID CreateTilePuller() { return new TileID(TileEnum.TilePullerOff, new StickyTilePullerData()); }
+        public static TileID CreateTileBreaker() { return new TileID(TileEnum.TileBreakerOff, new TileBreakerData()); }
+        #endregion Logic
+
         public override string ToString() {
-            return String.Format("{0} [{1}, {2}]", GetType().ToString(), x, y);
-        }
-        public Vector2i Pos() {
-            return new Vector2i(x, y);
+            return enumId.ToString();
         }
     }
 
-    class Invalid : Tile, IUnmovable {
-        public Invalid() : base(-1, -1, TileID.Invalid) {
-        }
-    }
 
-    class Air : Tile, IUnmovable {
-        public Air(int x, int y) : base(x, y, TileID.Air) {
-        }
+    enum TileEnum {
+        Invalid = -1, Air, Grass, Sand, Dirt, Wood, Leaf, Stone, Bedrock, Tnt, Sandstone, Sapling, TileBreakerOn, Brick, Metal1, SmoothSlab, WeatheredStone, Metal2, FutureMetal, SmoothSlab2, Marble, PlexSpecial, PurpleStone, Nuke, Cactus, Bounce, Water, WireOn, WireOff, SwitchOn, SwitchOff, LogicLampUnlit, LogicLampLit, Snow, SnowWood, SnowLeaf, GrassDeco, GateAnd, GateOr, GateNot, LogicBridgeOff, LogicBridgeHorzVertOn, LogicBridgeHorzOn, LogicBridgeVertOn, TilePusherOff, TilePusherOn, TilePullerOn, TilePullerOff, TileBreakerOff
     }
-
-    #region Decoratives
-
-
-    class Grass : Tile, ISolid {
-        public Grass(int x, int y) : base(x, y, TileID.Grass) {
-        }
-    }
-
-    class Sand : Tile, ISolid {
-        public Sand(int x, int y) : base(x, y, TileID.Sand) {
-        }
-    }
-
-    class Dirt : Tile, ISolid {
-        public Dirt(int x, int y) : base(x, y, TileID.Dirt) {
-        }
-    }
-
-    class Wood : Tile, ISolid {
-        public Wood(int x, int y) : base(x, y, TileID.Wood) {
-        }
-    }
-
-    class Leaf : Tile, ISolid {
-        public Leaf(int x, int y) : base(x, y, TileID.Leaf) {
-        }
-    }
-    class Stone : Tile, ISolid {
-        public Stone(int x, int y) : base(x, y, TileID.Stone) {
-        }
-    }
-
-    class Bedrock : Tile, ISolid {
-        public Bedrock(int x, int y) : base(x, y, TileID.Bedrock) {
-        }
-    }
-    class Sandstone : Tile, ISolid {
-        public Sandstone(int x, int y) : base(x, y, TileID.Sandstone) {
-        }
-    }
-    class Sapling : Tile {
-        public Sapling(int x, int y) : base(x, y, TileID.Sapling) {
-        }
-    }
-    class Crate : Tile, ISolid {
-        public Crate(int x, int y) : base(x, y, TileID.Crate) {
-        }
-    }
-    class Brick : Tile, ISolid {
-        public Brick(int x, int y) : base(x, y, TileID.Brick) {
-        }
-    }
-    class Metal1 : Tile, ISolid {
-        public Metal1(int x, int y) : base(x, y, TileID.Metal1) {
-        }
-    }
-    class SmoothSlab : Tile, ISolid {
-        public SmoothSlab(int x, int y) : base(x, y, TileID.SmoothSlab) {
-        }
-    }
-    class WeatheredStone : Tile, ISolid {
-        public WeatheredStone(int x, int y) : base(x, y, TileID.WeatheredStone) {
-        }
-    }
-    class Metal2 : Tile, ISolid {
-        public Metal2(int x, int y) : base(x, y, TileID.Metal2) {
-        }
-    }
-    class FutureMetal : Tile, ISolid {
-        public FutureMetal(int x, int y) : base(x, y, TileID.FutureMetal) {
-        }
-    }
-    class SmoothSlab2 : Tile, ISolid {
-        public SmoothSlab2(int x, int y) : base(x, y, TileID.SmoothSlab2) {
-        }
-    }
-    class Marble : Tile, ISolid {
-        public Marble(int x, int y) : base(x, y, TileID.Marble) {
-        }
-    }
-    class PlexSpecial : Tile, ISolid {
-        public PlexSpecial(int x, int y) : base(x, y, TileID.PlexSpecial) {
-        }
-    }
-    class PurpleStone : Tile, ISolid {
-        public PurpleStone(int x, int y) : base(x, y, TileID.PurpleStone) {
-        }
-    }
-
-    class Cactus : Tile, ISolid {
-        public Cactus(int x, int y) : base(x, y, TileID.Cactus) {
-        }
-    }
-    class Bounce : Tile, ISolid {
-        public Bounce(int x, int y) : base(x, y, TileID.Bounce) {
-        }
-    }
-    class Snow : Tile, ISolid {
-        public Snow(int x, int y) : base(x, y, TileID.Snow) {
-        }
-    }
-    class SnowBiomeWood : Tile, ISolid {
-        public SnowBiomeWood(int x, int y) : base(x, y, TileID.SnowWood) {
-        }
-    }
-    class SnowLeaf : Tile, ISolid {
-        public SnowLeaf(int x, int y) : base(x, y, TileID.SnowLeaf) {
-        }
-    }
-    class GrassDeco : Tile {
-        public GrassDeco(int x, int y) : base(x, y, TileID.GrassDeco) {
-        }
-    }
-
-    #endregion Decoratives
-
-    #region Explosives
-
-    class Tnt : Tile, ISolid, IRightInteractable {
-        private const int explosionRadius = 10;
-        private const int explosionError = 2;
-        public Tnt(int x, int y) : base(x, y, TileID.Tnt) {
-        }
-
-        public void Interact() {
-            TileInteract.Explode(x, y, explosionRadius, explosionError);
-        }
-    }
-    class Nuke : Tile, ISolid, IRightInteractable {
-        private const int explosionRadius = 50;
-        private const int explosionError = 2;
-        public Nuke(int x, int y) : base(x, y, TileID.Nuke) {
-        }
-
-        public void Interact() {
-            TileInteract.Explode(x, y, explosionRadius, explosionError);
-        }
-    }
-    #endregion Explosives
 
     #region Fluids
 
-    abstract class Fluid : Tile {
-        public virtual float Height { get; protected set; }
-        public Fluid(int x, int y, TileID id, float height) : base(x, y, id) {
-            Height = height;
-        }
-        public void Update() {
-            Fall();
-            Spread();
-        }
-        protected abstract void Fall();
-        protected abstract void Spread();
-    }
+    //abstract class Fluid : Tile {
+    //    public virtual float Height { get; protected set; }
+    //    public Fluid(int x, int y, TileEnum id, float height) : base(x, y, id) {
+    //        Height = height;
+    //    }
+    //    public void Update() {
+    //        Fall();
+    //        Spread();
+    //    }
+    //    protected abstract void Fall();
+    //    protected abstract void Spread();
+    //}
 
-    class Water : Fluid {
+    //class Water : Fluid {
 
-        private float _height;
-        public override float Height {
-            get { return _height; }
-            protected set {
-                if (value > 1) {
-                    _height = 1;
-                    new Water(x, y + 1, value - 1);
-                }
-            }
-        }
+    //    private float _height;
+    //    public override float Height {
+    //        get { return _height; }
+    //        protected set {
+    //            if (value > 1) {
+    //                _height = 1;
+    //                new Water(x, y + 1, value - 1);
+    //            }
+    //        }
+    //    }
 
-        private const float viscosity = 0.2f;
+    //    private const float viscosity = 0.2f;
 
-        public Water(int x, int y, float height = 1f) : base(x, y, TileID.Water, height) {
-        }
+    //    public Water(int x, int y, float height = 1f) : base(x, y, TileEnum.Water, height) {
+    //    }
 
-        protected override void Fall() {
-            Tile d = Terrain.TileAt(x, y - 1);
+    //    protected override void Fall() {
+    //        Tile d = Terrain.TileAt(x, y - 1);
 
-            float amt = viscosity * GameLogic.DeltaTime;
-            if (d.id == TileID.Air) {
+    //        float amt = viscosity * GameLogic.DeltaTime;
+    //        if (d.id == TileEnum.Air) {
 
-                if (Height > amt) {
-                    Height -= amt;
-                    new Water(x, y - 1, amt);
-                } else {
-                    Terrain.BreakTile(this);
-                    new Water(x, y - 1, Height);
-                }
+    //            if (Height > amt) {
+    //                Height -= amt;
+    //                new Water(x, y - 1, amt);
+    //            } else {
+    //                Terrain.BreakTile(this);
+    //                new Water(x, y - 1, Height);
+    //            }
 
-            } else if (d.id == TileID.Water) {
+    //        } else if (d.id == TileEnum.Water) {
 
-                Water w = (Water)d;
+    //            Water w = (Water)d;
 
-                if (Height > amt) {
-                    if (w.Height + amt <= 1) {
-                        w.Height += amt;
-                        Height -= amt;
-                    } else {
-                        w.Height = 1;
-                        Height -= (1 - w.Height);
-                    }
-                } else {
-                    if (w.Height + Height <= 1) {
-                        w.Height += Height;
-                        Terrain.BreakTile(this);
-                    } else {
-                        Height -= (1 - w.Height);
-                        w.Height = 1;
-                    }
-                }
-            }
-        }
+    //            if (Height > amt) {
+    //                if (w.Height + amt <= 1) {
+    //                    w.Height += amt;
+    //                    Height -= amt;
+    //                } else {
+    //                    w.Height = 1;
+    //                    Height -= (1 - w.Height);
+    //                }
+    //            } else {
+    //                if (w.Height + Height <= 1) {
+    //                    w.Height += Height;
+    //                    Terrain.BreakTile(this);
+    //                } else {
+    //                    Height -= (1 - w.Height);
+    //                    w.Height = 1;
+    //                }
+    //            }
+    //        }
+    //    }
 
-        protected override void Spread() {
-            float amt = viscosity * GameLogic.DeltaTime;
+    //    protected override void Spread() {
+    //        float amt = viscosity * GameLogic.DeltaTime;
 
-            Tile l = Terrain.TileAt(x - 1, y), r = Terrain.TileAt(x + 1, y);
-            if (l is Air && r is Air) {
+    //        Tile l = Terrain.TileAt(x - 1, y), r = Terrain.TileAt(x + 1, y);
+    //        if (l is Air && r is Air) {
 
-                if (Height > amt * 3) {
-                    new Water(x - 1, y, amt);
-                    new Water(x + 1, y, amt);
-                    Height -= amt * 2;
-                }
+    //            if (Height > amt * 3) {
+    //                new Water(x - 1, y, amt);
+    //                new Water(x + 1, y, amt);
+    //                Height -= amt * 2;
+    //            }
 
-            }
-        }
+    //        }
+    //    }
 
 
-        public override string ToString() {
-            return String.Format("Water [{0}, {1}] Height: {2}", x, y, Height);
-        }
-    }
+    //    public override string ToString() {
+    //        return String.Format("Water [{0}, {1}] Height: {2}", x, y, Height);
+    //    }
+    //}
     #endregion Fluids
 
-    static class TileInteract {
-
-        private static Random Rand = new Random();
-
-        internal static void Explode(int x, int y, int radius, int error) {
-            for (int i = -radius + MathUtil.RandInt(Rand, -error, error); i <= radius + MathUtil.RandInt(Rand, -error, error); i++) {
-                double jStart = -Math.Sqrt(radius * radius - i * i) + MathUtil.RandInt(Rand, -error, error);
-                double jEnd = Math.Sqrt(radius * radius - i * i) + MathUtil.RandInt(Rand, -error, error);
-                if (jStart == double.NaN || jEnd == double.NaN) continue;
-                for (int j = (int)jStart; j <= jEnd; j++) {
-                    if (Terrain.BreakTile(x + i, j + y).id == TileID.Tnt) Explode(x + i, j + y, radius, error);
-                }
-            }
-        }
-    }
 }

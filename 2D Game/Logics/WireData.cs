@@ -6,28 +6,24 @@ using Game.Util;
 
 namespace Game.Logics {
 
-    class Wire : PowerTransmitter {
+    class WireData : PowerTransmitterData {
 
         private BoundedFloat transLevel = BoundedFloat.Zero;
 
-        public static void Create(int x, int y) {
-            if (Terrain.TileAt(x, y).id == TileID.Air) new Wire(x, y);
-        }
+        public bool state { get; private set; }
 
-        private Wire(int x, int y) : base(x, y, TileID.WireOff) {
+        public WireData() {
             poweroutL.max = poweroutR.max = poweroutU.max = poweroutD.max = 64;
             powerinL.max = powerinR.max = powerinU.max = powerinD.max = 64;
             transLevel.max = 128;
         }
 
-        internal override void Update() {
+        internal override void Update(int x, int y) {
 
             BoundedFloat.MoveVals(ref powerinL, ref transLevel, powerinL.val);
             BoundedFloat.MoveVals(ref powerinR, ref transLevel, powerinR.val);
             BoundedFloat.MoveVals(ref powerinU, ref transLevel, powerinU.val);
             BoundedFloat.MoveVals(ref powerinD, ref transLevel, powerinD.val);
-
-            id = (transLevel.val > 0 ? TileID.WireOn : TileID.WireOff);
 
             //calculate power output for each side
             BoundedFloat.MoveVals(ref transLevel, ref poweroutL, transLevel.val / 4);
@@ -35,10 +31,12 @@ namespace Game.Logics {
             BoundedFloat.MoveVals(ref transLevel, ref poweroutU, transLevel.val / 4);
             BoundedFloat.MoveVals(ref transLevel, ref poweroutD, transLevel.val / 4);
 
-            base.UpdateAll();
+            base.UpdateAll(x, y);
 
             BoundedFloat.MoveVals(ref transLevel, ref dissipate, dissipate.max);
             dissipate.Empty();
+
+            state = transLevel.val > 0;
         }
     }
 }

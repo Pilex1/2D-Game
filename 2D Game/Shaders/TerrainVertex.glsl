@@ -7,6 +7,7 @@ in float vertexLighting;
 
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
+uniform mat4 rotation;
 
 out vec2 uv;
 out float lighting;

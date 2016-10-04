@@ -8,17 +8,13 @@ using System.Threading.Tasks;
 
 namespace Game.Logics {
 
-    class ORGate : PowerTransmitter, ISolid {
+    //inputs from top and bottom
+    //output from right iff top > 0 || bottom > 0
+    class OrGateData : PowerTransmitterData {
 
         private BoundedFloat bufferPower = BoundedFloat.Zero;
 
-        //inputs from top and bottom
-        //output from right iff top > 0 || bottom > 0
-        public static void Create(int x, int y) {
-            if (Terrain.TileAt(x, y).id == TileID.Air) new ORGate(x, y);
-        }
-
-        private ORGate(int x, int y) : base(x, y, TileID.GateOr) {
+        public OrGateData() {
             poweroutL.max = poweroutU.max = poweroutD.max = 0;
             poweroutR.max = 64;
 
@@ -28,7 +24,7 @@ namespace Game.Logics {
             bufferPower.max = 64;
         }
 
-        internal override void Update() {
+        internal override void Update(int x, int y) {
             bool cond = powerinU.val > 0 || powerinD.val > 0;
 
             BoundedFloat.MoveVals(ref powerinU, ref bufferPower, powerinU.val);
@@ -38,9 +34,11 @@ namespace Game.Logics {
                 BoundedFloat.MoveVals(ref bufferPower, ref poweroutR, bufferPower.val);
             }
 
-            base.UpdateR();
+            base.UpdateR(x, y);
 
-            BoundedFloat.MoveVals(ref bufferPower, ref dissipate, dissipate.max);
+            BoundedFloat.MoveVals(ref powerinU, ref dissipate, dissipate.max);
+            dissipate.Empty();
+            BoundedFloat.MoveVals(ref powerinD, ref dissipate, dissipate.max);
             dissipate.Empty();
         }
     }

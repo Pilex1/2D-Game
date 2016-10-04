@@ -7,42 +7,36 @@ using System.Diagnostics;
 
 namespace Game.Logics {
 
-    class LogicComparer : IEqualityComparer<Logic> {
-        //equal if tiles are the same position
-        public bool Equals(Logic lx, Logic ly) {
-            if (lx == null || ly == null) return false;
-            return lx.x == ly.x && lx.y == ly.y;
-        }
-
-        public int GetHashCode(Logic l) {
-            return (Terrain.MaxHeight + 1) * l.x + l.y;
-        }
-    }
-
     static class LogicManager {
 
-        private static Dictionary<Vector2i, Logic> Logics = new Dictionary<Vector2i, Logic>();
-
-        public static void AddLogic(Logic l) {
-            Logics.Add(new Vector2i(l.x, l.y), l);
-        }
-        public static void RemoveLogic(Logic l) {
-            Logics.Remove(new Vector2i(l.x, l.y));
-        }
-
-        public static void ModifyPosition(Vector2i oldloc, Vector2i newloc) {
-            Logic ldict = Logics[oldloc];
-            Logics.Remove(oldloc);
-            ldict.SetX(newloc.x);
-            ldict.SetY(newloc.y);
-            Logics.Add(newloc, ldict);
-        }
-
         public static void Update() {
-            foreach (Logic l in Logics.Values) {
-                l.Update();
+
+            var logicDict = Terrain.LogicDict;
+            var list = new List<Vector2i>(logicDict.Keys);
+            foreach (Vector2i v in list) {
+                LogicData logic;
+                logicDict.TryGetValue(v, out logic);
+                if (logic == null) continue;
+                logic.Update(v.x, v.y);
+
+                SwitchData switchdata = logic as SwitchData;
+                WireData wiredata = logic as WireData;
+                StickyTilePusherData tilepusherdata = logic as StickyTilePusherData;
+                LogicLampData logiclampdata = logic as LogicLampData;
+                LogicBridgeData logicbridgedata = logic as LogicBridgeData;
+
+                if (switchdata != null) {
+                    Terrain.TileAt(v.x, v.y).enumId = switchdata.state ? TileEnum.SwitchOn : TileEnum.SwitchOff;
+                } else if (wiredata != null) {
+                    Terrain.TileAt(v.x, v.y).enumId = wiredata.state ? TileEnum.WireOn : TileEnum.WireOff;
+                } else if (tilepusherdata != null) {
+                    Terrain.TileAt(v.x, v.y).enumId = tilepusherdata.state ? TileEnum.TilePusherOn : TileEnum.TilePusherOff;
+                } else if (logiclampdata != null) {
+                    Terrain.TileAt(v.x, v.y).enumId = logiclampdata.state ? TileEnum.LogicLampLit : TileEnum.LogicLampUnlit;
+                } else if (logicbridgedata != null) {
+                    Terrain.TileAt(v.x, v.y).enumId = logicbridgedata.stateHorz ? (logicbridgedata.stateVert ? TileEnum.LogicBridgeHorzVertOn : TileEnum.LogicBridgeHorzOn) : (logicbridgedata.stateVert ? TileEnum.LogicBridgeVertOn : TileEnum.LogicBridgeOff);
+                }
             }
         }
-
     }
 }

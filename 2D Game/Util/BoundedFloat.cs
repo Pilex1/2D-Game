@@ -54,5 +54,9 @@ namespace Game.Util {
                 src.val = src.min;
             }
         }
+
+        public override string ToString() {
+            return val.ToString()+" : ["+min+", "+max+"]";
+        }
     }
 }

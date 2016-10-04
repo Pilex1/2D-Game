@@ -6,6 +6,18 @@ using System.Threading.Tasks;
 
 namespace Game.Util {
     enum Direction {
-        Left, Right, Up, Down
+        Up, Right, Down, Left
+    }
+    static class DirectionHelper {
+        public static Direction TurnClockwise(Direction dir, Direction amt) {
+            int res = (int)dir + (int)amt;
+            res %= 4;
+            return (Direction)res;
+        }
+        public static Direction TurnAntiClockwise(Direction dir, Direction amt) {
+            int res = (int)dir - (int)amt;
+            res = MathUtil.Mod(res, 4);
+            return (Direction)res;
+        }
     }
 }

@@ -23,7 +23,7 @@ namespace Game.Terrains {
 
         private static int HeightAt(int x) {
             for (int j = Terrain.Tiles.GetLength(1); j >= 0; j--) {
-                if (!(Terrain.TileAt(x, j) is ISolid)) return j;
+                if (!(Terrain.TileAt(x, j).tileattribs.solid)) return j;
             }
             return 0;
         }
@@ -93,13 +93,13 @@ namespace Game.Terrains {
         private static void LightingRange(int cx, out int top, out int bottom) {
             int outTop = 0, outBottom = 0;
             for (int j = Terrain.Tiles.GetLength(1) - 1; j >= 0; j--) {
-                if (Terrain.TileAt(cx - 1, j).id != TileID.Air || Terrain.TileAt(cx + 1, j).id != TileID.Air || Terrain.TileAt(cx, j - 1).id != TileID.Air) {
+                if (Terrain.TileAt(cx - 1, j).enumId != TileEnum.Air || Terrain.TileAt(cx + 1, j).enumId != TileEnum.Air || Terrain.TileAt(cx, j - 1).enumId != TileEnum.Air) {
                     outTop = j;
                     break;
                 }
             }
             for (int j = outTop; j >= 1; j--) {
-                if (Terrain.TileAt(cx, j - 1).id != TileID.Air) {
+                if (Terrain.TileAt(cx, j - 1).enumId != TileEnum.Air) {
                     outBottom = j;
                     break;
                 }

@@ -8,42 +8,43 @@ using System.Threading.Tasks;
 
 namespace Game.Logics {
 
-    class LogicBridge : PowerTransmitter, ISolid {
+    class LogicBridgeData : PowerTransmitterData {
 
         private BoundedFloat transLevelHorz = BoundedFloat.Zero;
         private BoundedFloat transLevelVert = BoundedFloat.Zero;
 
-        public static void Create(int x, int y) {
-            if (Terrain.TileAt(x, y).id == TileID.Air) new LogicBridge(x, y);
-        }
+        public bool stateHorz { get; private set; }
+        public bool stateVert { get; private set; }
 
-        private LogicBridge(int x, int y) : base(x, y, TileID.LogicBridgeOff) {
+
+        public LogicBridgeData() {
             poweroutL.max = poweroutR.max = poweroutU.max = poweroutD.max = 64;
             powerinL.max = powerinR.max = powerinU.max = powerinD.max = 64;
             transLevelHorz.max = transLevelVert.max = 128;
+            stateHorz = stateVert = false;
         }
 
-        internal override void Update() {
+        internal override void Update(int x, int y) {
 
             BoundedFloat.MoveVals(ref powerinL, ref transLevelHorz, powerinL.val);
             BoundedFloat.MoveVals(ref powerinR, ref transLevelHorz, powerinR.val);
             BoundedFloat.MoveVals(ref powerinU, ref transLevelVert, powerinU.val);
             BoundedFloat.MoveVals(ref powerinD, ref transLevelVert, powerinD.val);
 
-            bool h = transLevelHorz.val > 0, v = transLevelVert.val > 0;
-            id = h && v ? TileID.LogicBridgeHorzVertOn : h && !v ? TileID.LogicBridgeHorzOn : !h && v ? TileID.LogicBridgeVertOn : TileID.LogicBridgeOff;
-
             BoundedFloat.MoveVals(ref transLevelHorz, ref poweroutL, transLevelHorz.val / 2);
             BoundedFloat.MoveVals(ref transLevelHorz, ref poweroutR, transLevelHorz.val / 2);
             BoundedFloat.MoveVals(ref transLevelVert, ref poweroutU, transLevelVert.val / 2);
             BoundedFloat.MoveVals(ref transLevelVert, ref poweroutD, transLevelVert.val / 2);
 
-            base.UpdateAll();
+            base.UpdateAll(x, y);
 
             BoundedFloat.MoveVals(ref transLevelHorz, ref dissipate, dissipate.max);
             dissipate.Empty();
             BoundedFloat.MoveVals(ref transLevelVert, ref dissipate, dissipate.max);
             dissipate.Empty();
+
+            stateHorz = transLevelHorz.val > 0;
+            stateVert = transLevelVert.val > 0;
         }
     }
 }
