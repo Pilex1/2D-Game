@@ -7,44 +7,77 @@ using Game.Interaction;
 using Game.Assets;
 using Game.Terrains;
 using Game.Util;
+using Game.Core;
 
 namespace Game {
-    class Player : Rectangle {
 
-        public static bool[] Keys { get; private set; }
-        public static bool[] Mouse { get; private set; }
-        public static int MouseX { get; private set; }
-        public static int MouseY { get; private set; }
-        public const int Left = 0, Middle = 1, Right = 2;
+    [Serializable]
+    class PlayerData {
+        public BoolSwitch flying;
+        public float maxHealth;
+        public EntityData entitydata;
+    }
 
+    class Player : Entity {
         public const int StartX = 580, StartY = 70;
 
-        private static BoolSwitch Flying = true;
+        public BoolSwitch Flying { get; private set; } = new BoolSwitch(true, 20);
+        public float MaxHealth { get; private set; } = 20;
 
         public static Player Instance { get; private set; }
 
-        private Player() : base(new Vector2(1, 2), new Vector2(StartX, StartY), new Vector4[] { new Vector4(1, 0, 0, 1), new Vector4(0, 1, 0, 1), new Vector4(0, 0, 1, 1), new Vector4(1, 0, 1, 1) }, PolygonMode.Fill, 0.5f) {
-            Speed = 0.08f;
+        private Player(EntityVAO vao, Texture texture, Hitbox hitbox, Vector2 position) : base(vao, texture, hitbox, position) {
+            base.data.speed = 0.08f;
+            base.data.jumppower = 0.5f;
         }
 
-        public static void Init() {
-            Keys = new bool[255];
-            Mouse = new bool[3];
+        public static PlayerData ToPlayerData() {
+            return new PlayerData { flying = Instance.Flying, maxHealth = Instance.MaxHealth, entitydata = Instance.data };
+        }
 
-            Instance = new Player();
+        private static Player DefaultPlayer() {
+            Vector2 position = new Vector2(StartX, StartY);
+            EntityVAO vao = EntityVAO.CreateRectangle(new Vector2(1, 2));
+            Texture texture = TextureUtil.CreateTexture(new Vector3[,] {
+              {new Vector3(1, 0, 0), new Vector3(0, 1, 0)},
+              {new Vector3(0, 0, 1), new Vector3(1, 0, 1)}
+            });
+            Gl.BindTexture(texture.TextureTarget, texture.TextureID);
+            Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureMagFilter, TextureParameter.Linear);
+            Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureMinFilter, TextureParameter.Linear);
+            Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureWrapS, TextureParameter.ClampToEdge);
+            Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureWrapT, TextureParameter.ClampToEdge);
+            Gl.BindTexture(TextureTarget.Texture2D, 0);
+            Hitbox hitbox = new RectangularHitbox(position, new Vector2(1, 2));
+            return new Player(vao, texture, hitbox, position);
+        }
+
+        public static new void Init() {
+            Instance = DefaultPlayer();
+
+            try {
+                PlayerData playerdata = Serialization.LoadPlayer();
+                Instance.Flying = playerdata.flying;
+                Instance.MaxHealth = playerdata.maxHealth;
+                Instance.data = playerdata.entitydata;
+            } catch (Exception) { }
+
             Instance.CorrectTerrainCollision();
 
             Healthbar.Init(20);
             Inventory.Init();
+        }
 
-            Glut.glutKeyboardFunc(OnKeyboardDown);
-            Glut.glutKeyboardUpFunc(OnKeyboardUp);
-            Glut.glutMouseFunc(OnMousePress);
-            Glut.glutMotionFunc(OnMouseMove);
-            Glut.glutMouseWheelFunc(OnMouseScroll);
+        public static new void CleanUp() {
+            Serialization.SavePlayer(ToPlayerData());
         }
 
         public override void Update() {
+            bool[] Keys = Input.Keys;
+            bool[] Mouse = Input.Mouse;
+            int dir = Input.MouseScroll;
+            int MouseX = Input.MouseX, MouseY = Input.MouseY;
+
             if (Keys['a']) {
                 Instance.MoveLeft();
             }
@@ -55,14 +88,22 @@ namespace Game {
                 Instance.Jump();
             }
             if (Flying) {
-                Instance.UseGravity = false;
+                Instance.data.UseGravity = false;
                 if (Keys['s']) Instance.Fall();
             } else {
-                Instance.UseGravity = true;
+                Instance.data.UseGravity = true;
             }
 
             if (Instance.UpdatePosition()) {
                 Terrain.UpdateMesh = true;
+            }
+
+            if (Keys['l']) {
+                Terrain.UpdateLighting.Toggle();
+                Terrain.UpdateMesh = true;
+            }
+            if (Keys['f']) {
+                Flying.Toggle();
             }
 
 
@@ -77,11 +118,11 @@ namespace Game {
             if (Keys['9']) Hotbar.CurSelectedSlot = 8;
 
 
-            if (Mouse[Left]) {
-                    Vector2 v = RayCast(MouseX, MouseY);
-                    Terrain.BreakTile((int)v.x, (int)v.y);
+            if (Mouse[Input.MouseLeft]) {
+                Vector2 v = RayCast(MouseX, MouseY);
+                Terrain.BreakTile((int)v.x, (int)v.y);
             }
-            if (Mouse[Right]) {
+            if (Mouse[Input.MouseRight]) {
                 Vector2 v = RayCast(MouseX, MouseY);
                 int x = (int)v.x, y = (int)v.y;
                 if (Terrain.TileAt(x, y).enumId == TileEnum.Air) {
@@ -90,15 +131,18 @@ namespace Game {
                     Terrain.TileAt(x, y).tileattribs.Interact(x, y);
                 }
             }
-            if (Mouse[Middle]) {
+            if (Mouse[Input.MouseMiddle]) {
                 Vector2 v = RayCast(MouseX, MouseY);
                 int x = (int)v.x, y = (int)v.y;
                 TileEnum tile = Terrain.TileAt(x, y).enumId;
 
             }
 
+            if (dir < 0) Hotbar.IncrSlot();
+            if (dir > 0) Hotbar.DecrSlot();
 
-            Hitbox.Position = Position;
+
+            Hitbox.Position = data.Position.val;
 
         }
 
@@ -110,32 +154,6 @@ namespace Game {
             Healthbar.Heal(hp);
         }
 
-        private static void OnMouseScroll(int button, int dir, int x, int y) {
-            if (dir < 0) Hotbar.IncrSlot();
-            if (dir > 0) Hotbar.DecrSlot();
-        }
-
-        private static void OnMouseMove(int x, int y) {
-            MouseX = x;
-            MouseY = y;
-        }
-
-        private static void OnMousePress(int button, int state, int mx, int my) {
-            if (button == Glut.GLUT_LEFT_BUTTON) {
-                Mouse[Left] = (state == Glut.GLUT_DOWN);
-            }
-
-            if (button == Glut.GLUT_MIDDLE_BUTTON) {
-                Mouse[Middle] = (state == Glut.GLUT_DOWN);
-            }
-
-            if (button == Glut.GLUT_RIGHT_BUTTON) {
-                Mouse[Right] = (state == Glut.GLUT_DOWN);
-            }
-
-            MouseX = mx;
-            MouseY = my;
-        }
 
         private static Vector2 RayCast(int mx, int my) {
             float x = (2.0f * mx) / Program.Width - 1.0f;
@@ -149,35 +167,21 @@ namespace Game {
             Vector4 rayWorldTemp = inverseViewMatrix * eyeCoords;
             Vector2 rayWorld = new Vector2(rayWorldTemp.x, rayWorldTemp.y);
 
-            Vector2 intersectTerrain = Instance.Position - rayWorld * GameRenderer.zoom - new Vector2(0, 1);
+            Vector2 intersectTerrain = Instance.data.Position.val - rayWorld * GameRenderer.zoom - new Vector2(0, 1);
             return intersectTerrain;
         }
 
-        private static void OnKeyboardDown(byte key, int x, int y) {
-            Keys[key] = true;
-
-
-            if (key == 'l') {
-                Terrain.UpdateLighting.Toggle();
-                Terrain.UpdateMesh = true;
-            }
-            if (key == 'f') Flying.Toggle();
-            if (key == 'e') GameLogic.RemoveAllEntities();
-            if (key == 27) Glut.glutLeaveMainLoop();
-        }
-        private static void OnKeyboardUp(byte key, int x, int y) {
-            Keys[key] = false;
-        }
-
-        public static Vector2 ToPlayer(Vector2 pos) { return new Vector2(Instance.Position.x - pos.x, Instance.Position.y - pos.y).Normalize(); }
+        public static Vector2 ToPlayer(Vector2 pos) { return new Vector2(Instance.data.Position.x - pos.x, Instance.data.Position.y - pos.y).Normalize(); }
 
         public static bool InRange(Entity entity, float maxDist) {
-            float x = entity.Position.x, y = entity.Position.y;
-            return (Instance.Position.x - x) * (Instance.Position.x - x) + (Instance.Position.y - y) * (Instance.Position.y - y) <= maxDist;
+            float x = entity.data.Position.x, y = entity.data.Position.y;
+            return (Instance.data.Position.x - x) * (Instance.data.Position.x - x) + (Instance.data.Position.y - y) * (Instance.data.Position.y - y) <= maxDist;
         }
 
         public static bool Intersecting(Entity entity) {
             return Instance.Hitbox.Intersecting(entity.Hitbox);
         }
+
+
     }
 }

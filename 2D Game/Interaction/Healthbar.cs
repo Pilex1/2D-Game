@@ -1,4 +1,6 @@
-﻿using Game.Entities;
+﻿using Game.Core;
+using Game.Entities;
+using Game.Util;
 using OpenGL;
 using System.Drawing;
 
@@ -11,40 +13,43 @@ namespace Game.Interaction {
         public static bool Dead { get; private set; }
 
         public const float BarWidth = 0.75f, BarHeight = 0.075f;
-        public static TexturedModel Model;
+
+        public static GuiVAO vao;
+        public static Texture texture;
 
         public static void Init(float maxHealth) {
-
             Deaths = 0;
             Dead = false;
 
             Health = MaxHealth = maxHealth;
 
-            VBO<Vector2> vertices = CalculateVertices();
-            Bitmap bmp = new Bitmap(1, 1);
-            bmp.SetPixel(0, 0, Color.DarkRed);
-            Texture texture = new Texture(bmp);
-            VBO<Vector2> uvs = new VBO<Vector2>(new Vector2[] {
-               new Vector2(0,0)
-           });
-            VBO<int> elements = new VBO<int>(new int[] {
-                0,1,2,3
-            }, BufferTarget.ElementArrayBuffer);
+            texture = TextureUtil.CreateTexture(Color.DarkRed);
+            Vector2[] vertices = CalculateVertices();
 
-            Model = new TexturedModel(vertices, elements, uvs, texture, BeginMode.TriangleStrip, PolygonMode.Fill);
+            var uvs = new Vector2[] {
+               new Vector2(0,0),
+               new Vector2(0,0),
+               new Vector2(0,0),
+               new Vector2(0,0)
+           };
+            var elements = new int[] {
+                0,1,2,3
+            };
+
+            vao = new GuiVAO(vertices, elements, uvs, verticeshint: BufferUsageHint.DynamicDraw);
         }
 
         public static void Update() {
-            Model.Vertices = CalculateVertices();
+            vao.UpdateVertices(CalculateVertices());
         }
 
-        private static VBO<Vector2> CalculateVertices() {
-            return new VBO<Vector2>(new Vector2[] {
+        private static Vector2[] CalculateVertices() {
+            return new Vector2[] {
                 new Vector2(0,BarHeight),
                 new Vector2(0,0),
-                 new Vector2(BarWidth * Health/MaxHealth,BarHeight),
+                new Vector2(BarWidth * Health/MaxHealth,BarHeight),
                 new Vector2(BarWidth * Health/MaxHealth,0)
-            }, Hint: BufferUsageHint.DynamicDraw);
+            };
         }
 
         public static void Revive() {
@@ -67,6 +72,13 @@ namespace Game.Interaction {
                 Dead = true;
                 Deaths++;
             }
+        }
+
+        public static void Dispose() {
+            if (vao != null)
+                vao.Dispose();
+            if (texture != null)
+                texture.Dispose();
         }
 
     }

@@ -1,7 +1,36 @@
-﻿using System;
+﻿using OpenGL;
+using System;
 using System.Linq;
 
 namespace Game.Util {
+
+    [Serializable]
+    struct BoundedVector2 {
+
+        private BoundedFloat bfx, bfy;
+
+        public float x {
+            get { return bfx.val; }
+            set { bfx.val = value; }
+        }
+
+        public float y {
+            get { return bfy.val; }
+            set { bfy.val = value; }
+        }
+
+        public Vector2 val {
+            get { return new Vector2(bfx.val, bfy.val); }
+            set { bfx.val = value.x; bfy.val = value.y; }
+        }
+
+        public BoundedVector2(float val1, float min1, float max1, float val2, float min2, float max2) : this(new BoundedFloat(val1, min1, max1), new BoundedFloat(val2, min2, max2)) { }
+
+        public BoundedVector2(BoundedFloat bfx, BoundedFloat bfy) {
+            this.bfx = bfx;
+            this.bfy = bfy;
+        }
+    }
 
     [Serializable]
     struct BoundedFloat {

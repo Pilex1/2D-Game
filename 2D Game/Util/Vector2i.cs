@@ -31,5 +31,9 @@ namespace Game.Util {
         public override int GetHashCode() {
             return x << 16 + y;
         }
+
+        public float AngleTo(Vector2i src, Vector2i dest) {
+            return (float)Math.Atan2(dest.y - src.y, dest.x - src.x);
+        }
     }
 }

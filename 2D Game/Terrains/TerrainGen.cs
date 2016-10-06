@@ -51,7 +51,7 @@ namespace Game.Terrains {
             for (int i = 0; i < Terrain.Tiles.GetLength(0); i++) {
                 int y = MathUtil.RandInt(Rand, 1, 6);
                 for (int j = 0; j < y; j++) {
-                    Terrain.SetTile(i, j, TileID.Bedrock);
+                    Terrain.OverwriteTile(i, j, TileID.Bedrock);
                 }
             }
         }

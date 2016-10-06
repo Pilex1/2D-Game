@@ -4,148 +4,149 @@ using Game.Entities;
 using Game.Terrains;
 using System.Diagnostics;
 using Game.Assets;
+using System.Collections.Generic;
+using Game.Core;
+using Game.Util;
 
 namespace Game {
+
+    [Serializable]
+    class EntityData {
+        public float speed = 0;
+        public bool CorrectCollisions = true;
+        public bool UseGravity = true;
+        public float jumppower = 0;
+        public bool InAir = false;
+        public BoundedFloat dx = new BoundedFloat(0, -Entity.maxHorzSpeed, Entity.maxHorzSpeed);
+        public BoundedFloat dy = new BoundedFloat(0, -Entity.maxVertSpeed, Entity.maxVertSpeed);
+        public BoundedVector2 Position = new BoundedVector2(new BoundedFloat(0, 0, Terrain.Tiles.GetLength(0) - 1), new BoundedFloat(0, 0, Terrain.Tiles.GetLength(1) - 1));
+    }
+
     abstract class Entity {
-        public Model Model { get; protected set; }
+        internal const float gravity = 0.02f;
+        internal const float maxHorzSpeed = 0.8f;
+        internal const float maxVertSpeed = 1f;
+        private static HashSet<Entity> Entities = new HashSet<Entity>();
+        public static ShaderProgram shader;
+
+        public EntityVAO vao;
+        private Texture texture;
         public Hitbox Hitbox { get; protected set; }
 
-        public float Speed { get; protected set; }
+        public EntityData data = new EntityData { };
 
-        protected bool CorrectCollisions;
-        protected bool UseGravity;
-
-        protected float JumpPowerMax;
-        protected bool InAir = false;
-        private float _dy = 0;
-        private float _dx = 0;
-        private float dy {
-            get { return _dy; }
-            set {
-                if (value < -1 * maxVertSpeed) _dy = -1 * maxVertSpeed;
-                else if (value > maxVertSpeed) _dy = maxVertSpeed;
-                else _dy = value;
-                if (Math.Abs(_dy) < 0.00001) _dy = 0;
-            }
-        }
-        private float dx {
-            get { return _dx; }
-            set {
-                if (value < -1 * maxHorzSpeed) _dx = -1 * maxHorzSpeed;
-                else if (value > maxHorzSpeed) _dx = maxHorzSpeed;
-                else _dx = value;
-                if (Math.Abs(_dx) < 0.00001) _dx = 0;
-            }
-        }
-        private const float maxHorzSpeed = 0.8f;
-        private const float maxVertSpeed = 1f;
-        private const float gravity = 0.02f;
-
-        private Vector2 position = new Vector2(0, 0);
-        public Vector2 Position {
-            get { return position; }
-            set {
-                if (value.x < 0) value.x = 0;
-                if (value.x > Terrain.MaxWidth) value.x = Terrain.MaxWidth;
-                position = value;
-            }
+        public static void Init() {
+            shader = new ShaderProgram(FileUtil.LoadShader("EntityVertex"), FileUtil.LoadShader("EntityFragment"));
+            Console.WriteLine("Entity Shader Log: ");
+            Console.WriteLine(shader.ProgramLog);
         }
 
-        protected Entity(Vector2 position, Model model, Hitbox hitbox, float speed, float jumpPowerMax, bool correctCollisions = true, bool useGravity = true) {
-            Model = model;
+        public static void UpdateViewMatrix(Matrix4 mat) {
+            Gl.UseProgram(shader.ProgramID);
+            shader["viewMatrix"].SetValue(mat);
+        }
+
+        protected Entity(EntityVAO vao, Texture texture, Hitbox hitbox, EntityData data) {
+            this.data = data;
+            this.vao = vao;
             Hitbox = hitbox;
-            Speed = speed;
-            CorrectCollisions = correctCollisions;
-            UseGravity = useGravity;
-            Position = position;
-            JumpPowerMax = jumpPowerMax;
-            if (CorrectCollisions) CorrectTerrainCollision();
+            this.texture = texture;
+            if (data.CorrectCollisions) CorrectTerrainCollision();
+            Entities.Add(this);
         }
 
-        public virtual Matrix4 ModelMatrix() { return Matrix4.CreateTranslation(new Vector3(Position.x, Position.y, 0)); }
+        protected Entity(EntityVAO vao, Texture texture, Hitbox hitbox, Vector2 position) {
+            data.Position.val = position;
+            this.vao = vao;
+            Hitbox = hitbox;
+            this.texture = texture;
+            if (data.CorrectCollisions) CorrectTerrainCollision();
+            Entities.Add(this);
+        }
+
+        public virtual Matrix4 ModelMatrix() { return Matrix4.CreateTranslation(new Vector3(data.Position.x, data.Position.y, 0)); }
 
         public void MoveLeft() {
-            dx -= Speed * GameLogic.DeltaTime;
+            data.dx.val -= data.speed * GameLogic.DeltaTime;
         }
         public void MoveRight() {
-            dx += Speed * GameLogic.DeltaTime;
+            data.dx.val += data.speed * GameLogic.DeltaTime;
         }
         public void Jump() {
-            if (UseGravity) {
-                if (!InAir) {
-                    dy = JumpPowerMax;
+            if (data.UseGravity) {
+                if (!data.InAir) {
+                    data.dy.val = data.jumppower;
                 }
             } else {
-                dy = JumpPowerMax;
+                data.dy.val = data.jumppower;
             }
         }
         public void Fall() {
-            if (!UseGravity) {
-                dy = -JumpPowerMax;
+            if (!data.UseGravity) {
+                data.dy.val = -data.jumppower;
             }
         }
-
 
         public bool UpdatePosition() {
             float bouncePower = -1.2f;
             float bouncePowerHorz = -5f;
             bool moved = false;
 
-            if (UseGravity) {
-                dy -= gravity * GameLogic.DeltaTime;
+            if (data.UseGravity) {
+                data.dy.val -= gravity * GameLogic.DeltaTime;
             }
-            dx *= 0.9f;
+            data.dx.val *= 0.9f;
 
 
 
             TileID col;
-            Vector2 offset = new Vector2(0, dy * GameLogic.DeltaTime);
+            Vector2 offset = new Vector2(0, data.dy.val * GameLogic.DeltaTime);
             if (Terrain.WillCollide(this, offset, out col)) {
-                if (dy > 0) {
+                if (data.dy.val > 0) {
                     //hit ceiling
-                    Position = new Vector2(Position.x, (int)Math.Ceiling(Position.y));
+                    data.Position.val = new Vector2(data.Position.x, (int)Math.Ceiling(data.Position.y));
                     moved = true;
                     if (col.enumId == TileEnum.Bounce) {
-                        dy *= bouncePower;
-                        Position += new Vector2(0, dy * GameLogic.DeltaTime);
-                    } else dy = 0;
+                        data.dy.val *= bouncePower;
+                        data.Position.val += new Vector2(0, data.dy.val * GameLogic.DeltaTime);
+                    } else data.dy.val = 0;
 
                 } else {
                     //hit ground
-                    Position = new Vector2(Position.x, (int)Math.Floor(Position.y));
+                    data.Position.val = new Vector2(data.Position.x, (int)Math.Floor(data.Position.y));
                     if (col.enumId == TileEnum.Bounce) {
-                        dy *= bouncePower;
-                        Position += new Vector2(0, dy * GameLogic.DeltaTime);
+                        data.dy.val *= bouncePower;
+                        data.Position.val += new Vector2(0, data.dy.val * GameLogic.DeltaTime);
                         moved = true;
                     } else {
-                        dy = 0;
+                        data.dy.val = 0;
                     }
 
-                    InAir = false;
+                    data.InAir = false;
                 }
 
             } else {
                 if (offset.y != 0) moved = true;
-                Position += offset;
-                InAir = true;
+                data.Position.val += offset;
+                data.InAir = true;
             }
 
-            offset = new Vector2(dx, 0);
+            offset = new Vector2(data.dx.val, 0);
             if (Terrain.WillCollide(this, offset, out col)) {
-                if (dx > 0) Position = new Vector2((int)Math.Ceiling(Position.x), Position.y);
-                else Position = new Vector2((int)Math.Floor(Position.x), Position.y);
+                if (data.dx.val > 0) data.Position.val = new Vector2((int)Math.Ceiling(data.Position.x), data.Position.y);
+                else data.Position.val = new Vector2((int)Math.Floor(data.Position.x), data.Position.y);
 
                 if (col.enumId == TileEnum.Bounce) {
-                    dx *= bouncePowerHorz;
-                    Position += new Vector2(dx * GameLogic.DeltaTime, 0);
+                    data.dx.val *= bouncePowerHorz;
+                    data.Position.val += new Vector2(data.dx.val * GameLogic.DeltaTime, 0);
                     moved = true;
-                } else dx = 0;
+                } else data.dx.val = 0;
             } else {
                 if (offset.x != 0) moved = true;
-                Position += offset;
+                data.Position.val += offset;
             }
 
-            if (!UseGravity) dy = 0;
+            if (!data.UseGravity) data.dy.val = 0;
 
 
             return moved;
@@ -154,9 +155,42 @@ namespace Game {
         public abstract void Update();
 
         protected void CorrectTerrainCollision() {
-            Position = Terrain.CorrectTerrainCollision(this);
+            data.Position.val = Terrain.CorrectTerrainCollision(this);
         }
 
+        public static void RemoveEntity(Entity e) {
+            Entities.Remove(e);
+        }
+
+        public static void SetProjectionMatrix(Matrix4 mat) {
+            Gl.UseProgram(shader.ProgramID);
+            shader["projectionMatrix"].SetValue(mat);
+        }
+
+        public static void Render() {
+            Gl.UseProgram(shader.ProgramID);
+            shader["clr"].SetValue(new Vector3(1, 1, 1));
+            foreach (var e in Entities) {
+                shader["modelMatrix"].SetValue(e.ModelMatrix());
+                Gl.BindVertexArray(e.vao.ID);
+                Gl.BindTexture(e.texture.TextureTarget, e.texture.TextureID);
+                Gl.DrawElements(BeginMode.Triangles, e.vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+                Gl.BindTexture(e.texture.TextureTarget, e.texture.TextureID);
+                Gl.BindVertexArray(0);
+            }
+            Gl.UseProgram(0);
+        }
+
+        public static void CleanUp() {
+            foreach (var e in Entities) {
+                Gl.DeleteTextures(1, new uint[] { e.texture.TextureID });
+                e.vao.Dispose();
+            }
+            Entities.Clear();
+            Gl.DeleteShader(shader.FragmentShader.ShaderID);
+            Gl.DeleteShader(shader.VertexShader.ShaderID);
+            Gl.DeleteProgram(shader.ProgramID);
+        }
 
     }
 }

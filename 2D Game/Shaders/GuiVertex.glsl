@@ -1,15 +1,19 @@
 ﻿#version 400 core
 
-in vec2 vertexPosition;
-in vec2 uv;
+in vec2 vpos;
+in vec2 vuv;
 
-out vec2 outUV;
+out vec2 fuv;
 
 uniform vec2 position;
-
-const vec2 offset = vec2(-1,-1);
+uniform vec2 size;
+uniform float aspectRatio;
 
 void main(void) {
-	gl_Position = vec4(offset + position + vertexPosition, 0.0, 1.0);
-	outUV = uv;
+	vec2 pos = vpos;
+	pos.y *= aspectRatio;
+	pos *= size;
+	pos += position;
+	gl_Position = vec4(pos, 0.0, 1.0);
+	fuv = vuv;
 }

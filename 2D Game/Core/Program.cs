@@ -7,15 +7,25 @@ using System.Diagnostics;
 using System.Threading;
 using Game.Util;
 using System.Linq;
+using Game.Core;
+using Game.Fonts;
+using Game.TitleScreen;
 
 namespace Game {
+
+    enum ProgramMode {
+        TitleScreen, Game
+    }
     static class Program {
+
 
         public static int ScreenWidth, ScreenHeight;
         public const int Width = 1600, Height = 900;
         public const float AspectRatio = (float)Width / Height;
 
         public static bool FullScreen { get; private set; }
+
+        public static ProgramMode Mode { get; private set; } = ProgramMode.TitleScreen;
 
         static void Main() {
 
@@ -50,36 +60,59 @@ namespace Game {
             Console.SetWindowSize(Console.LargestWindowWidth / 4, Console.LargestWindowHeight / 4);
             Console.SetWindowPosition(0, 0);
 
-            GameLogic.Init();
+            Input.Init();
+            Gui.Init();
+            SwitchToTitleScreen();
         }
 
+        //todo
         public static void EnterFullScreen() {
             Glut.glutEnterGameMode();
             FullScreen = true;
         }
 
+        //todo
         public static void ExitFullScreen() {
             Glut.glutLeaveGameMode();
             FullScreen = false;
         }
 
+        public static void SwitchToTitleScreen() {
+            Mode = ProgramMode.TitleScreen;
+            GameLogic.Dispose();
+            Gui.SwitchToTitleScreen();
+        }
+
+        public static void SwitchToGame() {
+            Mode = ProgramMode.Game;
+            GameLogic.Init();
+            Gui.SwitchToGame();
+        }
+
         private static void MainGameLoop() {
+            //  Gl.ClearColor(0, 0, 0, 1);
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             ErrorCode error = Gl.GetError();
             if (error != ErrorCode.NoError) {
-                Debug.Write("Opengl ERROR: " + error);
+                Console.WriteLine("Opengl Error: " + error);
                 Debug.Assert(false);
             }
 
-            GameLogic.Update();
-            GameLogic.Render();
+            if (Mode == ProgramMode.Game) {
+                GameLogic.Render();
+                GameLogic.Update();
+            }
+            Gui.Render();
+            Gui.Update();
+            Input.Update();
 
             Glut.glutSwapBuffers();
         }
 
         private static void CleanUp() {
-            GameLogic.CleanUp();
+            GameLogic.Dispose();
+            Gui.Dispose();
         }
 
     }

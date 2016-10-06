@@ -33,7 +33,7 @@ namespace Game.Terrains {
             Terrain.Lightings = new float[Terrain.Tiles.GetLength(0), Terrain.Tiles.GetLength(1)];
             //calculate lightings for each tile
             //sun lighting
-            for (int i = 0; i <= Terrain.MaxWidth; i++) {
+            for (int i = 0; i < Terrain.Tiles.GetLength(0); i++) {
 
                 int top, bottom;
                 LightingRange(i, out top, out bottom);
@@ -53,8 +53,8 @@ namespace Game.Terrains {
 
             int posX, posY;
             if (Player.Instance != null) {
-                posX = (int)Player.Instance.Position.x;
-                posY = (int)Player.Instance.Position.y;
+                posX = (int)Player.Instance.data.Position.x;
+                posY = (int)Player.Instance.data.Position.y;
             } else {
                 posX = Player.StartX;
                 posY = Player.StartY;

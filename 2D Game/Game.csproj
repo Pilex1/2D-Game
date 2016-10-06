@@ -53,14 +53,16 @@
   <ItemGroup>
     <Compile Include="Assets\Asset.cs" />
     <Compile Include="Assets\ItemId.cs" />
-    <Compile Include="Core\Background.cs" />
+    <Compile Include="Core\Controller.cs" />
     <Compile Include="Core\CustomVAO.cs" />
     <Compile Include="Core\Serialization.cs" />
+    <Compile Include="Guis\ButtonRenderer.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\Hitbox.cs" />
-    <Compile Include="Entities\Model.cs" />
     <Compile Include="Core\GameLogic.cs" />
     <Compile Include="Fluids\FluidsManager.cs" />
+    <Compile Include="Fonts\Text.cs" />
+    <Compile Include="Guis\GameGuiRenderer.cs" />
     <Compile Include="Interaction\Healthbar.cs" />
     <Compile Include="Interaction\Inventory.cs" />
     <Compile Include="Interaction\Player.cs" />
@@ -80,7 +82,6 @@
     <Compile Include="Logics\WireData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\GameRenderer.cs" />
-    <Compile Include="Entities\Rectangle.cs" />
     <Compile Include="Entities\Shooter.cs" />
     <Compile Include="Terrains\ExplosionData.cs" />
     <Compile Include="Terrains\Light.cs" />
@@ -88,14 +89,16 @@
     <Compile Include="Terrains\Terrain.cs" />
     <Compile Include="Terrains\TerrainGen.cs" />
     <Compile Include="Terrains\Tile.cs" />
-    <Compile Include="TitleScreen\Button.cs" />
-    <Compile Include="TitleScreen\TSRenderer.cs" />
+    <Compile Include="Guis\Gui.cs" />
+    <Compile Include="Guis\TitleScreenRenderer.cs" />
     <Compile Include="Util\BoolSwitch.cs" />
     <Compile Include="Util\BoundedFloat.cs" />
     <Compile Include="Util\ColourUtil.cs" />
     <Compile Include="Util\Direction.cs" />
+    <Compile Include="Util\FileUtil.cs" />
     <Compile Include="Util\MathUtil.cs" />
     <Compile Include="Util\CooldownTimer.cs" />
+    <Compile Include="Util\TextureUtil.cs" />
     <Compile Include="Util\Vector2i.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -110,7 +113,7 @@
     <None Include="Assets\Chiller.fnt" />
     <None Include="Assets\ItemTextures.xcf" />
     <None Include="Assets\TerrainTextures.xcf" />
-    <None Include="Shaders\BackgroundVertex.glsl">
+    <None Include="Fonts\Chiller.fnt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Shaders\EntityFragment.glsl">
@@ -140,14 +143,15 @@
     <None Include="Shaders\TerrainVertex.glsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Shaders\TSFragment.glsl" />
-    <None Include="Shaders\TSVertex.glsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\BackgroundLandscape.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Button.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\Chiller.png" />
@@ -157,9 +161,12 @@
     <Content Include="Assets\TerrainTextures.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="Shaders\BackgroundFragment.glsl">
+    <Content Include="Assets\TitleScreenBackground.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
+    <Content Include="Fonts\Chiller.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Todo.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

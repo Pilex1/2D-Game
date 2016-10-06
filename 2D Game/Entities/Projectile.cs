@@ -4,9 +4,13 @@ using System.Diagnostics;
 using Game.Entities;
 using Game.Assets;
 using Game.Terrains;
+using Game.Core;
+using Game.Util;
 
 namespace Game {
-    class Projectile : Rectangle {
+    class Projectile : Entity {
+
+        private static Texture texture;
 
         private float Rotation = 0;
         private float RotationSpeed = 0.05f;
@@ -17,34 +21,45 @@ namespace Game {
 
         private static readonly float Sqrt2 = (float)Math.Sqrt(2);
 
-        public Projectile(Vector2 position, Vector2 velocity, Vector4 colour, int life, float rotationSpeed) : base(new Vector2(1, 1), position, new Vector4[] { colour, colour, colour, colour }, PolygonMode.Fill, new RectangularHitbox(position - new Vector2((1 - Sqrt2) / 2, (1 - Sqrt2) / 2), new Vector2(Sqrt2, Sqrt2)), 0) {
+        public static Texture GetTexture() {
+            if (texture == null)
+                texture = TextureUtil.CreateTexture(new Vector3[,] {
+                    {new Vector3(0, 1, 0), new Vector3(0, 0, 0)},
+                    {new Vector3(0, 0, 0), new Vector3(0, 1, 0)}
+                });
+            return texture;
+        }
+
+        public Projectile(Vector2 position, Vector2 velocity, int life, float rotationSpeed) : base( EntityVAO.CreateRectangle(new Vector2(1, 1)), GetTexture(), new RectangularHitbox(position - new Vector2((1 - Sqrt2) / 2, (1 - Sqrt2) / 2), new Vector2(Sqrt2, Sqrt2)),position) {
+            base.data.speed = 0;
+            base.data.jumppower = 0;
             Velocity = velocity;
             Life = life;
             RotationSpeed = rotationSpeed;
-            CorrectCollisions = false;
+            base.data.CorrectCollisions = false;
         }
 
         public override void Update() {
-            Hitbox.Position = Position;
-            Position += Velocity * GameLogic.DeltaTime;
+            Hitbox.Position = data.Position.val;
+            data.Position.val += Velocity * GameLogic.DeltaTime;
             Rotation += RotationSpeed * GameLogic.DeltaTime;
-            if (Life <= 0) GameLogic.RemoveEntity(this);
+            if (Life <= 0) Entity.RemoveEntity(this);
             if (Terrain.IsColliding(this)) {
-                for (int i = (int)Position.x; i <= (int)Math.Ceiling(Position.x + Hitbox.Width); i++) {
-                    for (int j = (int)Position.y; j < (int)Math.Ceiling(Position.y + Hitbox.Height); j++) {
+                for (int i = (int)data.Position.x; i <= (int)Math.Ceiling(data.Position.x + Hitbox.Width); i++) {
+                    for (int j = (int)data.Position.y; j < (int)Math.Ceiling(data.Position.y + Hitbox.Height); j++) {
                         Terrain.BreakTile(i, j);
                     }
                 }
-                GameLogic.RemoveEntity(this);
+                Entity.RemoveEntity(this);
             }
             if (Player.Intersecting(this)) {
                 Player.Damage(1);
-                GameLogic.RemoveEntity(this);
+                Entity.RemoveEntity(this);
             }
             Life -= GameLogic.DeltaTime;
         }
 
-        public override Matrix4 ModelMatrix() { return Matrix4.CreateRotationZ(Rotation) * Matrix4.CreateTranslation(new Vector3(Position.x, Position.y, 0)); }
+        public override Matrix4 ModelMatrix() { return Matrix4.CreateRotationZ(Rotation) * Matrix4.CreateTranslation(new Vector3(data.Position.x, data.Position.y, 0)); }
 
     }
 }
