@@ -23,6 +23,7 @@ namespace Game {
     }
 
     abstract class Entity {
+        #region fields
         internal const float gravity = 0.02f;
         internal const float maxHorzSpeed = 0.8f;
         internal const float maxVertSpeed = 1f;
@@ -34,25 +35,16 @@ namespace Game {
         public Hitbox Hitbox { get; protected set; }
 
         public EntityData data = new EntityData { };
+        #endregion fields
 
-        public static void Init() {
-            shader = new ShaderProgram(FileUtil.LoadShader("EntityVertex"), FileUtil.LoadShader("EntityFragment"));
-            Console.WriteLine("Entity Shader Log: ");
-            Console.WriteLine(shader.ProgramLog);
-        }
-
-        public static void UpdateViewMatrix(Matrix4 mat) {
-            Gl.UseProgram(shader.ProgramID);
-            shader["viewMatrix"].SetValue(mat);
-        }
-
+        #region constructors
         protected Entity(EntityVAO vao, Texture texture, Hitbox hitbox, EntityData data) {
             this.data = data;
             this.vao = vao;
             Hitbox = hitbox;
             this.texture = texture;
             if (data.CorrectCollisions) CorrectTerrainCollision();
-            Entities.Add(this);
+            AddEntity(this);
         }
 
         protected Entity(EntityVAO vao, Texture texture, Hitbox hitbox, Vector2 position) {
@@ -60,9 +52,11 @@ namespace Game {
             this.vao = vao;
             Hitbox = hitbox;
             this.texture = texture;
-            if (data.CorrectCollisions) CorrectTerrainCollision();
-            Entities.Add(this);
+            AddEntity(this);
         }
+        #endregion constructors
+
+        #region instance methods
 
         public virtual Matrix4 ModelMatrix() { return Matrix4.CreateTranslation(new Vector3(data.Position.x, data.Position.y, 0)); }
 
@@ -158,13 +152,44 @@ namespace Game {
             data.Position.val = Terrain.CorrectTerrainCollision(this);
         }
 
-        public static void RemoveEntity(Entity e) {
-            Entities.Remove(e);
+        #endregion instance methods
+
+        #region static methods
+        public static void Init() {
+            shader = new ShaderProgram(FileUtil.LoadShader("EntityVertex"), FileUtil.LoadShader("EntityFragment"));
+            Console.WriteLine("Entity Shader Log: ");
+            Console.WriteLine(shader.ProgramLog);
         }
+
+        public static void UpdateViewMatrix(Matrix4 mat) {
+            Gl.UseProgram(shader.ProgramID);
+            shader["viewMatrix"].SetValue(mat);
+        }
+
 
         public static void SetProjectionMatrix(Matrix4 mat) {
             Gl.UseProgram(shader.ProgramID);
             shader["projectionMatrix"].SetValue(mat);
+        }
+
+        private static void AddEntity(Entity e) {
+            Entities.Add(e);
+        }
+
+        public static void RemoveEntity(Entity e) {
+            Entities.Remove(e);
+        }
+
+        public static void RemoveAllEntities() {
+            Entities.Clear();
+            Entities.Add(Player.Instance);
+        }
+
+
+        public static void UpdateAll() {
+            foreach (var e in new List<Entity>(Entities)) {
+                e.Update();
+            }
         }
 
         public static void Render() {
@@ -191,6 +216,7 @@ namespace Game {
             Gl.DeleteShader(shader.VertexShader.ShaderID);
             Gl.DeleteProgram(shader.ProgramID);
         }
+        #endregion static methods
 
     }
 }

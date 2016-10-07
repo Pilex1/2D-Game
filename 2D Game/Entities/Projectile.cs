@@ -6,6 +6,7 @@ using Game.Assets;
 using Game.Terrains;
 using Game.Core;
 using Game.Util;
+using Game.Interaction;
 
 namespace Game {
     class Projectile : Entity {
@@ -22,15 +23,22 @@ namespace Game {
         private static readonly float Sqrt2 = (float)Math.Sqrt(2);
 
         public static Texture GetTexture() {
-            if (texture == null)
+            if (texture == null) {
                 texture = TextureUtil.CreateTexture(new Vector3[,] {
                     {new Vector3(0, 1, 0), new Vector3(0, 0, 0)},
                     {new Vector3(0, 0, 0), new Vector3(0, 1, 0)}
                 });
+                Gl.BindTexture(texture.TextureTarget, texture.TextureID);
+                Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureMagFilter, TextureParameter.Linear);
+                Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureMinFilter, TextureParameter.Linear);
+                Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureWrapS, TextureParameter.ClampToEdge);
+                Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureWrapT, TextureParameter.ClampToEdge);
+                Gl.BindTexture(texture.TextureTarget, 0);
+            }
             return texture;
         }
 
-        public Projectile(Vector2 position, Vector2 velocity, int life, float rotationSpeed) : base( EntityVAO.CreateRectangle(new Vector2(1, 1)), GetTexture(), new RectangularHitbox(position - new Vector2((1 - Sqrt2) / 2, (1 - Sqrt2) / 2), new Vector2(Sqrt2, Sqrt2)),position) {
+        public Projectile(Vector2 position, Vector2 velocity, int life, float rotationSpeed) : base( EntityVAO.CreateRectangle(new Vector2(1, 1)), GetTexture(), new RectangularHitbox(position, new Vector2(1, 1)),position) {
             base.data.speed = 0;
             base.data.jumppower = 0;
             Velocity = velocity;
@@ -53,6 +61,7 @@ namespace Game {
                 Entity.RemoveEntity(this);
             }
             if (Player.Intersecting(this)) {
+                Console.WriteLine(Healthbar.Health);
                 Player.Damage(1);
                 Entity.RemoveEntity(this);
             }

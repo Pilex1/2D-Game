@@ -26,6 +26,7 @@ namespace Game {
                 Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureMinFilter, TextureParameter.Linear);
                 Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureWrapS, TextureParameter.ClampToEdge);
                 Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureWrapT, TextureParameter.ClampToEdge);
+                Gl.BindTexture(texture.TextureTarget, 0);
             }
             return texture;
         }
@@ -44,7 +45,6 @@ namespace Game {
                 if (Terrain.IsColliding(proj)) Entity.RemoveEntity(proj);
                 ShootCooldownTime = 0;
             } else ShootCooldownTime += GameLogic.DeltaTime;
-            Update();
         }
     }
 }

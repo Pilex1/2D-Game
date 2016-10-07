@@ -271,42 +271,6 @@ namespace Game.Core {
             Gl.DeleteVertexArrays(1, new uint[] { ID });
         }
 
-        public static GuiVAO CreateWireRectangle(Vector2 size, BufferUsageHint verticeshint = BufferUsageHint.StaticDraw, BufferUsageHint uvhint = BufferUsageHint.StaticDraw) {
-            Vector2[] vertices = new Vector2[] {
-                new Vector2(0,0),
-                new Vector2(0,size.y),
-                new Vector2(size.x,size.y),
-                new Vector2(size.x,0)
-            };
-            int[] elements = new int[] {
-               0,1,2,3,0
-            };
-            Vector2[] uvs = new Vector2[] {
-                new Vector2(0, 1),
-                new Vector2(0, 0),
-                new Vector2(1, 0),
-                new Vector2(1, 1)
-            };
-            return new GuiVAO(vertices, elements, uvs,verticeshint,uvhint);
-        }
-
-        public static GuiVAO CreateRectangle(Vector2 size, BufferUsageHint verticeshint = BufferUsageHint.StaticDraw, BufferUsageHint uvhint = BufferUsageHint.StaticDraw) {
-            Vector2[] vertices = new Vector2[] {
-                new Vector2(0,0),
-                new Vector2(0,size.y),
-                new Vector2(size.x,size.y),
-                new Vector2(size.x,0)
-            };
-            int[] elements = new int[] {
-                0,1,2,2,3,0
-            };
-            Vector2[] uvs = new Vector2[] {
-                new Vector2(0, 1),
-                new Vector2(0, 0),
-                new Vector2(1, 0),
-                new Vector2(1, 1)
-            };
-            return new GuiVAO(vertices, elements, uvs, verticeshint, uvhint);
-        }
+       
     }
 }

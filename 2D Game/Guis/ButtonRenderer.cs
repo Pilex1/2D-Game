@@ -36,7 +36,7 @@ namespace Game.TitleScreen {
             0,1,2,2,3,0
         };
 
-        public Button(Vector2 pos, Vector2 size, string textstring, Font font, Action OnPress) {
+        public Button(Vector2 pos, Vector2 size, string textstring, TextFont font, Action OnPress) {
             this.pos = pos;
             this.size = size;
             this.OnPress = OnPress;
@@ -51,8 +51,6 @@ namespace Game.TitleScreen {
             Gl.BindTexture(TextureTarget.Texture2D, 0);
 
             vao = new GuiVAO(vertices, elements, uvs);
-
-            Gui.AddButton(this);
         }
 
         internal void Update() {

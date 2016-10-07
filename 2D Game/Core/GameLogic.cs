@@ -9,6 +9,7 @@ using Game.Core;
 using System.Threading;
 using Game.Util;
 using Game.TitleScreen;
+using Game.Interaction;
 
 namespace Game {
     static class GameLogic {
@@ -26,7 +27,7 @@ namespace Game {
             GameRenderer.Init();
 
             for (int i = 1; i <= 1; i++) {
-              new Shooter(new Vector2(475, 0), 50, 150);
+                new Shooter(new Vector2(475, 0), 50, 150);
             }
         }
 
@@ -48,12 +49,9 @@ namespace Game {
 
             CooldownTimer.Update();
 
-            //update the player movement
-            Player.Instance.Update();
+            Entity.UpdateAll();
+
             Player.Heal(0.0005f * DeltaTime);
-            //Debug.WriteLine(Player.Instance.Position);
-
-
 
             //update terrain
             Terrain.Update();

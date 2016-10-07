@@ -33,10 +33,10 @@ namespace Game {
 
             Glut.glutMainLoop();
 
-            CleanUp();
+            Dispose();
 
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadKey();
+            //Console.WriteLine("Press any key to continue...");
+            //Console.ReadKey();
 
         }
 
@@ -57,8 +57,8 @@ namespace Game {
             Glut.glutDisplayFunc(delegate () { });
             Glut.glutIdleFunc(MainGameLoop);
 
-            Console.SetWindowSize(Console.LargestWindowWidth / 4, Console.LargestWindowHeight / 4);
-            Console.SetWindowPosition(0, 0);
+            //Console.SetWindowSize(Console.LargestWindowWidth / 4, Console.LargestWindowHeight / 4);
+            //Console.SetWindowPosition(0, 0);
 
             Input.Init();
             Gui.Init();
@@ -110,7 +110,7 @@ namespace Game {
             Glut.glutSwapBuffers();
         }
 
-        private static void CleanUp() {
+        private static void Dispose() {
             GameLogic.Dispose();
             Gui.Dispose();
         }

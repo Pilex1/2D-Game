@@ -1,4 +1,5 @@
-﻿using Game.Util;
+﻿using Game.Interaction;
+using Game.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +11,11 @@ namespace Game.Terrains {
 
         public float radius, error;
 
+        public object HotbarExplosion { get; private set; }
+
         public override void Interact(int x, int y) {
-            Explosion.Explode(x, y, radius, error);
+            if (Hotbar.CurrentlySelectedItem()==Assets.ItemId.Igniter)
+                Explosion.Explode(x, y, radius, error);
         }
     }
 

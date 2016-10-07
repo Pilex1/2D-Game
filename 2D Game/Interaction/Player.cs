@@ -19,7 +19,7 @@ namespace Game {
     }
 
     class Player : Entity {
-        public const int StartX = 580, StartY = 70;
+        public const float StartX = 580, StartY = 70;
 
         public BoolSwitch Flying { get; private set; } = new BoolSwitch(true, 20);
         public float MaxHealth { get; private set; } = 20;
@@ -60,6 +60,7 @@ namespace Game {
                 Instance.Flying = playerdata.flying;
                 Instance.MaxHealth = playerdata.maxHealth;
                 Instance.data = playerdata.entitydata;
+                playerdata.flying.ResetTimer();
             } catch (Exception) { }
 
             Instance.CorrectTerrainCollision();
@@ -77,7 +78,26 @@ namespace Game {
             bool[] Mouse = Input.Mouse;
             int dir = Input.MouseScroll;
             int MouseX = Input.MouseX, MouseY = Input.MouseY;
+            if (!Inventory.toggle) {
+                if (Mouse[Input.MouseLeft]) {
+                    Vector2 v = RayCast(Input.NDCMouseX, Input.NDCMouseY);
+                    Terrain.BreakTile((int)v.x, (int)v.y);
+                }
+                if (Mouse[Input.MouseRight]) {
+                    Vector2 v = RayCast(Input.NDCMouseX, Input.NDCMouseY);
+                    int x = (int)v.x, y = (int)v.y;
+                    if (Terrain.TileAt(x, y).enumId == TileEnum.Air) {
+                        ItemInteract.Interact(Hotbar.CurrentlySelectedItem(), x, y);
+                    } else {
+                        Terrain.TileAt(x, y).tileattribs.Interact(x, y);
+                    }
+                }
+                if (Mouse[Input.MouseMiddle]) {
+                    Vector2 v = RayCast(Input.NDCMouseX, Input.NDCMouseY);
+                    int x = (int)v.x, y = (int)v.y;
 
+                }
+            }
             if (Keys['a']) {
                 Instance.MoveLeft();
             }
@@ -92,10 +112,6 @@ namespace Game {
                 if (Keys['s']) Instance.Fall();
             } else {
                 Instance.data.UseGravity = true;
-            }
-
-            if (Instance.UpdatePosition()) {
-                Terrain.UpdateMesh = true;
             }
 
             if (Keys['l']) {
@@ -117,25 +133,8 @@ namespace Game {
             if (Keys['8']) Hotbar.CurSelectedSlot = 7;
             if (Keys['9']) Hotbar.CurSelectedSlot = 8;
 
-
-            if (Mouse[Input.MouseLeft]) {
-                Vector2 v = RayCast(MouseX, MouseY);
-                Terrain.BreakTile((int)v.x, (int)v.y);
-            }
-            if (Mouse[Input.MouseRight]) {
-                Vector2 v = RayCast(MouseX, MouseY);
-                int x = (int)v.x, y = (int)v.y;
-                if (Terrain.TileAt(x, y).enumId == TileEnum.Air) {
-                    ItemInteract.Interact(Hotbar.CurrentlySelectedItem(), x, y);
-                } else {
-                    Terrain.TileAt(x, y).tileattribs.Interact(x, y);
-                }
-            }
-            if (Mouse[Input.MouseMiddle]) {
-                Vector2 v = RayCast(MouseX, MouseY);
-                int x = (int)v.x, y = (int)v.y;
-                TileEnum tile = Terrain.TileAt(x, y).enumId;
-
+            if (Instance.UpdatePosition()) {
+                Terrain.UpdateMesh = true;
             }
 
             if (dir < 0) Hotbar.IncrSlot();
@@ -155,9 +154,7 @@ namespace Game {
         }
 
 
-        private static Vector2 RayCast(int mx, int my) {
-            float x = (2.0f * mx) / Program.Width - 1.0f;
-            float y = 1.0f - (2.0f * my) / Program.Height;
+        private static Vector2 RayCast(float x, float y) {
             Vector2 normalizedCoords = new Vector2(x, y);
             Vector4 clipCoords = new Vector4(normalizedCoords.x, normalizedCoords.y, -1, 1);
             Vector4 eyeCoords = GameRenderer.projectionMatrix.Inverse() * clipCoords;

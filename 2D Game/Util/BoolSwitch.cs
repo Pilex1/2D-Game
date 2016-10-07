@@ -7,20 +7,22 @@ namespace Game.Util {
 
         private bool val;
 
-        [NonSerialized]
-        private CooldownTimer cooldown;
+        private CooldownTimer cooldowntimer;
 
         public BoolSwitch(bool val, float cooldown) {
             this.val = val;
-            this.cooldown = new CooldownTimer(cooldown);
+            this.cooldowntimer = new CooldownTimer(cooldown);
         }
 
         public BoolSwitch(bool val) : this(val, 0) {
         }
+
+        private BoolSwitch() { }
+
         public void Toggle() {
-            if (cooldown.Ready()) {
+            if (cooldowntimer.Ready()) {
                 val = !val;
-                cooldown.Reset();
+                cooldowntimer.Reset();
             }
         }
         public static implicit operator bool(BoolSwitch bs) {
@@ -30,5 +32,8 @@ namespace Game.Util {
             return new BoolSwitch(b);
         }
 
+        internal void ResetTimer() {
+            CooldownTimer.AddTimer(cooldowntimer);
+        }
     }
 }

@@ -25,16 +25,22 @@ namespace Game.Fonts {
         }
     }
 
-    class Font {
+    class TextFont {
 
         internal Dictionary<char, CharacterInfo> charSet = new Dictionary<char, CharacterInfo>(255);
         internal int lineHeight;
         internal string fontName;
         internal Texture fontTexture;
 
-        internal static HashSet<Font> Fonts = new HashSet<Font>();
+        internal static HashSet<TextFont> Fonts = new HashSet<TextFont>();
 
-        public Font(string fontName) {
+        public static TextFont Chiller;
+
+        internal static void Init() {
+            Chiller = new TextFont("Chiller");
+        }
+
+        private TextFont(string fontName) {
             this.fontName = fontName;
             StreamReader reader = new StreamReader("Fonts/" + fontName + ".fnt");
             fontTexture = new Texture("Fonts/" + fontName + ".png");
@@ -69,14 +75,14 @@ namespace Game.Fonts {
     }
 
     class Text {
+        public GuiModel model;
 
-        public GuiVAO vao;
-        public Font font { get; }
+        public TextFont font { get; }
         public float size { get; }
         public Vector2 pos;
         private float maxwidth;
 
-        public Text(string text, Font font, float size, Vector2 pos, float maxwidth) {
+        public Text(string text, TextFont font, float size, Vector2 pos, float maxwidth) {
             this.font = font;
             this.maxwidth = maxwidth * font.fontTexture.Size.Width / size;
             this.pos = pos;
@@ -86,8 +92,8 @@ namespace Game.Fonts {
             int[] elements;
             Vector2[] uvs;
             SetTextHelper(text, font.fontTexture.Size.Width, font.fontTexture.Size.Height, out vertices, out elements, out uvs);
-            vao = new GuiVAO(vertices, elements, uvs);
-            Gui.AddText(this);
+            GuiVAO vao = new GuiVAO(vertices, elements, uvs);
+            model = new GuiModel(vao, font.fontTexture, BeginMode.Triangles);
         }
 
         private void SetTextHelper(string s, int texwidth, int texheight, out Vector2[] vertices, out int[] elements, out Vector2[] uvs) {
@@ -172,8 +178,8 @@ namespace Game.Fonts {
         }
 
         internal void Dispose() {
-            vao.Dispose();
-            vao = null;
+            model.Dispose();
+            model = null;
         }
     }
 }

@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{2843FB7B-F229-4450-A1DA-42D371C96B65}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Game</RootNamespace>
     <AssemblyName>2D Game</AssemblyName>
@@ -53,9 +53,11 @@
   <ItemGroup>
     <Compile Include="Assets\Asset.cs" />
     <Compile Include="Assets\ItemId.cs" />
-    <Compile Include="Core\Controller.cs" />
+    <Compile Include="Core\Input.cs" />
     <Compile Include="Core\CustomVAO.cs" />
+    <Compile Include="Core\Model.cs" />
     <Compile Include="Core\Serialization.cs" />
+    <Compile Include="Entities\Squisher.cs" />
     <Compile Include="Guis\ButtonRenderer.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\Hitbox.cs" />
@@ -64,6 +66,7 @@
     <Compile Include="Fonts\Text.cs" />
     <Compile Include="Guis\GameGuiRenderer.cs" />
     <Compile Include="Interaction\Healthbar.cs" />
+    <Compile Include="Interaction\Hotbar.cs" />
     <Compile Include="Interaction\Inventory.cs" />
     <Compile Include="Interaction\Player.cs" />
     <Compile Include="Core\Program.cs" />

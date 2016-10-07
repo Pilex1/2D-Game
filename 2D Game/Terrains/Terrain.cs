@@ -116,7 +116,7 @@ namespace Game.Terrains {
         }
 
         public static void CalculateLightingMesh(out float[] lightings) {
-            int posX, posY;
+            float posX, posY;
             if (Player.Instance != null) {
                 posX = (int)Player.Instance.data.Position.x;
                 posY = (int)Player.Instance.data.Position.y;
@@ -147,7 +147,7 @@ namespace Game.Terrains {
 
 
         public static void CalculateMesh(out Vector2[] vertices, out int[] elements, out Vector2[] uvs) {
-            int posX, posY;
+            float posX, posY;
             if (Player.Instance != null) {
                 posX = (int)Player.Instance.data.Position.x;
                 posY = (int)Player.Instance.data.Position.y;
@@ -155,8 +155,6 @@ namespace Game.Terrains {
                 posX = Player.StartX;
                 posY = Player.StartY;
             }
-            List<Vector2> verticesList = new List<Vector2>();
-            List<Vector2> uvList = new List<Vector2>();
 
             int startX = (int)(posX + GameRenderer.zoom / 2), endX = (int)(posX - GameRenderer.zoom / 2);
             int startY = (int)(posY + GameRenderer.zoom / 2 / Program.AspectRatio), endY = (int)(posY - GameRenderer.zoom / 2 / Program.AspectRatio);
@@ -164,6 +162,8 @@ namespace Game.Terrains {
             MathUtil.Clamp(ref startY, 0, Tiles.GetLength(1) - 1);
             MathUtil.Clamp(ref endX, 0, Tiles.GetLength(0) - 1);
             MathUtil.Clamp(ref endY, 0, Tiles.GetLength(1) - 1);
+            List<Vector2> verticesList = new List<Vector2>((endX - startX) * (endY - startY));
+            List<Vector2> uvList = new List<Vector2>((endX - startX) * (endY - startY));
             for (int i = startX; i <= endX; i++) {
                 for (int j = startY; j <= endY; j++) {
                     if (Tiles[i, j].enumId != TileEnum.Air) {
@@ -285,11 +285,18 @@ namespace Game.Terrains {
             Tiles[x, y] = tile;
         }
 
-        public static void SetTile(int x, int y, TileID tile) { SetTile(x, y, tile, true); }
-        private static void SetTileNoUpdate(int x, int y, TileID tile) { SetTile(x, y, tile, false); }
-        private static void SetTile(int x, int y, TileID tile, bool update) {
+        internal static void SetTerrainTile(int x, int y, TileID tile) { SetTile(x, y, tile, true, false); }
+        public static void SetTile(int x, int y, TileID tile) { SetTile(x, y, tile, true, true); }
+        private static void SetTileNoUpdate(int x, int y, TileID tile) { SetTile(x, y, tile, false, false); }
+        private static void SetTile(int x, int y, TileID tile, bool update, bool checkPlayer) {
             if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return;
             if (Tiles[x, y].enumId != TileEnum.Air) return;
+            if (checkPlayer) {
+                int xmin = (int)Math.Floor(Player.Instance.data.Position.x), xmax = (int)Math.Ceiling(Player.Instance.data.Position.x + Player.Instance.Hitbox.Size.x-1);
+                int ymin = (int)Math.Floor(Player.Instance.data.Position.y), ymax = (int)Math.Ceiling(Player.Instance.data.Position.y + Player.Instance.Hitbox.Size.y-1);
+                if (x >= xmin && x <= xmax && y >= ymin && y <= ymax) return;
+            }
+           
             Tiles[x, y] = tile;
             LogicData logic = tile.tileattribs as LogicData;
             if (logic != null && update) {

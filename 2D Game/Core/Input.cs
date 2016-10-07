@@ -12,6 +12,8 @@ namespace Game.Core {
         public static bool[] Mouse { get; private set; }
         public static int MouseX { get; private set; }
         public static int MouseY { get; private set; }
+        public static float NDCMouseX { get { return (2.0f * MouseX) / Program.Width - 1.0f; } }
+        public static float NDCMouseY { get { return 1.0f - (2.0f * MouseY) / Program.Height; } }
         public static int MouseScroll { get; private set; }
         public const int MouseLeft = 0, MouseMiddle = 1, MouseRight = 2;
 
@@ -58,7 +60,7 @@ namespace Game.Core {
         }
         private static void OnKeyboardDown(byte key, int x, int y) {
             Keys[key] = true;
-            if (key == 27) Glut.glutLeaveMainLoop();
+           // if (key == 27) Glut.glutLeaveMainLoop();
         }
         private static void OnKeyboardUp(byte key, int x, int y) {
             Keys[key] = false;

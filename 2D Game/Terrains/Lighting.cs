@@ -51,7 +51,7 @@ namespace Game.Terrains {
 
         internal static void CalculateLighting() {
 
-            int posX, posY;
+            float posX, posY;
             if (Player.Instance != null) {
                 posX = (int)Player.Instance.data.Position.x;
                 posY = (int)Player.Instance.data.Position.y;

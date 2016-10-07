@@ -12,6 +12,8 @@ namespace Game.Core {
         private const string terrainFile = "terrain.plex";
         private const string playerFile = "player.plex";
 
+        private const string br = "------------------------------------";
+
         private static object Load(string file) {
             Console.WriteLine("Deserialising " + file);
             try {
@@ -51,26 +53,32 @@ namespace Game.Core {
         }
 
         #region Terrain
+
         public static TileID[,] LoadTerrain() {
+            Console.WriteLine(br);
             Console.WriteLine("Deserialising terrain...");
             return (TileID[,])Load(dir + terrainFile);
         }
 
         //returns true if succesfully saved terrain, false otherwise
         public static void SaveTerrain(TileID[,] data) {
+            Console.WriteLine(br);
             Console.WriteLine("Serialising terrain...");
             Save(dir + terrainFile, data);
+
         }
         #endregion Terrain
 
         #region Player
 
         public static PlayerData LoadPlayer() {
+            Console.WriteLine(br);
             Console.WriteLine("Deserialising player data...");
             return (PlayerData)Load(dir + playerFile);
         }
 
         public static void SavePlayer(PlayerData player) {
+            Console.WriteLine(br);
             Console.WriteLine("Serialising player data...");
             Save(dir + playerFile, player);
         }
