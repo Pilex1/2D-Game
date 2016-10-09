@@ -8,43 +8,49 @@ using Game.Util;
 namespace Game {
     class Shooter : Entity {
 
-        private static Texture texture;
-
         private int ShootCooldown;
         private float ShootCooldownTime = 0;
 
         private int ProjectileLife;
 
-        private static Texture GetTexture() {
-            if (texture == null) {
-                texture = TextureUtil.CreateTexture(new Vector3[,] {
-                    {new Vector3(1, 0, 0), new Vector3(1,0,0)},
-                    {new Vector3(0, 0, 1), new Vector3(0, 0, 1)}
-                });
-                Gl.BindTexture(texture.TextureTarget, texture.TextureID);
-                Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureMagFilter, TextureParameter.Linear);
-                Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureMinFilter, TextureParameter.Linear);
-                Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureWrapS, TextureParameter.ClampToEdge);
-                Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureWrapT, TextureParameter.ClampToEdge);
-                Gl.BindTexture(texture.TextureTarget, 0);
+        private static EntityModel _model;
+        private static EntityModel Model {
+            get {
+                if (_model == null) {
+                    Texture texture = TextureUtil.CreateTexture(new Vector3[,] {
+                        {new Vector3(1, 0, 0), new Vector3(1, 0, 0)},
+                        {new Vector3(0, 0, 1), new Vector3(0, 0, 1)}
+                    });
+                    Gl.BindTexture(texture.TextureTarget, texture.TextureID);
+                    Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureMagFilter, TextureParameter.Linear);
+                    Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureMinFilter, TextureParameter.Linear);
+                    Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureWrapS, TextureParameter.ClampToEdge);
+                    Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureWrapT, TextureParameter.ClampToEdge);
+                    Gl.BindTexture(texture.TextureTarget, 0);
+                    _model = EntityModel.CreateRectangle(new Vector2(1, 2), texture);
+                }
+                return _model;
             }
-            return texture;
         }
 
-        public Shooter(Vector2 position, int shootCooldown, int projectileLife) : base(EntityVAO.CreateRectangle(new Vector2(1, 2)), GetTexture(), new RectangularHitbox(position, new Vector2(1, 2)),position) {
+        public Shooter(Vector2 position, int shootCooldown, int projectileLife) : base(Model, new RectangularHitbox(position, new Vector2(1, 2)), position) {
             base.data.speed = 0;
             base.data.jumppower = 0;
+            base.data.UseGravity = true;
             ShootCooldown = shootCooldown;
             ProjectileLife = projectileLife;
+            CorrectTerrainCollision();
         }
 
         public override void Update() {
             if (ShootCooldownTime >= ShootCooldown) {
-                Projectile proj = new Projectile(data.Position.val, (Player.ToPlayer(data.Position.val)) / 5, ProjectileLife, 0.05f);
-                proj.data.Position.val += proj.Velocity * GameLogic.DeltaTime;
+                Projectile proj = new Projectile(data.Position.val, Player.ToPlayer(data.Position.val) / 5, ProjectileLife, 0.01f);
+                proj.data.Position.val += proj.Velocity * GameTime.DeltaTime;
                 if (Terrain.IsColliding(proj)) Entity.RemoveEntity(proj);
                 ShootCooldownTime = 0;
-            } else ShootCooldownTime += GameLogic.DeltaTime;
+            } else ShootCooldownTime += GameTime.DeltaTime;
+            Hitbox.Position = data.Position.val;
+            UpdatePosition();
         }
     }
 }

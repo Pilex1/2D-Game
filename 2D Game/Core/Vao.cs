@@ -7,6 +7,7 @@ using OpenGL;
 using System.Runtime.InteropServices;
 using Game.TitleScreen;
 using Game.Terrains;
+using Game.Particles;
 
 namespace Game.Core {
 
@@ -61,33 +62,11 @@ namespace Game.Core {
             Gl.DeleteBuffer(elementsID);
             Gl.DeleteVertexArrays(1, new uint[] { ID });
         }
-
-        //top left, bottom left, bottom right, top right
-        public static EntityVAO CreateRectangle(Vector2 size) {
-            Vector2[] vertices = new Vector2[] {
-                new Vector2(0,size.y),
-                new Vector2(0,0),
-                new Vector2(size.x,0),
-                new Vector2(size.x,size.y)
-            };
-            int[] elements = new int[] {
-                0,1,2,2,3,0
-            };
-            Vector2[] uvs = new Vector2[] {
-                new Vector2(0,1),
-                new Vector2(0,0),
-                new Vector2(1,0),
-                new Vector2(1,1)
-            };
-            return new EntityVAO(vertices, elements, uvs);
-        }
-
-
     }
 
     class TerrainVAO : IDisposable {
 
-        public uint ID { get;}
+        public uint ID { get; }
 
         public uint verticesID { get; private set; }
         public uint uvsID { get; private set; }
@@ -260,7 +239,7 @@ namespace Game.Core {
             } finally {
                 data_ptr.Free();
             }
-            Gl.BindBuffer(BufferTarget.ArrayBuffer, 0); 
+            Gl.BindBuffer(BufferTarget.ArrayBuffer, 0);
             Gl.BindVertexArray(0);
         }
 
@@ -270,7 +249,5 @@ namespace Game.Core {
             Gl.DeleteBuffer(elementsID);
             Gl.DeleteVertexArrays(1, new uint[] { ID });
         }
-
-       
     }
 }

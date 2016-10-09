@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenGL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,9 @@ namespace Game.Util {
 
     [Serializable]
     struct Vector2i {
+
+        public static Vector2i Zero = new Vector2i(0, 0);
+
         public int x, y;
         public Vector2i(int x, int y) {
             this.x = x;
@@ -34,6 +38,10 @@ namespace Game.Util {
 
         public float AngleTo(Vector2i src, Vector2i dest) {
             return (float)Math.Atan2(dest.y - src.y, dest.x - src.x);
+        }
+
+        public static implicit operator Vector2(Vector2i val) {
+            return new Vector2(val.x, val.y);
         }
     }
 }

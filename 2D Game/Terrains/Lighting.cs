@@ -5,52 +5,99 @@ using System.Diagnostics;
 using System.Collections.Generic;
 
 namespace Game.Terrains {
+
     static class Lighting {
 
-        internal static int[] MaxHeights;
+        internal const int LightRadius = 12;
 
-        internal static HashSet<Light> Lights = new HashSet<Light>();
-
-        //temporary til i get better lighting algorithm
+        internal static float[,] Lightings;
+        internal static Dictionary<Vector2i, int> ArtificialLight = new Dictionary<Vector2i, int>();
 
         internal static void Init() {
-            MaxHeights = new int[Terrain.Tiles.GetLength(0)];
-
-            for (int i = 0; i < MaxHeights.Length; i++) {
-                MaxHeights[i] = HeightAt(i);
-            }
-        }
-
-        private static int HeightAt(int x) {
-            for (int j = Terrain.Tiles.GetLength(1); j >= 0; j--) {
-                if (!(Terrain.TileAt(x, j).tileattribs.solid)) return j;
-            }
-            return 0;
-        }
-
-
-        internal static void CalculateAllLighting() {
-            Terrain.Lightings = new float[Terrain.Tiles.GetLength(0), Terrain.Tiles.GetLength(1)];
-            //calculate lightings for each tile
-            //sun lighting
+            Lightings = new float[Terrain.Tiles.GetLength(0), Terrain.Tiles.GetLength(1)];
             for (int i = 0; i < Terrain.Tiles.GetLength(0); i++) {
-
-                int top, bottom;
-                LightingRange(i, out top, out bottom);
-
-                for (int j = bottom; j <= top; j++) {
-                    SpreadLighting(i, j, Light.MaxLightLevel);
-                }
+                SunLighting(i);
             }
 
             //artificial lighting
-            foreach (Light l in Lights) {
-                SpreadLighting(l.x, l.y, l.LightLevel);
+            foreach (Vector2i v in ArtificialLight.Keys) {
+                SpreadLighting(v.x, v.y, ArtificialLight[v]);
             }
         }
 
-        internal static void CalculateLighting() {
+        private static void SunLighting(int x) {
+            if (x < 0) x = 0;
+            if (x >= Terrain.Tiles.GetLength(0)) x = Terrain.Tiles.GetLength(0) - 1;
+            for (int j = Terrain.Tiles.GetLength(1) - 1; j >= Terrain.Heights[x]; j--) {
+                if (!Terrain.TileAt(x - 1, j).tileattribs.transparent || !Terrain.TileAt(x + 1, j).tileattribs.transparent || j == Terrain.Heights[x] + 1) {
+                    SpreadLighting(x, j, LightRadius);
+                }
+            }
+        }
 
+        internal static void RecalcAll() {
+            float x = Player.Instance.data.Position.x, y = Player.Instance.data.Position.y;
+
+            int startX = (int)(x + GameRenderer.zoom / 2 - LightRadius), endX = (int)(x - GameRenderer.zoom / 2 + LightRadius);
+            int startY = (int)((y + GameRenderer.zoom / 2 - LightRadius) / Program.AspectRatio), endY = (int)((y - GameRenderer.zoom / 2 + LightRadius) / Program.AspectRatio);
+            MathUtil.Clamp(ref startX, 0, Terrain.Tiles.GetLength(0) - 1);
+            MathUtil.Clamp(ref startY, 0, Terrain.Tiles.GetLength(1) - 1);
+            MathUtil.Clamp(ref endX, 0, Terrain.Tiles.GetLength(0) - 1);
+            MathUtil.Clamp(ref endY, 0, Terrain.Tiles.GetLength(1) - 1);
+            List<float> lightingsList = new List<float>();
+            for (int i = startX; i <= endX; i++) {
+                SunLighting(i);
+            }
+            foreach (var v in ArtificialLight.Keys) {
+                if (v.x >= x - LightRadius * 2 && v.x <= x + LightRadius * 2 && v.y >= y - LightRadius * 2 && y <= y - LightRadius * 2) {
+                    SpreadLighting(v.x, v.y, ArtificialLight[v]);
+                }
+            }
+        }
+
+        internal static void UpdateAround(int x, int y) {
+            for (int i = -LightRadius; i <= LightRadius; i++) {
+                for (int j = 0; j < Terrain.Tiles.GetLength(1); j++)
+                    SetLighting(x + i, j,0);
+            }
+            for (int i = -LightRadius * 2; i <= LightRadius * 2; i++) {
+                SunLighting(x + i);
+            }
+            foreach (var v in ArtificialLight.Keys) {
+                if (v.x >= x - LightRadius * 2 && v.x <= x + LightRadius * 2 && v.y >= y - LightRadius * 2 && y <= y - LightRadius * 2) {
+                    SpreadLighting(v.x, v.y, ArtificialLight[v]);
+                }
+            }
+        }
+
+        private static void SpreadLighting(int x, int y, int radius) {
+            int radiusSq = radius * radius;
+            for (int i = -radius; i <= radius; i++) {
+                for (int j = -radius; j <= radius; j++) {
+                    if (i * i + j * j <= radiusSq) {
+                        float distSq = i * i + j * j;
+                        SetLighting(x + i, y + j, radius * (radiusSq - distSq) / radiusSq);
+                    }
+                }
+            }
+        }
+
+        private static void SetLighting(int x, int y, float lighting) {
+            if (x < 0 || x >= Lightings.GetLength(0) || y < 0 || y >= Lightings.GetLength(1)) return;
+            if (lighting > Lightings[x, y]) Lightings[x, y] = lighting;
+        }
+
+        public static void AddLight(int x, int y, int strength) {
+            ArtificialLight[new Vector2i(x, y)] = strength;
+            UpdateAround(x, y);
+        }
+
+        public static void RemoveLight(int x, int y) {
+            ArtificialLight.Remove(new Vector2i(x, y));
+            UpdateAround(x, y);
+        }
+
+        internal static float[] CalcMesh() {
             float posX, posY;
             if (Player.Instance != null) {
                 posX = (int)Player.Instance.data.Position.x;
@@ -60,67 +107,24 @@ namespace Game.Terrains {
                 posY = Player.StartY;
             }
 
-            int min = (int)(posY + GameRenderer.zoom / 2 / Program.AspectRatio) - Light.MaxLightLevel;
-            int max = (int)(posY - GameRenderer.zoom / 2 / Program.AspectRatio) + Light.MaxLightLevel;
-            Terrain.Lightings = new float[Terrain.Tiles.GetLength(0), Terrain.Tiles.GetLength(1)];
-
-            //calculate lightings for each tile
-            //sun lighting
-            for (int i = (int)(posX + GameRenderer.zoom / 2) - Light.MaxLightLevel; i <= (int)(posX - GameRenderer.zoom / 2) + Light.MaxLightLevel; i++) {
-
-                int top, bottom;
-                LightingRange(i, out top, out bottom);
-
-                MathUtil.ClampMin(ref bottom, min);
-                MathUtil.ClampMax(ref top, max);
-
-                for (int j = bottom; j <= top; j++) {
-                    SpreadLighting(i, j, Light.MaxLightLevel);
+            int startX = (int)(posX + GameRenderer.zoom / 2), endX = (int)(posX - GameRenderer.zoom / 2);
+            int startY = (int)(posY + GameRenderer.zoom / 2 / Program.AspectRatio), endY = (int)(posY - GameRenderer.zoom / 2 / Program.AspectRatio);
+            MathUtil.Clamp(ref startX, 0, Terrain.Tiles.GetLength(0) - 1);
+            MathUtil.Clamp(ref startY, 0, Terrain.Tiles.GetLength(1) - 1);
+            MathUtil.Clamp(ref endX, 0, Terrain.Tiles.GetLength(0) - 1);
+            MathUtil.Clamp(ref endY, 0, Terrain.Tiles.GetLength(1) - 1);
+            List<float> lightingsList = new List<float>();
+            for (int i = startX; i <= endX; i++) {
+                for (int j = startY; j <= endY; j++) {
+                    if (Terrain.Tiles[i, j].enumId != TileEnum.Air) {
+                        float val = Lightings[i, j] / LightRadius;
+                        lightingsList.AddRange(new float[] {
+                            val,val,val,val
+                        });
+                    }
                 }
             }
-
-            //artificial lighting
-            foreach (Light l in Lights) {
-                SpreadLighting(l.x, l.y, l.LightLevel);
-            }
+            return lightingsList.ToArray();
         }
-
-        public static void AddLight(Light l) {
-            Lights.Add(l);
-        }
-
-
-        private static void LightingRange(int cx, out int top, out int bottom) {
-            int outTop = 0, outBottom = 0;
-            for (int j = Terrain.Tiles.GetLength(1) - 1; j >= 0; j--) {
-                if (Terrain.TileAt(cx - 1, j).enumId != TileEnum.Air || Terrain.TileAt(cx + 1, j).enumId != TileEnum.Air || Terrain.TileAt(cx, j - 1).enumId != TileEnum.Air) {
-                    outTop = j;
-                    break;
-                }
-            }
-            for (int j = outTop; j >= 1; j--) {
-                if (Terrain.TileAt(cx, j - 1).enumId != TileEnum.Air) {
-                    outBottom = j;
-                    break;
-                }
-            }
-            top = outTop;
-            bottom = outBottom;
-        }
-
-        private static void SpreadLighting(int x, int y, int radius) {
-            for (int i = -radius; i <= radius; i++) {
-                for (int j = (int)Math.Ceiling(-Math.Sqrt(radius * radius - i * i)); j <= (int)Math.Sqrt(radius * radius - i * i); j++) {
-                    float distSq = i * i + j * j;
-                    SetLighting(x + i, y + j, Light.MaxLightLevel * (radius * radius - distSq) / (radius * radius));
-                }
-            }
-        }
-
-        private static void SetLighting(int x, int y, float lighting) {
-            if (x < 0 || x >= Terrain.Lightings.GetLength(0) || y < 0 || y >= Terrain.Lightings.GetLength(1)) return;
-            if (lighting > Terrain.Lightings[x, y]) Terrain.Lightings[x, y] = lighting;
-        }
-
     }
 }

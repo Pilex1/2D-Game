@@ -75,28 +75,26 @@ namespace Game.Fonts {
     }
 
     class Text {
-        public GuiModel model;
+        internal GuiModel model;
 
-        public TextFont font { get; }
-        public float size { get; }
-        public Vector2 pos;
-        private float maxwidth;
+        internal TextFont font { get; }
+        internal Vector2 pos;
+        internal float maxwidth;
 
         public Text(string text, TextFont font, float size, Vector2 pos, float maxwidth) {
             this.font = font;
             this.maxwidth = maxwidth * font.fontTexture.Size.Width / size;
             this.pos = pos;
             size /= font.fontTexture.Size.Width;
-            this.size = size;
             Vector2[] vertices;
             int[] elements;
             Vector2[] uvs;
-            SetTextHelper(text, font.fontTexture.Size.Width, font.fontTexture.Size.Height, out vertices, out elements, out uvs);
+            SetTextHelper(text, font.fontTexture.Size.Width, size, font.fontTexture.Size.Height,  out vertices, out elements, out uvs);
             GuiVAO vao = new GuiVAO(vertices, elements, uvs);
-            model = new GuiModel(vao, font.fontTexture, BeginMode.Triangles);
+            model = new GuiModel(vao, font.fontTexture, BeginMode.Triangles, new Vector2(size, size));
         }
 
-        private void SetTextHelper(string s, int texwidth, int texheight, out Vector2[] vertices, out int[] elements, out Vector2[] uvs) {
+        private void SetTextHelper(string s, int texwidth, float size, int texheight, out Vector2[] vertices, out int[] elements, out Vector2[] uvs) {
             vertices = new Vector2[s.Length * 4];
             uvs = new Vector2[s.Length * 4];
 

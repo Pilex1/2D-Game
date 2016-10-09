@@ -8,38 +8,79 @@ using OpenGL;
 using Game.Core;
 using Game.Util;
 using Game.Terrains;
+using Tao.FreeGlut;
+using Game.Guis;
+using System.Diagnostics;
 
 namespace Game.TitleScreen {
     static class TitleScreenRenderer {
 
-        private static GuiModel background;
+        enum State {
+            None, Main, WorldPicker, Credits, Options
+        }
 
-        private static HashSet<Text> Texts = new HashSet<Text>();
-        private static HashSet<Button> Buttons = new HashSet<Button>();
+        private static State state = State.None;
+
+        private static GuiModel background;
+        private static Vector2 backgroundpos;
+        private static float backgrounddx;
+
+        private static HashSet<Text> CurTexts = new HashSet<Text>();
+        private static HashSet<Button> CurButtons = new HashSet<Button>();
+        private static HashSet<Textbox> CurTextboxes = new HashSet<Textbox>();
+        private static HashSet<Label> CurLabels = new HashSet<Label>();
+
+        private static Button btnPlay, btnCredits, btnOptions, btnExit;
+        private static Button btnBack;
+        private static List<Button> btnWorldPickers;
+        private static List<Textbox> txtboxWorldPickers;
+        private static List<Label> lblWorldPickers;
+        private static Text txtTitle;
+        private static Text txtCreditsInfo;
 
         public static void Init() {
 
-            Vector2 buttonSize = new Vector2(0.3, 0.1);
-            
-            Buttons.Add(new Button(new Vector2(0, 0.3), buttonSize, "New World", TextFont.Chiller, delegate () {
-                Terrain.CreateNew();
-                Program.SwitchToGame();
-            }));
-            Buttons.Add(new Button(new Vector2(0, -0.1), buttonSize, "Load World", TextFont.Chiller, delegate () {
-                if (Terrain.Load()) {
-                    Program.SwitchToGame();
-                } else {
-                    Console.WriteLine("Failed to load world");
-                }
-            }));
-            Buttons.Add(new Button(new Vector2(0, -0.5), buttonSize, "Credits", TextFont.Chiller, delegate () { }));
+            Vector2 buttonSize = new Vector2(0.3, 0.08);
 
-            foreach (var b in Buttons) {
-                Texts.Add(b.text);
+            btnPlay = new Button(new Vector2(0, 0.3), buttonSize, "Play", TextFont.Chiller, delegate () { SwitchTo(State.WorldPicker); });
+            btnCredits = new Button(new Vector2(0, -0.05), buttonSize, "Credits", TextFont.Chiller, delegate () { SwitchTo(State.Credits); });
+            btnOptions = new Button(new Vector2(0, -0.4), buttonSize, "Options", TextFont.Chiller, delegate () { SwitchTo(State.Options); });
+            btnExit = new Button(new Vector2(0, -0.75), buttonSize, "Exit", TextFont.Chiller, delegate () { Glut.glutLeaveMainLoop(); });
+
+
+            btnBack = new Button(new Vector2(0, -0.7), buttonSize, "Back", TextFont.Chiller, delegate () { SwitchTo(State.Main); });
+
+            btnWorldPickers = new List<Button>();
+            Vector2 worldpickerButtonSize = new Vector2(0.15, 0.04);
+            Vector2 worldpickerLabelSize = new Vector2(0.25, 0.05);
+            lblWorldPickers = new List<Label>();
+            for (int i = 0; i < 5; i++) {
+                Button btnNewWorld = new Button(new Vector2(0.2, 0.8 - i * 0.3), worldpickerButtonSize, "New World", TextFont.Chiller, 0.3f, delegate () {
+                    Terrain.CreateNew();
+                    Program.SwitchToGame();
+                });
+                btnWorldPickers.Add(btnNewWorld);
+                Button btnLoadWorld = new Button(new Vector2(0.5, 0.8 - i * 0.3), worldpickerButtonSize, "Load World", TextFont.Chiller, 0.3f, delegate () {
+                    if (Terrain.Load()) {
+                        Program.SwitchToGame();
+                    } else {
+                        Console.WriteLine("Failed to load world");
+                    }
+                });
+                btnWorldPickers.Add(btnLoadWorld);
+
+                Label lblWorldName = new Label(new Vector2(-0.3, 0.8 - i * 0.3), worldpickerLabelSize, "<Empty World>", TextFont.Chiller, 0.4f);
+                lblWorldPickers.Add(lblWorldName);
             }
-            Texts.Add(new Text("TITLE HERE", TextFont.Chiller, 2, new Vector2(0, 1), 2f));
+
+            txtTitle = new Text("TITLE HERE", TextFont.Chiller, 2, new Vector2(0, 1), 2f);
+            txtCreditsInfo = new Text("An open source project made by Alex Tan.", TextFont.Chiller, 0.5f, new Vector2(0, 0.7), 2f);
 
             background = InitBackground();
+            backgroundpos = Vector2.Zero;
+            backgrounddx = 0.000001f;
+
+            SwitchTo(State.Main);
         }
 
         private static GuiModel InitBackground() {
@@ -51,10 +92,10 @@ namespace Game.TitleScreen {
             };
 
             Vector2[] uvs = new Vector2[] {
-                new Vector2(0,1),
-                new Vector2(0,0),
-                new Vector2(1f/Program.AspectRatio,0),
-                new Vector2(1f/Program.AspectRatio, 1)
+                backgroundpos+new Vector2(0,1),
+                backgroundpos+new Vector2(0,0),
+                backgroundpos+new Vector2(1f/Program.AspectRatio,0),
+                backgroundpos+new Vector2(1f/Program.AspectRatio, 1)
             };
             int[] elements = new int[] {
                 0,1,2,0,3
@@ -68,21 +109,85 @@ namespace Game.TitleScreen {
             Gl.BindTexture(texture.TextureTarget, 0);
 
             GuiVAO vao = new GuiVAO(vertices, elements, uvs);
-            return new GuiModel(vao, texture, BeginMode.TriangleStrip);
+            return new GuiModel(vao, texture, BeginMode.TriangleStrip, new Vector2(1,1));
+        }
+
+        private static void AddButton(Button b) {
+            b.ResetCooldown();
+            CurButtons.Add(b);
+            CurTexts.Add(b.text);
+        }
+
+        private static void AddText(Text t) {
+            CurTexts.Add(t);
+        }
+
+        private static void AddTextbox(Textbox t) {
+            t.ResetCooldown();
+            CurTexts.Add(t.text);
+            CurTextboxes.Add(t);
+        }
+
+        private static void AddLabel(Label l) {
+            CurTexts.Add(l.text);
+            CurLabels.Add(l);
+        }
+
+        private static void SwitchTo(State state) {
+            if (state == TitleScreenRenderer.state) return;
+            CurTexts.Clear();
+            CurButtons.Clear();
+            CurTextboxes.Clear();
+            CurLabels.Clear();
+            switch (state) {
+                case State.Main:
+                    AddButton(btnPlay);
+                    AddButton(btnCredits);
+                    AddButton(btnOptions);
+                    AddButton(btnExit);
+                    AddText(txtTitle);
+                    break;
+                case State.WorldPicker:
+                    foreach (var b in btnWorldPickers) {
+                        AddButton(b);
+                    }
+                    foreach (var l in lblWorldPickers) {
+                        AddLabel(l);
+                    }
+                    AddButton(btnBack);
+                    break;
+                case State.Credits:
+                    AddButton(btnBack);
+                    AddText(txtCreditsInfo);
+                    break;
+                case State.Options:
+                    AddButton(btnBack);
+                    break;
+            }
+            TitleScreenRenderer.state = state;
         }
 
         public static void Update() {
-            foreach (var b in new List<Button>(Buttons)) {
+            foreach (var b in new List<Button>(CurButtons)) {
                 b.Update();
             }
+            backgroundpos.x += backgrounddx;
+            background.vao.UpdateUVs(new Vector2[] {
+                backgroundpos+new Vector2(0,1),
+                backgroundpos+new Vector2(0,0),
+                backgroundpos+new Vector2(1f/Program.AspectRatio,0),
+                backgroundpos+new Vector2(1f/Program.AspectRatio, 1)
+            });
+            if (backgroundpos.x + 1 / Program.AspectRatio > 1 || backgroundpos.x < 0) backgrounddx *= -1;
         }
 
         public static void Render() {
             ShaderProgram shader = Gui.shader;
             Gl.UseProgram(shader.ProgramID);
 
+
             //background
-            shader["position"].SetValue(new Vector2(0, 0));
+            shader["position"].SetValue(Vector2.Zero);
             shader["size"].SetValue(new Vector2(1, 1));
             shader["aspectRatio"].SetValue(Program.AspectRatio);
             shader["colour"].SetValue(new Vector3(1, 0.9, 0.9));
@@ -91,23 +196,37 @@ namespace Game.TitleScreen {
             Gl.DrawElements(background.drawmode, background.vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
             Gl.BindTexture(background.texture.TextureTarget, 0);
             Gl.BindVertexArray(0);
+            
 
             //render buttons
-            foreach (var b in Buttons) {
+            foreach (var b in CurButtons) {
                 shader["position"].SetValue(b.pos);
-                shader["size"].SetValue(b.size);
+                shader["size"].SetValue(b.model.size);
                 shader["colour"].SetValue(b.active ? new Vector3(1, 0.5, 1) : new Vector3(1, 1, 1));
-                Gl.BindVertexArray(b.vao.ID);
-                Gl.BindTexture(b.texture.TextureTarget, b.texture.TextureID);
-                Gl.DrawElements(BeginMode.Triangles, b.vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
-                Gl.BindTexture(b.texture.TextureTarget, 0);
+                Gl.BindVertexArray(b.model.vao.ID);
+                Gl.BindTexture(b.model.texture.TextureTarget, b.model.texture.TextureID);
+                Gl.DrawElements(b.model.drawmode, b.model.vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+                Gl.BindTexture(b.model.texture.TextureTarget, 0);
                 Gl.BindVertexArray(0);
             }
 
+            //render labels
+            foreach (Label l in CurLabels) {
+                shader["size"].SetValue(l.model.size);
+                shader["position"].SetValue(l.pos);
+                shader["colour"].SetValue(new Vector3(1, 1, 1));
+                Gl.BindVertexArray(l.model.vao.ID);
+                Gl.BindTexture(l.model.texture.TextureTarget, l.model.texture.TextureID);
+                Gl.DrawElements(l.model.drawmode, l.model.vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+                Gl.BindTexture(l.model.texture.TextureTarget, 0);
+                Gl.BindVertexArray(0);
+            }
+
+
+
             //render text
-            shader["aspectRatio"].SetValue(Program.AspectRatio);
-            foreach (Text t in Texts) {
-                shader["size"].SetValue(new Vector2(t.size, t.size));
+            foreach (Text t in CurTexts) {
+                shader["size"].SetValue(t.model.size);
                 shader["position"].SetValue(t.pos);
                 shader["colour"].SetValue(new Vector3(1, 1, 1));
                 Gl.BindVertexArray(t.model.vao.ID);
@@ -117,20 +236,38 @@ namespace Game.TitleScreen {
                 Gl.BindVertexArray(0);
             }
 
+            //render textboxes
+            foreach (Textbox t in CurTextboxes) {
+                shader["size"].SetValue(t.model.size);
+                shader["position"].SetValue(t.pos);
+                shader["colour"].SetValue(new Vector3(1, 1, 1));
+                Gl.BindVertexArray(t.model.vao.ID);
+                Gl.BindTexture(t.model.texture.TextureTarget, t.model.texture.TextureID);
+                Gl.DrawElements(t.model.drawmode, t.model.vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+                Gl.BindTexture(t.model.texture.TextureTarget, 0);
+                Gl.BindVertexArray(0);
+            }
+
             Gl.UseProgram(0);
         }
 
         public static void Dispose() {
-            background?.Dispose();
-            background = null;
-            foreach (var t in Texts) {
-                t.Dispose();
-            }
-            Texts.Clear();
-            foreach (var b in Buttons) {
-                b.Dispose();
-            }
-            Buttons.Clear();
+            CurTexts.Clear();
+            CurButtons.Clear();
+
+            btnPlay?.Dispose();
+            btnCredits?.Dispose();
+            btnOptions?.Dispose();
+            if (btnWorldPickers != null)
+                foreach (var b in btnWorldPickers) {
+                    b.Dispose();
+                }
+            btnBack?.Dispose();
+            txtTitle?.Dispose();
+            txtCreditsInfo?.Dispose();
+
+            btnPlay = btnCredits = btnOptions = btnBack = null;
+            txtTitle = txtCreditsInfo = null;
         }
     }
 }

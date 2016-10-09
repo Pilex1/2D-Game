@@ -3,12 +3,12 @@
 in vec2 fuv;
 
 uniform sampler2D texture;
-uniform vec3 clr;
+uniform vec4 clr;
 
 out vec4 fragment;
 
 void main(void) {
 	fragment = texture2D(texture, fuv);
-	fragment.xyz *= clr;
+	fragment *= clr;
 	if (fragment.w == 0) discard;
 }

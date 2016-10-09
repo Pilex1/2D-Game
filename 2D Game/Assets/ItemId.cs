@@ -2,11 +2,14 @@
 using Game.Terrains;
 using Game.Fluids;
 using Game.Logics;
+using Game.Particles;
+using OpenGL;
+using Game.Util;
+using Game.Core;
 
 namespace Game.Assets {
     enum ItemId {
-        None, Grass, Sand, Dirt, Wood, Leaf, Stone, Bedrock, Sword, Tnt, Sapling, TileBreaker, Brick, Metal1, SmoothSlab, WeatheredStone, Metal2, FutureMetal, SmoothSlab2, Marble, PlexSpecial, PurpleStone, Nuke, Cactus, Bounce, Water, Wire, Switch, LogicLamp, LogicBridge, GateOr, GateNot, Snow, SnowWood, SnowLeaf, GrassDeco, GateAnd, StickyTilePusher, StickyTilePuller,
-        Igniter
+        None, Grass, Sand, Dirt, Wood, Leaf, Stone, Bedrock, Sword, Tnt, Sapling, TileBreaker, Brick, Metal1, SmoothSlab, WeatheredStone, Metal2, FutureMetal, SmoothSlab2, Marble, PlexSpecial, PurpleStone, Nuke, Cactus, Bounce, Water, Wire, Switch, LogicLamp, LogicBridge, GateOr, GateNot, Snow, SnowWood, SnowLeaf, GrassDeco, GateAnd, StickyTilePusher, StickyTilePuller, Igniter, StaffGreen
     }
 
     static class ItemInteract {
@@ -45,6 +48,14 @@ namespace Game.Assets {
                 case ItemId.StickyTilePusher: Terrain.SetTile(x, y, TileID.CreateTilePusher()); break;
                 case ItemId.StickyTilePuller: Terrain.SetTile(x, y, TileID.CreateTilePuller()); break;
                 case ItemId.TileBreaker: Terrain.SetTile(x, y, TileID.CreateTileBreaker()); break;
+                case ItemId.StaffGreen:
+                    Vector2 pos = Player.Instance.data.Position.val;
+                    pos += new Vector2(Player.Instance.Hitbox.Width / 2, Player.Instance.Hitbox.Height / 2);
+                    pos += MathUtil.RandVector2(Program.Rand, new Vector2(-1, -1), new Vector2(1, 1));
+                    Vector2 vel = Input.RayCast().Normalize() / 2;
+                    Vector2 playervel = new Vector2(Player.Instance.data.vel.x, Player.Instance.data.vel.y);
+                    vel += playervel;
+                    StaffParticleGreen.Create(pos, vel); break;
             }
         }
     }

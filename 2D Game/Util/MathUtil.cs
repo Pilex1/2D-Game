@@ -79,7 +79,17 @@ namespace Game.Util {
         public static void ClampMax(ref int x, int max) {
             Clamp(ref x, int.MinValue, max);
         }
-        public static void Clamp(Vector3 v, Vector3 min, Vector3 max) {
+        public static void Clamp(ref float x, float min, float max) {
+            if (x < min) x = min;
+            if (x > max) x = max;
+        }
+        public static void Clamp(ref Vector2 v, Vector2 min, Vector2 max) {
+            if (v.x < min.x) v.x = min.x;
+            if (v.x > max.x) v.x = max.x;
+            if (v.y < min.y) v.y = min.y;
+            if (v.y > max.y) v.y = max.y;
+        }
+        public static void Clamp(ref Vector3 v, Vector3 min, Vector3 max) {
             if (v.x < min.x) v.x = min.x;
             if (v.x > max.x) v.x = max.x;
             if (v.y < min.y) v.y = min.y;
@@ -103,6 +113,12 @@ namespace Game.Util {
         public static double RandDouble(Random rand, double min, double max) {
             if (min > max) return RandDouble(rand, max, min);
             return rand.NextDouble() * (max - min) + min;
+        }
+        public static Vector2 RandVector2(Random rand, Vector2 min, Vector2 max) {
+            return new Vector2(RandFloat(rand, min.x, max.x), RandFloat(rand, min.y, max.y));
+        }
+        public static Vector3 RandVector3(Random rand, Vector3 min, Vector3 max) {
+            return new Vector3(RandFloat(rand, min.x, max.x), RandFloat(rand, min.y, max.y), RandFloat(rand, min.z, max.z));
         }
 
         #endregion Random
@@ -156,6 +172,17 @@ namespace Game.Util {
         }
         public static float Min(params float[] arr) {
             return arr.Min();
+        }
+
+        internal static bool Bounded(Vector2 val, Vector2 min, Vector2 max) {
+            return val.x >= min.x && val.x <= max.x && val.y >= min.y && val.y <= max.y;
+        }
+        internal static bool Bounded(Vector2i val, Vector2i min, Vector2i max) {
+            return val.x >= min.x && val.x <= max.x && val.y >= min.y && val.y <= max.y;
+        }
+
+        public static float AngleTo(Vector2 src, Vector2 dest) {
+            return (float)Math.Atan2(dest.y - src.y, dest.x - src.x);
         }
     }
 }

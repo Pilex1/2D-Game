@@ -18,10 +18,11 @@ namespace Game {
     }
     static class Program {
 
+        public static Random Rand = new Random();
 
         public static int ScreenWidth, ScreenHeight;
-        public const int Width = 1600, Height = 900;
-        public const float AspectRatio = (float)Width / Height;
+        public static int Width = 1600, Height = 900;
+        public static float AspectRatio = (float)Width / Height;
 
         public static bool FullScreen { get; private set; }
 
@@ -54,15 +55,23 @@ namespace Game {
 
             Glut.glutSetOption(Glut.GLUT_ACTION_ON_WINDOW_CLOSE, Glut.GLUT_ACTION_CONTINUE_EXECUTION);
             Gl.Viewport(0, 0, Width, Height);
+            Glut.glutReshapeFunc(OnReshape);
             Glut.glutDisplayFunc(delegate () { });
             Glut.glutIdleFunc(MainGameLoop);
 
             //Console.SetWindowSize(Console.LargestWindowWidth / 4, Console.LargestWindowHeight / 4);
             //Console.SetWindowPosition(0, 0);
 
+
             Input.Init();
             Gui.Init();
             SwitchToTitleScreen();
+        }
+
+        private static void OnReshape(int width, int height) {
+            Width = width;
+            Height = height;
+            AspectRatio = (float)Width / height;
         }
 
         //todo
@@ -79,12 +88,13 @@ namespace Game {
 
         public static void SwitchToTitleScreen() {
             Mode = ProgramMode.TitleScreen;
-            GameLogic.Dispose();
+            GameRenderer.CleanUp();
             Gui.SwitchToTitleScreen();
         }
 
         public static void SwitchToGame() {
             Mode = ProgramMode.Game;
+            GameRenderer.Init();
             GameLogic.Init();
             Gui.SwitchToGame();
         }
@@ -96,22 +106,27 @@ namespace Game {
             ErrorCode error = Gl.GetError();
             if (error != ErrorCode.NoError) {
                 Console.WriteLine("Opengl Error: " + error);
-                Debug.Assert(false);
+                //Debug.Assert(false);
             }
 
+            GameTime.Update();
             if (Mode == ProgramMode.Game) {
-                GameLogic.Render();
+                GameRenderer.Render();
                 GameLogic.Update();
             }
+            Input.Update();
             Gui.Render();
             Gui.Update();
-            Input.Update();
+            CooldownTimer.Update();
+
+
+
 
             Glut.glutSwapBuffers();
         }
 
         private static void Dispose() {
-            GameLogic.Dispose();
+            GameRenderer.CleanUp();
             Gui.Dispose();
         }
 

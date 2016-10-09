@@ -26,7 +26,7 @@ namespace Game {
 
         public static Player Instance { get; private set; }
 
-        private Player(EntityVAO vao, Texture texture, Hitbox hitbox, Vector2 position) : base(vao, texture, hitbox, position) {
+        private Player(EntityModel model,Hitbox hitbox, Vector2 position) : base(model, hitbox, position) {
             base.data.speed = 0.08f;
             base.data.jumppower = 0.5f;
         }
@@ -35,9 +35,12 @@ namespace Game {
             return new PlayerData { flying = Instance.Flying, maxHealth = Instance.MaxHealth, entitydata = Instance.data };
         }
 
+        public static void NewPlayer() {
+
+        }
+
         private static Player DefaultPlayer() {
             Vector2 position = new Vector2(StartX, StartY);
-            EntityVAO vao = EntityVAO.CreateRectangle(new Vector2(1, 2));
             Texture texture = TextureUtil.CreateTexture(new Vector3[,] {
               {new Vector3(1, 0, 0), new Vector3(0, 1, 0)},
               {new Vector3(0, 0, 1), new Vector3(1, 0, 1)}
@@ -48,8 +51,9 @@ namespace Game {
             Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureWrapS, TextureParameter.ClampToEdge);
             Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureWrapT, TextureParameter.ClampToEdge);
             Gl.BindTexture(TextureTarget.Texture2D, 0);
+            EntityModel model = EntityModel.CreateRectangle(new Vector2(1, 2), texture);
             Hitbox hitbox = new RectangularHitbox(position, new Vector2(1, 2));
-            return new Player(vao, texture, hitbox, position);
+            return new Player(model, hitbox, position);
         }
 
         public static new void Init() {
@@ -80,20 +84,17 @@ namespace Game {
             int MouseX = Input.MouseX, MouseY = Input.MouseY;
             if (!Inventory.toggle) {
                 if (Mouse[Input.MouseLeft]) {
-                    Vector2 v = RayCast(Input.NDCMouseX, Input.NDCMouseY);
+                    Vector2 v = Input.TerrainIntersect();
                     Terrain.BreakTile((int)v.x, (int)v.y);
                 }
                 if (Mouse[Input.MouseRight]) {
-                    Vector2 v = RayCast(Input.NDCMouseX, Input.NDCMouseY);
+                    Vector2 v = Input.TerrainIntersect();
                     int x = (int)v.x, y = (int)v.y;
-                    if (Terrain.TileAt(x, y).enumId == TileEnum.Air) {
-                        ItemInteract.Interact(Hotbar.CurrentlySelectedItem(), x, y);
-                    } else {
-                        Terrain.TileAt(x, y).tileattribs.Interact(x, y);
-                    }
+                    ItemInteract.Interact(Hotbar.CurrentlySelectedItem(), x, y);
+                    Terrain.TileAt(x, y).tileattribs.Interact(x, y);
                 }
                 if (Mouse[Input.MouseMiddle]) {
-                    Vector2 v = RayCast(Input.NDCMouseX, Input.NDCMouseY);
+                    Vector2 v = Input.TerrainIntersect();
                     int x = (int)v.x, y = (int)v.y;
 
                 }
@@ -114,10 +115,7 @@ namespace Game {
                 Instance.data.UseGravity = true;
             }
 
-            if (Keys['l']) {
-                Terrain.UpdateLighting.Toggle();
-                Terrain.UpdateMesh = true;
-            }
+
             if (Keys['f']) {
                 Flying.Toggle();
             }
@@ -151,21 +149,6 @@ namespace Game {
 
         public static void Heal(float hp) {
             Healthbar.Heal(hp);
-        }
-
-
-        private static Vector2 RayCast(float x, float y) {
-            Vector2 normalizedCoords = new Vector2(x, y);
-            Vector4 clipCoords = new Vector4(normalizedCoords.x, normalizedCoords.y, -1, 1);
-            Vector4 eyeCoords = GameRenderer.projectionMatrix.Inverse() * clipCoords;
-            eyeCoords.z = -1;
-            eyeCoords.w = 0;
-            Matrix4 inverseViewMatrix = GameRenderer.viewMatrix.Inverse();
-            Vector4 rayWorldTemp = inverseViewMatrix * eyeCoords;
-            Vector2 rayWorld = new Vector2(rayWorldTemp.x, rayWorldTemp.y);
-
-            Vector2 intersectTerrain = Instance.data.Position.val - rayWorld * GameRenderer.zoom - new Vector2(0, 1);
-            return intersectTerrain;
         }
 
         public static Vector2 ToPlayer(Vector2 pos) { return new Vector2(Instance.data.Position.x - pos.x, Instance.data.Position.y - pos.y).Normalize(); }

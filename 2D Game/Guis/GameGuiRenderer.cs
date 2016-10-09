@@ -6,15 +6,19 @@ using System.Threading.Tasks;
 using OpenGL;
 using Game.TitleScreen;
 using Game.Core;
+using Game.Fonts;
 
 namespace Game.Interaction {
     static class GameGuiRenderer {
 
+        private static Button btnTitle;
+
         public static void Init() {
             Inventory.Init();
             Hotbar.Init();
-            Hotbar.Update();
             Healthbar.Init(Player.Instance.MaxHealth);
+
+            btnTitle = new Button(new Vector2(0, -0.5), new Vector2(0.5, 0.1), "Save and Quit", TextFont.Chiller, delegate () { Program.SwitchToTitleScreen(); });
         }
 
         public static void Update() {
@@ -28,7 +32,7 @@ namespace Game.Interaction {
             Gl.UseProgram(Gui.shader.ProgramID);
 
             //healthbar
-            RenderInstance(Healthbar.Bar, new Vector2(((2 - Healthbar.BarWidth) / 2) - 1, 0.01 + Hotbar.SizeY * 2 - 1), new Vector2(Healthbar.Health / Healthbar.MaxHealth, 1), new Vector3(1, 1, 1));
+            RenderInstance(Healthbar.Bar, new Vector2(((2 - Healthbar.BarWidth) / 2) - 1, 0.01 + Hotbar.SizeY * 2 - 1));
 
             //inventory
             if (Inventory.toggle) {
@@ -47,18 +51,18 @@ namespace Game.Interaction {
             RenderInstance(Hotbar.Frame, new Vector2(((2 - Inventory.InvColumns * Hotbar.SizeX) / 2) - 1, -1));
 
             Gl.UseProgram(0);
-
+            
             Gl.LineWidth(1);
         }
 
         private static void RenderInstance(GuiModel model, Vector2 position) {
-            RenderInstance(model, position, new Vector2(1, 1), new Vector3(1, 1, 1));
+            RenderInstance(model, position, new Vector3(1, 1, 1));
         }
 
-        private static void RenderInstance(GuiModel model, Vector2 position, Vector2 size, Vector3 colour) {
+        private static void RenderInstance(GuiModel model, Vector2 position, Vector3 colour) {
             ShaderProgram shader = Gui.shader;
             shader["position"].SetValue(position);
-            shader["size"].SetValue(size);
+            shader["size"].SetValue(model.size);
             shader["colour"].SetValue(colour);
             Gl.BindVertexArray(model.vao.ID);
             Gl.BindTexture(model.texture.TextureTarget, model.texture.TextureID);

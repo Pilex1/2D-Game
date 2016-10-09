@@ -10,7 +10,6 @@ using System.Drawing;
 
 namespace Game.Interaction {
 
-
     static class Inventory {
 
         public static readonly Vector2 Pos = new Vector2(((2 - Inventory.InvColumns * Hotbar.SizeX) / 2) - 1, -0.5);
@@ -46,7 +45,7 @@ namespace Game.Interaction {
                     ptr++;
                 }
             }
-            Items[0, 0] = new Tuple<ItemId, uint>(ItemId.Switch, 1);
+            Items[0, 0] = new Tuple<ItemId, uint>(ItemId.StaffGreen, 1);
             Items[0, 1] = new Tuple<ItemId, uint>(ItemId.Wire, 1);
             Items[0, 2] = new Tuple<ItemId, uint>(ItemId.LogicLamp, 1);
             Items[0, 3] = new Tuple<ItemId, uint>(ItemId.GateAnd, 1);
@@ -56,10 +55,10 @@ namespace Game.Interaction {
             Items[0, 7] = new Tuple<ItemId, uint>(ItemId.StickyTilePusher, 1);
 
 
-            Frame = new GuiModel(FrameVao(), TextureUtil.CreateTexture(new Vector3(0, 0, 0.1)), BeginMode.Lines);
-            ItemDisplay = new GuiModel(ItemDisplayVao(), new Texture(Asset.ItemTexture), BeginMode.Triangles);
+            Frame = new GuiModel(FrameVao(), TextureUtil.CreateTexture(new Vector3(0, 0, 0.1)), BeginMode.Lines, new Vector2(1, 1));
+            ItemDisplay = new GuiModel(ItemDisplayVao(), new Texture(Asset.ItemTexture), BeginMode.Triangles, new Vector2(1, 1));
             SelectedDisplay = GuiModel.CreateWireRectangle(new Vector2(Hotbar.SizeX, Hotbar.SizeY), Color.Blue);
-            Background = GuiModel.CreateRectangle(new Vector2(InvColumns * Hotbar.SizeX, (InvRows-1) * Hotbar.SizeY), Color.DimGray);
+            Background = GuiModel.CreateRectangle(new Vector2(InvColumns * Hotbar.SizeX, (InvRows - 1) * Hotbar.SizeY), Color.DimGray);
 
             text = new Text("Inventory", TextFont.Chiller, 0.5f, Pos, 1);
         }
@@ -149,7 +148,7 @@ namespace Game.Interaction {
 
         public static void Update() {
 
-            if (Input.Keys[27]) toggle.Toggle();
+            if (Input.Keys['e']) toggle.Toggle();
             float x = Input.NDCMouseX, y = Input.NDCMouseY;
             y -= 24f / Program.Height;
             if (x <= Pos.x || x >= Pos.x + InvColumns * Hotbar.SizeX || y <= Pos.y || y >= Pos.y + (InvRows - 1) * Hotbar.SizeY * Program.AspectRatio || !toggle) {

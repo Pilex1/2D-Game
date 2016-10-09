@@ -29,6 +29,10 @@ namespace Game.Interaction {
             Dead = false;
         }
 
+        private static void Update() {
+            Bar.size.x = Health / MaxHealth * BarWidth;
+        }
+
         public static void Heal(float hp) {
             if (!Dead) {
                 Health += hp;
@@ -37,6 +41,7 @@ namespace Game.Interaction {
                 //TODO
                 Revive();
             }
+            Update();
         }
 
         public static void Damage(float hp) {
@@ -45,6 +50,7 @@ namespace Game.Interaction {
                 Dead = true;
                 Deaths++;
             }
+            Update();
         }
 
         public static void Dispose() {

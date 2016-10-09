@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Game.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -38,7 +39,7 @@ namespace Game.Util {
 
 
         private void UpdateInstance() {
-            time += GameLogic.DeltaTime;
+            time += GameTime.DeltaTime;
         }
 
     }

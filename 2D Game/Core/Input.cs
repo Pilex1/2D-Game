@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Game.Util;
+using OpenGL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,6 +35,31 @@ namespace Game.Core {
             MouseScroll = 0;
         }
 
+        public static Vector2 RayCast() {
+            Vector2 normalizedCoords = new Vector2(NDCMouseX, NDCMouseY);
+            Vector4 clipCoords = new Vector4(normalizedCoords.x, normalizedCoords.y, -1, 1);
+            Vector4 eyeCoords = GameRenderer.projectionMatrix.Inverse() * clipCoords;
+            eyeCoords.z = -1;
+            eyeCoords.w = 0;
+            Matrix4 inverseViewMatrix = GameRenderer.viewMatrix.Inverse();
+            Vector4 rayWorldTemp = inverseViewMatrix * eyeCoords;
+            Vector2 rayWorld = new Vector2(rayWorldTemp.x, rayWorldTemp.y);
+            return rayWorld;
+        }
+
+        public static Vector2 TerrainIntersect() {
+            Vector2 rayWorld = RayCast();
+            Vector2 intersectTerrain = Player.Instance.data.Position.val - rayWorld * GameRenderer.zoom - new Vector2(0, 1);
+            return intersectTerrain;
+        }
+
+        public static float RayCastAngle() {
+            Vector2 playerpos = Player.Instance.data.Position.val;
+            Vector2 raycast = TerrainIntersect();
+            return MathUtil.AngleTo(playerpos, raycast);
+        }
+
+        #region Glut Callbacks
         private static void OnMouseScroll(int button, int dir, int x, int y) {
             MouseScroll = dir;
         }
@@ -60,10 +87,11 @@ namespace Game.Core {
         }
         private static void OnKeyboardDown(byte key, int x, int y) {
             Keys[key] = true;
-           // if (key == 27) Glut.glutLeaveMainLoop();
+            // if (key == 27) Glut.glutLeaveMainLoop();
         }
         private static void OnKeyboardUp(byte key, int x, int y) {
             Keys[key] = false;
         }
+        #endregion Glut Callbacks
     }
 }

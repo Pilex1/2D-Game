@@ -1,6 +1,7 @@
 ﻿using Game.Fluids;
 using Game.Logics;
 using Game.Util;
+using OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,28 @@ namespace Game.Terrains {
         public Direction rotation = Direction.Up;
 
         public virtual void Interact(int x, int y) { }
+        public virtual bool OnTerrainIntersect(int x, int y, Direction side, Entity e) {
+            switch (side) {
+                case Direction.Up:
+                    e.data.Position.y = (int)Math.Ceiling(e.data.Position.y);
+                    e.data.vel.y = 0;
+                    break;
+                case Direction.Down:
+                    e.data.Position.y = (int)Math.Floor(e.data.Position.y);
+                    e.data.vel.y = 0;
+                    e.data.InAir = false;
+                    break;
+                case Direction.Left:
+                    e.data.Position.x = (int)Math.Floor(e.data.Position.x);
+                    e.data.vel.x = 0;
+                    break;
+                case Direction.Right:
+                    e.data.Position.x = (int)Math.Ceiling(e.data.Position.x - 0.01);
+                    e.data.vel.x = 0;
+                    break;
+            }
+            return true;
+        }
     }
 
     [Serializable]
@@ -42,7 +65,7 @@ namespace Game.Terrains {
 
         #region Special
         public static readonly TileID Invalid = new TileID(TileEnum.Invalid, new TileAttribs { solid = false, movable = false });
-        public static readonly TileID Air = new TileID(TileEnum.Air, new TileAttribs { solid = false, movable = false });
+        public static readonly TileID Air = new TileID(TileEnum.Air, new TileAttribs { solid = false, movable = false, transparent = true });
         public static readonly TileID Bedrock = new TileID(TileEnum.Bedrock);
         #endregion Special
 
@@ -67,19 +90,12 @@ namespace Game.Terrains {
         public static readonly TileID PlexSpecial = new TileID(TileEnum.PlexSpecial);
         public static readonly TileID PurpleStone = new TileID(TileEnum.PurpleStone);
         public static readonly TileID Cactus = new TileID(TileEnum.Cactus);
-        public static readonly TileID Bounce = new TileID(TileEnum.Bounce);
         public static readonly TileID Water = new TileID(TileEnum.Water);
         public static readonly TileID Snow = new TileID(TileEnum.Snow);
         public static readonly TileID SnowWood = new TileID(TileEnum.SnowWood);
         public static readonly TileID SnowLeaf = new TileID(TileEnum.SnowLeaf);
         public static readonly TileID GrassDeco = new TileID(TileEnum.GrassDeco, new TileAttribs { solid = false });
         #endregion Normal
-
-
-        #region Explosives
-        public static readonly TileID Tnt = new TileID(TileEnum.Tnt, new ExplosionData { radius = 10, error = 2 });
-        public static readonly TileID Nuke = new TileID(TileEnum.Nuke, new ExplosionData { radius = 50, error = 2 });
-        #endregion Explosives
 
         #region Logic
         public static TileID CreateWire() { return new TileID(TileEnum.WireOff, new WireData()); }
@@ -94,8 +110,33 @@ namespace Game.Terrains {
         public static TileID CreateTileBreaker() { return new TileID(TileEnum.TileBreakerOff, new TileBreakerData()); }
         #endregion Logic
 
+        #region Misc
+        public static readonly TileID Bounce = new TileID(TileEnum.Bounce, new BounceAttribs());
+        public static readonly TileID Tnt = new TileID(TileEnum.Tnt, new ExplosionData { radius = 10, error = 2 });
+        public static readonly TileID Nuke = new TileID(TileEnum.Nuke, new ExplosionData { radius = 50, error = 2 });
+        #endregion Misc
+
+
+
         public override string ToString() {
             return enumId.ToString();
+        }
+    }
+
+    [Serializable]
+    class BounceAttribs : TileAttribs {
+
+        float bouncePowerVert = -1.2f;
+        float bouncePowerHorz = -1.8f;
+
+        public override bool OnTerrainIntersect(int x, int y, Direction side, Entity e) {
+            if (side == Direction.Up || side == Direction.Down) {
+                e.data.vel.y *= bouncePowerVert;
+            }
+            if (side == Direction.Left || side == Direction.Right) {
+                e.data.vel.x *= bouncePowerHorz;
+            }
+            return true;
         }
     }
 

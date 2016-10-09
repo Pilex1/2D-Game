@@ -8,15 +8,85 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Game.Core {
+
+    class EntityModel : IDisposable {
+
+        public EntityVAO vao;
+        public bool blend;
+        public Texture texture;
+        public BeginMode drawmode;
+        public Vector2 size;
+
+        public EntityModel(EntityVAO vao, Texture texture, BeginMode drawmode, Vector2 size, bool blend = false) {
+            this.vao = vao;
+            this.texture = texture;
+            this.drawmode = drawmode;
+            this.size = size;
+            this.blend = blend;
+        }
+
+        public void Dispose() {
+            vao.Dispose();
+            texture.Dispose();
+        }
+
+        public static EntityModel CreateWireRectangle(Vector2 size, Color colour) {
+            //bottom left clockwise
+            Vector2[] vertices = new Vector2[] {
+                new Vector2(0,0),
+                new Vector2(0,1),
+                new Vector2(1,1),
+                new Vector2(1,0)
+            };
+            int[] elements = new int[] {
+               0,1,2,3,0
+            };
+            Vector2[] uvs = new Vector2[] {
+               new Vector2(0,0),
+                new Vector2(0,1),
+                new Vector2(1,1),
+                new Vector2(1,0)
+            };
+            EntityVAO vao = new EntityVAO(vertices, elements, uvs);
+            return new EntityModel(vao, TextureUtil.CreateTexture(colour), BeginMode.LineLoop, size);
+        }
+
+        public static EntityModel CreateRectangle(Vector2 size, Texture texture) {
+            Vector2[] vertices = new Vector2[] {
+                new Vector2(0,0),
+                new Vector2(0,1),
+                new Vector2(1,1),
+                new Vector2(1,0)
+            };
+            int[] elements = new int[] {
+                0,1,2,0,3
+            };
+            Vector2[] uvs = new Vector2[] {
+                 new Vector2(0,0),
+                new Vector2(0,1),
+                new Vector2(1,1),
+                new Vector2(1,0)
+            };
+            EntityVAO vao = new EntityVAO(vertices, elements, uvs);
+            return new EntityModel(vao, texture, BeginMode.TriangleStrip, size);
+        }
+
+        public static EntityModel CreateRectangle(Vector2 size, Color colour) {
+            return CreateRectangle(size, TextureUtil.CreateTexture(colour));
+        }
+    }
+
     class GuiModel : IDisposable {
         public GuiVAO vao;
         public Texture texture;
         public BeginMode drawmode;
+        public Vector2 size;
 
-        public GuiModel(GuiVAO vao, Texture texture, BeginMode drawmode) {
+        public GuiModel(GuiVAO vao, Texture texture, BeginMode drawmode, Vector2 size) {
             this.vao = vao;
             this.texture = texture;
             this.drawmode = drawmode;
+            this.size = size;
         }
 
         public void Dispose() {
@@ -27,9 +97,9 @@ namespace Game.Core {
         public static GuiModel CreateWireRectangle(Vector2 size, Color colour, BufferUsageHint verticeshint = BufferUsageHint.StaticDraw, BufferUsageHint uvhint = BufferUsageHint.StaticDraw) {
             Vector2[] vertices = new Vector2[] {
                 new Vector2(0,0),
-                new Vector2(0,size.y),
-                new Vector2(size.x,size.y),
-                new Vector2(size.x,0)
+                new Vector2(0,1),
+                new Vector2(1,1),
+                new Vector2(1,0)
             };
             int[] elements = new int[] {
                0,1,2,3,0
@@ -41,15 +111,15 @@ namespace Game.Core {
                 new Vector2(1, 1)
             };
             GuiVAO vao = new GuiVAO(vertices, elements, uvs, verticeshint, uvhint);
-            return new GuiModel(vao, TextureUtil.CreateTexture(colour), BeginMode.LineLoop);
+            return new GuiModel(vao, TextureUtil.CreateTexture(colour), BeginMode.LineLoop, size);
         }
 
         public static GuiModel CreateRectangle(Vector2 size, Texture texture, BufferUsageHint verticeshint = BufferUsageHint.StaticDraw, BufferUsageHint uvhint = BufferUsageHint.StaticDraw) {
             Vector2[] vertices = new Vector2[] {
                 new Vector2(0,0),
-                new Vector2(0,size.y),
-                new Vector2(size.x,size.y),
-                new Vector2(size.x,0)
+                new Vector2(0,1),
+                new Vector2(1,1),
+                new Vector2(1,0)
             };
             int[] elements = new int[] {
                 0,1,2,0,3
@@ -61,7 +131,7 @@ namespace Game.Core {
                 new Vector2(1, 1)
             };
             GuiVAO vao = new GuiVAO(vertices, elements, uvs, verticeshint, uvhint);
-            return new GuiModel(vao, texture, BeginMode.TriangleStrip);
+            return new GuiModel(vao, texture, BeginMode.TriangleStrip, size);
         }
 
         public static GuiModel CreateRectangle(Vector2 size, Color colour, BufferUsageHint verticeshint = BufferUsageHint.StaticDraw, BufferUsageHint uvhint = BufferUsageHint.StaticDraw) {

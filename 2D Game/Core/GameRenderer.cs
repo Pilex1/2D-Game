@@ -1,14 +1,6 @@
-﻿using Game.Core;
-using Game.Entities;
-using Game.Fluids;
-using Game.Interaction;
+﻿using Game.Particles;
 using Game.Terrains;
-using Game.Util;
 using OpenGL;
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Text;
 
 namespace Game {
     static class GameRenderer {
@@ -25,7 +17,11 @@ namespace Game {
             Gl.CullFace(CullFaceMode.Back);
             Gl.ClearColor(0.1f, 0.2f, 0.6f, 1);
 
-            projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(FOV, (float)Program.Width / Program.Height, Near, Far);
+
+            Entity.Init();
+            Player.Init();
+
+            projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(FOV, Program.AspectRatio, Near, Far);
 
             //Load matrices
             LoadProjectionMatrix();
@@ -40,21 +36,24 @@ namespace Game {
 
         private static void UpdateViewMatrix() {
             viewMatrix = Matrix4.CreateTranslation(new Vector3(-Player.Instance.data.Position.x, -Player.Instance.data.Position.y, zoom));
-            Entity.UpdateViewMatrix(viewMatrix);
+
             Terrain.UpdateViewMatrix(viewMatrix);
+            Entity.UpdateViewMatrix(viewMatrix);
         }
 
         public static void Render() {
             UpdateViewMatrix();
 
-            Entity.Render();
             Terrain.Render();
+            Entity.Render();
         }
 
 
         public static void CleanUp() {
+            if (Program.Mode != ProgramMode.Game) return;
             Terrain.CleanUp();
             Entity.CleanUp();
+            Player.CleanUp();
         }
     }
 }

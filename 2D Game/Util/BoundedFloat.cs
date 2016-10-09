@@ -44,6 +44,8 @@ namespace Game.Util {
             get { return _val; }
             set {
                 if (Math.Abs(value) < Epsilon) value = 0;
+                if (value < min) value = min;
+                if (value > max) value = max;
                 _val = value;
             }
         }
@@ -54,7 +56,6 @@ namespace Game.Util {
             _val = val;
             this.min = min;
             this.max = max;
-            if (val < min || val > max) throw new ArgumentException();
         }
 
         public float Space() {

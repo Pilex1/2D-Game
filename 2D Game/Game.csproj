@@ -53,24 +53,27 @@
   <ItemGroup>
     <Compile Include="Assets\Asset.cs" />
     <Compile Include="Assets\ItemId.cs" />
+    <Compile Include="Core\GameTime.cs" />
     <Compile Include="Core\Input.cs" />
-    <Compile Include="Core\CustomVAO.cs" />
+    <Compile Include="Core\Vao.cs" />
     <Compile Include="Core\Model.cs" />
     <Compile Include="Core\Serialization.cs" />
     <Compile Include="Entities\Squisher.cs" />
-    <Compile Include="Guis\ButtonRenderer.cs" />
+    <Compile Include="Guis\Button.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\Hitbox.cs" />
     <Compile Include="Core\GameLogic.cs" />
     <Compile Include="Fluids\FluidsManager.cs" />
     <Compile Include="Fonts\Text.cs" />
     <Compile Include="Guis\GameGuiRenderer.cs" />
-    <Compile Include="Interaction\Healthbar.cs" />
-    <Compile Include="Interaction\Hotbar.cs" />
-    <Compile Include="Interaction\Inventory.cs" />
-    <Compile Include="Interaction\Player.cs" />
+    <Compile Include="Guis\Healthbar.cs" />
+    <Compile Include="Guis\Hotbar.cs" />
+    <Compile Include="Guis\Inventory.cs" />
+    <Compile Include="Core\Player.cs" />
     <Compile Include="Core\Program.cs" />
     <Compile Include="Entities\Projectile.cs" />
+    <Compile Include="Guis\Label.cs" />
+    <Compile Include="Guis\Textbox.cs" />
     <Compile Include="Logics\AndGateData.cs" />
     <Compile Include="Logics\LogicData.cs" />
     <Compile Include="Logics\LogicBridgeData.cs" />
@@ -83,11 +86,12 @@
     <Compile Include="Logics\StickyTilePullerData.cs" />
     <Compile Include="Logics\StickyTilePusherData.cs" />
     <Compile Include="Logics\WireData.cs" />
+    <Compile Include="Particles\Particle.cs" />
+    <Compile Include="Particles\StaffParticle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\GameRenderer.cs" />
     <Compile Include="Entities\Shooter.cs" />
     <Compile Include="Terrains\ExplosionData.cs" />
-    <Compile Include="Terrains\Light.cs" />
     <Compile Include="Terrains\Lighting.cs" />
     <Compile Include="Terrains\Terrain.cs" />
     <Compile Include="Terrains\TerrainGen.cs" />
@@ -113,7 +117,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="Assets\Chiller.fnt" />
     <None Include="Assets\ItemTextures.xcf" />
     <None Include="Assets\TerrainTextures.xcf" />
     <None Include="Fonts\Chiller.fnt">
@@ -154,10 +157,9 @@
     <Content Include="Assets\BackgroundLandscape.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\Button.png">
+    <Content Include="Guis\Button.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\Chiller.png" />
     <Content Include="Assets\ItemTextures.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -168,6 +170,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Fonts\Chiller.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Guis\Label.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Guis\Textbox.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Todo.txt" />

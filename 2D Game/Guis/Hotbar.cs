@@ -25,8 +25,8 @@ namespace Game.Interaction {
         internal static void Init() {
             CurSelectedSlot = 0;
 
-            Frame = new GuiModel(FrameVao(), TextureUtil.CreateTexture(new Vector3(0, 0, 0.1)), BeginMode.Lines);
-            ItemDisplay = new GuiModel(ItemDisplayVao(), new Texture(Asset.ItemTexture), BeginMode.Triangles);
+            Frame = new GuiModel(FrameVao(), TextureUtil.CreateTexture(new Vector3(0, 0, 0.1)), BeginMode.Lines, new Vector2(1,1));
+            ItemDisplay = new GuiModel(ItemDisplayVao(), new Texture(Asset.ItemTexture), BeginMode.Triangles, new Vector2(1,1));
             SelectedDisplay = GuiModel.CreateWireRectangle(new Vector2(SizeX, SizeY), ColourUtil.ColourFromVec3(new Vector3(0, 0, 1)));
         }
 
