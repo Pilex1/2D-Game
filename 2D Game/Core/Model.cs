@@ -1,4 +1,5 @@
-﻿using Game.Util;
+﻿using Game.Assets;
+using Game.Util;
 using OpenGL;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,8 @@ namespace Game.Core {
         public Texture texture;
         public BeginMode drawmode;
         public Vector2 size;
+
+        private const int EntityTextureSize = 16;
 
         public EntityModel(EntityVAO vao, Texture texture, BeginMode drawmode, Vector2 size, bool blend = false) {
             this.vao = vao;
@@ -49,6 +52,30 @@ namespace Game.Core {
             };
             EntityVAO vao = new EntityVAO(vertices, elements, uvs);
             return new EntityModel(vao, TextureUtil.CreateTexture(colour), BeginMode.LineLoop, size);
+        }
+
+        public static EntityModel CreateRectangle(Vector2 size, EntityTexture texid) {
+            Vector2[] vertices = new Vector2[] {
+                new Vector2(0,0),
+                new Vector2(0,1),
+                new Vector2(1,1),
+                new Vector2(1,0)
+            };
+            int[] elements = new int[] {
+                0,1,2,0,3
+            };
+            float x = ((float)((int)texid % EntityTextureSize)) / EntityTextureSize;
+            float y = ((float)((int)texid / EntityTextureSize)) / EntityTextureSize;
+            float s = 1f / EntityTextureSize;
+            float h = 1f / (EntityTextureSize * EntityTextureSize * 2);
+            Vector2[] uvs = new Vector2[] {
+                new Vector2(x+h,y+h),
+                new Vector2(x+h,y+s-h),
+                new Vector2(x+s-h,y+s-h),
+                new Vector2(x+s-h,y+h)
+            };
+            EntityVAO vao = new EntityVAO(vertices, elements, uvs);
+            return new EntityModel(vao, Asset.Texture, BeginMode.TriangleStrip, size);
         }
 
         public static EntityModel CreateRectangle(Vector2 size, Texture texture) {

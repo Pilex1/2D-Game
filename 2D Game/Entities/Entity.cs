@@ -17,36 +17,37 @@ namespace Game {
         public float rot = 0;
         public bool CorrectCollisions = true;
         public bool UseGravity = true;
-        public bool UseAirResis = true;
+        public float Grav = 0.02f;
+        public float AirResis = 0.9f;
         public float jumppower = 0;
         public bool InAir = false;
         public BoundedVector2 vel = new BoundedVector2(new BoundedFloat(0, -Entity.maxHorzSpeed, Entity.maxHorzSpeed), new BoundedFloat(0, -Entity.maxVertSpeed, Entity.maxVertSpeed));
-        public BoundedVector2 Position = new BoundedVector2(new BoundedFloat(0, 0, Terrain.Tiles.GetLength(0) - 1), new BoundedFloat(0, 0, Int32.MaxValue));
+        public BoundedVector2 Position = new BoundedVector2(new BoundedFloat(0, 0, Terrain.Tiles.GetLength(0) - 1), new BoundedFloat(0, 0, Terrain.Tiles.GetLength(1) - 1));
         public Vector4 colour = new Vector4(1, 1, 1, 1);
     }
 
     abstract class Entity {
-        #region fields
-        internal const float gravity = 0.02f;
+        #region Fields
         internal const float maxHorzSpeed = 0.8f;
         internal const float maxVertSpeed = 1f;
 
-        private static Dictionary<EntityModel, HashSet<Entity>> Entities = new Dictionary<EntityModel, HashSet<Entity>>();
+        private const int GridX = 4;
+        private const int GridY = 4;
+        private static HashSet<Entity>[,] EntityGrid;
         public static ShaderProgram shader;
 
         public EntityModel model;
         public Hitbox Hitbox { get; protected set; }
 
         public EntityData data = new EntityData { };
-        #endregion fields
+        #endregion
 
-        #region constructors
+        #region Initialisation
         protected Entity(EntityModel model, Hitbox hitbox, EntityData data) {
             this.data = data;
             this.model = model;
             Hitbox = hitbox;
             if (data.CorrectCollisions) CorrectTerrainCollision();
-            AddEntity(this);
         }
 
         protected Entity(EntityModel model) : this(model, Vector2.Zero) { }
@@ -57,11 +58,23 @@ namespace Game {
             data.Position.val = position;
             this.model = model;
             Hitbox = hitbox;
-            AddEntity(this);
         }
-        #endregion constructors
 
-        #region instance methods
+        public static void Init() {
+            shader = new ShaderProgram(Asset.EntityVert, Asset.EntityFrag);
+            Console.WriteLine("Entity Shader Log: ");
+            Console.WriteLine(shader.ProgramLog);
+            Particle.Init();
+            EntityGrid = new HashSet<Entity>[(int)Math.Ceiling((float)Terrain.Tiles.GetLength(0) / GridX), (int)Math.Ceiling((float)Terrain.Tiles.GetLength(1) / GridY)];
+            for (int i = 0; i < EntityGrid.GetLength(0); i++) {
+                for (int j = 0; j < EntityGrid.GetLength(1); j++) {
+                    EntityGrid[i, j] = new HashSet<Entity>();
+                }
+            }
+        }
+        #endregion
+
+        #region Movement
 
         public void MoveLeft() {
             data.vel.x -= data.speed * GameTime.DeltaTime;
@@ -86,13 +99,13 @@ namespace Game {
 
         public bool UpdatePosition() {
 
+            Vector2i gridPrev = GridArray(this);
             bool moved = false;
 
             if (data.UseGravity)
-                data.vel.y -= gravity * GameTime.DeltaTime;
+                data.vel.y -= data.Grav * GameTime.DeltaTime;
 
-            if (data.UseAirResis)
-                data.vel.x *= 0.9f;
+            data.vel.x *= (float)Math.Pow(data.AirResis, GameTime.DeltaTime);
 
             {
                 TileID col;
@@ -107,22 +120,29 @@ namespace Game {
                     if (offset.y != 0) moved = true;
                     data.InAir = true;
                 }
-                if (!data.UseGravity) data.vel.y = 0;
             }
 
             {
                 TileID col;
-                Vector2 offset = new Vector2(data.vel.x, 0);
+                Vector2 offset = new Vector2(data.vel.x * GameTime.DeltaTime, 0);
                 if (Terrain.WillCollide(this, offset, out col)) {
                     if (data.vel.x > 0)
                         moved = col.tileattribs.OnTerrainIntersect((int)data.Position.x, (int)data.Position.y, Direction.Right, this);
                     else
                         moved = col.tileattribs.OnTerrainIntersect((int)data.Position.x, (int)data.Position.y, Direction.Left, this);
                 } else {
-                    if (offset.x != 0) moved = true;
                     data.Position.val += offset;
+                    if (offset.x != 0) moved = true;
                 }
 
+            }
+
+
+            Vector2i gridNow = GridArray(this);
+            if (gridPrev != gridNow) {
+                //recalc grid array
+                EntityGrid[gridPrev.x, gridPrev.y].Remove(this);
+                EntityGrid[gridNow.x, gridNow.y].Add(this);
             }
 
             return moved;
@@ -130,14 +150,42 @@ namespace Game {
 
         public abstract void Update();
 
+
+        #endregion
+
+        #region Collisions
         protected void CorrectTerrainCollision() {
+            Vector2i gridPrev = GridArray(this);
             data.Position.val = Terrain.CorrectTerrainCollision(this);
+            Vector2i gridNow = GridArray(this);
+            if (gridPrev != gridNow) {
+                //recalc grid array
+                EntityGrid[gridPrev.x, gridPrev.y].Remove(this);
+                EntityGrid[gridNow.x, gridNow.y].Add(this);
+            }
+
         }
 
-        #endregion instance methods
+        protected List<Entity> EntityCollisions() {
+            Vector2i grid = GridArray(this);
+            HashSet<Entity> set = EntityGrid[grid.x, grid.y];
+            List<Entity> list = new List<Entity>(set);
+            List<Entity> colliding = new List<Entity>();
+            foreach (Entity e in list) {
+                if (e == this)
+                    continue;
+                if (Hitbox.Intersecting(e.Hitbox))
+                    colliding.Add(e);
+            }
+            return colliding;
+        }
+        #endregion
+
 
         #region Matrices
-        public Matrix4 ModelMatrix() { return Matrix4.CreateScaling(new Vector3(model.size.x, model.size.y, 0)) * Matrix4.CreateRotationZ(data.rot) * Matrix4.CreateTranslation(new Vector3(data.Position.x, data.Position.y, 0)); }
+        public virtual Matrix4 ModelMatrix() {
+            return Matrix4.CreateScaling(new Vector3(model.size.x, model.size.y, 0)) * Matrix4.CreateRotationZ(data.rot) * Matrix4.CreateTranslation(new Vector3(data.Position.x, data.Position.y, 0));
+        }
 
         public static void UpdateViewMatrix(Matrix4 mat) {
             if (shader == null)
@@ -157,59 +205,92 @@ namespace Game {
         }
         #endregion Matrices
 
-        #region static methods
-        public static void Init() {
-            shader = new ShaderProgram(FileUtil.LoadShader("EntityVertex"), FileUtil.LoadShader("EntityFragment"));
-            Console.WriteLine("Entity Shader Log: ");
-            Console.WriteLine(shader.ProgramLog);
-            Particle.Init();
+        #region Entity Grid Array
+
+        private static Vector2i GridArray(Entity e) {
+            int gx = (int)Math.Floor(e.data.Position.x / GridX);
+            int gy = (int)Math.Floor(e.data.Position.y / GridY);
+            return new Vector2i(gx, gy);
         }
 
-        private static void AddEntity(Entity e) {
-            HashSet<Entity> set;
-            Entities.TryGetValue(e.model, out set);
-            if (set == null) {
-                set = new HashSet<Entity>();
-                set.Add(e);
-                Entities[e.model] = set;
-            } else {
-                set.Add(e);
-            }
+        public static void AddEntity(Entity e) {
+            Vector2i v = GridArray(e);
+            EntityGrid[v.x, v.y].Add(e);
         }
 
         public static void RemoveEntity(Entity e) {
-            HashSet<Entity> set = Entities[e.model];
-            set.Remove(e);
-            if (set.Count == 0) Entities.Remove(e.model);
+            Vector2i v = GridArray(e);
+            EntityGrid[v.x, v.y].Remove(e);
         }
 
         public static void RemoveAllEntities() {
-            Entities.Clear();
+            for (int i = 0; i < EntityGrid.GetLength(0); i++) {
+                for (int j = 0; j < EntityGrid.GetLength(1); j++) {
+                    EntityGrid[i, j].Clear();
+                }
+            }
+
             AddEntity(Player.Instance);
         }
+        #endregion
 
-
+        #region Update & Render
         public static void UpdateAll() {
-            Vector2i min = Vector2i.Zero, max = Vector2i.Zero;
-            Terrain.Range(out min.x, out max.x, out min.y, out max.y);
-            foreach (HashSet<Entity> set in new List<HashSet<Entity>>(Entities.Values)) {
-                foreach (Entity e in new List<Entity>(set)) {
-                    if (MathUtil.Bounded(e.data.Position.val, min, max))
+            int minx, maxx, miny, maxy;
+            Terrain.Range(out minx, out maxx, out miny, out maxy);
+
+            int mingx = (int)Math.Floor((float)minx / GridX);
+            int mingy = (int)Math.Floor((float)miny / GridY);
+            int maxgx = (int)Math.Ceiling((float)maxx / GridX);
+            int maxgy = (int)Math.Ceiling((float)maxy / GridY);
+
+            for (int i = mingx; i <= maxgx; i++) {
+                for (int j = mingy; j <= maxgy; j++) {
+                    HashSet<Entity> set = EntityGrid[i, j];
+                    foreach (Entity e in new List<Entity>(set)) {
                         e.Update();
+                    }
                 }
             }
         }
 
         public static void Render() {
             Gl.UseProgram(shader.ProgramID);
-            foreach (EntityModel model in Entities.Keys) {
+
+            int minx, maxx, miny, maxy;
+            Terrain.Range(out minx, out maxx, out miny, out maxy);
+            int mingx = (int)Math.Floor((float)minx / GridX);
+            int mingy = (int)Math.Floor((float)miny / GridY);
+            int maxgx = (int)Math.Ceiling((float)maxx / GridX);
+            int maxgy = (int)Math.Ceiling((float)maxy / GridY);
+            MathUtil.Clamp(ref mingx, 0, EntityGrid.GetLength(0) - 1);
+            MathUtil.Clamp(ref mingy, 0, EntityGrid.GetLength(1) - 1);
+
+            Dictionary<EntityModel, HashSet<Entity>> EntitiesMap = new Dictionary<EntityModel, HashSet<Entity>>();
+            for (int i = mingx; i <= maxgx; i++) {
+                for (int j = mingy; j <= maxgy; j++) {
+                    HashSet<Entity> set = EntityGrid[i, j];
+                    foreach (Entity e in set) {
+                        HashSet<Entity> setbatch;
+                        if (EntitiesMap.TryGetValue(e.model, out setbatch)) {
+                            setbatch.Add(e);
+                        } else {
+                            setbatch = new HashSet<Entity>();
+                            setbatch.Add(e);
+                            EntitiesMap.Add(e.model, setbatch);
+                        }
+                    }
+                }
+            }
+
+            foreach (EntityModel model in EntitiesMap.Keys) {
                 Gl.BindVertexArray(model.vao.ID);
                 if (model.blend) {
                     Gl.Enable(EnableCap.Blend);
                     Gl.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
                 }
                 Gl.BindTexture(model.texture.TextureTarget, model.texture.TextureID);
-                foreach (Entity e in Entities[model]) {
+                foreach (Entity e in EntitiesMap[model]) {
                     shader["modelMatrix"].SetValue(e.ModelMatrix());
                     shader["clr"].SetValue(e.data.colour);
                     Gl.DrawElements(model.drawmode, model.vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
@@ -222,15 +303,16 @@ namespace Game {
         }
 
         public static void CleanUp() {
-            foreach (EntityModel model in Entities.Keys) {
-                model.Dispose();
+            for (int i = 0; i < EntityGrid.GetLength(0); i++) {
+                for (int j = 0; j < EntityGrid.GetLength(1); j++) {
+                    EntityGrid[i, j].Clear();
+                }
             }
-            Entities.Clear();
+
             Gl.DeleteShader(shader.FragmentShader.ShaderID);
             Gl.DeleteShader(shader.VertexShader.ShaderID);
             Gl.DeleteProgram(shader.ProgramID);
         }
-        #endregion static methods
-
+        #endregion
     }
 }

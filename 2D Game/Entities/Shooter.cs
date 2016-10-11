@@ -43,14 +43,13 @@ namespace Game {
         }
 
         public override void Update() {
+            base.UpdatePosition();
             if (ShootCooldownTime >= ShootCooldown) {
                 Projectile proj = new Projectile(data.Position.val, Player.ToPlayer(data.Position.val) / 5, ProjectileLife, 0.01f);
-                proj.data.Position.val += proj.Velocity * GameTime.DeltaTime;
-                if (Terrain.IsColliding(proj)) Entity.RemoveEntity(proj);
+                if (!Terrain.IsColliding(proj)) Entity.AddEntity(proj);
                 ShootCooldownTime = 0;
             } else ShootCooldownTime += GameTime.DeltaTime;
             Hitbox.Position = data.Position.val;
-            UpdatePosition();
         }
     }
 }

@@ -2,6 +2,7 @@
 using Game.Core;
 using Game.Entities;
 using Game.Fonts;
+using Game.Guis;
 using Game.TitleScreen;
 using Game.Util;
 using OpenGL;
@@ -27,36 +28,32 @@ namespace Game.Interaction {
         public static BoolSwitch toggle = new BoolSwitch(false, 20);
 
         internal const int InvColumns = 9, InvRows = 6;
-        public static Tuple<ItemId, uint>[,] Items = new Tuple<ItemId, uint>[InvRows, InvColumns];
+        public static Tuple<Item, uint>[,] Items = new Tuple<Item, uint>[InvRows, InvColumns];
 
-        public static void Init() {
+        public static void Init(Tuple<Item, uint>[,] items) {
 
             for (int i = 0; i < Items.GetLength(0); i++) {
                 for (int j = 0; j < Items.GetLength(1); j++) {
-                    Items[i, j] = new Tuple<ItemId, uint>(ItemId.None, 0);
+                    Items[i, j] = new Tuple<Item, uint>(Item.None, 0);
                 }
             }
 
-            int ptr = 1;
+            if (items == null) {
+                int ptr = 1;
 
-            for (int i = 1; i < Items.GetLength(0); i++) {
-                for (int j = 0; j < Items.GetLength(1); j++) {
-                    Items[i, j] = new Tuple<ItemId, uint>((ItemId)ptr, 0);
-                    ptr++;
+                for (int i = 1; i < Items.GetLength(0); i++) {
+                    for (int j = 0; j < Items.GetLength(1); j++) {
+                        Items[i, j] = new Tuple<Item, uint>((Item)ptr, 0);
+                        ptr++;
+                    }
                 }
+            } else {
+                Items = items;
             }
-            Items[0, 0] = new Tuple<ItemId, uint>(ItemId.StaffGreen, 1);
-            Items[0, 1] = new Tuple<ItemId, uint>(ItemId.Wire, 1);
-            Items[0, 2] = new Tuple<ItemId, uint>(ItemId.LogicLamp, 1);
-            Items[0, 3] = new Tuple<ItemId, uint>(ItemId.GateAnd, 1);
-            Items[0, 4] = new Tuple<ItemId, uint>(ItemId.GateOr, 1);
-            Items[0, 5] = new Tuple<ItemId, uint>(ItemId.GateNot, 1);
-            Items[0, 6] = new Tuple<ItemId, uint>(ItemId.LogicBridge, 1);
-            Items[0, 7] = new Tuple<ItemId, uint>(ItemId.StickyTilePusher, 1);
 
 
             Frame = new GuiModel(FrameVao(), TextureUtil.CreateTexture(new Vector3(0, 0, 0.1)), BeginMode.Lines, new Vector2(1, 1));
-            ItemDisplay = new GuiModel(ItemDisplayVao(), new Texture(Asset.ItemTexture), BeginMode.Triangles, new Vector2(1, 1));
+            ItemDisplay = new GuiModel(ItemDisplayVao(), Asset.ItemTexture, BeginMode.Triangles, new Vector2(1, 1));
             SelectedDisplay = GuiModel.CreateWireRectangle(new Vector2(Hotbar.SizeX, Hotbar.SizeY), Color.Blue);
             Background = GuiModel.CreateRectangle(new Vector2(InvColumns * Hotbar.SizeX, (InvRows - 1) * Hotbar.SizeY), Color.DimGray);
 
@@ -131,7 +128,7 @@ namespace Game.Interaction {
             Vector2[] uvs = new Vector2[4 * InvColumns * InvRows];
             for (int i = 1; i < InvRows; i++) {
                 for (int j = 0; j < InvColumns; j++) {
-                    ItemId t = Items[i, j].Item1;
+                    Item t = Items[i, j].Item1;
                     float x = ((int)t % size) / size;
                     float y = ((int)((float)t / size)) / size;
                     float s = 1f / size;
@@ -158,17 +155,23 @@ namespace Game.Interaction {
             int cx = (int)(10 * (x - Pos.x));
             int cy = (int)(10 / Program.AspectRatio * (y - Pos.y));
             Selected = new Vector2i(cx, cy);
-            ItemId item = Items[cy + 1, cx].Item1;
+            Item item = Items[cy + 1, cx].Item1;
             if (Input.Mouse[Input.MouseLeft]) {
-                Items[0, Hotbar.CurSelectedSlot] = new Tuple<ItemId, uint>(item, 1);
+                Items[0, Hotbar.CurSelectedSlot] = new Tuple<Item, uint>(item, 1);
             }
 
         }
 
         public static void Dispose() {
-            Frame?.Dispose();
-            ItemDisplay?.Dispose();
-            SelectedDisplay?.Dispose();
+            //Frame?.Dispose();
+            //ItemDisplay?.Dispose();
+            //SelectedDisplay?.Dispose();
+            if (Frame != null)
+                Frame.Dispose();
+            if (ItemDisplay != null)
+                ItemDisplay.Dispose();
+            if (SelectedDisplay != null)
+                SelectedDisplay.Dispose();
         }
 
     }

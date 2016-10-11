@@ -1,4 +1,6 @@
-﻿using Game.Fonts;
+﻿using Game.Assets;
+using Game.Fonts;
+using Game.Guis;
 using Game.Interaction;
 using Game.Util;
 using OpenGL;
@@ -14,7 +16,7 @@ namespace Game.TitleScreen {
         public static ShaderProgram shader { get; private set; }
 
         public static void Init() {
-            shader = new ShaderProgram(FileUtil.LoadShader("GuiVertex"), FileUtil.LoadShader("GuiFragment"));
+            shader = new ShaderProgram(Asset.GuiVert,Asset.GuiFrag);
             TextFont.Init();
         }
 

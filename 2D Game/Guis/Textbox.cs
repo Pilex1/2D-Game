@@ -44,23 +44,5 @@ namespace Game.Guis {
             cooldown.Reset();
         }
 
-        public void Update() {
-
-        }
-
-        private void UpdateText() {
-            text = new Text(textstring.ToString(), text.font,text.model.size.x, text.pos, text.maxwidth);
-        }
-
-        public void AppendCharacter(char c) {
-            textstring.Append(c);
-            UpdateText();
-        }
-
-        public void RemoveCharacter() {
-            textstring.Remove(textstring.Length - 1, 1);
-            UpdateText();
-        }
-
     }
 }

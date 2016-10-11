@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Game</RootNamespace>
     <AssemblyName>2D Game</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -52,7 +53,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Asset.cs" />
-    <Compile Include="Assets\ItemId.cs" />
+    <Compile Include="Assets\EntityTexture.cs" />
+    <Compile Include="Assets\Item.cs" />
     <Compile Include="Core\GameTime.cs" />
     <Compile Include="Core\Input.cs" />
     <Compile Include="Core\Vao.cs" />
@@ -64,7 +66,7 @@
     <Compile Include="Entities\Hitbox.cs" />
     <Compile Include="Core\GameLogic.cs" />
     <Compile Include="Fluids\FluidsManager.cs" />
-    <Compile Include="Fonts\Text.cs" />
+    <Compile Include="Guis\Text.cs" />
     <Compile Include="Guis\GameGuiRenderer.cs" />
     <Compile Include="Guis\Healthbar.cs" />
     <Compile Include="Guis\Hotbar.cs" />
@@ -74,6 +76,7 @@
     <Compile Include="Entities\Projectile.cs" />
     <Compile Include="Guis\Label.cs" />
     <Compile Include="Guis\Textbox.cs" />
+    <Compile Include="Guis\TextFont.cs" />
     <Compile Include="Logics\AndGateData.cs" />
     <Compile Include="Logics\LogicData.cs" />
     <Compile Include="Logics\LogicBridgeData.cs" />
@@ -117,15 +120,16 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="Assets\EntityTextures.xcf" />
     <None Include="Assets\ItemTextures.xcf" />
     <None Include="Assets\TerrainTextures.xcf" />
-    <None Include="Fonts\Chiller.fnt">
+    <None Include="Guis\Chiller.fnt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Shaders\EntityFragment.glsl">
+    <None Include="Shaders\Entity.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Shaders\EntityVertex.glsl">
+    <None Include="Shaders\Entity.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Properties\Settings.settings">
@@ -137,16 +141,16 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="Shaders\GuiFragment.glsl">
+    <None Include="Shaders\Gui.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Shaders\GuiVertex.glsl">
+    <None Include="Shaders\Gui.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Shaders\TerrainFragment.glsl">
+    <None Include="Shaders\Terrain.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Shaders\TerrainVertex.glsl">
+    <None Include="Shaders\Terrain.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -155,6 +159,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\BackgroundLandscape.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\EntityTextures.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Guis\Button.png">
@@ -169,7 +176,7 @@
     <Content Include="Assets\TitleScreenBackground.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Fonts\Chiller.png">
+    <Content Include="Guis\Chiller.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Guis\Label.png">

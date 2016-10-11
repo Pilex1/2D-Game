@@ -30,6 +30,10 @@ namespace Game.Util {
             this.bfx = bfx;
             this.bfy = bfy;
         }
+
+        public static implicit operator Vector2(BoundedVector2 v) {
+            return new Vector2(v.x, v.y);
+        }
     }
 
     [Serializable]
@@ -95,6 +99,9 @@ namespace Game.Util {
             }
         }
 
+        public static implicit operator float(BoundedFloat f) {
+            return f.val;
+        }
 
         public override string ToString() {
             return val.ToString() + " : [" + min + ", " + max + "]";

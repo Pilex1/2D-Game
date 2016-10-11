@@ -54,7 +54,9 @@ namespace Game.Interaction {
         }
 
         public static void Dispose() {
-            Bar?.Dispose();
+            //Bar?.Dispose();
+            if (Bar != null)
+                Bar.Dispose();
         }
 
     }

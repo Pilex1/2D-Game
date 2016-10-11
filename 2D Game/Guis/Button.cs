@@ -7,6 +7,7 @@ using OpenGL;
 using Game.Util;
 using Game.Fonts;
 using Game.Core;
+using Game.Guis;
 
 namespace Game.TitleScreen {
 

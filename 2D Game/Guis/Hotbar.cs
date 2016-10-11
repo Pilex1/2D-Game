@@ -26,7 +26,7 @@ namespace Game.Interaction {
             CurSelectedSlot = 0;
 
             Frame = new GuiModel(FrameVao(), TextureUtil.CreateTexture(new Vector3(0, 0, 0.1)), BeginMode.Lines, new Vector2(1,1));
-            ItemDisplay = new GuiModel(ItemDisplayVao(), new Texture(Asset.ItemTexture), BeginMode.Triangles, new Vector2(1,1));
+            ItemDisplay = new GuiModel(ItemDisplayVao(), Asset.ItemTexture, BeginMode.Triangles, new Vector2(1,1));
             SelectedDisplay = GuiModel.CreateWireRectangle(new Vector2(SizeX, SizeY), ColourUtil.ColourFromVec3(new Vector3(0, 0, 1)));
         }
 
@@ -82,7 +82,7 @@ namespace Game.Interaction {
         private static Vector2[] CalcTexturedItemsUV() {
             Vector2[] uvs = new Vector2[4 * Inventory.InvColumns];
             for (int i = 0; i < Inventory.InvColumns; i++) {
-                ItemId t = Inventory.Items[0, i].Item1;
+                Item t = Inventory.Items[0, i].Item1;
                 float x = ((float)((int)t % ItemTextureSize)) / ItemTextureSize;
                 float y = ((float)((int)t / ItemTextureSize)) / ItemTextureSize;
                 float s = 1f / ItemTextureSize;
@@ -110,14 +110,20 @@ namespace Game.Interaction {
             ItemDisplay.vao.UpdateUVs(uvs);
         }
 
-        public static ItemId CurrentlySelectedItem() {
+        public static Item CurrentlySelectedItem() {
             return Inventory.Items[0, CurSelectedSlot].Item1;
         }
 
         public static void Dispose() {
-            Frame?.Dispose();
-            ItemDisplay?.Dispose();
-            SelectedDisplay?.Dispose();
+        //    Frame?.Dispose();
+        //    ItemDisplay?.Dispose();
+        //    SelectedDisplay?.Dispose();
+            if (Frame != null)
+                Frame.Dispose();
+            if (ItemDisplay != null)
+                ItemDisplay.Dispose();
+            if (SelectedDisplay != null)
+                SelectedDisplay.Dispose();
         }
     }
 }

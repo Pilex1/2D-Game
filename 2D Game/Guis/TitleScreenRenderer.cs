@@ -255,16 +255,29 @@ namespace Game.TitleScreen {
             CurTexts.Clear();
             CurButtons.Clear();
 
-            btnPlay?.Dispose();
-            btnCredits?.Dispose();
-            btnOptions?.Dispose();
+            //btnPlay?.Dispose();
+            //btnCredits?.Dispose();
+            //btnOptions?.Dispose();
+            if (btnPlay!=null)
+                btnPlay.Dispose();
+            if (btnCredits!=null)
+                btnCredits.Dispose();
+            if (btnOptions!=null)
+                btnOptions.Dispose();
+
             if (btnWorldPickers != null)
                 foreach (var b in btnWorldPickers) {
                     b.Dispose();
                 }
-            btnBack?.Dispose();
-            txtTitle?.Dispose();
-            txtCreditsInfo?.Dispose();
+            //btnBack?.Dispose();
+            //txtTitle?.Dispose();
+            //txtCreditsInfo?.Dispose();
+            if (btnBack != null)
+                btnBack.Dispose();
+            if (txtTitle != null)
+                txtTitle.Dispose();
+            if (txtCreditsInfo != null)
+                txtCreditsInfo.Dispose();
 
             btnPlay = btnCredits = btnOptions = btnBack = null;
             txtTitle = txtCreditsInfo = null;

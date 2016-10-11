@@ -65,7 +65,7 @@ namespace Game.Terrains {
         }
 
         private static void Init() {
-            TerrainShader = new ShaderProgram(FileUtil.LoadShader("TerrainVertex"), FileUtil.LoadShader("TerrainFragment"));
+            TerrainShader = new ShaderProgram(Asset.TerrainVert, Asset.TerrainFrag);
             Console.WriteLine("Terrain Shader Log: ");
             Console.WriteLine(TerrainShader.ProgramLog);
 
@@ -116,7 +116,7 @@ namespace Game.Terrains {
             Lighting.Init();
             float[] lightings = Lighting.CalcMesh();
 
-            texture = new Texture(Asset.TileTexture);
+            texture = Asset.TerrainTexture;
 
             vao = new TerrainVAO(vertices, elements, uvs, lightings);
         }
@@ -305,8 +305,8 @@ namespace Game.Terrains {
                 LogicDict.Add(new Vector2i(x, y), logic);
             }
             UpdateMesh = true;
-            if (terrainGenerated)
-                Console.WriteLine(String.Format("{0} tile placed at {{{1}, {2}}}", tile.enumId.ToString(), x, y));
+            if (terrainGenerated) { }
+                //Debug.WriteLine(String.Format("{0} tile placed at {{{1}, {2}}}", tile.enumId.ToString(), x, y));
             if (!tile.tileattribs.transparent && y > Heights[x]) Heights[x] = y;
             Lighting.UpdateAround(x, y);
         }
@@ -319,8 +319,8 @@ namespace Game.Terrains {
             LogicDict.Remove(new Vector2i(x, y));
             Tiles[x, y] = TileID.Air;
             UpdateMesh = true;
-            if (terrainGenerated)
-                Console.WriteLine(String.Format("{0} tile removed at {{{1}, {2}}}", tile.enumId.ToString(), x, y));
+            if (terrainGenerated) { }
+                //Debug.WriteLine(String.Format("{0} tile removed at {{{1}, {2}}}", tile.enumId.ToString(), x, y));
             if (Heights[x] == y) {
                 for (int j = y - 1; j > 0; j--) {
                     if (!Tiles[x, j].tileattribs.transparent) {

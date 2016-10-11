@@ -27,19 +27,22 @@ namespace Game.Particles {
 
         public static new void Init() {
             StaffParticleGreen.Init();
+            StaffParticleBlue.Init();
+            StaffParticleRed.Init();
+            StaffParticlePurple.Init();
         }
 
         public Particle(EntityModel model, Vector2 pos) : base(model) {
             hitboxoffset = new Vector2((1 - sqrt2) / 2 * model.size.x, (1 - sqrt2) / 2 * model.size.y);
             base.Hitbox = new RectangularHitbox(pos - hitboxoffset, sqrt2 * model.size);
-
             base.data = new ParticleData();
             base.data.Position.val = pos;
+            base.data.UseGravity = true;
+            Entity.AddEntity(this);
         }
 
         public override void Update() {
-            base.data.Position.x += base.data.vel.x * GameTime.DeltaTime;
-            base.data.Position.y += base.data.vel.y * GameTime.DeltaTime;
+            base.UpdatePosition();
             base.Hitbox.Position = base.data.Position.val - hitboxoffset;
             ParticleData pdata = (ParticleData)data;
             pdata.Update();
@@ -47,7 +50,7 @@ namespace Game.Particles {
                 Entity.RemoveEntity(this);
             if (Terrain.IsColliding(base.Hitbox))
                 Entity.RemoveEntity(this);
-            base.data.colour.w=(pdata.life-pdata.curlife)/pdata.life;
+            base.data.colour.w = (pdata.life - pdata.curlife) / pdata.life;
         }
     }
 }

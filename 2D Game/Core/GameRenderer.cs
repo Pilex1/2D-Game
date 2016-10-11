@@ -44,8 +44,8 @@ namespace Game {
         public static void Render() {
             UpdateViewMatrix();
 
-            Terrain.Render();
             Entity.Render();
+            Terrain.Render();
         }
 
 

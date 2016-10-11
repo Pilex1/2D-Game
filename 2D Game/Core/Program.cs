@@ -21,12 +21,13 @@ namespace Game {
         public static Random Rand = new Random();
 
         public static int ScreenWidth, ScreenHeight;
+        //public static int Width = 1280, Height = 720;
         public static int Width = 1600, Height = 900;
         public static float AspectRatio = (float)Width / Height;
 
         public static bool FullScreen { get; private set; }
 
-        public static ProgramMode Mode { get; private set; } = ProgramMode.TitleScreen;
+        public static ProgramMode Mode { get; private set; }
 
         static void Main() {
 
@@ -61,7 +62,7 @@ namespace Game {
 
             //Console.SetWindowSize(Console.LargestWindowWidth / 4, Console.LargestWindowHeight / 4);
             //Console.SetWindowPosition(0, 0);
-
+             Mode= ProgramMode.TitleScreen;
 
             Input.Init();
             Gui.Init();
@@ -106,7 +107,7 @@ namespace Game {
             ErrorCode error = Gl.GetError();
             if (error != ErrorCode.NoError) {
                 Console.WriteLine("Opengl Error: " + error);
-                //Debug.Assert(false);
+                Debug.Assert(false);
             }
 
             GameTime.Update();
@@ -118,7 +119,6 @@ namespace Game {
             Gui.Render();
             Gui.Update();
             CooldownTimer.Update();
-
 
 
 

@@ -12,13 +12,13 @@ using Game.Particles;
 namespace Game.Core {
 
     class EntityVAO : IDisposable {
-        public uint ID { get; }
+        public uint ID { get; private set; }
 
-        public uint verticesID { get; }
-        public uint uvsID { get; }
-        public uint elementsID { get; }
+        public uint verticesID { get; private set; }
+        public uint uvsID { get; private set; }
+        public uint elementsID { get; private set; }
 
-        public int count { get; }
+        public int count { get; private set; }
 
         public EntityVAO(Vector2[] vertices, int[] elements, Vector2[] uvs) {
 
@@ -66,7 +66,7 @@ namespace Game.Core {
 
     class TerrainVAO : IDisposable {
 
-        public uint ID { get; }
+        public uint ID { get; private set; }
 
         public uint verticesID { get; private set; }
         public uint uvsID { get; private set; }
@@ -173,13 +173,13 @@ namespace Game.Core {
     }
 
     class GuiVAO : IDisposable {
-        public uint ID { get; }
+        public uint ID { get; private set; }
 
-        public uint verticesID { get; }
-        public uint uvsID { get; }
-        public uint elementsID { get; }
+        public uint verticesID { get; private set; }
+        public uint uvsID { get; private set; }
+        public uint elementsID { get; private set; }
 
-        public int count { get; }
+        public int count { get; private set; }
 
         public GuiVAO(Vector2[] vertices, int[] elements, Vector2[] uvs, BufferUsageHint verticeshint = BufferUsageHint.StaticDraw, BufferUsageHint uvhint = BufferUsageHint.StaticDraw) {
 
@@ -213,6 +213,40 @@ namespace Game.Core {
                 Gl.BufferData(BufferTarget.ElementArrayBuffer, sizeof(int) * elements.Length, elements, BufferUsageHint.StaticDraw);
                 //don't unbind the element buffer object!
             }
+
+            Gl.BindVertexArray(0);
+        }
+
+        public void UpdateAll(Vector2[] vertices, int[] elements, Vector2[] uvs) {
+            Gl.BindVertexArray(ID);
+
+            ShaderProgram shader = Gui.shader;
+            if (shader == null)
+                throw new ArgumentException("Terrain shader null");
+
+            Gl.DeleteBuffer(verticesID);
+            this.verticesID = Gl.GenBuffer();
+            Gl.BindBuffer(BufferTarget.ArrayBuffer, verticesID);
+            Gl.BufferData(BufferTarget.ArrayBuffer, 2 * sizeof(float) * vertices.Length, vertices, BufferUsageHint.StreamDraw);
+            uint vertexAttribLocation = (uint)Gl.GetAttribLocation(shader.ProgramID, "vpos");
+            Gl.VertexAttribPointer(vertexAttribLocation, 2, VertexAttribPointerType.Float, true, 2 * sizeof(float), IntPtr.Zero);
+            Gl.EnableVertexAttribArray(vertexAttribLocation);
+            Gl.BindBuffer(BufferTarget.ArrayBuffer, 0);
+
+            Gl.DeleteBuffer(uvsID);
+            this.uvsID = Gl.GenBuffer();
+            Gl.BindBuffer(BufferTarget.ArrayBuffer, uvsID);
+            Gl.BufferData(BufferTarget.ArrayBuffer, 2 * sizeof(float) * uvs.Length, uvs, BufferUsageHint.StreamDraw);
+            uint uvAttribLocation = (uint)Gl.GetAttribLocation(shader.ProgramID, "vuv");
+            Gl.VertexAttribPointer(uvAttribLocation, 2, VertexAttribPointerType.Float, true, 2 * sizeof(float), IntPtr.Zero);
+            Gl.EnableVertexAttribArray(uvAttribLocation);
+            Gl.BindBuffer(BufferTarget.ArrayBuffer, 0);
+
+            Gl.DeleteBuffer(elementsID);
+            this.elementsID = Gl.GenBuffer();
+            Gl.BindBuffer(BufferTarget.ElementArrayBuffer, elementsID);
+            Gl.BufferData(BufferTarget.ElementArrayBuffer, sizeof(int) * elements.Length, elements, BufferUsageHint.StreamDraw);
+            count = elements.Length;
 
             Gl.BindVertexArray(0);
         }

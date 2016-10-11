@@ -12,35 +12,27 @@ using Game.Core;
 namespace Game {
 
     [Serializable]
-    class PlayerData {
-        public BoolSwitch flying;
-        public float maxHealth;
-        public EntityData entitydata;
+    class PlayerData : EntityData {
+        public BoolSwitch flying=new BoolSwitch(false,10);
+        public float maxHealth=20;
+        public Tuple<Item, uint>[,] items = null;
+        public int slot = 0;
     }
 
     class Player : Entity {
         public const float StartX = 580, StartY = 70;
 
-        public BoolSwitch Flying { get; private set; } = new BoolSwitch(true, 20);
-        public float MaxHealth { get; private set; } = 20;
-
         public static Player Instance { get; private set; }
 
-        private Player(EntityModel model,Hitbox hitbox, Vector2 position) : base(model, hitbox, position) {
+        private Player(EntityModel model, Hitbox hitbox, Vector2 position) : base(model, hitbox, position) {
+            base.data = new PlayerData { };
+            base.data.Position.val = position;
             base.data.speed = 0.08f;
             base.data.jumppower = 0.5f;
         }
 
-        public static PlayerData ToPlayerData() {
-            return new PlayerData { flying = Instance.Flying, maxHealth = Instance.MaxHealth, entitydata = Instance.data };
-        }
-
-        public static void NewPlayer() {
-
-        }
-
         private static Player DefaultPlayer() {
-            Vector2 position = new Vector2(StartX, StartY);
+
             Texture texture = TextureUtil.CreateTexture(new Vector3[,] {
               {new Vector3(1, 0, 0), new Vector3(0, 1, 0)},
               {new Vector3(0, 0, 1), new Vector3(1, 0, 1)}
@@ -50,34 +42,39 @@ namespace Game {
             Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureMinFilter, TextureParameter.Linear);
             Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureWrapS, TextureParameter.ClampToEdge);
             Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureWrapT, TextureParameter.ClampToEdge);
-            Gl.BindTexture(TextureTarget.Texture2D, 0);
+            Gl.BindTexture(texture.TextureTarget, 0);
+
+            Vector2 position = new Vector2(StartX, StartY);
             EntityModel model = EntityModel.CreateRectangle(new Vector2(1, 2), texture);
             Hitbox hitbox = new RectangularHitbox(position, new Vector2(1, 2));
-            return new Player(model, hitbox, position);
+            Player player = new Player(model, hitbox, position);
+            return player;
         }
 
         public static new void Init() {
             Instance = DefaultPlayer();
 
             try {
-                PlayerData playerdata = Serialization.LoadPlayer();
-                Instance.Flying = playerdata.flying;
-                Instance.MaxHealth = playerdata.maxHealth;
-                Instance.data = playerdata.entitydata;
-                playerdata.flying.ResetTimer();
+                Instance.data = Serialization.LoadPlayer();
+                ((PlayerData)Instance.data).flying.ResetTimer();
             } catch (Exception) { }
 
             Instance.CorrectTerrainCollision();
 
             Healthbar.Init(20);
-            Inventory.Init();
+            Inventory.Init(((PlayerData)Instance.data).items);
+            Entity.AddEntity(Instance);
         }
 
         public static new void CleanUp() {
-            Serialization.SavePlayer(ToPlayerData());
+            PlayerData playerdata = (PlayerData)Instance.data;
+            playerdata.items = Inventory.Items;
+            playerdata.slot = Hotbar.CurSelectedSlot;
+            Serialization.SavePlayer((PlayerData)Instance.data);
         }
 
         public override void Update() {
+            PlayerData playerdata = (PlayerData)data;
             bool[] Keys = Input.Keys;
             bool[] Mouse = Input.Mouse;
             int dir = Input.MouseScroll;
@@ -108,16 +105,22 @@ namespace Game {
             if (Keys['w']) {
                 Instance.Jump();
             }
-            if (Flying) {
+            if (playerdata.flying) {
                 Instance.data.UseGravity = false;
                 if (Keys['s']) Instance.Fall();
             } else {
                 Instance.data.UseGravity = true;
             }
+            if (Instance.UpdatePosition()) {
+                Terrain.UpdateMesh = true;
+            }
+            if (playerdata.flying) {
+                Instance.data.vel.y = 0;
+            }
 
 
             if (Keys['f']) {
-                Flying.Toggle();
+                playerdata.flying.Toggle();
             }
 
 
@@ -130,10 +133,6 @@ namespace Game {
             if (Keys['7']) Hotbar.CurSelectedSlot = 6;
             if (Keys['8']) Hotbar.CurSelectedSlot = 7;
             if (Keys['9']) Hotbar.CurSelectedSlot = 8;
-
-            if (Instance.UpdatePosition()) {
-                Terrain.UpdateMesh = true;
-            }
 
             if (dir < 0) Hotbar.IncrSlot();
             if (dir > 0) Hotbar.DecrSlot();

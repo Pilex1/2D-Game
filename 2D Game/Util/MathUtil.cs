@@ -184,5 +184,9 @@ namespace Game.Util {
         public static float AngleTo(Vector2 src, Vector2 dest) {
             return (float)Math.Atan2(dest.y - src.y, dest.x - src.x);
         }
+
+        public static Vector2 Vec2FromAngle(float theta) {
+            return new Vector2(Math.Cos(theta), Math.Sin(theta));
+        }
     }
 }

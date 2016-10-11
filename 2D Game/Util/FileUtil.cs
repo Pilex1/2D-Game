@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 namespace Game.Util {
     static class FileUtil {
 
-        public static string LoadShader(string source) {
-            StreamReader reader = new StreamReader("Shaders/" + source + ".glsl");
+        public static string LoadFile(string source) {
+            StreamReader reader = new StreamReader(source);
             StringBuilder sb = new StringBuilder();
             string s;
             while ((s = reader.ReadLine()) != null) {

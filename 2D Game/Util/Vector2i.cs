@@ -22,6 +22,14 @@ namespace Game.Util {
             return x + ", " + y;
         }
 
+        public static bool operator==(Vector2i a, Vector2i b) {
+            return a.x == b.x && a.y == b.y;
+        }
+
+        public static bool operator !=(Vector2i a, Vector2i b) {
+            return !(a == b);
+        }
+
         public override bool Equals(object obj) {
             if (obj == null || GetType() != obj.GetType()) {
                 return false;
