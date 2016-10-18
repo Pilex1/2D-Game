@@ -150,7 +150,7 @@ namespace Game.Terrains {
                         }
 
                         mountainCounter++;
-                        if (mountainCounter == mountainDist / 2) {
+                        if (mountainCounter == mountainDist / 2 || y < SeaLevel) {
                             maxHeightVar *= -1;
                             minHeightVar *= -1;
                         }

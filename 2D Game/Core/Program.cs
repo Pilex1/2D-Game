@@ -10,6 +10,9 @@ using System.Linq;
 using Game.Core;
 using Game.Fonts;
 using Game.TitleScreen;
+using Game.Interaction;
+using Game.Assets;
+using Game.Terrains;
 
 namespace Game {
 
@@ -21,7 +24,7 @@ namespace Game {
         public static Random Rand = new Random();
 
         public static int ScreenWidth, ScreenHeight;
-        //public static int Width = 1280, Height = 720;
+        // public static int Width = 1280, Height = 720;
         public static int Width = 1600, Height = 900;
         public static float AspectRatio = (float)Width / Height;
 
@@ -29,7 +32,13 @@ namespace Game {
 
         public static ProgramMode Mode { get; private set; }
 
+        public static string worldname;
+
+        private static bool ResetAgain;
+
         static void Main() {
+
+            Serialization.GetWorlds();
 
             Init();
 
@@ -51,7 +60,7 @@ namespace Game {
             ScreenHeight = Glut.glutGet(Glut.GLUT_SCREEN_HEIGHT);
 
             Glut.glutInitWindowPosition((ScreenWidth - Width) / 2, (ScreenHeight - Height) / 2);
-            Glut.glutCreateWindow("");
+            Glut.glutCreateWindow("Plexico 2D Game - Copyright Alex Tan 2016");
             //Glut.glutGameModeString(Width+"x"+Height+":32@60");
 
             Glut.glutSetOption(Glut.GLUT_ACTION_ON_WINDOW_CLOSE, Glut.GLUT_ACTION_CONTINUE_EXECUTION);
@@ -62,8 +71,9 @@ namespace Game {
 
             //Console.SetWindowSize(Console.LargestWindowWidth / 4, Console.LargestWindowHeight / 4);
             //Console.SetWindowPosition(0, 0);
-             Mode= ProgramMode.TitleScreen;
+            Mode = ProgramMode.TitleScreen;
 
+            Asset.Init();
             Input.Init();
             Gui.Init();
             SwitchToTitleScreen();
@@ -87,46 +97,79 @@ namespace Game {
             FullScreen = false;
         }
 
+
+
+
+
+
+
+
         public static void SwitchToTitleScreen() {
             Mode = ProgramMode.TitleScreen;
             GameRenderer.CleanUp();
             Gui.SwitchToTitleScreen();
         }
 
-        public static void SwitchToGame() {
+        public static void SwitchToGame(WorldData data) {
             Mode = ProgramMode.Game;
-            GameRenderer.Init();
+
+
+            GameRenderer.Init(data);
+
             GameLogic.Init();
+
             Gui.SwitchToGame();
+
+            ResetAgain = true;
         }
 
+
+
+
+
+
         private static void MainGameLoop() {
-            //  Gl.ClearColor(0, 0, 0, 1);
+            Gl.ClearColor(1, 1, 1, 1);
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             ErrorCode error = Gl.GetError();
-            if (error != ErrorCode.NoError) {
-                Console.WriteLine("Opengl Error: " + error);
-                Debug.Assert(false);
+            Debug.Assert(error == ErrorCode.NoError);
+
+            if (ResetAgain) {
+                GameTime.Update();
+                ResetAgain = false;
             }
 
             GameTime.Update();
+
+
+            if (Mode == ProgramMode.Game)
+                GameGuiRenderer.RenderBackground();
+
+
             if (Mode == ProgramMode.Game) {
                 GameRenderer.Render();
                 GameLogic.Update();
             }
-            Input.Update();
+
             Gui.Render();
             Gui.Update();
+
             CooldownTimer.Update();
 
 
+            Input.Update();
 
             Glut.glutSwapBuffers();
         }
 
         private static void Dispose() {
             GameRenderer.CleanUp();
+            if (Mode == ProgramMode.Game) {
+                WorldData worlddata = new WorldData(Terrain.Tiles, (PlayerData)Player.Instance.data, Entity.GetAllEntities());
+                Serialization.SaveWorld(worldname, worlddata);
+            }
+
             Gui.Dispose();
         }
 

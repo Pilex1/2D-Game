@@ -1,4 +1,5 @@
-﻿using OpenGL;
+﻿using Game.Assets;
+using OpenGL;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -31,15 +32,19 @@ namespace Game.Guis {
         internal static HashSet<TextFont> Fonts = new HashSet<TextFont>();
 
         public static TextFont Chiller;
+        public static TextFont CenturyGothic;
+        public static TextFont DialogInput;
 
         internal static void Init() {
-            Chiller = new TextFont("Chiller");
+            Chiller = new TextFont(Asset.FontChillerFnt, Asset.FontChillerTex);
+            CenturyGothic = new TextFont(Asset.FontCenturyGothicFnt, Asset.FontCenturyGothicTex);
+            DialogInput = new TextFont(Asset.FontDialogInputFnt, Asset.FontDialogInputTex);
         }
 
-        private TextFont(string fontName) {
-            this.fontName = fontName;
-            StreamReader reader = new StreamReader("Guis/" + fontName + ".fnt");
-            fontTexture = new Texture("Guis/" + fontName + ".png");
+        private TextFont(string font, Texture texture) {
+            this.fontName = font;
+            StringReader reader = new StringReader(font);
+            fontTexture = texture;
             Regex regex = new Regex(@"^char id=(-?\d+)\D+x=(-?\d+)\D+y=(-?\d+)\D+width=(-?\d+)\D+height=(-?\d+)\D+xoffset=(-?\d+)\D+yoffset=(-?\d+)\D+xadvance=(-?\d+)");
             string s;
             s = reader.ReadLine();

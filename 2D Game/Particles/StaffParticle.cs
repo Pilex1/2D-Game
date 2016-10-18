@@ -55,9 +55,8 @@ namespace Game.Particles {
             this.center = pos;
             this.radius = radius;
             this.theta = theta;
-            ParticleData pdata = (ParticleData)base.data;
-            pdata.life = 20;
-            pdata.vel.val = Vector2.Zero;
+            base.data.life = new BoundedFloat(20, 0, 20);
+            base.data.vel.val = Vector2.Zero;
             base.data.AirResis = 1f;
         }
 
@@ -70,7 +69,6 @@ namespace Game.Particles {
 
     class StaffParticleRed : StaffParticle {
 
-        private static float theta = 0;
         private static CooldownTimer cooldown;
         private static EntityModel _model;
         private static EntityModel Model {
@@ -90,35 +88,25 @@ namespace Game.Particles {
         public static void Create(Vector2 pos, Vector2 vel) {
             if (!cooldown.Ready()) return;
             cooldown.Reset();
-            vel *= MathUtil.Vec2FromAngle(theta);
             new StaffParticleRed(pos, vel);
-            theta += 0.3f;
         }
 
         private StaffParticleRed(Vector2 pos, Vector2 vel) : base(Model, pos) {
-            ParticleData pdata = (ParticleData)base.data;
-            pdata.life = 100;
-            pdata.rotfactor = 0.001f;
-            pdata.vel.val = vel;
+            base.data.life = new BoundedFloat(100, 0, 100);
+            base.data.vel.val = vel;
             base.data.AirResis = 1f;
             base.data.UseGravity = false;
+            ParticleData pdata = (ParticleData)base.data;
+            pdata.rotfactor = 0.001f;
         }
 
         public override void Update() {
             base.Update();
             List<Entity> colliding = this.EntityCollisions();
             foreach (Entity e in colliding) {
-                Shooter shooter = e as Shooter;
-                if (shooter != null) {
-                    shooter.data.vel.y = 0.5f;
-                    shooter.UpdatePosition();
-                }
-
-                Projectile proj = e as Projectile;
-                if (proj != null) {
-                    proj.data.vel.val *= -1.2f;
-                    proj.UpdatePosition();
-                }
+                if (e is Player) continue;
+                Vector2 offset = base.data.vel.val / 150;
+                e.data.vel.val += offset;
             }
         }
     }
@@ -155,18 +143,18 @@ namespace Game.Particles {
                         Terrain.BreakTile(i, j);
                     }
                 }
-                ((ParticleData)data).curlife -= 2;
+                base.data.life.val -= 2;
                 //Entity.RemoveEntity(this);
             }
         }
 
         private StaffParticleBlue(Vector2 pos, Vector2 vel) : base(Model, pos) {
-            ParticleData pdata = (ParticleData)base.data;
-            pdata.life = 100;
-            pdata.rotfactor = 0.001f;
             base.data.vel.val = vel;
             base.data.AirResis = 1f;
             base.data.UseGravity = false;
+            base.data.life = new BoundedFloat(100, 0, 100);
+            ParticleData pdata = (ParticleData)base.data;
+            pdata.rotfactor = 0.001f;
         }
     }
 
@@ -198,26 +186,24 @@ namespace Game.Particles {
             base.Update();
             List<Entity> colliding = this.EntityCollisions();
             foreach (Entity e in colliding) {
-                Shooter shooter = e as Shooter;
-                if (shooter != null)
-                    Entity.RemoveEntity(shooter);
-
-                Projectile proj = e as Projectile;
-                if (proj != null)
-                    Entity.RemoveEntity(proj);
+                if (e is Player) continue;
+                if (e is Particle) continue;
+                e.Damage(1f);
+                e.data.vel.val *= -10;
+                e.UpdatePosition();
+                e.data.vel.val /= -10;
+                Entity.RemoveEntity(this);
             }
         }
 
         private StaffParticleGreen(Vector2 pos, Vector2 vel) : base(Model, pos) {
-            ParticleData pdata = (ParticleData)base.data;
-            pdata.life = 100;
-            pdata.rotfactor = 0.001f;
-
             base.data.vel.val = vel;
             base.data.AirResis = 0.999f;
             base.data.Grav = 0.01f;
             base.data.UseGravity = true;
+            base.data.life = new BoundedFloat(100, 0, 100);
+            ParticleData pdata = (ParticleData)base.data;
+            pdata.rotfactor = 0.001f;
         }
     }
-
 }

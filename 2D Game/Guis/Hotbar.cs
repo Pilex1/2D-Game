@@ -27,7 +27,7 @@ namespace Game.Interaction {
 
             Frame = new GuiModel(FrameVao(), TextureUtil.CreateTexture(new Vector3(0, 0, 0.1)), BeginMode.Lines, new Vector2(1,1));
             ItemDisplay = new GuiModel(ItemDisplayVao(), Asset.ItemTexture, BeginMode.Triangles, new Vector2(1,1));
-            SelectedDisplay = GuiModel.CreateWireRectangle(new Vector2(SizeX, SizeY), ColourUtil.ColourFromVec3(new Vector3(0, 0, 1)));
+            SelectedDisplay = GuiModel.CreateWireRectangleTopLeft(new Vector2(SizeX, SizeY), ColourUtil.ColourFromVec3(new Vector3(0, 0, 1)));
         }
 
         private static GuiVAO FrameVao() {

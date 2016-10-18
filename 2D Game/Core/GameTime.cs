@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 using Tao.FreeGlut;
 
 namespace Game.Core {
-   static class GameTime {
+    static class GameTime {
         private static Stopwatch Watch = new Stopwatch();
+        public static float TotalTime { get; private set; }
         public static float DeltaTime { get; private set; }
+        public static int FPS { get; private set; }
         private static float ActualDeltaTime;
         private static float PrevTime;
         private static float CountTime;
@@ -26,10 +28,11 @@ namespace Game.Core {
             Count++;
             int interval = 1;
             if (CountTime > 1f / interval) {
-                Glut.glutSetWindowTitle("Plexico 2D Game - Copyright Alex Tan 2016 FPS: " + (Count * interval).ToString());
+                FPS = Count * interval;
                 CountTime = 0;
                 Count = 0;
             }
+            TotalTime += DeltaTime;
         }
     }
 }

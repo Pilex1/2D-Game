@@ -1,4 +1,5 @@
-﻿using Game.Particles;
+﻿using Game.Interaction;
+using Game.Particles;
 using Game.Terrains;
 using OpenGL;
 
@@ -10,16 +11,33 @@ namespace Game {
         public static Matrix4 projectionMatrix { get; private set; }
         public static Matrix4 viewMatrix { get; private set; }
 
-        public static void Init() {
-            //GL Stuff
-            Gl.Enable(EnableCap.DepthTest);
-            Gl.Enable(EnableCap.CullFace);
-            Gl.CullFace(CullFaceMode.Back);
-            Gl.ClearColor(0.1f, 0.2f, 0.6f, 1);
+        public static void Init(WorldData worlddata) {
 
+            //terrain
+            if (worlddata == null) {
+                Terrain.CreateNew();
+            } else {
+                Terrain.Load(worlddata.terrain);
+            }
+            Terrain.Init();
 
+            //entities
             Entity.Init();
-            Player.Init();
+            if (worlddata == null) {
+                Player.CreateNew();
+            } else {
+                Player.LoadPlayer(worlddata.playerdata);
+               // Entity.Load(worlddata.entities);
+            }
+            Entity.AddEntity(Player.Instance);
+
+            if (worlddata==null)
+                Player.Instance.CorrectTerrainCollision();
+
+            PlayerData playerdata = (PlayerData)Player.Instance.data;
+            Inventory.Init(playerdata.items);
+
+
 
             projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(FOV, Program.AspectRatio, Near, Far);
 
@@ -42,6 +60,12 @@ namespace Game {
         }
 
         public static void Render() {
+            //Gl.Enable(EnableCap.DepthTest);
+            //Gl.DepthFunc(DepthFunction.Less);
+
+            Gl.Enable(EnableCap.CullFace);
+            Gl.CullFace(CullFaceMode.Back);
+
             UpdateViewMatrix();
 
             Entity.Render();

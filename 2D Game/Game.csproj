@@ -53,8 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Asset.cs" />
-    <Compile Include="Assets\EntityTexture.cs" />
-    <Compile Include="Assets\Item.cs" />
+    <Compile Include="Core\Item.cs" />
     <Compile Include="Core\GameTime.cs" />
     <Compile Include="Core\Input.cs" />
     <Compile Include="Core\Vao.cs" />
@@ -68,7 +67,6 @@
     <Compile Include="Fluids\FluidsManager.cs" />
     <Compile Include="Guis\Text.cs" />
     <Compile Include="Guis\GameGuiRenderer.cs" />
-    <Compile Include="Guis\Healthbar.cs" />
     <Compile Include="Guis\Hotbar.cs" />
     <Compile Include="Guis\Inventory.cs" />
     <Compile Include="Core\Player.cs" />
@@ -101,6 +99,7 @@
     <Compile Include="Terrains\Tile.cs" />
     <Compile Include="Guis\Gui.cs" />
     <Compile Include="Guis\TitleScreenRenderer.cs" />
+    <Compile Include="Terrains\WorldData.cs" />
     <Compile Include="Util\BoolSwitch.cs" />
     <Compile Include="Util\BoundedFloat.cs" />
     <Compile Include="Util\ColourUtil.cs" />
@@ -108,8 +107,8 @@
     <Compile Include="Util\FileUtil.cs" />
     <Compile Include="Util\MathUtil.cs" />
     <Compile Include="Util\CooldownTimer.cs" />
+    <Compile Include="Util\StringUtil.cs" />
     <Compile Include="Util\TextureUtil.cs" />
-    <Compile Include="Util\Vector2i.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -120,16 +119,22 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="Assets\EntityTextures.xcf" />
-    <None Include="Assets\ItemTextures.xcf" />
-    <None Include="Assets\TerrainTextures.xcf" />
-    <None Include="Guis\Chiller.fnt">
+    <None Include="Assets\Fonts\DialogInput.fnt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Shaders\Entity.frag">
+    <None Include="Assets\Textures\EntityTextures.xcf" />
+    <None Include="Assets\Textures\ItemTextures.xcf" />
+    <None Include="Assets\Textures\TerrainTextures.xcf" />
+    <None Include="Assets\Fonts\CenturyGothic.fnt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Shaders\Entity.vert">
+    <None Include="Assets\Fonts\Chiller.fnt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Assets\Shaders\Entity.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Assets\Shaders\Entity.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Properties\Settings.settings">
@@ -141,16 +146,16 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="Shaders\Gui.frag">
+    <None Include="Assets\Shaders\Gui.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Shaders\Gui.vert">
+    <None Include="Assets\Shaders\Gui.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Shaders\Terrain.frag">
+    <None Include="Assets\Shaders\Terrain.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Shaders\Terrain.vert">
+    <None Include="Assets\Shaders\Terrain.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -158,35 +163,49 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\BackgroundLandscape.png">
+    <Content Include="Assets\Fonts\DialogInput.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\EntityTextures.png">
+    <Content Include="Assets\Fonts\runnable-hiero.jar" />
+    <Content Include="Assets\Textures\DesertBackground.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Guis\Button.png">
+    <Content Include="Assets\Textures\GameBackground.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\ItemTextures.png">
+    <Content Include="Assets\Textures\EntityTextures.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\TerrainTextures.png">
+    <Content Include="Assets\Textures\Button.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\TitleScreenBackground.png">
+    <Content Include="Assets\Textures\ItemTextures.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Guis\Chiller.png">
+    <Content Include="Assets\Textures\NightBackground.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Guis\Label.png">
+    <Content Include="Assets\Textures\TerrainTextures.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Guis\Textbox.png">
+    <Content Include="Assets\Textures\TitleScreenBackground.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Fonts\CenturyGothic.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Fonts\Chiller.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Textures\Label.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Textures\Textbox.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Todo.txt" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -8,11 +8,17 @@ using System.Collections.Generic;
 using Game.Core;
 using Game.Util;
 using Game.Particles;
+using System.Drawing;
 
 namespace Game {
 
     [Serializable]
     class EntityData {
+
+        public const float maxRecentDmgTime = 10;
+        [NonSerialized]
+        public float recentDmg = 0;
+
         public float speed = 0;
         public float rot = 0;
         public bool CorrectCollisions = true;
@@ -21,16 +27,19 @@ namespace Game {
         public float AirResis = 0.9f;
         public float jumppower = 0;
         public bool InAir = false;
+        public BoundedFloat life = new BoundedFloat(0, 0, 0);
         public BoundedVector2 vel = new BoundedVector2(new BoundedFloat(0, -Entity.maxHorzSpeed, Entity.maxHorzSpeed), new BoundedFloat(0, -Entity.maxVertSpeed, Entity.maxVertSpeed));
         public BoundedVector2 Position = new BoundedVector2(new BoundedFloat(0, 0, Terrain.Tiles.GetLength(0) - 1), new BoundedFloat(0, 0, Terrain.Tiles.GetLength(1) - 1));
         public Vector4 colour = new Vector4(1, 1, 1, 1);
     }
 
+    [Serializable]
     abstract class Entity {
         #region Fields
         internal const float maxHorzSpeed = 0.8f;
         internal const float maxVertSpeed = 1f;
 
+        public static int LoadedEntities { get; private set; }
         private const int GridX = 4;
         private const int GridY = 4;
         private static HashSet<Entity>[,] EntityGrid;
@@ -38,6 +47,7 @@ namespace Game {
 
         public EntityModel model;
         public Hitbox Hitbox { get; protected set; }
+        public static Color Colornew { get; private set; }
 
         public EntityData data = new EntityData { };
         #endregion
@@ -58,6 +68,13 @@ namespace Game {
             data.Position.val = position;
             this.model = model;
             Hitbox = hitbox;
+        }
+
+        public static void Load(Entity[] Entities) {
+            Debug.Assert(Entities != null);
+            foreach (Entity e in Entities) {
+                AddEntity(e);
+            }
         }
 
         public static void Init() {
@@ -154,7 +171,7 @@ namespace Game {
         #endregion
 
         #region Collisions
-        protected void CorrectTerrainCollision() {
+        public void CorrectTerrainCollision() {
             Vector2i gridPrev = GridArray(this);
             data.Position.val = Terrain.CorrectTerrainCollision(this);
             Vector2i gridNow = GridArray(this);
@@ -181,6 +198,31 @@ namespace Game {
         }
         #endregion
 
+        #region Health
+        public void HealFull() {
+            data.life.Fill();
+        }
+
+        public void Damage(float dmg) {
+            data.life.val -= dmg;
+            data.recentDmg = EntityData.maxRecentDmgTime;
+        }
+
+        public void Heal(float dmg) {
+            data.life.val += dmg;
+        }
+
+        public void DecrMaxLife(float decr) {
+            data.life.max -= decr;
+            if (data.life.max < 0) data.life.max = 0;
+            data.life.val += 0;
+        }
+
+        public void IncrMaxLife(float incr) {
+            data.life.max += incr;
+        }
+
+        #endregion
 
         #region Matrices
         public virtual Matrix4 ModelMatrix() {
@@ -188,8 +230,7 @@ namespace Game {
         }
 
         public static void UpdateViewMatrix(Matrix4 mat) {
-            if (shader == null)
-                throw new NullReferenceException("Entity shader null");
+            Debug.Assert(shader != null);
             Gl.UseProgram(shader.ProgramID);
             shader["viewMatrix"].SetValue(mat);
             Gl.UseProgram(0);
@@ -197,8 +238,7 @@ namespace Game {
 
 
         public static void SetProjectionMatrix(Matrix4 mat) {
-            if (shader == null)
-                throw new NullReferenceException("Entity shader null");
+            Debug.Assert(shader != null);
             Gl.UseProgram(shader.ProgramID);
             shader["projectionMatrix"].SetValue(mat);
             Gl.UseProgram(0);
@@ -235,6 +275,20 @@ namespace Game {
         #endregion
 
         #region Update & Render
+
+        public static Entity[] GetAllEntities() {
+            List<Entity> list = new List<Entity>();
+            for (int i = 0; i < EntityGrid.GetLength(0); i++) {
+                for (int j = 0; j < EntityGrid.GetLength(1); j++) {
+                    foreach (Entity e in EntityGrid[i, j]) {
+                        if (e != Player.Instance)
+                            list.Add(e);
+                    }
+                }
+            }
+            return list.ToArray();
+        }
+
         public static void UpdateAll() {
             int minx, maxx, miny, maxy;
             Terrain.Range(out minx, out maxx, out miny, out maxy);
@@ -243,12 +297,21 @@ namespace Game {
             int mingy = (int)Math.Floor((float)miny / GridY);
             int maxgx = (int)Math.Ceiling((float)maxx / GridX);
             int maxgy = (int)Math.Ceiling((float)maxy / GridY);
+            MathUtil.Clamp(ref mingx, 0, EntityGrid.GetLength(0) - 1);
+
+            MathUtil.Clamp(ref mingy, 0, EntityGrid.GetLength(1) - 1);
+            MathUtil.Clamp(ref maxgx, 0, EntityGrid.GetLength(0) - 1);
+            MathUtil.Clamp(ref maxgy, 0, EntityGrid.GetLength(1) - 1);
 
             for (int i = mingx; i <= maxgx; i++) {
                 for (int j = mingy; j <= maxgy; j++) {
                     HashSet<Entity> set = EntityGrid[i, j];
                     foreach (Entity e in new List<Entity>(set)) {
+                        e.data.recentDmg -= GameTime.DeltaTime;
+                        MathUtil.ClampMin(ref e.data.recentDmg, 0);
                         e.Update();
+                        if (e.data.life <= 0)
+                            set.Remove(e);
                     }
                 }
             }
@@ -265,6 +328,8 @@ namespace Game {
             int maxgy = (int)Math.Ceiling((float)maxy / GridY);
             MathUtil.Clamp(ref mingx, 0, EntityGrid.GetLength(0) - 1);
             MathUtil.Clamp(ref mingy, 0, EntityGrid.GetLength(1) - 1);
+            MathUtil.Clamp(ref maxgx, 0, EntityGrid.GetLength(0) - 1);
+            MathUtil.Clamp(ref maxgy, 0, EntityGrid.GetLength(1) - 1);
 
             Dictionary<EntityModel, HashSet<Entity>> EntitiesMap = new Dictionary<EntityModel, HashSet<Entity>>();
             for (int i = mingx; i <= maxgx; i++) {
@@ -283,6 +348,7 @@ namespace Game {
                 }
             }
 
+            LoadedEntities = 0;
             foreach (EntityModel model in EntitiesMap.Keys) {
                 Gl.BindVertexArray(model.vao.ID);
                 if (model.blend) {
@@ -291,8 +357,19 @@ namespace Game {
                 }
                 Gl.BindTexture(model.texture.TextureTarget, model.texture.TextureID);
                 foreach (Entity e in EntitiesMap[model]) {
+                    LoadedEntities++;
                     shader["modelMatrix"].SetValue(e.ModelMatrix());
-                    shader["clr"].SetValue(e.data.colour);
+                    if (e.data.recentDmg > 0) {
+                        float offsetval = 1 - e.data.recentDmg / EntityData.maxRecentDmgTime;
+                        offsetval /= 2;
+                        Vector4 colouroffset = TextureUtil.ToVec4(Color.DarkGoldenrod) * new Vector4(offsetval, offsetval, offsetval, 1);
+                        colouroffset *= e.data.colour;
+                        shader["clr"].SetValue(colouroffset);
+                    } else {
+                        shader["clr"].SetValue(e.data.colour);
+                    }
+
+
                     Gl.DrawElements(model.drawmode, model.vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
                 }
                 Gl.BindTexture(model.texture.TextureTarget, 0);

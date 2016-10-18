@@ -41,30 +41,21 @@ namespace Game.Terrains {
             TerrainGen.Generate(MathUtil.RandInt(new Random(), 0, Int32.MaxValue >> 1));
             watch.Stop();
             Console.WriteLine("Terrain generation finished in " + watch.ElapsedMilliseconds + " ms");
-            Init();
         }
 
-        public static bool Load() {
-            try {
-                Tiles = Serialization.LoadTerrain();
-            } catch (Exception e) {
-                Console.WriteLine(e.Message);
-                return false;
-            }
-            Init();
-            return true;
+        public static void Load(TileID[,] Tiles) {
+            Terrain.Tiles = Tiles;
         }
 
 
         public static void UpdateViewMatrix(Matrix4 mat) {
-            if (TerrainShader == null)
-                throw new ArgumentNullException("Terrain shader null");
+            Debug.Assert(TerrainShader != null);
             Gl.UseProgram(TerrainShader.ProgramID);
             TerrainShader["viewMatrix"].SetValue(mat);
             Gl.UseProgram(0);
         }
 
-        private static void Init() {
+        public static void Init() {
             TerrainShader = new ShaderProgram(Asset.TerrainVert, Asset.TerrainFrag);
             Console.WriteLine("Terrain Shader Log: ");
             Console.WriteLine(TerrainShader.ProgramLog);
@@ -88,8 +79,7 @@ namespace Game.Terrains {
         }
 
         public static void SetProjectionMatrix(Matrix4 mat) {
-            if (TerrainShader == null)
-                throw new ArgumentNullException("Terrain shader null");
+            Debug.Assert(TerrainShader != null);
             Gl.UseProgram(TerrainShader.ProgramID);
             TerrainShader["projectionMatrix"].SetValue(mat);
             Gl.UseProgram(0);
@@ -306,9 +296,9 @@ namespace Game.Terrains {
             }
             UpdateMesh = true;
             if (terrainGenerated) { }
-                //Debug.WriteLine(String.Format("{0} tile placed at {{{1}, {2}}}", tile.enumId.ToString(), x, y));
+            //Debug.WriteLine(String.Format("{0} tile placed at {{{1}, {2}}}", tile.enumId.ToString(), x, y));
             if (!tile.tileattribs.transparent && y > Heights[x]) Heights[x] = y;
-            Lighting.UpdateAround(x, y);
+            Lighting.QueueUpdate(x, y);
         }
 
         public static TileID BreakTile(int x, int y) {
@@ -320,7 +310,7 @@ namespace Game.Terrains {
             Tiles[x, y] = TileID.Air;
             UpdateMesh = true;
             if (terrainGenerated) { }
-                //Debug.WriteLine(String.Format("{0} tile removed at {{{1}, {2}}}", tile.enumId.ToString(), x, y));
+            //Debug.WriteLine(String.Format("{0} tile removed at {{{1}, {2}}}", tile.enumId.ToString(), x, y));
             if (Heights[x] == y) {
                 for (int j = y - 1; j > 0; j--) {
                     if (!Tiles[x, j].tileattribs.transparent) {
@@ -329,7 +319,7 @@ namespace Game.Terrains {
                     }
                 }
             }
-            Lighting.UpdateAround(x, y);
+            Lighting.QueueUpdate(x, y);
             return tile;
         }
         public static TileID BreakTile(float x, float y) {
@@ -369,7 +359,7 @@ namespace Game.Terrains {
                         SetTileNoUpdate(x - 1, y, TileAt(x, y));
                         BreakTile(x, y);
                         UpdateMesh = true;
-                        Lighting.UpdateAround(x - 1, y);
+                        Lighting.QueueUpdate(x - 1, y);
                     }
                     break;
                 case Direction.Right:
@@ -382,7 +372,7 @@ namespace Game.Terrains {
                         SetTileNoUpdate(x + 1, y, TileAt(x, y));
                         BreakTile(x, y);
                         UpdateMesh = true;
-                        Lighting.UpdateAround(x + 1, y);
+                        Lighting.QueueUpdate(x + 1, y);
                     }
                     break;
                 case Direction.Up:
@@ -395,7 +385,7 @@ namespace Game.Terrains {
                         SetTileNoUpdate(x, y + 1, TileAt(x, y));
                         BreakTile(x, y);
                         UpdateMesh = true;
-                        Lighting.UpdateAround(x, y + 1);
+                        Lighting.QueueUpdate(x, y + 1);
                     }
                     break;
                 case Direction.Down:
@@ -408,11 +398,11 @@ namespace Game.Terrains {
                         SetTileNoUpdate(x, y - 1, TileAt(x, y));
                         BreakTile(x, y);
                         UpdateMesh = true;
-                        Lighting.UpdateAround(x, y - 1);
+                        Lighting.QueueUpdate(x, y - 1);
                     }
                     break;
             }
-            Lighting.UpdateAround(x, y);
+            Lighting.QueueUpdate(x, y);
 
         }
 
@@ -442,7 +432,7 @@ namespace Game.Terrains {
             TerrainShader.Dispose();
 
             //serialise terrain
-            Serialization.SaveTerrain(Tiles);
+            //   Serialization.SaveTerrain(Tiles);
         }
 
     }

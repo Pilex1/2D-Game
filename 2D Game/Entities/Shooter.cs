@@ -20,13 +20,7 @@ namespace Game {
                     Texture texture = TextureUtil.CreateTexture(new Vector3[,] {
                         {new Vector3(1, 0, 0), new Vector3(1, 0, 0)},
                         {new Vector3(0, 0, 1), new Vector3(0, 0, 1)}
-                    });
-                    Gl.BindTexture(texture.TextureTarget, texture.TextureID);
-                    Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureMagFilter, TextureParameter.Linear);
-                    Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureMinFilter, TextureParameter.Linear);
-                    Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureWrapS, TextureParameter.ClampToEdge);
-                    Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureWrapT, TextureParameter.ClampToEdge);
-                    Gl.BindTexture(texture.TextureTarget, 0);
+                    },TextureUtil.TextureInterp.Linear);
                     _model = EntityModel.CreateRectangle(new Vector2(1, 2), texture);
                 }
                 return _model;
@@ -37,6 +31,7 @@ namespace Game {
             base.data.speed = 0;
             base.data.jumppower = 0;
             base.data.UseGravity = true;
+            base.data.life = new BoundedFloat(10, 0, 10);
             ShootCooldown = shootCooldown;
             ProjectileLife = projectileLife;
             CorrectTerrainCollision();

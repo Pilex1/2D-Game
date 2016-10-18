@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using Game.TitleScreen;
 using Game.Terrains;
 using Game.Particles;
+using System.Diagnostics;
 
 namespace Game.Core {
 
@@ -23,7 +24,7 @@ namespace Game.Core {
         public EntityVAO(Vector2[] vertices, int[] elements, Vector2[] uvs) {
 
             ShaderProgram program = Entity.shader;
-            if (program == null) throw new ArgumentNullException("Entity shader is null");
+            Debug.Assert(program != null);
 
             count = elements.Length;
 
@@ -78,8 +79,7 @@ namespace Game.Core {
         public TerrainVAO(Vector2[] vertices, int[] elements, Vector2[] uvs, float[] lightings) {
 
             ShaderProgram shader = Terrain.TerrainShader;
-            if (shader == null)
-                throw new ArgumentException("Terrain shader null");
+            Debug.Assert(shader != null);
 
             count = elements.Length;
 
@@ -124,8 +124,7 @@ namespace Game.Core {
             Gl.BindVertexArray(ID);
 
             ShaderProgram shader = Terrain.TerrainShader;
-            if (shader == null)
-                throw new ArgumentException("Terrain shader null");
+            Debug.Assert(shader != null);
 
             Gl.DeleteBuffer(verticesID);
             this.verticesID = Gl.GenBuffer();
@@ -183,8 +182,8 @@ namespace Game.Core {
 
         public GuiVAO(Vector2[] vertices, int[] elements, Vector2[] uvs, BufferUsageHint verticeshint = BufferUsageHint.StaticDraw, BufferUsageHint uvhint = BufferUsageHint.StaticDraw) {
 
-            ShaderProgram program = Gui.shader;
-            if (program == null) throw new ArgumentNullException("Gui shader null");
+            ShaderProgram shader = Gui.shader;
+            Debug.Assert(shader != null);
 
             count = elements.Length;
 
@@ -195,7 +194,7 @@ namespace Game.Core {
                 this.verticesID = Gl.GenBuffer();
                 Gl.BindBuffer(BufferTarget.ArrayBuffer, verticesID);
                 Gl.BufferData(BufferTarget.ArrayBuffer, 2 * sizeof(float) * vertices.Length, vertices, verticeshint);
-                uint vertexAttribLocation = (uint)Gl.GetAttribLocation(program.ProgramID, "vpos");
+                uint vertexAttribLocation = (uint)Gl.GetAttribLocation(shader.ProgramID, "vpos");
                 Gl.VertexAttribPointer(vertexAttribLocation, 2, VertexAttribPointerType.Float, true, 2 * sizeof(float), IntPtr.Zero);
                 Gl.EnableVertexAttribArray(vertexAttribLocation);
                 Gl.BindBuffer(BufferTarget.ArrayBuffer, 0);
@@ -203,7 +202,7 @@ namespace Game.Core {
                 this.uvsID = Gl.GenBuffer();
                 Gl.BindBuffer(BufferTarget.ArrayBuffer, uvsID);
                 Gl.BufferData(BufferTarget.ArrayBuffer, 2 * sizeof(float) * uvs.Length, uvs, uvhint);
-                uint uvAttribLocation = (uint)Gl.GetAttribLocation(program.ProgramID, "vuv");
+                uint uvAttribLocation = (uint)Gl.GetAttribLocation(shader.ProgramID, "vuv");
                 Gl.VertexAttribPointer(uvAttribLocation, 2, VertexAttribPointerType.Float, true, 2 * sizeof(float), IntPtr.Zero);
                 Gl.EnableVertexAttribArray(uvAttribLocation);
                 Gl.BindBuffer(BufferTarget.ArrayBuffer, 0);
@@ -221,8 +220,7 @@ namespace Game.Core {
             Gl.BindVertexArray(ID);
 
             ShaderProgram shader = Gui.shader;
-            if (shader == null)
-                throw new ArgumentException("Terrain shader null");
+            Debug.Assert(shader != null);
 
             Gl.DeleteBuffer(verticesID);
             this.verticesID = Gl.GenBuffer();

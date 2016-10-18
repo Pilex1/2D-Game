@@ -29,12 +29,24 @@ namespace Game.Util {
             time = 0;
         }
 
+        public void SetTime(float time) {
+            this.time = time;
+        }
+
         public static void AddTimer(CooldownTimer t) {
             Timers.Add(t);
         }
 
         public static void Update() {
             foreach (var t in Timers) t.UpdateInstance();
+        }
+
+        public float GetTime() {
+            return time;
+        }
+
+        public float GetCooldown() {
+            return cooldown;
         }
 
 

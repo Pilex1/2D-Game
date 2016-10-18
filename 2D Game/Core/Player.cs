@@ -13,8 +13,7 @@ namespace Game {
 
     [Serializable]
     class PlayerData : EntityData {
-        public BoolSwitch flying=new BoolSwitch(false,10);
-        public float maxHealth=20;
+        public BoolSwitch flying = new BoolSwitch(false, 10);
         public Tuple<Item, uint>[,] items = null;
         public int slot = 0;
     }
@@ -29,6 +28,7 @@ namespace Game {
             base.data.Position.val = position;
             base.data.speed = 0.08f;
             base.data.jumppower = 0.5f;
+            base.data.life = new BoundedFloat(20, 0, 20);
         }
 
         private static Player DefaultPlayer() {
@@ -36,13 +36,7 @@ namespace Game {
             Texture texture = TextureUtil.CreateTexture(new Vector3[,] {
               {new Vector3(1, 0, 0), new Vector3(0, 1, 0)},
               {new Vector3(0, 0, 1), new Vector3(1, 0, 1)}
-            });
-            Gl.BindTexture(texture.TextureTarget, texture.TextureID);
-            Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureMagFilter, TextureParameter.Linear);
-            Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureMinFilter, TextureParameter.Linear);
-            Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureWrapS, TextureParameter.ClampToEdge);
-            Gl.TexParameteri(texture.TextureTarget, TextureParameterName.TextureWrapT, TextureParameter.ClampToEdge);
-            Gl.BindTexture(texture.TextureTarget, 0);
+            }, TextureUtil.TextureInterp.Linear);
 
             Vector2 position = new Vector2(StartX, StartY);
             EntityModel model = EntityModel.CreateRectangle(new Vector2(1, 2), texture);
@@ -51,29 +45,26 @@ namespace Game {
             return player;
         }
 
-        public static new void Init() {
+        public static void CreateNew() {
             Instance = DefaultPlayer();
+        }
 
-            try {
-                Instance.data = Serialization.LoadPlayer();
-                ((PlayerData)Instance.data).flying.ResetTimer();
-            } catch (Exception) { }
-
-            Instance.CorrectTerrainCollision();
-
-            Healthbar.Init(20);
-            Inventory.Init(((PlayerData)Instance.data).items);
-            Entity.AddEntity(Instance);
+        public static void LoadPlayer(PlayerData data) {
+            Instance = DefaultPlayer();
+            Instance.data = data;
         }
 
         public static new void CleanUp() {
             PlayerData playerdata = (PlayerData)Instance.data;
             playerdata.items = Inventory.Items;
             playerdata.slot = Hotbar.CurSelectedSlot;
-            Serialization.SavePlayer((PlayerData)Instance.data);
+            //Serialization.SavePlayer((PlayerData)Instance.data);
         }
 
         public override void Update() {
+            if (Instance.data.life <= 0) {
+                Instance.data.life.Fill();
+            }
             PlayerData playerdata = (PlayerData)data;
             bool[] Keys = Input.Keys;
             bool[] Mouse = Input.Mouse;
@@ -140,14 +131,6 @@ namespace Game {
 
             Hitbox.Position = data.Position.val;
 
-        }
-
-        public static void Damage(float hp) {
-            Healthbar.Damage(hp);
-        }
-
-        public static void Heal(float hp) {
-            Healthbar.Heal(hp);
         }
 
         public static Vector2 ToPlayer(Vector2 pos) { return new Vector2(Instance.data.Position.x - pos.x, Instance.data.Position.y - pos.y).Normalize(); }

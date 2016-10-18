@@ -5,6 +5,7 @@ using Game.Util;
 using OpenGL;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -13,25 +14,34 @@ using System.Threading.Tasks;
 
 namespace Game.Fonts {
 
+    enum TextAlignment {
+        CenterCenter, TopLeft
+    }
 
-  
 
     class Text {
         internal GuiModel model;
 
+        internal Vector3 colour;
         internal TextFont font { get; private set; }
+        private Vector2 relpos;
         internal Vector2 pos;
         internal float maxwidth;
         private StringBuilder sb_text;
+        private TextAlignment alignment;
         internal float size;
+        private int maxlines;
 
-        public Text(string text, TextFont font, float size, Vector2 pos, float maxwidth) {
+        public Text(string text, TextFont font, float size, Vector2 pos, float maxwidth, int maxlines, TextAlignment alignment) {
             sb_text = new StringBuilder();
             sb_text.Append(text);
+            this.alignment = alignment;
             this.font = font;
             this.maxwidth = maxwidth * font.fontTexture.Size.Width / size;
-            this.pos = pos;
+            this.relpos = pos;
             this.size = size / font.fontTexture.Size.Width;
+            this.maxlines = maxlines;
+            colour = new Vector3(1, 1, 1);
             InitModel();
         }
 
@@ -49,7 +59,9 @@ namespace Game.Fonts {
             vertices = new Vector2[s.Length * 4];
             uvs = new Vector2[s.Length * 4];
 
-            string[] words = s.Split(' ');
+            string[] lines = s.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+
+
 
             int vptr = 0;
             int xptr = 0;
@@ -58,45 +70,70 @@ namespace Game.Fonts {
 
             float actualmaxwidth = 0;
 
-            for (int i = 0; i < words.Length; i++) {
-                string word = words[i];
-                int textwidth = TextWidth(word);
+            for (int k = 0; k < lines.Length; k++) {
+                if (k >= maxlines) break;
+                string[] words = lines[k].Split(' ');
+                for (int i = 0; i < words.Length; i++) {
+                    string word = words[i];
+                    int textwidth = TextWidth(word);
 
-                //if it will overflow
-                if (xptr + textwidth > maxwidth) {
-                    //new line
-                    if (xptr > actualmaxwidth) {
-                        actualmaxwidth = xptr;
+                    //if it will overflow
+                    if (xptr + textwidth > maxwidth) {
+                        //new line
+                        if (xptr > actualmaxwidth) {
+                            actualmaxwidth = xptr;
+                        }
+                        xptr = 0;
+                        line++;
                     }
-                    xptr = 0;
-                    line++;
+
+                    for (int j = 0; j < word.Length; j++) {
+
+                        char c = word[j];
+                        CharacterInfo info = font.charSet[c];
+
+                        //topleft, bottomleft, bottomright, topright
+                        vertices[vptr] = new Vector2(xptr + info.xoffset, info.yoffset - line * lineheight);
+                        vertices[vptr + 1] = new Vector2(xptr + info.xoffset, -info.yoffset - info.height - line * lineheight);
+                        vertices[vptr + 2] = new Vector2(xptr + info.xoffset + info.width, -info.yoffset - info.height - line * lineheight);
+                        vertices[vptr + 3] = new Vector2(xptr + info.xoffset + info.width, info.yoffset - line * lineheight);
+                        xptr += info.xadvance;
+
+                        uvs[vptr] = new Vector2(info.x, info.y);
+                        uvs[vptr + 1] = new Vector2(info.x, info.y + info.height);
+                        uvs[vptr + 2] = new Vector2(info.x + info.width, info.y + info.height);
+                        uvs[vptr + 3] = new Vector2(info.x + info.width, info.y);
+
+                        vptr += 4;
+                    }
+                    xptr += font.charSet[' '].xadvance;
                 }
 
-                for (int j = 0; j < word.Length; j++) {
-
-                    char c = word[j];
-                    CharacterInfo info = font.charSet[c];
-
-                    //topleft, bottomleft, bottomright, topright
-                    vertices[vptr] = new Vector2(xptr + info.xoffset, info.yoffset - line * lineheight);
-                    vertices[vptr + 1] = new Vector2(xptr + info.xoffset, -info.yoffset - info.height - line * lineheight);
-                    vertices[vptr + 2] = new Vector2(xptr + info.xoffset + info.width, -info.yoffset - info.height - line * lineheight);
-                    vertices[vptr + 3] = new Vector2(xptr + info.xoffset + info.width, info.yoffset - line * lineheight);
-                    xptr += info.xadvance;
-
-                    uvs[vptr] = new Vector2(info.x, info.y);
-                    uvs[vptr + 1] = new Vector2(info.x, info.y + info.height);
-                    uvs[vptr + 2] = new Vector2(info.x + info.width, info.y + info.height);
-                    uvs[vptr + 3] = new Vector2(info.x + info.width, info.y);
-
-                    vptr += 4;
+                //new line
+                if (xptr > actualmaxwidth) {
+                    actualmaxwidth = xptr;
                 }
-                xptr += font.charSet[' '].xadvance;
+                xptr = 0;
+                line++;
             }
+
+
+
+
             if (line == 0)
                 actualmaxwidth = xptr;
 
-            pos.x -= actualmaxwidth / 2 * size;
+            switch (alignment) {
+                case TextAlignment.CenterCenter:
+                    pos = new Vector2(relpos.x - actualmaxwidth / 2 * size, relpos.y);
+                    break;
+                case TextAlignment.TopLeft:
+                    pos = new Vector2(relpos.x, relpos.y - font.lineHeight * size);
+                    break;
+                default:
+                    break;
+            }
+
 
             for (int i = 0; i < uvs.Length; i++) {
                 uvs[i].x /= texwidth;
@@ -131,18 +168,24 @@ namespace Game.Fonts {
             UpdateText();
         }
 
+        public void InsertCharacter(int index, char c) {
+            sb_text.Insert(index, c);
+            UpdateText();
+        }
+
         public void AppendCharacter(char c) {
             sb_text.Append(c);
             UpdateText();
         }
 
-        public void RemoveCharacter() {
+        public void RemoveLastCharacter() {
+            if (sb_text.Length == 0) return;
             sb_text.Remove(sb_text.Length - 1, 1);
             UpdateText();
         }
 
         private int TextWidth(string s) {
-            if (s.Contains(' ')) throw new ArgumentException("Cannot contain spaces");
+            Debug.Assert(!s.Contains(' '));
             int xptr = 0;
             foreach (char c in s) {
                 CharacterInfo info = font.charSet[c];
@@ -151,9 +194,17 @@ namespace Game.Fonts {
             return xptr;
         }
 
+        public int Length() {
+            return sb_text.Length;
+        }
+
+        public override string ToString() {
+            return sb_text.ToString();
+        }
+
         internal void Dispose() {
-            model.Dispose();
-            model = null;
+            if (model != null)
+                model.Dispose();
         }
     }
 }

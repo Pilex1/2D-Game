@@ -12,11 +12,9 @@ using System.Threading.Tasks;
 namespace Game.Particles {
 
     class ParticleData : EntityData {
-        public float curlife = 0;
-        public float life = 0;
         public float rotfactor = 0;
         public void Update() {
-            curlife += GameTime.DeltaTime;
+            life.val -= GameTime.DeltaTime;
             base.rot += rotfactor * GameTime.DeltaTime;
         }
     }
@@ -46,11 +44,11 @@ namespace Game.Particles {
             base.Hitbox.Position = base.data.Position.val - hitboxoffset;
             ParticleData pdata = (ParticleData)data;
             pdata.Update();
-            if (pdata.curlife > pdata.life)
+            if (pdata.life < 0)
                 Entity.RemoveEntity(this);
             if (Terrain.IsColliding(base.Hitbox))
                 Entity.RemoveEntity(this);
-            base.data.colour.w = (pdata.life - pdata.curlife) / pdata.life;
+            base.data.colour.w = base.data.life.val / base.data.life.max;
         }
     }
 }

@@ -8,20 +8,25 @@ using Game.TitleScreen;
 using Game.Core;
 using Game.Fonts;
 using Game.Guis;
+using System.Drawing;
+using Game.Assets;
 
 namespace Game.Interaction {
     static class GameGuiRenderer {
 
+        private static GuiModel Background;
         private static Text DebugText;
-
+        private static GuiModel Healthbar;
         private static Button btnTitle;
 
         public static void Init() {
+            TextFont.Init();
             Hotbar.Init();
-            Healthbar.Init(((PlayerData)Player.Instance.data).maxHealth);
 
             btnTitle = new Button(new Vector2(0, -0.5), new Vector2(0.5, 0.1), "Save and Quit", TextFont.Chiller, delegate () { Program.SwitchToTitleScreen(); });
-            DebugText = new Text("Hello", TextFont.Chiller, 0.3f, new Vector2(-1, 1), 1f);
+            DebugText = new Text("", TextFont.CenturyGothic, 0.4f, new Vector2(-1, 1), 2f, Int32.MaxValue, TextAlignment.TopLeft);
+            Healthbar = GuiModel.CreateRectangle(new Vector2(0.5, 0.04), Color.DarkRed);
+            Background = GuiModel.CreateRectangle(new Vector2(1, 1), Asset.GameBackgroundTex);
         }
 
         public static void Update() {
@@ -30,7 +35,13 @@ namespace Game.Interaction {
         }
 
         public static void SetDebugText(string str) {
-          //  DebugText.SetText(str);
+            DebugText.SetText(str);
+        }
+
+        public static void RenderBackground() {
+            Gl.UseProgram(Gui.shader.ProgramID);
+            RenderInstance(Background, new Vector2(0, 0));
+            Gl.UseProgram(0);
         }
 
         public static void Render() {
@@ -39,25 +50,30 @@ namespace Game.Interaction {
             Gl.UseProgram(Gui.shader.ProgramID);
 
             //healthbar
-            RenderInstance(Healthbar.Bar, new Vector2(((2 - Healthbar.BarWidth) / 2) - 1, 0.01 + Hotbar.SizeY * 2 - 1));
+            Healthbar.size.x = Player.Instance.data.life.val / Player.Instance.data.life.max * 0.5f;
+            RenderInstance(Healthbar, new Vector2(0, -0.65));
 
             //inventory
             if (Inventory.toggle) {
+                RenderInstance(Inventory.Background, Inventory.Pos);
+                RenderInstance(Inventory.Frame, Inventory.Pos);
+                RenderInstance(Inventory.ItemDisplay, Inventory.Pos);
                 if (Inventory.Selected.HasValue) {
                     int cx = Inventory.Selected.Value.x, cy = Inventory.Selected.Value.y;
                     RenderInstance(Inventory.SelectedDisplay, Inventory.Pos + new Vector2(cx * Hotbar.SizeX, cy * Hotbar.SizeY * Program.AspectRatio));
                 }
-                RenderInstance(Inventory.Frame, Inventory.Pos);
-                RenderInstance(Inventory.ItemDisplay, Inventory.Pos);
-                RenderInstance(Inventory.Background, Inventory.Pos);
+
+                // RenderInstance(Inventory.textbg, Vector2.Zero);
+                //RenderText(Inventory.text);
             }
 
             //hotbar
-            RenderInstance(Hotbar.SelectedDisplay, new Vector2(((2 - Inventory.InvColumns * Hotbar.SizeX) / 2 + Hotbar.CurSelectedSlot * Hotbar.SizeX) - 1, -1));
-            RenderInstance(Hotbar.ItemDisplay, new Vector2(((2 - Inventory.InvColumns * Hotbar.SizeX) / 2) - 1, -1));
             RenderInstance(Hotbar.Frame, new Vector2(((2 - Inventory.InvColumns * Hotbar.SizeX) / 2) - 1, -1));
+            RenderInstance(Hotbar.ItemDisplay, new Vector2(((2 - Inventory.InvColumns * Hotbar.SizeX) / 2) - 1, -1));
+            RenderInstance(Hotbar.SelectedDisplay, new Vector2(((2 - Inventory.InvColumns * Hotbar.SizeX) / 2 + Hotbar.CurSelectedSlot * Hotbar.SizeX) - 1, -1));
 
             RenderText(DebugText);
+
 
             Gl.UseProgram(0);
 
@@ -72,7 +88,7 @@ namespace Game.Interaction {
             ShaderProgram shader = Gui.shader;
             shader["size"].SetValue(t.model.size);
             shader["position"].SetValue(t.pos);
-            shader["colour"].SetValue(new Vector3(1, 1, 1));
+            shader["colour"].SetValue(t.colour);
             Gl.BindVertexArray(t.model.vao.ID);
             Gl.BindTexture(t.font.fontTexture.TextureTarget, t.font.fontTexture.TextureID);
             Gl.DrawElements(BeginMode.Triangles, t.model.vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
@@ -95,7 +111,6 @@ namespace Game.Interaction {
         public static void Dispose() {
             Inventory.Dispose();
             Hotbar.Dispose();
-            Healthbar.Dispose();
         }
     }
 }

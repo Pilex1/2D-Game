@@ -8,10 +8,15 @@ namespace Game.Terrains {
 
     static class Lighting {
 
+        public static float SunStrength = 1f;
+
         internal const int LightRadius = 12;
 
         internal static float[,] Lightings;
         internal static Dictionary<Vector2i, int> ArtificialLight = new Dictionary<Vector2i, int>();
+
+        private const int MaxUpdatesPerFrame = 8;
+        private static HashSet<Vector2i> QueuedUpdates = new HashSet<Vector2i>();
 
         internal static void Init() {
             Lightings = new float[Terrain.Tiles.GetLength(0), Terrain.Tiles.GetLength(1)];
@@ -55,10 +60,10 @@ namespace Game.Terrains {
             }
         }
 
-        internal static void UpdateAround(int x, int y) {
+        private static void UpdateAround(int x, int y) {
             for (int i = -LightRadius; i <= LightRadius; i++) {
                 for (int j = 0; j < Terrain.Tiles.GetLength(1); j++)
-                    SetLighting(x + i, j,0);
+                    SetLighting(x + i, j, 0);
             }
             for (int i = -LightRadius * 2; i <= LightRadius * 2; i++) {
                 SunLighting(x + i);
@@ -76,7 +81,7 @@ namespace Game.Terrains {
                 for (int j = -radius; j <= radius; j++) {
                     if (i * i + j * j <= radiusSq) {
                         float distSq = i * i + j * j;
-                        SetLighting(x + i, y + j, radius * (radiusSq - distSq) / radiusSq);
+                        SetLighting(x + i, y + j, SunStrength * radius * (radiusSq - distSq) / radiusSq);
                     }
                 }
             }
@@ -97,7 +102,21 @@ namespace Game.Terrains {
             UpdateAround(x, y);
         }
 
+        internal static void QueueUpdate(int x, int y) {
+            QueuedUpdates.Add(new Vector2i(x, y));
+        }
+
         internal static float[] CalcMesh() {
+
+            if (QueuedUpdates.Count > MaxUpdatesPerFrame) {
+                RecalcAll();
+            } else {
+                foreach (Vector2i v in QueuedUpdates) {
+                    UpdateAround(v.x, v.y);
+                }
+            }
+            QueuedUpdates.Clear();
+
             float posX, posY;
             if (Player.Instance != null) {
                 posX = (int)Player.Instance.data.Position.x;

@@ -1,5 +1,6 @@
 ﻿using Game.Terrains;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization;
@@ -9,11 +10,14 @@ namespace Game.Core {
     static class Serialization {
 
         private static readonly string dir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Plexico\\2D Game\\";
+        private const string worlddir = "Worlds\\";
         private const string terrainFile = "terrain.plex";
+        private const string entityFile = "entity.plex";
         private const string playerFile = "player.plex";
 
         private const string br = "------------------------------------";
 
+        #region File IO
         private static object Load(string file) {
             Console.WriteLine("Deserialising " + file);
             try {
@@ -36,7 +40,6 @@ namespace Game.Core {
         private static void Save(string file, object data) {
             Console.WriteLine("Serialising " + data + " to " + file);
             try {
-                Directory.CreateDirectory(dir);
                 using (BufferedStream stream = new BufferedStream(new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.None))) {
                     IFormatter formatter = new BinaryFormatter();
                     Stopwatch watch = new Stopwatch();
@@ -51,41 +54,44 @@ namespace Game.Core {
                 throw e;
             }
         }
+        #endregion
 
-        #region Terrain
-
-        public static TileID[,] LoadTerrain() {
-            Console.WriteLine(br);
-            Console.WriteLine("Deserialising terrain...");
-            return (TileID[,])Load(dir + terrainFile);
+        public static string[] GetWorlds() {
+            string path = dir + worlddir;
+            if (!Directory.Exists(path)) {
+                Directory.CreateDirectory(path);
+                return new string[] { };
+            }
+            List<string> worlds = new List<string>();
+            foreach (string s in Directory.GetDirectories(path)) {
+                if (File.Exists(s + "\\" + terrainFile) && File.Exists(s + "\\" + playerFile))
+                    worlds.Add(s.Substring(Serialization.dir.Length + Serialization.worlddir.Length));
+            }
+            return worlds.ToArray();
         }
 
-        //returns true if succesfully saved terrain, false otherwise
-        public static void SaveTerrain(TileID[,] data) {
-            Console.WriteLine(br);
-            Console.WriteLine("Serialising terrain...");
-            Save(dir + terrainFile, data);
-
-        }
-        #endregion Terrain
-
-        #region Player
-
-        public static PlayerData LoadPlayer() {
-            Console.WriteLine(br);
-            Console.WriteLine("Deserialising player data...");
-            return (PlayerData)Load(dir + playerFile);
+        public static WorldData LoadWorld(string str) {
+            TileID[,] tiles = (TileID[,])Load(dir + worlddir + str + "\\" + terrainFile);
+            PlayerData playerdata = (PlayerData)Load(dir + worlddir + str + "\\" + playerFile);
+            Entity[] entities = (Entity[])Load(dir + worlddir + str + "\\" + entityFile);
+            return new WorldData(tiles, playerdata, entities);
         }
 
-        public static void SavePlayer(PlayerData player) {
-            Console.WriteLine(br);
-            Console.WriteLine("Serialising player data...");
-            Save(dir + playerFile, player);
+
+        public static void SaveWorld(string file, WorldData world) {
+            Directory.CreateDirectory(dir + worlddir + file);
+            Save(dir + worlddir + file + "\\" + terrainFile, world.terrain);
+            Save(dir + worlddir + file + "\\" + playerFile, world.playerdata);
+            Save(dir + worlddir + file + "\\" + entityFile, world.entities);
         }
 
-        #endregion Player
-
+        public static void DeleteWorld(string file) {
+            string path = dir + worlddir + file;
+            try {
+                Directory.Delete(path, true);
+            } catch (Exception e) {
+                Console.WriteLine(e.Message);
+            }
+        }
     }
-
-
 }

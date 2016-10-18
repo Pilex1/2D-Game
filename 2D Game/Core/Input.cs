@@ -11,6 +11,8 @@ namespace Game.Core {
     static class Input {
 
         public static bool[] Keys { get; private set; }
+        public static bool[] KeysTyped { get; private set; }
+        private static CooldownTimer[] KeysTypedCooldown;
         public static bool[] Mouse { get; private set; }
         public static int MouseX { get; private set; }
         public static int MouseY { get; private set; }
@@ -21,7 +23,12 @@ namespace Game.Core {
 
         public static void Init() {
             Keys = new bool[255];
+            KeysTyped = new bool[255];
             Mouse = new bool[3];
+            KeysTypedCooldown = new CooldownTimer[255];
+            for (int i = 0; i < KeysTypedCooldown.Length; i++) {
+                KeysTypedCooldown[i] = new CooldownTimer(3);
+            }
 
             Glut.glutKeyboardFunc(OnKeyboardDown);
             Glut.glutKeyboardUpFunc(OnKeyboardUp);
@@ -33,6 +40,10 @@ namespace Game.Core {
 
         public static void Update() {
             MouseScroll = 0;
+            for (int i = 0; i < KeysTyped.Length; i++) {
+                if (KeysTypedCooldown[i].Ready())
+                    KeysTyped[i] = false;
+            }
         }
 
         public static Vector2 RayCast() {
@@ -87,7 +98,8 @@ namespace Game.Core {
         }
         private static void OnKeyboardDown(byte key, int x, int y) {
             Keys[key] = true;
-            // if (key == 27) Glut.glutLeaveMainLoop();
+            KeysTyped[key] = true;
+            KeysTypedCooldown[key].Reset();
         }
         private static void OnKeyboardUp(byte key, int x, int y) {
             Keys[key] = false;
