@@ -24,7 +24,7 @@ namespace Game.Terrains {
 
         public static Dictionary<Vector2i, LogicData> LogicDict = new Dictionary<Vector2i, LogicData>();
 
-        internal static TileID[,] Tiles;
+        internal static Tile[,] Tiles;
 
         internal static int[] Heights;
 
@@ -43,8 +43,16 @@ namespace Game.Terrains {
             Console.WriteLine("Terrain generation finished in " + watch.ElapsedMilliseconds + " ms");
         }
 
-        public static void Load(TileID[,] Tiles) {
+        public static void Load(Tile[,] Tiles) {
             Terrain.Tiles = Tiles;
+            for (int i = 0; i < Terrain.Tiles.GetLength(0); i++) {
+                for (int j = 0; j < Terrain.Tiles.GetLength(1); j++) {
+                    LogicData logic = Terrain.Tiles[i, j].tileattribs as LogicData;
+                    if (logic != null) {
+                        LogicDict.Add(new Vector2i(i, j), logic);
+                    }
+                }
+            }
         }
 
 
@@ -184,8 +192,8 @@ namespace Game.Terrains {
         #endregion Mesh
 
         #region Collision
-        public static bool WillCollide(Entity entity, Vector2 offset, out TileID collidedTile) { return WillCollide(entity.Hitbox, offset, out collidedTile); }
-        public static bool WillCollide(Hitbox hitbox, Vector2 offset, out TileID collidedTile) {
+        public static bool WillCollide(Entity entity, Vector2 offset, out Tile collidedTile) { return WillCollide(entity.Hitbox, offset, out collidedTile); }
+        public static bool WillCollide(Hitbox hitbox, Vector2 offset, out Tile collidedTile) {
             if (offset.x > 1) offset.x = 1;
             if (offset.x < -1) offset.x = -1;
             if (offset.y > 1) offset.y = 1;
@@ -205,25 +213,25 @@ namespace Game.Terrains {
                     }
                 }
             }
-            collidedTile = TileID.Air;
+            collidedTile = Tile.Air;
             return false;
         }
 
         public static bool IsColliding(Entity entity) {
-            TileID col;
+            Tile col;
             return IsColliding(entity, out col);
         }
 
         public static bool IsColliding(Hitbox h) {
-            TileID col;
+            Tile col;
             return IsColliding(h, out col);
         }
 
-        public static bool IsColliding(Hitbox h, out TileID col) {
+        public static bool IsColliding(Hitbox h, out Tile col) {
             return WillCollide(h, Vector2.Zero, out col);
         }
 
-        public static bool IsColliding(Entity entity, out TileID col) {
+        public static bool IsColliding(Entity entity, out Tile col) {
             return IsColliding(entity.Hitbox, out col);
         }
 
@@ -264,9 +272,9 @@ namespace Game.Terrains {
         }
         #endregion Collision
 
-        public static TileID TileAt(Vector2i v) { return TileAt(v.x, v.y); }
-        public static TileID TileAt(int x, int y) { return x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1) ? TileID.Invalid : Tiles[x, y]; }
-        public static TileID TileAt(float x, float y) { return TileAt((int)x, (int)y); }
+        public static Tile TileAt(Vector2i v) { return TileAt(v.x, v.y); }
+        public static Tile TileAt(int x, int y) { return x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1) ? Tile.Invalid : Tiles[x, y]; }
+        public static Tile TileAt(float x, float y) { return TileAt((int)x, (int)y); }
 
         public static void Explode(float x, float y, float radius, float error) {
             for (float i = -radius + MathUtil.RandFloat(Rand, -error, error); i <= radius + MathUtil.RandFloat(Rand, -error, error); i++) {
@@ -280,9 +288,9 @@ namespace Game.Terrains {
             Lighting.RecalcAll();
         }
 
-        public static void SetTile(int x, int y, TileID tile) { SetTile(x, y, tile, true); }
-        private static void SetTileNoUpdate(int x, int y, TileID tile) { SetTile(x, y, tile, false); }
-        private static void SetTile(int x, int y, TileID tile, bool update) {
+        public static void SetTile(int x, int y, Tile tile) { SetTile(x, y, tile, true); }
+        private static void SetTileNoUpdate(int x, int y, Tile tile) { SetTile(x, y, tile, false); }
+        private static void SetTile(int x, int y, Tile tile, bool update) {
             if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return;
             if (Tiles[x, y].enumId != TileEnum.Air) return;
             int xmin = (int)Math.Floor(Player.Instance.data.Position.x), xmax = (int)Math.Ceiling(Player.Instance.data.Position.x + Player.Instance.Hitbox.Size.x - 1);
@@ -301,13 +309,13 @@ namespace Game.Terrains {
             Lighting.QueueUpdate(x, y);
         }
 
-        public static TileID BreakTile(int x, int y) {
-            if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return TileID.Invalid;
-            TileID tile = TileAt(x, y);
-            if (tile.enumId == TileEnum.Air) return TileID.Air;
-            if (tile.enumId == TileEnum.Bedrock) return TileID.Invalid;
+        public static Tile BreakTile(int x, int y) {
+            if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return Tile.Invalid;
+            Tile tile = TileAt(x, y);
+            if (tile.enumId == TileEnum.Air) return Tile.Air;
+            if (tile.enumId == TileEnum.Bedrock) return Tile.Invalid;
             LogicDict.Remove(new Vector2i(x, y));
-            Tiles[x, y] = TileID.Air;
+            Tiles[x, y] = Tile.Air;
             UpdateMesh = true;
             if (terrainGenerated) { }
             //Debug.WriteLine(String.Format("{0} tile removed at {{{1}, {2}}}", tile.enumId.ToString(), x, y));
@@ -322,16 +330,16 @@ namespace Game.Terrains {
             Lighting.QueueUpdate(x, y);
             return tile;
         }
-        public static TileID BreakTile(float x, float y) {
+        public static Tile BreakTile(float x, float y) {
             return BreakTile((int)x, (int)y);
         }
-        private static TileID BreakTileNoLightingUpdate(int x, int y) {
-            if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return TileID.Invalid;
-            TileID tile = TileAt(x, y);
-            if (tile.enumId == TileEnum.Air) return TileID.Air;
-            if (tile.enumId == TileEnum.Bedrock) return TileID.Invalid;
+        private static Tile BreakTileNoLightingUpdate(int x, int y) {
+            if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return Tile.Invalid;
+            Tile tile = TileAt(x, y);
+            if (tile.enumId == TileEnum.Air) return Tile.Air;
+            if (tile.enumId == TileEnum.Bedrock) return Tile.Invalid;
             LogicDict.Remove(new Vector2i(x, y));
-            Tiles[x, y] = TileID.Air;
+            Tiles[x, y] = Tile.Air;
             UpdateMesh = true;
             // if (terrainGenerated)
             // Console.WriteLine(String.Format("{0} tile removed at {{{1}, {2}}}", tile.enumId.ToString(), x, y));

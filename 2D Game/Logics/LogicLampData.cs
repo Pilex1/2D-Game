@@ -4,6 +4,7 @@ using Game.Assets;
 using Game.Terrains;
 using System.Diagnostics;
 using Game.Util;
+using System.Text;
 
 namespace Game.Logics {
 
@@ -14,22 +15,37 @@ namespace Game.Logics {
 
         public LogicLampData() {
             powerinL.max = powerinR.max = powerinU.max = powerinD.max = 16;
-            power.max = 16;
-            cost.max = 2;
+            cost = 2;
             state = false;
         }
 
         internal override void Update(int x, int y) {
 
-            BoundedFloat.MoveVals(ref powerinL, ref power, powerinL.val);
-            BoundedFloat.MoveVals(ref powerinR, ref power, powerinR.val);
-            BoundedFloat.MoveVals(ref powerinU, ref power, powerinU.val);
-            BoundedFloat.MoveVals(ref powerinD, ref power, powerinD.val);
+            BoundedFloat buffer = new BoundedFloat(0, 0, cost);
 
-            BoundedFloat.MoveVals(ref power, ref cost, cost.max);
-            cost.Empty();
+            powerInLCache = powerinL.val;
+            powerInRCache = powerinR.val;
+            powerInUCache = powerinU.val;
+            powerInDCache = powerinD.val;
 
-            state = power.val > 0;
+            BoundedFloat.MoveVals(ref powerinL, ref buffer, powerinL.val);
+            BoundedFloat.MoveVals(ref powerinR, ref buffer, powerinR.val);
+            BoundedFloat.MoveVals(ref powerinU, ref buffer, powerinU.val);
+            BoundedFloat.MoveVals(ref powerinD, ref buffer, powerinD.val);
+
+            base.EmptyInputs();
+
+            state = buffer.IsFull();
+        }
+
+        public override string ToString() {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(String.Format("Required: {0}", cost));
+            sb.AppendLine(String.Format("Left: In {0}", powerInLCache));
+            sb.AppendLine(String.Format("Right: In {0}", powerInRCache));
+            sb.AppendLine(String.Format("Up: In {0}", powerInUCache));
+            sb.AppendLine(String.Format("Down: In {0}", powerInDCache));
+            return sb.ToString();
         }
     }
 }

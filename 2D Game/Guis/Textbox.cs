@@ -39,8 +39,8 @@ namespace Game.Guis {
                 return;
             cooldown.Reset();
 
-            float x = (2.0f * Input.MouseX) / Program.Width - 1.0f;
-            float y = 1.0f - (2.0f * Input.MouseY + 24) / Program.Height; //for some reason this offset corrects the mouse position
+            float x = Input.NDCMouseX;
+            float y = Input.NDCMouseY;
             if (Input.Mouse[Input.MouseLeft]) {
                 if (x >= pos.x - model.size.x && x <= pos.x + model.size.x && y >= pos.y - model.size.y * Program.AspectRatio && y <= pos.y + model.size.y * Program.AspectRatio) {
                     active = true;

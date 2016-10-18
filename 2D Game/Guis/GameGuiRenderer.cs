@@ -24,7 +24,7 @@ namespace Game.Interaction {
             Hotbar.Init();
 
             btnTitle = new Button(new Vector2(0, -0.5), new Vector2(0.5, 0.1), "Save and Quit", TextFont.Chiller, delegate () { Program.SwitchToTitleScreen(); });
-            DebugText = new Text("", TextFont.CenturyGothic, 0.4f, new Vector2(-1, 1), 2f, Int32.MaxValue, TextAlignment.TopLeft);
+            DebugText = new Text("", TextFont.LucidaConsole, 0.5f, new Vector2(-0.99, 0.97), 2f, Int32.MaxValue, TextAlignment.TopLeft);
             Healthbar = GuiModel.CreateRectangle(new Vector2(0.5, 0.04), Color.DarkRed);
             Background = GuiModel.CreateRectangle(new Vector2(1, 1), Asset.GameBackgroundTex);
         }

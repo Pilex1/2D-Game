@@ -16,7 +16,8 @@ using System.Text;
 namespace Game {
     static class GameLogic {
 
-       
+        public static string AdditionalDebugText = "";
+
         public static void Init() {
 
             //new Shooter(new Vector2(500, 0), 50, 150);
@@ -46,6 +47,8 @@ namespace Game {
             sb.AppendLine("Position: " + String.Format("{0:0.0000}, {1:0.0000}", playerpos.x, playerpos.y));
             sb.AppendLine("Velocity: " + String.Format("{0:0.0000}, {1:0.0000}", playervel.x, playervel.y));
             sb.AppendLine("Loaded Entities: " + Entity.LoadedEntities);
+            sb.AppendLine("--------------");
+            sb.AppendLine(AdditionalDebugText);
             return sb.ToString();
         }
     }

@@ -122,6 +122,9 @@
     <None Include="Assets\Fonts\DialogInput.fnt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Assets\Fonts\LucidaConsole.fnt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Assets\Textures\EntityTextures.xcf" />
     <None Include="Assets\Textures\ItemTextures.xcf" />
     <None Include="Assets\Textures\TerrainTextures.xcf" />
@@ -164,6 +167,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\Fonts\DialogInput.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Fonts\LucidaConsole.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\Fonts\runnable-hiero.jar" />

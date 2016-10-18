@@ -19,20 +19,32 @@ namespace Game.Logics {
 
         public StickyTilePusherData() {
             powerinL.max = powerinR.max = powerinU.max = powerinD.max = 64;
-            power.max = 32;
             cooldown = new CooldownTimer(40);
+            cost = 8;
         }
 
         internal override void Update(int x, int y) {
 
-            BoundedFloat.MoveVals(ref powerinL, ref power, powerinL.val);
-            BoundedFloat.MoveVals(ref powerinR, ref power, powerinR.val);
-            BoundedFloat.MoveVals(ref powerinU, ref power, powerinU.val);
-            BoundedFloat.MoveVals(ref powerinD, ref power, powerinD.val);
+            if (cooldown == null)
+                cooldown = new CooldownTimer(40);
 
-            state = false;
-            BoundedFloat dissipate = new BoundedFloat(0, 0, 1);
-            if (power.val == power.max) {
+            BoundedFloat buffer = new BoundedFloat(0, 0, cost);
+
+            powerInLCache = powerinL.val;
+            powerInRCache = powerinR.val;
+            powerInUCache = powerinU.val;
+            powerInDCache = powerinD.val;
+
+            if (powerinL + powerinR + powerinU + powerinD >= buffer.max) {
+                BoundedFloat.MoveVals(ref powerinL, ref buffer, powerinL);
+                BoundedFloat.MoveVals(ref powerinR, ref buffer, powerinR);
+                BoundedFloat.MoveVals(ref powerinU, ref buffer, powerinU);
+                BoundedFloat.MoveVals(ref powerinD, ref buffer, powerinD);
+            }
+
+            base.EmptyInputs();
+
+            if (buffer.IsFull()) {
                 state = true;
                 if (cooldown.Ready()) {
                     HashSet<Vector2i> done;
@@ -42,13 +54,22 @@ namespace Game.Logics {
                         foreach (var v in list) {
                             Terrain.MoveTile(v.x, v.y, Direction.Right);
                         }
-                        BoundedFloat cost = new BoundedFloat(0, 0, 32);
-                        BoundedFloat.MoveVals(ref power, ref cost, power.max);
                         cooldown.Reset();
                     }
                 }
+            } else {
+                state = false;
             }
-            BoundedFloat.MoveVals(ref power, ref dissipate, dissipate.max);
+        }
+
+        public override string ToString() {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(String.Format("Required: {0}", cost));
+            sb.AppendLine(String.Format("Left: In {0}", powerInLCache));
+            sb.AppendLine(String.Format("Right: In {0}", powerInRCache));
+            sb.AppendLine(String.Format("Up: In {0}", powerInUCache));
+            sb.AppendLine(String.Format("Down: In {0}", powerInDCache));
+            return sb.ToString();
         }
 
         //returns false if the amount of pushable tiles exceeds the max limit, else returns true
@@ -69,7 +90,7 @@ namespace Game.Logics {
                     processing.Remove(v);
 
                     Vector2i lv = new Vector2i(v.x - 1, v.y);
-                    TileID l = Terrain.TileAt(lv);
+                    Tile l = Terrain.TileAt(lv);
                     if (v.x - 1 > x && l.enumId != TileEnum.Air && !processed.Contains(lv)) {
                         processed.Add(lv);
                         Vector2i[] arr = Neighbours(lv);
@@ -82,7 +103,7 @@ namespace Game.Logics {
                     }
 
                     Vector2i rv = new Vector2i(v.x + 1, v.y);
-                    TileID r = Terrain.TileAt(rv);
+                    Tile r = Terrain.TileAt(rv);
                     if (v.x + 1 > x && r.enumId != TileEnum.Air && !processed.Contains(rv)) {
                         processed.Add(rv);
                         Vector2i[] arr = Neighbours(rv);
@@ -95,7 +116,7 @@ namespace Game.Logics {
                     }
 
                     Vector2i uv = new Vector2i(v.x, v.y + 1);
-                    TileID u = Terrain.TileAt(uv);
+                    Tile u = Terrain.TileAt(uv);
                     if (v.x > x && u.enumId != TileEnum.Air && !processed.Contains(uv)) {
                         processed.Add(uv);
                         Vector2i[] arr = Neighbours(uv);
@@ -108,7 +129,7 @@ namespace Game.Logics {
                     }
 
                     Vector2i dv = new Vector2i(v.x, v.y - 1);
-                    TileID d = Terrain.TileAt(dv);
+                    Tile d = Terrain.TileAt(dv);
                     if (v.x > x && d.enumId != TileEnum.Air && !processed.Contains(dv)) {
                         processed.Add(dv);
                         Vector2i[] arr = Neighbours(dv);

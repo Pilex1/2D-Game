@@ -71,7 +71,7 @@ namespace Game.Core {
         }
 
         public static WorldData LoadWorld(string str) {
-            TileID[,] tiles = (TileID[,])Load(dir + worlddir + str + "\\" + terrainFile);
+            Tile[,] tiles = (Tile[,])Load(dir + worlddir + str + "\\" + terrainFile);
             PlayerData playerdata = (PlayerData)Load(dir + worlddir + str + "\\" + playerFile);
             Entity[] entities = (Entity[])Load(dir + worlddir + str + "\\" + entityFile);
             return new WorldData(tiles, playerdata, entities);

@@ -14,8 +14,8 @@ namespace Game.Assets {
         public static Texture ItemTexture, FluidTexture, TerrainTexture, EntityTexture;
         public static Texture ButtonTex, LabelTex, TextboxTex;
         public static Texture TitleBackgroundTex, GameBackgroundTex, DesertBackgroundTex, NightBackgroundTex;
-        public static Texture FontCenturyGothicTex, FontChillerTex, FontDialogInputTex;
-        public static string FontCenturyGothicFnt, FontChillerFnt, FontDialogInputFnt;
+        public static Texture FontCenturyGothicTex, FontChillerTex, FontDialogInputTex, FontLucidaConsoleTex;
+        public static string FontCenturyGothicFnt, FontChillerFnt, FontDialogInputFnt, FontLucidaConsoleFnt;
         public static string EntityFrag, EntityVert, GuiFrag, GuiVert, TerrainFrag, TerrainVert;
 
         public static void Init() {
@@ -36,10 +36,12 @@ namespace Game.Assets {
             FontCenturyGothicTex = TextureUtil.CreateTexture("Assets/Fonts/CenturyGothic.png", TextureUtil.TextureInterp.Nearest);
             FontChillerTex = TextureUtil.CreateTexture("Assets/Fonts/Chiller.png", TextureUtil.TextureInterp.Nearest);
             FontDialogInputTex = TextureUtil.CreateTexture("Assets/Fonts/DialogInput.png", TextureUtil.TextureInterp.Nearest);
+            FontLucidaConsoleTex = TextureUtil.CreateTexture("Assets/Fonts/LucidaConsole.png", TextureUtil.TextureInterp.Nearest);
 
             FontCenturyGothicFnt = FileUtil.LoadFile("Assets/Fonts/CenturyGothic.fnt");
             FontChillerFnt = FileUtil.LoadFile("Assets/Fonts/Chiller.fnt");
             FontDialogInputFnt = FileUtil.LoadFile("Assets/Fonts/DialogInput.fnt");
+            FontLucidaConsoleFnt = FileUtil.LoadFile("Assets/Fonts/LucidaConsole.fnt");
 
             EntityFrag = FileUtil.LoadFile("Assets/Shaders/Entity.frag");
             EntityVert = FileUtil.LoadFile("Assets/Shaders/Entity.vert");

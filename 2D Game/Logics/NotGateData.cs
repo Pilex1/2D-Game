@@ -1,16 +1,16 @@
 ﻿using Game.Terrains;
 using Game.Util;
 using System;
+using System.Text;
 
 namespace Game.Logics {
+
     //inputs from the left
     //output from right iff left == 0
     [Serializable]
     class NotGateData : PowerTransmitterData {
 
-        private BoundedFloat bufferPower = BoundedFloat.Zero;
-
-        private BoundedFloat src = new BoundedFloat(0, 0, 128);
+        private BoundedFloat src = new BoundedFloat(0, 0, 256);
 
         public NotGateData() {
             poweroutL.max = poweroutU.max = poweroutD.max = 0;
@@ -18,22 +18,32 @@ namespace Game.Logics {
 
             powerinL.max = src.max;
             powerinU.max = powerinD.max = powerinR.max = 0;
-
-            bufferPower.max = src.max;
         }
 
         internal override void Update(int x, int y) {
-            BoundedFloat.MoveVals(ref src, ref poweroutR, src.val);
+
+            base.powerInLCache = powerinL;
+
+            base.EmptyOutputs();
+
+            if (powerinL > 0) {
+                poweroutR.val = 0;
+            } else {
+                poweroutR.val = src.max;
+            }
+
+            base.EmptyInputs();
+
+            base.powerOutRCache = poweroutR;
 
             base.UpdateR(x, y);
+        }
 
-            BoundedFloat.MoveVals(ref bufferPower, ref dissipate, dissipate.max);
-            dissipate.Empty();
-            BoundedFloat.MoveVals(ref powerinL, ref dissipate, dissipate.max);
-            dissipate.Empty();
-
-
-            src.val = (powerinL.val == 0 ? src.max : 0);
+        public override string ToString() {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(String.Format("Left: In {0}", powerInLCache));
+            sb.AppendLine(String.Format("Right: Out {0}", powerOutRCache));
+            return sb.ToString();
         }
     }
 }

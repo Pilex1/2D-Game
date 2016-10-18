@@ -71,18 +71,28 @@ namespace Game {
             int dir = Input.MouseScroll;
             int MouseX = Input.MouseX, MouseY = Input.MouseY;
             if (!Inventory.toggle) {
+
+                Vector2 v = Input.TerrainIntersect();
+
+                //if (Hotbar.CurrentlySelectedItem() == Item.Debugger) {
+                //    Tile tile = Terrain.TileAt(v.x, v.y);
+                //    GameLogic.AdditionalDebugText = tile.ToString() + Environment.NewLine + tile.tileattribs.ToString();
+                //}else {
+                //    GameLogic.AdditionalDebugText = "";
+                //}
+
+                Tile tile = Terrain.TileAt(v.x, v.y);
+                GameLogic.AdditionalDebugText = tile.ToString() + Environment.NewLine + tile.tileattribs.ToString();
+
                 if (Mouse[Input.MouseLeft]) {
-                    Vector2 v = Input.TerrainIntersect();
                     Terrain.BreakTile((int)v.x, (int)v.y);
                 }
                 if (Mouse[Input.MouseRight]) {
-                    Vector2 v = Input.TerrainIntersect();
                     int x = (int)v.x, y = (int)v.y;
                     ItemInteract.Interact(Hotbar.CurrentlySelectedItem(), x, y);
                     Terrain.TileAt(x, y).tileattribs.Interact(x, y);
                 }
                 if (Mouse[Input.MouseMiddle]) {
-                    Vector2 v = Input.TerrainIntersect();
                     int x = (int)v.x, y = (int)v.y;
 
                 }

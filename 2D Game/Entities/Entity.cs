@@ -125,7 +125,7 @@ namespace Game {
             data.vel.x *= (float)Math.Pow(data.AirResis, GameTime.DeltaTime);
 
             {
-                TileID col;
+                Tile col;
                 Vector2 offset = new Vector2(0, data.vel.y * GameTime.DeltaTime);
                 if (Terrain.WillCollide(this, offset, out col)) {
                     if (data.vel.y > 0)
@@ -140,7 +140,7 @@ namespace Game {
             }
 
             {
-                TileID col;
+                Tile col;
                 Vector2 offset = new Vector2(data.vel.x * GameTime.DeltaTime, 0);
                 if (Terrain.WillCollide(this, offset, out col)) {
                     if (data.vel.x > 0)

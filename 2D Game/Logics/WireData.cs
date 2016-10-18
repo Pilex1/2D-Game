@@ -3,42 +3,69 @@ using Game.Assets;
 using OpenGL;
 using Game.Terrains;
 using Game.Util;
+using System.Text;
 
 namespace Game.Logics {
 
     [Serializable]
     class WireData : PowerTransmitterData {
 
-        private BoundedFloat transLevel = BoundedFloat.Zero;
-
         public bool state { get; private set; }
 
         public WireData() {
             poweroutL.max = poweroutR.max = poweroutU.max = poweroutD.max = 64;
             powerinL.max = powerinR.max = powerinU.max = powerinD.max = 64;
-            transLevel.max = 128;
             transparent = true;
         }
 
         internal override void Update(int x, int y) {
 
-            BoundedFloat.MoveVals(ref powerinL, ref transLevel, powerinL.val);
-            BoundedFloat.MoveVals(ref powerinR, ref transLevel, powerinR.val);
-            BoundedFloat.MoveVals(ref powerinU, ref transLevel, powerinU.val);
-            BoundedFloat.MoveVals(ref powerinD, ref transLevel, powerinD.val);
+            //power input
+            BoundedFloat buffer = new BoundedFloat(0, 0, powerinL.max + powerinR.max + powerinU.max + powerinD.max);
 
-            //calculate power output for each side
-            BoundedFloat.MoveVals(ref transLevel, ref poweroutL, transLevel.val / 4);
-            BoundedFloat.MoveVals(ref transLevel, ref poweroutR, transLevel.val / 4);
-            BoundedFloat.MoveVals(ref transLevel, ref poweroutU, transLevel.val / 4);
-            BoundedFloat.MoveVals(ref transLevel, ref poweroutD, transLevel.val / 4);
+            powerInLCache = powerinL.val;
+            powerInRCache = powerinR.val;
+            powerInUCache = powerinU.val;
+            powerInDCache = powerinD.val;
+
+            BoundedFloat.MoveVals(ref powerinL, ref buffer, powerinL.val);
+            BoundedFloat.MoveVals(ref powerinR, ref buffer, powerinR.val);
+            BoundedFloat.MoveVals(ref powerinU, ref buffer, powerinU.val);
+            BoundedFloat.MoveVals(ref powerinD, ref buffer, powerinD.val);
+
+            base.EmptyInputs();
+
+            buffer -= dissipate;
+
+            //power output
+            base.EmptyOutputs();
+
+            int neighbouring = NeighbouringLogics(x, y);
+            if (neighbouring != 0) {
+                float transval = buffer.val / neighbouring;
+                BoundedFloat.MoveVals(ref buffer, ref poweroutL, transval);
+                BoundedFloat.MoveVals(ref buffer, ref poweroutR, transval);
+                BoundedFloat.MoveVals(ref buffer, ref poweroutU, transval);
+                BoundedFloat.MoveVals(ref buffer, ref poweroutD, transval);
+            }
+
+            powerOutLCache = poweroutL.val;
+            powerOutRCache = poweroutR.val;
+            powerOutUCache = poweroutU.val;
+            powerOutDCache = poweroutD.val;
+
+            state = poweroutL > 0 || poweroutR > 0 || poweroutU > 0 || poweroutD > 0;
 
             base.UpdateAll(x, y);
+        }
 
-            BoundedFloat.MoveVals(ref transLevel, ref dissipate, dissipate.max);
-            dissipate.Empty();
-
-            state = transLevel.val > 0;
+        public override string ToString() {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(String.Format("Left: In {0} / Out {1}", powerInLCache, powerOutLCache));
+            sb.AppendLine(String.Format("Right: In {0} / Out {1}", powerInRCache, powerOutRCache));
+            sb.AppendLine(String.Format("Up: In {0} / Out {1}", powerInUCache, powerOutUCache));
+            sb.AppendLine(String.Format("Down: In {0} / Out {1}", powerInDCache, powerOutDCache));
+            return sb.ToString();
         }
     }
 }

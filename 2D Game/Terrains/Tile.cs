@@ -41,10 +41,14 @@ namespace Game.Terrains {
             }
             return true;
         }
+
+        public override string ToString() {
+            return "";
+        }
     }
 
     [Serializable]
-    class TileID {
+    class Tile {
 
         private TileEnum _enumId;
         public TileEnum enumId {
@@ -57,63 +61,63 @@ namespace Game.Terrains {
         }
         public TileAttribs tileattribs;
 
-        private TileID(TileEnum enumId) : this(enumId, new TileAttribs()) { }
-        private TileID(TileEnum enumId, TileAttribs tiledata) {
+        private Tile(TileEnum enumId) : this(enumId, new TileAttribs()) { }
+        private Tile(TileEnum enumId, TileAttribs tiledata) {
             this.enumId = enumId;
             this.tileattribs = tiledata;
         }
 
         #region Special
-        public static readonly TileID Invalid = new TileID(TileEnum.Invalid, new TileAttribs { solid = false, movable = false });
-        public static readonly TileID Air = new TileID(TileEnum.Air, new TileAttribs { solid = false, movable = false, transparent = true });
-        public static readonly TileID Bedrock = new TileID(TileEnum.Bedrock);
+        public static readonly Tile Invalid = new Tile(TileEnum.Invalid, new TileAttribs { solid = false, movable = false });
+        public static readonly Tile Air = new Tile(TileEnum.Air, new TileAttribs { solid = false, movable = false, transparent = true });
+        public static readonly Tile Bedrock = new Tile(TileEnum.Bedrock);
         #endregion Special
 
 
         #region Normal
-        public static readonly TileID Grass = new TileID(TileEnum.Grass);
-        public static readonly TileID Sand = new TileID(TileEnum.Sand);
-        public static readonly TileID Dirt = new TileID(TileEnum.Dirt);
-        public static readonly TileID Wood = new TileID(TileEnum.Wood);
-        public static readonly TileID Leaf = new TileID(TileEnum.Leaf);
-        public static readonly TileID Stone = new TileID(TileEnum.Stone);
-        public static readonly TileID Sandstone = new TileID(TileEnum.Sandstone);
-        public static readonly TileID Sapling = new TileID(TileEnum.Sapling);
-        public static readonly TileID Brick = new TileID(TileEnum.Brick);
-        public static readonly TileID Metal1 = new TileID(TileEnum.Metal1);
-        public static readonly TileID SmoothSlab = new TileID(TileEnum.SmoothSlab);
-        public static readonly TileID WeatheredStone = new TileID(TileEnum.WeatheredStone);
-        public static readonly TileID Metal2 = new TileID(TileEnum.Metal2);
-        public static readonly TileID FutureMetal = new TileID(TileEnum.FutureMetal);
-        public static readonly TileID SmoothSlab2 = new TileID(TileEnum.SmoothSlab2);
-        public static readonly TileID Marble = new TileID(TileEnum.Marble);
-        public static readonly TileID PlexSpecial = new TileID(TileEnum.PlexSpecial);
-        public static readonly TileID PurpleStone = new TileID(TileEnum.PurpleStone);
-        public static readonly TileID Cactus = new TileID(TileEnum.Cactus);
-        public static readonly TileID Water = new TileID(TileEnum.Water);
-        public static readonly TileID Snow = new TileID(TileEnum.Snow);
-        public static readonly TileID SnowWood = new TileID(TileEnum.SnowWood);
-        public static readonly TileID SnowLeaf = new TileID(TileEnum.SnowLeaf);
-        public static readonly TileID GrassDeco = new TileID(TileEnum.GrassDeco, new TileAttribs { solid = false });
+        public static readonly Tile Grass = new Tile(TileEnum.Grass);
+        public static readonly Tile Sand = new Tile(TileEnum.Sand);
+        public static readonly Tile Dirt = new Tile(TileEnum.Dirt);
+        public static readonly Tile Wood = new Tile(TileEnum.Wood);
+        public static readonly Tile Leaf = new Tile(TileEnum.Leaf);
+        public static readonly Tile Stone = new Tile(TileEnum.Stone);
+        public static readonly Tile Sandstone = new Tile(TileEnum.Sandstone);
+        public static readonly Tile Sapling = new Tile(TileEnum.Sapling);
+        public static readonly Tile Brick = new Tile(TileEnum.Brick);
+        public static readonly Tile Metal1 = new Tile(TileEnum.Metal1);
+        public static readonly Tile SmoothSlab = new Tile(TileEnum.SmoothSlab);
+        public static readonly Tile WeatheredStone = new Tile(TileEnum.WeatheredStone);
+        public static readonly Tile Metal2 = new Tile(TileEnum.Metal2);
+        public static readonly Tile FutureMetal = new Tile(TileEnum.FutureMetal);
+        public static readonly Tile SmoothSlab2 = new Tile(TileEnum.SmoothSlab2);
+        public static readonly Tile Marble = new Tile(TileEnum.Marble);
+        public static readonly Tile PlexSpecial = new Tile(TileEnum.PlexSpecial);
+        public static readonly Tile PurpleStone = new Tile(TileEnum.PurpleStone);
+        public static readonly Tile Cactus = new Tile(TileEnum.Cactus);
+        public static readonly Tile Water = new Tile(TileEnum.Water);
+        public static readonly Tile Snow = new Tile(TileEnum.Snow);
+        public static readonly Tile SnowWood = new Tile(TileEnum.SnowWood);
+        public static readonly Tile SnowLeaf = new Tile(TileEnum.SnowLeaf);
+        public static readonly Tile GrassDeco = new Tile(TileEnum.GrassDeco, new TileAttribs { solid = false });
         #endregion Normal
 
         #region Logic
-        public static TileID CreateWire() { return new TileID(TileEnum.WireOff, new WireData()); }
-        public static TileID CreateSwitch() { return new TileID(TileEnum.SwitchOff, new SwitchData()); }
-        public static TileID CreateLogicLamp() { return new TileID(TileEnum.LogicLampUnlit, new LogicLampData()); }
-        public static TileID CreateGateAnd() { return new TileID(TileEnum.GateAnd, new AndGateData()); }
-        public static TileID CreateGateOr() { return new TileID(TileEnum.GateOr, new OrGateData()); }
-        public static TileID CreateGateNot() { return new TileID(TileEnum.GateNot, new NotGateData()); }
-        public static TileID CreateLogicBridge() { return new TileID(TileEnum.LogicBridgeOff, new LogicBridgeData()); }
-        public static TileID CreateTilePusher() { return new TileID(TileEnum.TilePusherOff, new StickyTilePusherData()); }
-        public static TileID CreateTilePuller() { return new TileID(TileEnum.TilePullerOff, new StickyTilePullerData()); }
-        public static TileID CreateTileBreaker() { return new TileID(TileEnum.TileBreakerOff, new TileBreakerData()); }
+        public static Tile CreateWire() { return new Tile(TileEnum.WireOff, new WireData()); }
+        public static Tile CreateSwitch() { return new Tile(TileEnum.SwitchOff, new SwitchData()); }
+        public static Tile CreateLogicLamp() { return new Tile(TileEnum.LogicLampUnlit, new LogicLampData()); }
+        public static Tile CreateGateAnd() { return new Tile(TileEnum.GateAnd, new AndGateData()); }
+        public static Tile CreateGateOr() { return new Tile(TileEnum.GateOr, new OrGateData()); }
+        public static Tile CreateGateNot() { return new Tile(TileEnum.GateNot, new NotGateData()); }
+        public static Tile CreateLogicBridge() { return new Tile(TileEnum.LogicBridgeOff, new LogicBridgeData()); }
+        public static Tile CreateTilePusher() { return new Tile(TileEnum.TilePusherOff, new StickyTilePusherData()); }
+        public static Tile CreateTilePuller() { return new Tile(TileEnum.TilePullerOff, new StickyTilePullerData()); }
+        public static Tile CreateTileBreaker() { return new Tile(TileEnum.TileBreakerOff, new TileBreakerData()); }
         #endregion Logic
 
         #region Misc
-        public static readonly TileID Bounce = new TileID(TileEnum.Bounce, new BounceAttribs());
-        public static readonly TileID Tnt = new TileID(TileEnum.Tnt, new ExplosionData { radius = 10, error = 2 });
-        public static readonly TileID Nuke = new TileID(TileEnum.Nuke, new ExplosionData { radius = 50, error = 2 });
+        public static readonly Tile Bounce = new Tile(TileEnum.Bounce, new BounceAttribs());
+        public static readonly Tile Tnt = new Tile(TileEnum.Tnt, new ExplosionData { radius = 10, error = 2 });
+        public static readonly Tile Nuke = new Tile(TileEnum.Nuke, new ExplosionData { radius = 50, error = 2 });
         #endregion Misc
 
 

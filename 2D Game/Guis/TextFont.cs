@@ -34,11 +34,13 @@ namespace Game.Guis {
         public static TextFont Chiller;
         public static TextFont CenturyGothic;
         public static TextFont DialogInput;
+        public static TextFont LucidaConsole;
 
         internal static void Init() {
             Chiller = new TextFont(Asset.FontChillerFnt, Asset.FontChillerTex);
             CenturyGothic = new TextFont(Asset.FontCenturyGothicFnt, Asset.FontCenturyGothicTex);
             DialogInput = new TextFont(Asset.FontDialogInputFnt, Asset.FontDialogInputTex);
+            LucidaConsole = new TextFont(Asset.FontLucidaConsoleFnt, Asset.FontLucidaConsoleTex);
         }
 
         private TextFont(string font, Texture texture) {

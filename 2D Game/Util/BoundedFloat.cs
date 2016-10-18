@@ -41,7 +41,7 @@ namespace Game.Util {
 
         public static BoundedFloat Zero = new BoundedFloat(0, 0, 0);
 
-        private static float Epsilon = 0.00001f;
+        private static float Epsilon = 0.0001f;
 
         private float _val;
         public float val {
@@ -53,6 +53,11 @@ namespace Game.Util {
                 _val = value;
             }
         }
+
+        internal bool IsFull() {
+            return val == max;
+        }
+
         public float min, max;
 
         public BoundedFloat(float val, float min, float max) {
@@ -62,11 +67,30 @@ namespace Game.Util {
             this.max = max;
         }
 
-        public float Space() {
+        public static BoundedFloat operator +(BoundedFloat a, float b) {
+            a.val += b;
+            return a;
+        }
+
+        public static BoundedFloat operator -(BoundedFloat a, float b) {
+            a.val -= b;
+            return a;
+        }
+        public static BoundedFloat operator *(BoundedFloat a, float b) {
+            a.val *= b;
+            return a;
+        }
+        public static BoundedFloat operator /(BoundedFloat a, float b) {
+            a.val /= b;
+            return a;
+        }
+
+
+        public float GetSpace() {
             return max - val;
         }
 
-        public float FilledRatio() {
+        public float GetFilledRatio() {
             return val / max;
         }
 

@@ -2,6 +2,7 @@
 using Game.Terrains;
 using Game.Util;
 using System;
+using System.Diagnostics;
 
 namespace Game.Logics {
 
@@ -32,9 +33,27 @@ namespace Game.Logics {
         internal BoundedFloat powerinL = BoundedFloat.Zero;
         internal BoundedFloat powerinR = BoundedFloat.Zero;
         internal BoundedFloat powerinU = BoundedFloat.Zero;
+
+        protected float powerInLCache, powerInRCache, powerInUCache, powerInDCache;
+        protected float powerOutLCache, powerOutRCache, powerOutUCache, powerOutDCache;
+
+        internal void EmptyInputs() {
+            powerinL.Empty();
+            powerinR.Empty();
+            powerinU.Empty();
+            powerinD.Empty();
+        }
+
+        internal void EmptyOutputs() {
+            poweroutL.Empty();
+            poweroutR.Empty();
+            poweroutU.Empty();
+            poweroutD.Empty();
+        }
+
         internal BoundedFloat powerinD = BoundedFloat.Zero;
 
-        protected BoundedFloat dissipate = new BoundedFloat(0, 0, 1);
+        protected float dissipate = 1;
 
         protected void UpdateL(int x, int y) {
             PowerTransmitterData tl = Terrain.TileAt(x - 1, y).tileattribs as PowerTransmitterData;
@@ -70,19 +89,49 @@ namespace Game.Logics {
             UpdateU(x, y);
             UpdateD(x, y);
         }
+
+        protected int NeighbouringLogics(int x, int y) {
+
+            int count = 0;
+
+            if (Terrain.TileAt(x - 1, y).tileattribs as PowerTransmitterData != null) count++;
+            if (Terrain.TileAt(x - 1, y).tileattribs as PowerDrainData != null) count++;
+
+            if (Terrain.TileAt(x + 1, y).tileattribs as PowerTransmitterData != null) count++;
+            if (Terrain.TileAt(x + 1, y).tileattribs as PowerDrainData != null) count++;
+
+            if (Terrain.TileAt(x, y + 1).tileattribs as PowerTransmitterData != null) count++;
+            if (Terrain.TileAt(x, y + 1).tileattribs as PowerDrainData != null) count++;
+
+            if (Terrain.TileAt(x, y - 1).tileattribs as PowerTransmitterData != null) count++;
+            if (Terrain.TileAt(x, y - 1).tileattribs as PowerDrainData != null) count++;
+
+            Debug.Assert(count <= 4);
+
+            return count;
+        }
     }
 
     [Serializable]
     internal abstract class PowerDrainData : LogicData {
 
-        protected BoundedFloat power = BoundedFloat.Zero;
         //power received
         internal BoundedFloat powerinL = BoundedFloat.Zero;
         internal BoundedFloat powerinR = BoundedFloat.Zero;
         internal BoundedFloat powerinU = BoundedFloat.Zero;
         internal BoundedFloat powerinD = BoundedFloat.Zero;
 
-        protected BoundedFloat cost = BoundedFloat.Zero;
+        protected float cost = 0;
+
+        protected float powerInLCache, powerInRCache, powerInUCache, powerInDCache;
+
+        internal void EmptyInputs() {
+            powerinL.Empty();
+            powerinR.Empty();
+            powerinU.Empty();
+            powerinD.Empty();
+        }
+
     }
 
 }
