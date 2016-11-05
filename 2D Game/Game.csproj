@@ -210,6 +210,9 @@
     <Content Include="Assets\Textures\Textbox.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\Textures\TitleScreenBackground2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Todo.txt" />
   </ItemGroup>
   <ItemGroup />

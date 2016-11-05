@@ -15,24 +15,33 @@ using Game.Util;
 namespace Game.Interaction {
     static class GameGuiRenderer {
 
+        public static BoolSwitch RenderDebugText { get; private set; }
         public static BoolSwitch Paused { get; private set; }
 
         private static GuiModel Background;
         private static Text DebugText;
         private static GuiModel Healthbar;
-        private static Button btnTitle;
+        private static Button btn_BackToTitle;
+
+        private static HashSet<Button> Buttons;
 
         public static void Init() {
             TextFont.Init();
             Hotbar.Init();
 
             Paused = new BoolSwitch(false, 30);
+            RenderDebugText = new BoolSwitch(false, 30);
 
-            btnTitle = new Button(new Vector2(0, -0.5), new Vector2(0.25, 0.04), "Save and Quit", TextFont.Chiller, delegate () { Program.SwitchToTitleScreen(); });
+
+            btn_BackToTitle = new Button(new Vector2(0, -0.5), new Vector2(0.25, 0.04), "Save and Quit", TextFont.Chiller, delegate () { Program.SwitchToTitleScreen(); });
             TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.5f, 2f, Int32.MaxValue, new Vector3(1, 1, 1));
             DebugText = new Text("", style, new Vector2(-0.99, 0.97));
             Healthbar = GuiModel.CreateRectangle(new Vector2(0.4, 0.04), Color.DarkRed);
             Background = GuiModel.CreateRectangle(new Vector2(1, 1), Textures.GameBackgroundTex);
+
+
+            Buttons = new HashSet<Button>();
+            Buttons.Add(btn_BackToTitle);
         }
 
         public static void Update() {
@@ -41,13 +50,16 @@ namespace Game.Interaction {
             if (Input.Keys[27]) {
                 Paused.Toggle();
             }
+            foreach (Button b in Buttons) {
+                b.Update();
+            }
         }
 
         private static float CalcBackgroundColour(float x) {
             x += 0.2f;
             x *= 2;
-            float a = 2*x - 1;
-            float b = (float)Math.Sqrt((2*x - 1) * (2*x - 1) + 1);
+            float a = 2 * x - 1;
+            float b = (float)Math.Sqrt((2 * x - 1) * (2 * x - 1) + 1);
             return a / b;
         }
 
@@ -87,8 +99,8 @@ namespace Game.Interaction {
             }
 
             if (Paused) {
-                RenderInstance(btnTitle.model, btnTitle.pos);
-                RenderInstance(btnTitle.text.model, btnTitle.text.pos);
+                RenderInstance(btn_BackToTitle.model, btn_BackToTitle.pos);
+                RenderInstance(btn_BackToTitle.text.model, btn_BackToTitle.text.pos);
             }
 
             //hotbar
@@ -96,7 +108,8 @@ namespace Game.Interaction {
             RenderInstance(Hotbar.ItemDisplay, new Vector2(((2 - Inventory.InvColumns * Hotbar.SizeX) / 2) - 1, -1));
             RenderInstance(Hotbar.SelectedDisplay, new Vector2(((2 - Inventory.InvColumns * Hotbar.SizeX) / 2 + Hotbar.CurSelectedSlot * Hotbar.SizeX) - 1, -1));
 
-            RenderText(DebugText);
+            if (RenderDebugText)
+                RenderText(DebugText);
 
 
             Gl.UseProgram(0);

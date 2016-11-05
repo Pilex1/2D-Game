@@ -116,8 +116,17 @@ namespace Game.TitleScreen {
 
             txt_Main_Title = new Text("TITLE HERE", new TextStyle(TextAlignment.CenterCenter, TextFont.Chiller, 3f, 2f, 1, new Vector3(1, 1, 1)), new Vector2(0, 1));
             backgroundpos = Vector2.Zero;
-            background = GuiModel.CreateRectangle(new Vector2(1, 1), Textures.TitleBackgroundTex);
-            backgrounddx = 0.000001f;
+            float s = 1f/Program.AspectRatio;
+            float imageAspectRatio = (float)Textures.TitleBackgroundTex.Size.Width / Textures.TitleBackgroundTex.Size.Height;
+            background = GuiModel.CreateRectangle(new Vector2(s*imageAspectRatio, s), Textures.TitleBackgroundTex);
+            background.vao.UpdateUVs(new Vector2[] {
+                backgroundpos+new Vector2(0,1f),
+                backgroundpos+new Vector2(0,0),
+                backgroundpos+new Vector2(1,0),
+                backgroundpos+new Vector2(1, 1f)
+            });
+            backgrounddx = 0.00001f;
+            //backgrounddx = 0;
 
 
             //credits screen
@@ -230,15 +239,18 @@ namespace Game.TitleScreen {
 
 
         public static void Update() {
-          
-            backgroundpos.x += backgrounddx;
-            background.vao.UpdateUVs(new Vector2[] {
-                backgroundpos+new Vector2(0,1),
-                backgroundpos+new Vector2(0,0),
-                backgroundpos+new Vector2(1f/Program.AspectRatio,0),
-                backgroundpos+new Vector2(1f/Program.AspectRatio, 1)
-            });
-            if (backgroundpos.x + 1 / Program.AspectRatio > 1 || backgroundpos.x < 0) backgrounddx *= -1;
+            foreach (var b in new List<Button>(CurButtons)) {
+                b.Update();
+            }
+            foreach (var t in new List<Textbox>(CurTextboxes)) {
+                t.Update();
+            }
+
+            backgroundpos.x -= backgrounddx;
+            if (backgroundpos.x < Program.AspectRatio - (float)Textures.TitleBackgroundTex.Size.Width / Textures.TitleBackgroundTex.Size.Height) {
+                backgrounddx *= -1;
+            }
+            Debug.WriteLine(backgroundpos);
 
             if (state == State.NewWorld) {
                 string worldname = txtbx_NewWorld_Name.GetText();
@@ -247,12 +259,6 @@ namespace Game.TitleScreen {
             }
 
 
-            foreach (var b in new List<Button>(CurButtons)) {
-                b.Update();
-            }
-            foreach (var t in new List<Textbox>(CurTextboxes)) {
-                t.Update();
-            }
         }
 
         private static void RenderInstance(GuiModel model, Vector2 pos, Vector3 colour) {
@@ -274,7 +280,7 @@ namespace Game.TitleScreen {
 
             shader["aspectRatio"].SetValue(Program.AspectRatio);
 
-            RenderInstance(background, Vector2.Zero, new Vector3(1, 0.9, 0.9));
+            RenderInstance(background, backgroundpos, new Vector3(1, 0.9, 0.9));
 
             Debug.WriteLine(btn_NewWorld_CreateWorld.colour);
 

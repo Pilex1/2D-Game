@@ -11,6 +11,7 @@ namespace Game.Core {
     static class Input {
 
         public static bool[] Keys { get; private set; }
+        public static bool[] SpecialKeys { get; private set; }
         public static bool[] KeysTyped { get; private set; }
         private static CooldownTimer[] KeysTypedCooldown;
         public static bool[] Mouse { get; private set; }
@@ -24,6 +25,7 @@ namespace Game.Core {
         public static void Init() {
             Keys = new bool[255];
             KeysTyped = new bool[255];
+            SpecialKeys = new bool[255];
             Mouse = new bool[3];
             KeysTypedCooldown = new CooldownTimer[255];
             for (int i = 0; i < KeysTypedCooldown.Length; i++) {
@@ -32,10 +34,20 @@ namespace Game.Core {
 
             Glut.glutKeyboardFunc(OnKeyboardDown);
             Glut.glutKeyboardUpFunc(OnKeyboardUp);
+            Glut.glutSpecialFunc(OnSpecialDown);
+            Glut.glutSpecialUpFunc(OnSpecialUp);
             Glut.glutMouseFunc(OnMousePress);
             Glut.glutMotionFunc(OnMouseMove);
             Glut.glutPassiveMotionFunc(OnMouseMove);
             Glut.glutMouseWheelFunc(OnMouseScroll);
+        }
+
+        private static void OnSpecialUp(int key, int x, int y) {
+            SpecialKeys[key] = false;
+        }
+
+        private static void OnSpecialDown(int key, int x, int y) {
+            SpecialKeys[key] = true;
         }
 
         public static void Update() {

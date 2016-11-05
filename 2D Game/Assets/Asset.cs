@@ -20,7 +20,8 @@ namespace Game.Assets {
             GameBackgroundTex = TextureUtil.CreateTexture("Assets/Textures/GameBackground.png", TextureUtil.TextureInterp.Linear);
             DesertBackgroundTex = TextureUtil.CreateTexture("Assets/Textures/DesertBackground.png", TextureUtil.TextureInterp.Linear);
             NightBackgroundTex = TextureUtil.CreateTexture("Assets/Textures/NightBackground.png", TextureUtil.TextureInterp.Linear);
-            TitleBackgroundTex = TextureUtil.CreateTexture("Assets/Textures/TitleScreenBackground.png", TextureUtil.TextureInterp.Linear);
+
+            TitleBackgroundTex = TextureUtil.CreateTexture("Assets/Textures/TitleScreenBackground2.png", TextureUtil.TextureInterp.Linear);
 
             FontCenturyGothicTex = TextureUtil.CreateTexture("Assets/Fonts/CenturyGothic.png", TextureUtil.TextureInterp.Nearest);
             FontChillerTex = TextureUtil.CreateTexture("Assets/Fonts/Chiller.png", TextureUtil.TextureInterp.Nearest);

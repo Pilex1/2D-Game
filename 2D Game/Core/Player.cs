@@ -19,7 +19,7 @@ namespace Game {
     }
 
     class Player : Entity {
-        public const float StartX = TerrainGen.size/2, StartY = 200;
+        public const float StartX = TerrainGen.size / 2, StartY = 200;
 
         public static Player Instance { get; private set; }
 
@@ -129,6 +129,11 @@ namespace Game {
 
             if (dir < 0) Hotbar.IncrSlot();
             if (dir > 0) Hotbar.DecrSlot();
+
+            if (Input.SpecialKeys[Glut.GLUT_KEY_F1]) {
+                GameGuiRenderer.RenderDebugText.Toggle();
+            }
+
 
             Hitbox.Position = data.Position.val;
 
