@@ -11,7 +11,7 @@ namespace Game.Logics {
 
 
         internal override void Update(int x, int y) {
-            throw new NotImplementedException();
+           
         }
     }
 }

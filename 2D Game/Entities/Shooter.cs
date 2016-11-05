@@ -8,43 +8,31 @@ using Game.Util;
 namespace Game {
     class Shooter : Entity {
 
-        private int ShootCooldown;
-        private float ShootCooldownTime = 0;
+        private CooldownTimer shootCooldown;
 
-        private int ProjectileLife;
+        private int projlife;
 
-        private static EntityModel _model;
-        private static EntityModel Model {
-            get {
-                if (_model == null) {
-                    Texture texture = TextureUtil.CreateTexture(new Vector3[,] {
-                        {new Vector3(1, 0, 0), new Vector3(1, 0, 0)},
-                        {new Vector3(0, 0, 1), new Vector3(0, 0, 1)}
-                    },TextureUtil.TextureInterp.Linear);
-                    _model = EntityModel.CreateRectangle(new Vector2(1, 2), texture);
-                }
-                return _model;
-            }
-        }
-
-        public Shooter(Vector2 position, int shootCooldown, int projectileLife) : base(Model, new RectangularHitbox(position, new Vector2(1, 2)), position) {
+        public Shooter(Vector2 position, int shootCooldown, int projlife) : base(EntityID.Shooter, position) {
             base.data.speed = 0;
             base.data.jumppower = 0;
             base.data.UseGravity = true;
             base.data.life = new BoundedFloat(10, 0, 10);
-            ShootCooldown = shootCooldown;
-            ProjectileLife = projectileLife;
-            CorrectTerrainCollision();
+            this.shootCooldown = new CooldownTimer(shootCooldown);
+            this.projlife = projlife;
+            base.CorrectTerrainCollision();
         }
 
         public override void Update() {
-            base.UpdatePosition();
-            if (ShootCooldownTime >= ShootCooldown) {
-                Projectile proj = new Projectile(data.Position.val, Player.ToPlayer(data.Position.val) / 5, ProjectileLife, 0.01f);
-                if (!Terrain.IsColliding(proj)) Entity.AddEntity(proj);
-                ShootCooldownTime = 0;
-            } else ShootCooldownTime += GameTime.DeltaTime;
-            Hitbox.Position = data.Position.val;
+            base.Update();
+            if (!shootCooldown.Ready())
+                return;
+
+            shootCooldown.Reset();
+            Vector2 vel = Player.ToPlayer(data.Position.val);
+            vel.x += MathUtil.RandFloat(Program.Rand, -0.1, 0.1);
+            vel /= 5;
+            Projectile proj = new Projectile(data.Position.val, vel, projlife, 0.01f);
+            if (!Terrain.IsColliding(proj)) Entity.AddEntity(proj);
         }
     }
 }

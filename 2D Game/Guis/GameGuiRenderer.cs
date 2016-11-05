@@ -10,9 +10,12 @@ using Game.Fonts;
 using Game.Guis;
 using System.Drawing;
 using Game.Assets;
+using Game.Util;
 
 namespace Game.Interaction {
     static class GameGuiRenderer {
+
+        public static BoolSwitch Paused { get; private set; }
 
         private static GuiModel Background;
         private static Text DebugText;
@@ -23,15 +26,29 @@ namespace Game.Interaction {
             TextFont.Init();
             Hotbar.Init();
 
-            btnTitle = new Button(new Vector2(0, -0.5), new Vector2(0.5, 0.1), "Save and Quit", TextFont.Chiller, delegate () { Program.SwitchToTitleScreen(); });
-            DebugText = new Text("", TextFont.LucidaConsole, 0.5f, new Vector2(-0.99, 0.97), 2f, Int32.MaxValue, TextAlignment.TopLeft);
-            Healthbar = GuiModel.CreateRectangle(new Vector2(0.5, 0.04), Color.DarkRed);
-            Background = GuiModel.CreateRectangle(new Vector2(1, 1), Asset.GameBackgroundTex);
+            Paused = new BoolSwitch(false, 30);
+
+            btnTitle = new Button(new Vector2(0, -0.5), new Vector2(0.25, 0.04), "Save and Quit", TextFont.Chiller, delegate () { Program.SwitchToTitleScreen(); });
+            TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.5f, 2f, Int32.MaxValue, new Vector3(1, 1, 1));
+            DebugText = new Text("", style, new Vector2(-0.99, 0.97));
+            Healthbar = GuiModel.CreateRectangle(new Vector2(0.4, 0.04), Color.DarkRed);
+            Background = GuiModel.CreateRectangle(new Vector2(1, 1), Textures.GameBackgroundTex);
         }
 
         public static void Update() {
             Hotbar.Update();
             Inventory.Update();
+            if (Input.Keys[27]) {
+                Paused.Toggle();
+            }
+        }
+
+        private static float CalcBackgroundColour(float x) {
+            x += 0.2f;
+            x *= 2;
+            float a = 2*x - 1;
+            float b = (float)Math.Sqrt((2*x - 1) * (2*x - 1) + 1);
+            return a / b;
         }
 
         public static void SetDebugText(string str) {
@@ -40,7 +57,9 @@ namespace Game.Interaction {
 
         public static void RenderBackground() {
             Gl.UseProgram(Gui.shader.ProgramID);
-            RenderInstance(Background, new Vector2(0, 0));
+            float ratio = Player.Instance.data.Position.y / Terrains.Terrain.Tiles.GetLength(1);
+            ratio = CalcBackgroundColour(ratio);
+            RenderInstance(Background, new Vector2(0, 0), new Vector3(ratio, ratio, ratio));
             Gl.UseProgram(0);
         }
 
@@ -51,7 +70,7 @@ namespace Game.Interaction {
 
             //healthbar
             Healthbar.size.x = Player.Instance.data.life.val / Player.Instance.data.life.max * 0.5f;
-            RenderInstance(Healthbar, new Vector2(0, -0.65));
+            RenderInstance(Healthbar, new Vector2(0, -0.75));
 
             //inventory
             if (Inventory.toggle) {
@@ -65,6 +84,11 @@ namespace Game.Interaction {
 
                 // RenderInstance(Inventory.textbg, Vector2.Zero);
                 //RenderText(Inventory.text);
+            }
+
+            if (Paused) {
+                RenderInstance(btnTitle.model, btnTitle.pos);
+                RenderInstance(btnTitle.text.model, btnTitle.text.pos);
             }
 
             //hotbar
@@ -88,11 +112,11 @@ namespace Game.Interaction {
             ShaderProgram shader = Gui.shader;
             shader["size"].SetValue(t.model.size);
             shader["position"].SetValue(t.pos);
-            shader["colour"].SetValue(t.colour);
+            shader["colour"].SetValue(t.style.colour);
             Gl.BindVertexArray(t.model.vao.ID);
-            Gl.BindTexture(t.font.fontTexture.TextureTarget, t.font.fontTexture.TextureID);
+            Gl.BindTexture(t.style.font.fontTexture.TextureTarget, t.style.font.fontTexture.TextureID);
             Gl.DrawElements(BeginMode.Triangles, t.model.vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
-            Gl.BindTexture(t.font.fontTexture.TextureTarget, 0);
+            Gl.BindTexture(t.style.font.fontTexture.TextureTarget, 0);
             Gl.BindVertexArray(0);
         }
 

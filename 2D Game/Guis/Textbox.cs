@@ -23,14 +23,22 @@ namespace Game.Guis {
             textpos.y += 4 * size.y;
             textpos.x += 0.035f;
             textpos.x -= size.x;
-            text = new Text("_", font, textsize, textpos, size.x * 2 - 0.07f, 1, TextAlignment.TopLeft);
+            TextStyle style = new TextStyle(TextAlignment.TopLeft, font, textsize, size.x * 2 - 0.07f, 1, new Vector3(1, 1, 1));
+            text = new Text("_", style, textpos);
             this.pos = pos;
-            model = GuiModel.CreateRectangle(size, Asset.TextboxTex);
+            model = GuiModel.CreateRectangle(size, Textures.TextboxTex);
             cooldown = new CooldownTimer(3);
         }
 
         public void SetText(string txt) {
-            text.SetText(txt);
+            text.SetText(txt + "_");
+        }
+
+        public string GetText() {
+            string s = text.ToString();
+            if (s.EndsWith("_"))
+                s = s.Remove(s.Length - 1);
+            return s;
         }
 
         public virtual void Update() {
@@ -85,7 +93,7 @@ namespace Game.Guis {
         }
 
         internal void Dispose() {
-            model.Dispose();
+            model.DisposeAll();
             text.Dispose();
         }
     }

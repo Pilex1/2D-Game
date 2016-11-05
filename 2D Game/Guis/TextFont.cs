@@ -1,5 +1,4 @@
-﻿using Game.Assets;
-using OpenGL;
+﻿using OpenGL;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -37,10 +36,10 @@ namespace Game.Guis {
         public static TextFont LucidaConsole;
 
         internal static void Init() {
-            Chiller = new TextFont(Asset.FontChillerFnt, Asset.FontChillerTex);
-            CenturyGothic = new TextFont(Asset.FontCenturyGothicFnt, Asset.FontCenturyGothicTex);
-            DialogInput = new TextFont(Asset.FontDialogInputFnt, Asset.FontDialogInputTex);
-            LucidaConsole = new TextFont(Asset.FontLucidaConsoleFnt, Asset.FontLucidaConsoleTex);
+            Chiller = new TextFont(Assets.Fonts.FontChillerFnt, Assets.Textures.FontChillerTex);
+            CenturyGothic = new TextFont(Assets.Fonts.FontCenturyGothicFnt, Assets.Textures.FontCenturyGothicTex);
+            DialogInput = new TextFont(Assets.Fonts.FontDialogInputFnt, Assets.Textures.FontDialogInputTex);
+            LucidaConsole = new TextFont(Assets.Fonts.FontLucidaConsoleFnt, Assets.Textures.FontLucidaConsoleTex);
         }
 
         private TextFont(string font, Texture texture) {

@@ -113,6 +113,11 @@ namespace Game.Util {
     }
 
     static class MathUtil {
+
+        public static readonly float Sqrt2 = (float)Math.Sqrt(2);
+
+        public const float Epsilon = 0.0001f;
+
         #region Clamp
         public static void Clamp(ref int x, int min, int max) {
             if (x < min) x = min;
@@ -160,6 +165,9 @@ namespace Game.Util {
             if (min > max) return RandFloat(rand, max, min);
             return (float)rand.NextDouble() * (max - min) + min;
         }
+        public static float RandFloat(Random rand, double min, double max) {
+            return RandFloat(rand, (float)min, (float)max);
+        }
 
         public static double RandDouble(Random rand, double min, double max) {
             if (min > max) return RandDouble(rand, max, min);
@@ -168,8 +176,26 @@ namespace Game.Util {
         public static Vector2 RandVector2(Random rand, Vector2 min, Vector2 max) {
             return new Vector2(RandFloat(rand, min.x, max.x), RandFloat(rand, min.y, max.y));
         }
+        public static Vector2 RandVector2(Random rand, float min, float max) {
+            return RandVector2(rand, new Vector2(min, min), new Vector2(max, max));
+        }
+        public static Vector2 RandVector2(Random rand, double min, double max) {
+            return RandVector2(rand, (float)min, (float)max);
+        }
+        public static Vector2i RandVector2i(Random rand, Vector2i min, Vector2i max) {
+            return new Vector2i(RandInt(rand, min.x, max.x), RandInt(rand, min.y, max.y));
+        }
         public static Vector3 RandVector3(Random rand, Vector3 min, Vector3 max) {
             return new Vector3(RandFloat(rand, min.x, max.x), RandFloat(rand, min.y, max.y), RandFloat(rand, min.z, max.z));
+        }
+        public static Vector3 RandVector3(Random rand, float min, float max) {
+            return RandVector3(rand, new Vector3(min, min, min), new Vector3(max, max, max));
+        }
+        public static Vector3 RandVector3(Random rand, double min, double max) {
+            return RandVector3(rand, (float)min, (float)max);
+        }
+        public static bool RandBool(Random rand) {
+            return rand.NextDouble() < 0.5;
         }
 
         #endregion Random
@@ -232,7 +258,11 @@ namespace Game.Util {
             return val.x >= min.x && val.x <= max.x && val.y >= min.y && val.y <= max.y;
         }
 
-        public static float AngleTo(Vector2 src, Vector2 dest) {
+        public static float Angle(Vector2 v) {
+            return (float)Math.Atan2(v.y, v.x);
+        }
+
+        public static float AngleFrom(Vector2 src, Vector2 dest) {
             return (float)Math.Atan2(dest.y - src.y, dest.x - src.x);
         }
 

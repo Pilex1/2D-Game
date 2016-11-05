@@ -49,9 +49,12 @@ namespace Game.Util {
             return cooldown;
         }
 
-
         private void UpdateInstance() {
             time += GameTime.DeltaTime;
+        }
+
+        public override string ToString() {
+            return String.Format("{0} / {1}", time, cooldown);
         }
 
     }

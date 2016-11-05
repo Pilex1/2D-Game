@@ -19,11 +19,11 @@ namespace Game {
     }
 
     class Player : Entity {
-        public const float StartX = 580, StartY = 70;
+        public const float StartX = TerrainGen.size/2, StartY = 200;
 
         public static Player Instance { get; private set; }
 
-        private Player(EntityModel model, Hitbox hitbox, Vector2 position) : base(model, hitbox, position) {
+        private Player(Hitbox hitbox, Vector2 position) : base(EntityID.PlayerSimple, hitbox, position) {
             base.data = new PlayerData { };
             base.data.Position.val = position;
             base.data.speed = 0.08f;
@@ -39,9 +39,8 @@ namespace Game {
             }, TextureUtil.TextureInterp.Linear);
 
             Vector2 position = new Vector2(StartX, StartY);
-            EntityModel model = EntityModel.CreateRectangle(new Vector2(1, 2), texture);
             Hitbox hitbox = new RectangularHitbox(position, new Vector2(1, 2));
-            Player player = new Player(model, hitbox, position);
+            Player player = new Player(hitbox, position);
             return player;
         }
 
@@ -52,6 +51,7 @@ namespace Game {
         public static void LoadPlayer(PlayerData data) {
             Instance = DefaultPlayer();
             Instance.data = data;
+            data.flying.AddTimer();
         }
 
         public static new void CleanUp() {
@@ -62,6 +62,7 @@ namespace Game {
         }
 
         public override void Update() {
+            Vector2 prevpos = Instance.data.Position;
             if (Instance.data.life <= 0) {
                 Instance.data.life.Fill();
             }
@@ -71,15 +72,7 @@ namespace Game {
             int dir = Input.MouseScroll;
             int MouseX = Input.MouseX, MouseY = Input.MouseY;
             if (!Inventory.toggle) {
-
                 Vector2 v = Input.TerrainIntersect();
-
-                //if (Hotbar.CurrentlySelectedItem() == Item.Debugger) {
-                //    Tile tile = Terrain.TileAt(v.x, v.y);
-                //    GameLogic.AdditionalDebugText = tile.ToString() + Environment.NewLine + tile.tileattribs.ToString();
-                //}else {
-                //    GameLogic.AdditionalDebugText = "";
-                //}
 
                 Tile tile = Terrain.TileAt(v.x, v.y);
                 GameLogic.AdditionalDebugText = tile.ToString() + Environment.NewLine + tile.tileattribs.ToString();
@@ -112,18 +105,17 @@ namespace Game {
             } else {
                 Instance.data.UseGravity = true;
             }
-            if (Instance.UpdatePosition()) {
+            if (Keys['f']) {
+                playerdata.flying.Toggle();
+            }
+
+            Instance.UpdatePosition();
+            if (Instance.data.Position != prevpos) {
                 Terrain.UpdateMesh = true;
             }
             if (playerdata.flying) {
                 Instance.data.vel.y = 0;
             }
-
-
-            if (Keys['f']) {
-                playerdata.flying.Toggle();
-            }
-
 
             if (Keys['1']) Hotbar.CurSelectedSlot = 0;
             if (Keys['2']) Hotbar.CurSelectedSlot = 1;
@@ -138,11 +130,15 @@ namespace Game {
             if (dir < 0) Hotbar.IncrSlot();
             if (dir > 0) Hotbar.DecrSlot();
 
-
             Hitbox.Position = data.Position.val;
 
         }
 
+        public static float DistToPlayer(Vector2 pos) {
+            float x = Instance.data.Position.x - pos.x;
+            float y = Instance.data.Position.y - pos.y;
+            return (float)Math.Sqrt(x * x + y * y);
+        }
         public static Vector2 ToPlayer(Vector2 pos) { return new Vector2(Instance.data.Position.x - pos.x, Instance.data.Position.y - pos.y).Normalize(); }
 
         public static bool InRange(Entity entity, float maxDist) {

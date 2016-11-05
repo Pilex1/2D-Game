@@ -43,10 +43,18 @@ namespace Game.Logics {
             int neighbouring = NeighbouringLogics(x, y);
             if (neighbouring != 0) {
                 float transval = buffer.val / neighbouring;
-                BoundedFloat.MoveVals(ref buffer, ref poweroutL, transval);
-                BoundedFloat.MoveVals(ref buffer, ref poweroutR, transval);
-                BoundedFloat.MoveVals(ref buffer, ref poweroutU, transval);
-                BoundedFloat.MoveVals(ref buffer, ref poweroutD, transval);
+
+                if (base.IsLogicL(x, y))
+                    BoundedFloat.MoveVals(ref buffer, ref poweroutL, transval);
+
+                if (base.IsLogicR(x, y))
+                    BoundedFloat.MoveVals(ref buffer, ref poweroutR, transval);
+
+                if (base.IsLogicU(x, y))
+                    BoundedFloat.MoveVals(ref buffer, ref poweroutU, transval);
+
+                if (base.IsLogicD(x, y))
+                    BoundedFloat.MoveVals(ref buffer, ref poweroutD, transval);
             }
 
             powerOutLCache = poweroutL.val;

@@ -90,23 +90,37 @@ namespace Game.Logics {
             UpdateD(x, y);
         }
 
-        protected int NeighbouringLogics(int x, int y) {
+        protected bool IsLogicL(int x, int y) {
+            if (Terrain.TileAt(x - 1, y).tileattribs as PowerTransmitterData != null) return true;
+            if (Terrain.TileAt(x - 1, y).tileattribs as PowerDrainData != null) return true;
+            return false;
+        }
 
+        protected bool IsLogicR(int x, int y) {
+            if (Terrain.TileAt(x + 1, y).tileattribs as PowerTransmitterData != null) return true;
+            if (Terrain.TileAt(x + 1, y).tileattribs as PowerDrainData != null) return true;
+            return false;
+        }
+
+        protected bool IsLogicU(int x, int y) {
+            if (Terrain.TileAt(x, y + 1).tileattribs as PowerTransmitterData != null) return true;
+            if (Terrain.TileAt(x, y + 1).tileattribs as PowerDrainData != null) return true;
+            return false;
+        }
+
+        protected bool IsLogicD(int x, int y) {
+            if (Terrain.TileAt(x, y - 1).tileattribs as PowerTransmitterData != null) return true;
+            if (Terrain.TileAt(x, y - 1).tileattribs as PowerDrainData != null) return true;
+            return false;
+        }
+
+        protected int NeighbouringLogics(int x, int y) {
             int count = 0;
 
-            if (Terrain.TileAt(x - 1, y).tileattribs as PowerTransmitterData != null) count++;
-            if (Terrain.TileAt(x - 1, y).tileattribs as PowerDrainData != null) count++;
-
-            if (Terrain.TileAt(x + 1, y).tileattribs as PowerTransmitterData != null) count++;
-            if (Terrain.TileAt(x + 1, y).tileattribs as PowerDrainData != null) count++;
-
-            if (Terrain.TileAt(x, y + 1).tileattribs as PowerTransmitterData != null) count++;
-            if (Terrain.TileAt(x, y + 1).tileattribs as PowerDrainData != null) count++;
-
-            if (Terrain.TileAt(x, y - 1).tileattribs as PowerTransmitterData != null) count++;
-            if (Terrain.TileAt(x, y - 1).tileattribs as PowerDrainData != null) count++;
-
-            Debug.Assert(count <= 4);
+            count += IsLogicL(x, y) ? 1 : 0;
+            count += IsLogicR(x, y) ? 1 : 0;
+            count += IsLogicU(x, y) ? 1 : 0;
+            count += IsLogicD(x, y) ? 1 : 0;
 
             return count;
         }

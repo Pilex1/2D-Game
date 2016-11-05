@@ -30,9 +30,10 @@ namespace Game.Particles {
             StaffParticlePurple.Init();
         }
 
-        public Particle(EntityModel model, Vector2 pos) : base(model) {
-            hitboxoffset = new Vector2((1 - sqrt2) / 2 * model.size.x, (1 - sqrt2) / 2 * model.size.y);
-            base.Hitbox = new RectangularHitbox(pos - hitboxoffset, sqrt2 * model.size);
+        public Particle(EntityID model, Vector2 pos) : base(model) {
+            Vector2 size = Assets.Models.GetModel(model).size;
+            hitboxoffset = new Vector2((1 - sqrt2) / 2 * size.x, (1 - sqrt2) / 2 * size.y);
+            base.Hitbox = new RectangularHitbox(pos - hitboxoffset, sqrt2 * size);
             base.data = new ParticleData();
             base.data.Position.val = pos;
             base.data.UseGravity = true;

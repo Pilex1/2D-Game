@@ -16,7 +16,7 @@ namespace Game.TitleScreen {
         public static ShaderProgram shader { get; private set; }
 
         public static void Init() {
-            shader = new ShaderProgram(Asset.GuiVert,Asset.GuiFrag);
+            shader = new ShaderProgram(Shaders.GuiVert,Shaders.GuiFrag);
             TextFont.Init();
         }
 

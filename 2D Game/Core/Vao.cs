@@ -12,7 +12,7 @@ using System.Diagnostics;
 
 namespace Game.Core {
 
-    class EntityVAO : IDisposable {
+    class EntityVAO  {
         public uint ID { get; private set; }
 
         public uint verticesID { get; private set; }
@@ -57,7 +57,7 @@ namespace Game.Core {
             Gl.BindVertexArray(0);
         }
 
-        public void Dispose() {
+        public void DisposeAll() {
             Gl.DeleteBuffer(verticesID);
             Gl.DeleteBuffer(uvsID);
             Gl.DeleteBuffer(elementsID);
@@ -65,7 +65,7 @@ namespace Game.Core {
         }
     }
 
-    class TerrainVAO : IDisposable {
+    class TerrainVAO  {
 
         public uint ID { get; private set; }
 
@@ -162,7 +162,7 @@ namespace Game.Core {
             Gl.BindVertexArray(0);
         }
 
-        public void Dispose() {
+        public void DisposeAll() {
             Gl.DeleteBuffer(verticesID);
             Gl.DeleteBuffer(uvsID);
             Gl.DeleteBuffer(elementsID);
@@ -171,7 +171,7 @@ namespace Game.Core {
         }
     }
 
-    class GuiVAO : IDisposable {
+    class GuiVAO {
         public uint ID { get; private set; }
 
         public uint verticesID { get; private set; }
@@ -275,7 +275,7 @@ namespace Game.Core {
             Gl.BindVertexArray(0);
         }
 
-        public void Dispose() {
+        public void DisposeAll() {
             Gl.DeleteBuffer(verticesID);
             Gl.DeleteBuffer(uvsID);
             Gl.DeleteBuffer(elementsID);

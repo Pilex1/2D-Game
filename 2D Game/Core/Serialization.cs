@@ -11,9 +11,7 @@ namespace Game.Core {
 
         private static readonly string dir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Plexico\\2D Game\\";
         private const string worlddir = "Worlds\\";
-        private const string terrainFile = "terrain.plex";
-        private const string entityFile = "entity.plex";
-        private const string playerFile = "player.plex";
+        private const string worldFile = "world.plex";
 
         private const string br = "------------------------------------";
 
@@ -40,6 +38,9 @@ namespace Game.Core {
         private static void Save(string file, object data) {
             Console.WriteLine("Serialising " + data + " to " + file);
             try {
+                if (!Directory.Exists(dir + worlddir)) {
+                    Directory.CreateDirectory(dir + worlddir);
+                }
                 using (BufferedStream stream = new BufferedStream(new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.None))) {
                     IFormatter formatter = new BinaryFormatter();
                     Stopwatch watch = new Stopwatch();
@@ -64,25 +65,21 @@ namespace Game.Core {
             }
             List<string> worlds = new List<string>();
             foreach (string s in Directory.GetDirectories(path)) {
-                if (File.Exists(s + "\\" + terrainFile) && File.Exists(s + "\\" + playerFile))
+                if (File.Exists(s + "\\" + worldFile))
                     worlds.Add(s.Substring(Serialization.dir.Length + Serialization.worlddir.Length));
             }
             return worlds.ToArray();
         }
 
         public static WorldData LoadWorld(string str) {
-            Tile[,] tiles = (Tile[,])Load(dir + worlddir + str + "\\" + terrainFile);
-            PlayerData playerdata = (PlayerData)Load(dir + worlddir + str + "\\" + playerFile);
-            Entity[] entities = (Entity[])Load(dir + worlddir + str + "\\" + entityFile);
-            return new WorldData(tiles, playerdata, entities);
+            WorldData data = (WorldData)Load(dir + worlddir + str + "\\" + worldFile);
+            return data;
         }
 
 
         public static void SaveWorld(string file, WorldData world) {
             Directory.CreateDirectory(dir + worlddir + file);
-            Save(dir + worlddir + file + "\\" + terrainFile, world.terrain);
-            Save(dir + worlddir + file + "\\" + playerFile, world.playerdata);
-            Save(dir + worlddir + file + "\\" + entityFile, world.entities);
+            Save(dir + worlddir + file + "\\" + worldFile, world);
         }
 
         public static void DeleteWorld(string file) {

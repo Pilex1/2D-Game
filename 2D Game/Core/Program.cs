@@ -24,8 +24,8 @@ namespace Game {
         public static Random Rand = new Random();
 
         public static int ScreenWidth, ScreenHeight;
-        // public static int Width = 1280, Height = 720;
-        public static int Width = 1600, Height = 900;
+        public static int Width = 1280, Height = 720;
+        //public static int Width = 1600, Height = 900;
         public static float AspectRatio = (float)Width / Height;
 
         public static bool FullScreen { get; private set; }
@@ -73,7 +73,7 @@ namespace Game {
             //Console.SetWindowPosition(0, 0);
             Mode = ProgramMode.TitleScreen;
 
-            Asset.Init();
+            Manager.Init();
             Input.Init();
             Gui.Init();
             SwitchToTitleScreen();
@@ -110,20 +110,25 @@ namespace Game {
             Gui.SwitchToTitleScreen();
         }
 
-        public static void SwitchToGame(WorldData data) {
+
+        public static void SwitchToGame(string worldname, int seed) {
             Mode = ProgramMode.Game;
-
-
-            GameRenderer.Init(data);
-
+            Program.worldname = worldname;
+            GameRenderer.InitNew(seed);
+            Manager.InitInGame();
             GameLogic.Init();
-
             Gui.SwitchToGame();
-
             ResetAgain = true;
         }
 
-
+        public static void SwitchToGame(WorldData data) {
+            Mode = ProgramMode.Game;
+            GameRenderer.InitLoad(data);
+            Manager.InitInGame();
+            GameLogic.Init();
+            Gui.SwitchToGame();
+            ResetAgain = true;
+        }
 
 
 
@@ -160,13 +165,15 @@ namespace Game {
 
             Input.Update();
 
+          //  Thread.Sleep((int)((float)1000 / 60));
+
             Glut.glutSwapBuffers();
         }
 
         private static void Dispose() {
             GameRenderer.CleanUp();
             if (Mode == ProgramMode.Game) {
-                WorldData worlddata = new WorldData(Terrain.Tiles, (PlayerData)Player.Instance.data, Entity.GetAllEntities());
+                WorldData worlddata = new WorldData(Terrain.Tiles, Terrain.TerrainBiomes, (PlayerData)Player.Instance.data, Entity.GetAllEntities());
                 Serialization.SaveWorld(worldname, worlddata);
             }
 

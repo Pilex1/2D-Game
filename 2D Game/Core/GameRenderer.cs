@@ -11,40 +11,39 @@ namespace Game {
         public static Matrix4 projectionMatrix { get; private set; }
         public static Matrix4 viewMatrix { get; private set; }
 
-        public static void Init(WorldData worlddata) {
+        public static void InitNew(int seed) {
+            Terrain.CreateNew(seed);
+            Terrain.Init();
+
+            Entity.Init();
+            Player.CreateNew();
+            Entity.AddEntity(Player.Instance);
+            Player.Instance.CorrectTerrainCollision();
+
+            InitMatrices();
+        }
+
+        public static void InitLoad(WorldData worlddata) {
 
             //terrain
-            if (worlddata == null) {
-                Terrain.CreateNew();
-            } else {
-                Terrain.Load(worlddata.terrain);
-            }
+            Terrain.Load(worlddata.terrain);
             Terrain.Init();
 
             //entities
             Entity.Init();
-            if (worlddata == null) {
-                Player.CreateNew();
-            } else {
-                Player.LoadPlayer(worlddata.playerdata);
-               // Entity.Load(worlddata.entities);
-            }
+            Player.LoadPlayer(worlddata.playerdata);
+            // Entity.Load(worlddata.entities);
             Entity.AddEntity(Player.Instance);
 
-            if (worlddata==null)
-                Player.Instance.CorrectTerrainCollision();
+            //Load matrices  
+            InitMatrices();
 
-            PlayerData playerdata = (PlayerData)Player.Instance.data;
-            Inventory.Init(playerdata.items);
+        }
 
-
-
+        private static void InitMatrices() {
             projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(FOV, Program.AspectRatio, Near, Far);
-
-            //Load matrices
             LoadProjectionMatrix();
             UpdateViewMatrix();
-
         }
 
         private static void LoadProjectionMatrix() {

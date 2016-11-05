@@ -3,7 +3,6 @@ using OpenGL;
 using Game.Entities;
 using Game.Terrains;
 using System.Diagnostics;
-using Game.Assets;
 using System.Collections.Generic;
 using Game.Core;
 using Game.Util;
@@ -11,6 +10,14 @@ using Game.Particles;
 using System.Drawing;
 
 namespace Game {
+
+    enum EntityID {
+        //16 x 16
+        None = 0, ShooterProjectile, ParticlePurple, ParticleRed, ParticleGreen, ParticleBlue, Squisher,
+
+        //16 x 32
+        Shooter = 128, Player, PlayerSimple
+    }
 
     [Serializable]
     class EntityData {
@@ -31,6 +38,8 @@ namespace Game {
         public BoundedVector2 vel = new BoundedVector2(new BoundedFloat(0, -Entity.maxHorzSpeed, Entity.maxHorzSpeed), new BoundedFloat(0, -Entity.maxVertSpeed, Entity.maxVertSpeed));
         public BoundedVector2 Position = new BoundedVector2(new BoundedFloat(0, 0, Terrain.Tiles.GetLength(0) - 1), new BoundedFloat(0, 0, Terrain.Tiles.GetLength(1) - 1));
         public Vector4 colour = new Vector4(1, 1, 1, 1);
+
+        public EntityID entityId = EntityID.None;
     }
 
     [Serializable]
@@ -45,7 +54,7 @@ namespace Game {
         private static HashSet<Entity>[,] EntityGrid;
         public static ShaderProgram shader;
 
-        public EntityModel model;
+        public EntityID entityId;
         public Hitbox Hitbox { get; protected set; }
         public static Color Colornew { get; private set; }
 
@@ -53,20 +62,20 @@ namespace Game {
         #endregion
 
         #region Initialisation
-        protected Entity(EntityModel model, Hitbox hitbox, EntityData data) {
+        protected Entity(EntityID texid, Hitbox hitbox, EntityData data) {
             this.data = data;
-            this.model = model;
+            this.entityId = texid;
             Hitbox = hitbox;
             if (data.CorrectCollisions) CorrectTerrainCollision();
         }
 
-        protected Entity(EntityModel model) : this(model, Vector2.Zero) { }
+        protected Entity(EntityID entityId) : this(entityId, Vector2.Zero) { }
 
-        protected Entity(EntityModel model, Vector2 position) : this(model, new RectangularHitbox(position, model.size), position) { }
+        protected Entity(EntityID entityId, Vector2 position) : this(entityId, new RectangularHitbox(position, Assets.Models.GetModel(entityId).size), position) { }
 
-        protected Entity(EntityModel model, Hitbox hitbox, Vector2 position) {
+        protected Entity(EntityID entityId, Hitbox hitbox, Vector2 position) {
             data.Position.val = position;
-            this.model = model;
+            this.entityId = entityId;
             Hitbox = hitbox;
         }
 
@@ -78,7 +87,7 @@ namespace Game {
         }
 
         public static void Init() {
-            shader = new ShaderProgram(Asset.EntityVert, Asset.EntityFrag);
+            shader = new ShaderProgram(Assets.Shaders.EntityVert, Assets.Shaders.EntityFrag);
             Console.WriteLine("Entity Shader Log: ");
             Console.WriteLine(shader.ProgramLog);
             Particle.Init();
@@ -104,7 +113,8 @@ namespace Game {
                 if (!data.InAir) {
                     data.vel.y = data.jumppower;
                 }
-            } else {
+            }
+            else {
                 data.vel.y = data.jumppower;
             }
         }
@@ -114,7 +124,101 @@ namespace Game {
             }
         }
 
-        public bool UpdatePosition() {
+
+
+
+
+        /*
+        private void UpdateX(float x) {
+            Tile col;
+            Vector2 offset = new Vector2(x, 0);
+            if (Terrain.WillCollide(this, offset, out col)) {
+                if (x > 0)
+                    col.tileattribs.OnTerrainIntersect((int)data.Position.x, (int)data.Position.y, Direction.Right, this);
+                else
+                    col.tileattribs.OnTerrainIntersect((int)data.Position.x, (int)data.Position.y, Direction.Left, this);
+            }
+            else {
+                data.Position.val += offset;
+            }
+        }
+
+        private void UpdateY(float y) {
+            Tile col;
+            Vector2 offset = new Vector2(0, y);
+            if (Terrain.WillCollide(this, offset, out col)) {
+                if (y > 0)
+                    col.tileattribs.OnTerrainIntersect((int)data.Position.x, (int)data.Position.y, Direction.Up, this);
+                else
+                    col.tileattribs.OnTerrainIntersect((int)data.Position.x, (int)data.Position.y, Direction.Down, this);
+            }
+            else {
+                data.Position.val += offset;
+                if (y != 0)
+                    data.InAir = true;
+            }
+        }
+
+        public virtual void UpdatePosition() {
+
+            Vector2i gridPrev = GridArray(this);
+
+            //air resisstance & gravity
+            if (data.UseGravity)
+                data.vel.y -= data.Grav * GameTime.DeltaTime;
+            data.vel.x *= (float)Math.Pow(data.AirResis, GameTime.DeltaTime);
+
+            float delta = 0.02f;
+
+            float xcopy = data.vel.x;
+            float ycopy = data.vel.y;
+            bool xneg = xcopy < 0;
+            bool yneg = ycopy < 0;
+            bool xflag = xcopy == 0;
+            bool yflag = ycopy == 0;
+            xcopy = Math.Abs(xcopy);
+            ycopy = Math.Abs(ycopy);
+
+            while (true) {
+
+                if (xflag && yflag) break;
+
+                //update x
+                if (!xflag) {
+                    float amt = (xcopy >= delta ? delta : xcopy) * (xneg ? -1 : 1);
+                    xcopy -= delta;
+                    UpdateX(amt);
+
+                    if (xcopy <= 0) xflag = true;
+                }
+
+                //update y
+                if (!yflag) {
+                    float amt = (ycopy >= delta ? delta : ycopy) * (yneg ? -1 : 1);
+                    ycopy -= delta;
+                    UpdateY(amt);
+
+                    if (ycopy <= 0) yflag = true;
+                }
+            }
+
+
+
+
+            Vector2i gridNow = GridArray(this);
+            if (gridPrev != gridNow) {
+                //recalc grid array
+                EntityGrid[gridPrev.x, gridPrev.y].Remove(this);
+                EntityGrid[gridNow.x, gridNow.y].Add(this);
+            }
+        }
+
+        */
+
+
+
+        public bool UpdatePosition()
+        {
 
             Vector2i gridPrev = GridArray(this);
             bool moved = false;
@@ -127,12 +231,15 @@ namespace Game {
             {
                 Tile col;
                 Vector2 offset = new Vector2(0, data.vel.y * GameTime.DeltaTime);
-                if (Terrain.WillCollide(this, offset, out col)) {
+                if (Terrain.WillCollide(this, offset, out col))
+                {
                     if (data.vel.y > 0)
                         moved = col.tileattribs.OnTerrainIntersect((int)data.Position.x, (int)data.Position.y, Direction.Up, this);
                     else
                         moved = col.tileattribs.OnTerrainIntersect((int)data.Position.x, (int)data.Position.y, Direction.Down, this);
-                } else {
+                }
+                else
+                {
                     data.Position.val += offset;
                     if (offset.y != 0) moved = true;
                     data.InAir = true;
@@ -142,12 +249,15 @@ namespace Game {
             {
                 Tile col;
                 Vector2 offset = new Vector2(data.vel.x * GameTime.DeltaTime, 0);
-                if (Terrain.WillCollide(this, offset, out col)) {
+                if (Terrain.WillCollide(this, offset, out col))
+                {
                     if (data.vel.x > 0)
                         moved = col.tileattribs.OnTerrainIntersect((int)data.Position.x, (int)data.Position.y, Direction.Right, this);
                     else
                         moved = col.tileattribs.OnTerrainIntersect((int)data.Position.x, (int)data.Position.y, Direction.Left, this);
-                } else {
+                }
+                else
+                {
                     data.Position.val += offset;
                     if (offset.x != 0) moved = true;
                 }
@@ -156,7 +266,8 @@ namespace Game {
 
 
             Vector2i gridNow = GridArray(this);
-            if (gridPrev != gridNow) {
+            if (gridPrev != gridNow)
+            {
                 //recalc grid array
                 EntityGrid[gridPrev.x, gridPrev.y].Remove(this);
                 EntityGrid[gridNow.x, gridNow.y].Add(this);
@@ -164,8 +275,6 @@ namespace Game {
 
             return moved;
         }
-
-        public abstract void Update();
 
 
         #endregion
@@ -226,7 +335,8 @@ namespace Game {
 
         #region Matrices
         public virtual Matrix4 ModelMatrix() {
-            return Matrix4.CreateScaling(new Vector3(model.size.x, model.size.y, 0)) * Matrix4.CreateRotationZ(data.rot) * Matrix4.CreateTranslation(new Vector3(data.Position.x, data.Position.y, 0));
+            Vector2 size = Assets.Models.GetModel(entityId).size;
+            return Matrix4.CreateScaling(new Vector3(size.x, size.y, 0)) * Matrix4.CreateRotationZ(data.rot) * Matrix4.CreateTranslation(new Vector3(data.Position.x, data.Position.y, 0));
         }
 
         public static void UpdateViewMatrix(Matrix4 mat) {
@@ -289,6 +399,11 @@ namespace Game {
             return list.ToArray();
         }
 
+        public virtual void Update() {
+            UpdatePosition();
+            Hitbox.Position = data.Position;
+        }
+
         public static void UpdateAll() {
             int minx, maxx, miny, maxy;
             Terrain.Range(out minx, out maxx, out miny, out maxy);
@@ -331,32 +446,35 @@ namespace Game {
             MathUtil.Clamp(ref maxgx, 0, EntityGrid.GetLength(0) - 1);
             MathUtil.Clamp(ref maxgy, 0, EntityGrid.GetLength(1) - 1);
 
-            Dictionary<EntityModel, HashSet<Entity>> EntitiesMap = new Dictionary<EntityModel, HashSet<Entity>>();
+            Dictionary<EntityID, HashSet<Entity>> EntitiesMap = new Dictionary<EntityID, HashSet<Entity>>();
             for (int i = mingx; i <= maxgx; i++) {
                 for (int j = mingy; j <= maxgy; j++) {
                     HashSet<Entity> set = EntityGrid[i, j];
                     foreach (Entity e in set) {
                         HashSet<Entity> setbatch;
-                        if (EntitiesMap.TryGetValue(e.model, out setbatch)) {
+                        if (EntitiesMap.TryGetValue(e.entityId, out setbatch)) {
                             setbatch.Add(e);
-                        } else {
+                        }
+                        else {
                             setbatch = new HashSet<Entity>();
                             setbatch.Add(e);
-                            EntitiesMap.Add(e.model, setbatch);
+                            EntitiesMap.Add(e.entityId, setbatch);
                         }
                     }
                 }
             }
 
             LoadedEntities = 0;
-            foreach (EntityModel model in EntitiesMap.Keys) {
+            Gl.BindTexture(Assets.Textures.EntityTexture.TextureTarget, Assets.Textures.EntityTexture.TextureID);
+            foreach (EntityID entityId in EntitiesMap.Keys) {
+                EntityModel model = Assets.Models.GetModel(entityId);
                 Gl.BindVertexArray(model.vao.ID);
                 if (model.blend) {
                     Gl.Enable(EnableCap.Blend);
                     Gl.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
                 }
-                Gl.BindTexture(model.texture.TextureTarget, model.texture.TextureID);
-                foreach (Entity e in EntitiesMap[model]) {
+
+                foreach (Entity e in EntitiesMap[entityId]) {
                     LoadedEntities++;
                     shader["modelMatrix"].SetValue(e.ModelMatrix());
                     if (e.data.recentDmg > 0) {
@@ -365,17 +483,18 @@ namespace Game {
                         Vector4 colouroffset = TextureUtil.ToVec4(Color.DarkGoldenrod) * new Vector4(offsetval, offsetval, offsetval, 1);
                         colouroffset *= e.data.colour;
                         shader["clr"].SetValue(colouroffset);
-                    } else {
+                    }
+                    else {
                         shader["clr"].SetValue(e.data.colour);
                     }
 
-
                     Gl.DrawElements(model.drawmode, model.vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
                 }
-                Gl.BindTexture(model.texture.TextureTarget, 0);
+
                 Gl.Disable(EnableCap.Blend);
                 Gl.BindVertexArray(0);
             }
+            Gl.BindTexture(Assets.Textures.EntityTexture.TextureTarget, 0);
             Gl.UseProgram(0);
         }
 

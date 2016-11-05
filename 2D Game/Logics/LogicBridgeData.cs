@@ -45,13 +45,23 @@ namespace Game.Logics {
 
             if (neighbourHorz != 0) {
                 float transval = bufferHorz / neighbourHorz;
-                BoundedFloat.MoveVals(ref bufferHorz, ref poweroutL, transval);
-                BoundedFloat.MoveVals(ref bufferHorz, ref poweroutR, transval);
+
+                if (base.IsLogicL(x, y)) {
+                    BoundedFloat.MoveVals(ref bufferHorz, ref poweroutL, transval);
+                }
+
+                if (base.IsLogicR(x, y)) {
+                    BoundedFloat.MoveVals(ref bufferHorz, ref poweroutR, transval);
+                }
             }
             if (neighbourVert != 0) {
                 float transval = bufferVert / neighbourVert;
-                BoundedFloat.MoveVals(ref bufferVert, ref poweroutU, transval);
-                BoundedFloat.MoveVals(ref bufferVert, ref poweroutD, transval);
+                if (base.IsLogicU(x, y)) {
+                    BoundedFloat.MoveVals(ref bufferHorz, ref poweroutU, transval);
+                }
+                if (base.IsLogicD(x, y)) {
+                    BoundedFloat.MoveVals(ref bufferHorz, ref poweroutD, transval);
+                }
             }
 
             powerOutLCache = poweroutL.val;

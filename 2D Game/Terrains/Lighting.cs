@@ -93,6 +93,7 @@ namespace Game.Terrains {
         }
 
         public static void AddLight(int x, int y, int strength) {
+            Debug.Assert(strength <= LightRadius);
             ArtificialLight[new Vector2i(x, y)] = strength;
             UpdateAround(x, y);
         }

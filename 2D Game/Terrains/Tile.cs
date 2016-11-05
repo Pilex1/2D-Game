@@ -14,7 +14,6 @@ namespace Game.Terrains {
     class TileAttribs {
         public bool solid = true;
         public bool movable = true;
-        public bool lightEmitting = false;
         public bool transparent = false;
         public Direction rotation = Direction.Up;
 
@@ -73,7 +72,6 @@ namespace Game.Terrains {
         public static readonly Tile Bedrock = new Tile(TileEnum.Bedrock);
         #endregion Special
 
-
         #region Normal
         public static readonly Tile Grass = new Tile(TileEnum.Grass);
         public static readonly Tile Sand = new Tile(TileEnum.Sand);
@@ -120,7 +118,7 @@ namespace Game.Terrains {
         public static readonly Tile Nuke = new Tile(TileEnum.Nuke, new ExplosionData { radius = 50, error = 2 });
         #endregion Misc
 
-
+        public static readonly Tile Light = new Tile(TileEnum.Light, new LightData(16));
 
         public override string ToString() {
             return enumId.ToString();
@@ -144,9 +142,19 @@ namespace Game.Terrains {
         }
     }
 
+    [Serializable]
+    class LightData : TileAttribs {
+        public int intensity { get; private set; }
+
+        public LightData(int intensity) {
+            this.intensity = intensity;
+        }
+    }
+
+
 
     enum TileEnum {
-        Invalid = -1, Air, Grass, Sand, Dirt, Wood, Leaf, Stone, Bedrock, Tnt, Sandstone, Sapling, TileBreakerOn, Brick, Metal1, SmoothSlab, WeatheredStone, Metal2, FutureMetal, SmoothSlab2, Marble, PlexSpecial, PurpleStone, Nuke, Cactus, Bounce, Water, WireOn, WireOff, SwitchOn, SwitchOff, LogicLampUnlit, LogicLampLit, Snow, SnowWood, SnowLeaf, GrassDeco, GateAnd, GateOr, GateNot, LogicBridgeOff, LogicBridgeHorzVertOn, LogicBridgeHorzOn, LogicBridgeVertOn, TilePusherOff, TilePusherOn, TilePullerOn, TilePullerOff, TileBreakerOff
+        Invalid = -1, Air, Grass, Sand, Dirt, Wood, Leaf, Stone, Bedrock, Tnt, Sandstone, Sapling, TileBreakerOn, Brick, Metal1, SmoothSlab, WeatheredStone, Metal2, FutureMetal, SmoothSlab2, Marble, PlexSpecial, PurpleStone, Nuke, Cactus, Bounce, Water, WireOn, WireOff, SwitchOn, SwitchOff, LogicLampUnlit, LogicLampLit, Snow, SnowWood, SnowLeaf, GrassDeco, GateAnd, GateOr, GateNot, LogicBridgeOff, LogicBridgeHorzVertOn, LogicBridgeHorzOn, LogicBridgeVertOn, TilePusherOff, TilePusherOn, TilePullerOn, TilePullerOff, TileBreakerOff, Light
     }
 
     #region Fluids

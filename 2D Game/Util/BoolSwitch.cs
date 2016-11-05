@@ -19,6 +19,10 @@ namespace Game.Util {
 
         private BoolSwitch() { }
 
+        public void AddTimer() {
+            CooldownTimer.AddTimer(cooldowntimer);
+        }
+
         public void Toggle() {
             if (cooldowntimer.Ready()) {
                 val = !val;

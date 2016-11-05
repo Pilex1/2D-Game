@@ -14,33 +14,41 @@ namespace Game.Terrains {
 
     static class Terrain {
 
-        private static Random Rand = new Random();
+        #region Fields
+        internal static Tile[,] Tiles;
+        internal static Biome[] TerrainBiomes;
+        internal static int[] Heights;
 
-        internal static bool terrainGenerated = false;
+        private static Random Rand = new Random();
 
         public static bool UpdateMesh = true;
         public static TerrainVAO vao;
-        public static Texture texture;
 
         public static Dictionary<Vector2i, LogicData> LogicDict = new Dictionary<Vector2i, LogicData>();
-
-        internal static Tile[,] Tiles;
-
-        internal static int[] Heights;
 
         private const int TerrainTextureSize = 16;
 
         private const float Epsilon = 0.001f;
 
         public static ShaderProgram TerrainShader { get; private set; }
+        #endregion
 
-        public static void CreateNew() {
+        #region Init
+        public static void CreateNew(int seed) {
             Console.WriteLine("Generating terrain...");
             Stopwatch watch = new Stopwatch();
             watch.Start();
-            TerrainGen.Generate(MathUtil.RandInt(new Random(), 0, Int32.MaxValue >> 1));
+            TerrainGen.Generate(seed);
             watch.Stop();
             Console.WriteLine("Terrain generation finished in " + watch.ElapsedMilliseconds + " ms");
+        }
+
+        public static void CreateNew(string seed) {
+            int sum = 0;
+            for (int i = 0; i < seed.Length; i++) {
+                sum += (int)Math.Pow(2, i) * seed[i];
+            }
+            CreateNew(sum);
         }
 
         public static void Load(Tile[,] Tiles) {
@@ -55,23 +63,14 @@ namespace Game.Terrains {
             }
         }
 
-
-        public static void UpdateViewMatrix(Matrix4 mat) {
-            Debug.Assert(TerrainShader != null);
-            Gl.UseProgram(TerrainShader.ProgramID);
-            TerrainShader["viewMatrix"].SetValue(mat);
-            Gl.UseProgram(0);
-        }
-
         public static void Init() {
-            TerrainShader = new ShaderProgram(Asset.TerrainVert, Asset.TerrainFrag);
+            TerrainShader = new ShaderProgram(Shaders.TerrainVert, Shaders.TerrainFrag);
             Console.WriteLine("Terrain Shader Log: ");
             Console.WriteLine(TerrainShader.ProgramLog);
 
             InitHeights();
             Lighting.Init();
             InitMesh();
-            terrainGenerated = true;
         }
 
         private static void InitHeights() {
@@ -86,22 +85,23 @@ namespace Game.Terrains {
             }
         }
 
+        #endregion
+
+        #region Matrices
+        public static void UpdateViewMatrix(Matrix4 mat) {
+            Debug.Assert(TerrainShader != null);
+            Gl.UseProgram(TerrainShader.ProgramID);
+            TerrainShader["viewMatrix"].SetValue(mat);
+            Gl.UseProgram(0);
+        }
+
         public static void SetProjectionMatrix(Matrix4 mat) {
             Debug.Assert(TerrainShader != null);
             Gl.UseProgram(TerrainShader.ProgramID);
             TerrainShader["projectionMatrix"].SetValue(mat);
             Gl.UseProgram(0);
         }
-
-        public static void Render() {
-            Gl.UseProgram(TerrainShader.ProgramID);
-            Gl.BindVertexArray(vao.ID);
-            Gl.BindTexture(texture.TextureTarget, texture.TextureID);
-            Gl.DrawElements(BeginMode.Triangles, vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
-            Gl.BindTexture(texture.TextureTarget, 0);
-            Gl.BindVertexArray(0);
-            Gl.UseProgram(0);
-        }
+        #endregion
 
         #region Mesh
 
@@ -113,8 +113,6 @@ namespace Game.Terrains {
 
             Lighting.Init();
             float[] lightings = Lighting.CalcMesh();
-
-            texture = Asset.TerrainTexture;
 
             vao = new TerrainVAO(vertices, elements, uvs, lightings);
         }
@@ -189,6 +187,17 @@ namespace Game.Terrains {
                 elements[6 * i + 5] = 4 * i + 3;
             }
         }
+
+        internal static Tile[,] ShallowCopyTileData() {
+            Tile[,] result = new Tile[Tiles.GetLength(0), Tiles.GetLength(1)];
+            for (int i = 0; i < Tiles.GetLength(0); i++) {
+                for (int j = 0; j < Tiles.GetLength(1); j++) {
+                    result[i, j] = Tiles[i, j];
+                }
+            }
+            return result;
+        }
+
         #endregion Mesh
 
         #region Collision
@@ -272,6 +281,7 @@ namespace Game.Terrains {
         }
         #endregion Collision
 
+        #region Tile Interaction
         public static Tile TileAt(Vector2i v) { return TileAt(v.x, v.y); }
         public static Tile TileAt(int x, int y) { return x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1) ? Tile.Invalid : Tiles[x, y]; }
         public static Tile TileAt(float x, float y) { return TileAt((int)x, (int)y); }
@@ -288,6 +298,12 @@ namespace Game.Terrains {
             Lighting.RecalcAll();
         }
 
+        internal static void SetTileTerrainGen(int x, int y, Tile tile, bool overwrite) {
+            if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return;
+            if (!overwrite && Tiles[x, y].enumId != TileEnum.Air) return;
+            Tiles[x, y] = tile;
+        }
+
         public static void SetTile(int x, int y, Tile tile) { SetTile(x, y, tile, true); }
         private static void SetTileNoUpdate(int x, int y, Tile tile) { SetTile(x, y, tile, false); }
         private static void SetTile(int x, int y, Tile tile, bool update) {
@@ -298,13 +314,18 @@ namespace Game.Terrains {
             if (x >= xmin && x <= xmax && y >= ymin && y <= ymax) return;
 
             Tiles[x, y] = tile;
+
             LogicData logic = tile.tileattribs as LogicData;
             if (logic != null && update) {
                 LogicDict.Add(new Vector2i(x, y), logic);
             }
+
+            LightData light = tile.tileattribs as LightData;
+            if (light != null) {
+                Lighting.AddLight(x, y, light.intensity);
+            }
+
             UpdateMesh = true;
-            if (terrainGenerated) { }
-            //Debug.WriteLine(String.Format("{0} tile placed at {{{1}, {2}}}", tile.enumId.ToString(), x, y));
             if (!tile.tileattribs.transparent && y > Heights[x]) Heights[x] = y;
             Lighting.QueueUpdate(x, y);
         }
@@ -317,8 +338,6 @@ namespace Game.Terrains {
             LogicDict.Remove(new Vector2i(x, y));
             Tiles[x, y] = Tile.Air;
             UpdateMesh = true;
-            if (terrainGenerated) { }
-            //Debug.WriteLine(String.Format("{0} tile removed at {{{1}, {2}}}", tile.enumId.ToString(), x, y));
             if (Heights[x] == y) {
                 for (int j = y - 1; j > 0; j--) {
                     if (!Tiles[x, j].tileattribs.transparent) {
@@ -329,6 +348,12 @@ namespace Game.Terrains {
             }
             Lighting.QueueUpdate(x, y);
             return tile;
+        }
+        public static Tile BreakTile(Vector2i v) {
+            return BreakTile(v.x, v.y);
+        }
+        public static Tile BreakTile(Vector2 v) {
+            return BreakTile(v.x, v.y);
         }
         public static Tile BreakTile(float x, float y) {
             return BreakTile((int)x, (int)y);
@@ -413,6 +438,18 @@ namespace Game.Terrains {
             Lighting.QueueUpdate(x, y);
 
         }
+        #endregion
+
+        #region Update & Render
+        public static void Render() {
+            Gl.UseProgram(TerrainShader.ProgramID);
+            Gl.BindVertexArray(vao.ID);
+            Gl.BindTexture(Textures.TerrainTexture.TextureTarget, Textures.TerrainTexture.TextureID);
+            Gl.DrawElements(BeginMode.Triangles, vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+            Gl.BindTexture(Textures.TerrainTexture.TextureTarget, 0);
+            Gl.BindVertexArray(0);
+            Gl.UseProgram(0);
+        }
 
         public static void Update() {
 
@@ -442,6 +479,8 @@ namespace Game.Terrains {
             //serialise terrain
             //   Serialization.SaveTerrain(Tiles);
         }
+
+        #endregion
 
     }
 }

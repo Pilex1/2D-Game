@@ -15,15 +15,15 @@ namespace Game.Guis {
         internal Text text;
         internal GuiModel model;
 
-        public Label(Vector2 pos, Vector2 size, string textstring, TextFont font, float textsize) {
+        public Label(Vector2 pos, Vector2 size, string textstring, TextStyle style) {
             this.pos = pos;
-            this.text = new Text(textstring, font, textsize, new Vector2(pos.x, pos.y + 0.05), 0.5f,1, TextAlignment.CenterCenter);
-            model = GuiModel.CreateRectangle(size, Asset.LabelTex);
+            this.text = new Text(textstring, style, new Vector2(pos.x, pos.y + 0.05));
+            model = GuiModel.CreateRectangle(size, Textures.LabelTex);
         }
 
         internal void Dispose() {
             text.Dispose();
-            model.Dispose();
+            model.DisposeAll();
         }
     }
 }

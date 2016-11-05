@@ -67,7 +67,7 @@ namespace Game.Core {
         public static float RayCastAngle() {
             Vector2 playerpos = Player.Instance.data.Position.val;
             Vector2 raycast = TerrainIntersect();
-            return MathUtil.AngleTo(playerpos, raycast);
+            return MathUtil.AngleFrom(playerpos, raycast);
         }
 
         #region Glut Callbacks

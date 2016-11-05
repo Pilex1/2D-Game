@@ -26,7 +26,7 @@ namespace Game.Interaction {
             CurSelectedSlot = 0;
 
             Frame = new GuiModel(FrameVao(), TextureUtil.CreateTexture(new Vector3(0, 0, 0.1)), BeginMode.Lines, new Vector2(1,1));
-            ItemDisplay = new GuiModel(ItemDisplayVao(), Asset.ItemTexture, BeginMode.Triangles, new Vector2(1,1));
+            ItemDisplay = new GuiModel(ItemDisplayVao(), Textures.ItemTexture, BeginMode.Triangles, new Vector2(1,1));
             SelectedDisplay = GuiModel.CreateWireRectangleTopLeft(new Vector2(SizeX, SizeY), ColourUtil.ColourFromVec3(new Vector3(0, 0, 1)));
         }
 
@@ -119,11 +119,11 @@ namespace Game.Interaction {
         //    ItemDisplay?.Dispose();
         //    SelectedDisplay?.Dispose();
             if (Frame != null)
-                Frame.Dispose();
+                Frame.DisposeAll();
             if (ItemDisplay != null)
-                ItemDisplay.Dispose();
+                ItemDisplay.DisposeAll();
             if (SelectedDisplay != null)
-                SelectedDisplay.Dispose();
+                SelectedDisplay.DisposeAll();
         }
     }
 }

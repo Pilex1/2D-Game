@@ -18,30 +18,40 @@ namespace Game.Fonts {
         CenterCenter, TopLeft
     }
 
+    struct TextStyle {
+        public TextAlignment alignment;
+        public TextFont font;
+        public float size;
+        public float maxwidth;
+        public int maxlines;
+        public Vector3 colour;
 
-    class Text {
-        internal GuiModel model;
-
-        internal Vector3 colour;
-        internal TextFont font { get; private set; }
-        private Vector2 relpos;
-        internal Vector2 pos;
-        internal float maxwidth;
-        private StringBuilder sb_text;
-        private TextAlignment alignment;
-        internal float size;
-        private int maxlines;
-
-        public Text(string text, TextFont font, float size, Vector2 pos, float maxwidth, int maxlines, TextAlignment alignment) {
-            sb_text = new StringBuilder();
-            sb_text.Append(text);
+        public TextStyle(TextAlignment alignment, TextFont font, float size, float maxwidth, int maxlines, Vector3 colour) {
             this.alignment = alignment;
             this.font = font;
             this.maxwidth = maxwidth * font.fontTexture.Size.Width / size;
-            this.relpos = pos;
             this.size = size / font.fontTexture.Size.Width;
             this.maxlines = maxlines;
-            colour = new Vector3(1, 1, 1);
+            this.colour = colour;
+        }
+    }
+
+    class Text {
+        internal GuiModel model;
+        
+        internal TextStyle style;
+
+        private Vector2 relpos;
+        internal Vector2 pos;
+
+        private StringBuilder sb_text;
+
+        public Text(string text, TextStyle style, Vector2 pos) {
+            sb_text = new StringBuilder();
+            sb_text.Append(text);
+
+            this.style = style;
+            this.relpos = pos;
             InitModel();
         }
 
@@ -49,9 +59,9 @@ namespace Game.Fonts {
             Vector2[] vertices;
             int[] elements;
             Vector2[] uvs;
-            SetTextHelper(font.fontTexture.Size.Width, this.size, font.fontTexture.Size.Height, out vertices, out elements, out uvs);
+            SetTextHelper(style.font.fontTexture.Size.Width, style.size, style.font.fontTexture.Size.Height, out vertices, out elements, out uvs);
             GuiVAO vao = new GuiVAO(vertices, elements, uvs);
-            model = new GuiModel(vao, font.fontTexture, BeginMode.Triangles, new Vector2(size, size));
+            model = new GuiModel(vao, style.font.fontTexture, BeginMode.Triangles, new Vector2(style.size, style.size));
         }
 
         private void SetTextHelper(int texwidth, float size, int texheight, out Vector2[] vertices, out int[] elements, out Vector2[] uvs) {
@@ -65,20 +75,20 @@ namespace Game.Fonts {
 
             int vptr = 0;
             int xptr = 0;
-            int lineheight = font.lineHeight;
+            int lineheight = style.font.lineHeight;
             int line = 0;
 
             float actualmaxwidth = 0;
 
             for (int k = 0; k < lines.Length; k++) {
-                if (k >= maxlines) break;
+                if (k >= style.maxlines) break;
                 string[] words = lines[k].Split(' ');
                 for (int i = 0; i < words.Length; i++) {
                     string word = words[i];
                     int textwidth = TextWidth(word);
 
                     //if it will overflow
-                    if (xptr + textwidth > maxwidth) {
+                    if (xptr + textwidth > style.maxwidth) {
                         //new line
                         if (xptr > actualmaxwidth) {
                             actualmaxwidth = xptr;
@@ -90,7 +100,7 @@ namespace Game.Fonts {
                     for (int j = 0; j < word.Length; j++) {
 
                         char c = word[j];
-                        CharacterInfo info = font.charSet[c];
+                        CharacterInfo info = style.font.charSet[c];
 
                         //topleft, bottomleft, bottomright, topright
                         vertices[vptr] = new Vector2(xptr + info.xoffset, info.yoffset - line * lineheight);
@@ -106,7 +116,7 @@ namespace Game.Fonts {
 
                         vptr += 4;
                     }
-                    xptr += font.charSet[' '].xadvance;
+                    xptr += style.font.charSet[' '].xadvance;
                 }
 
                 //new line
@@ -123,12 +133,12 @@ namespace Game.Fonts {
             if (line == 0)
                 actualmaxwidth = xptr;
 
-            switch (alignment) {
+            switch (style.alignment) {
                 case TextAlignment.CenterCenter:
                     pos = new Vector2(relpos.x - actualmaxwidth / 2 * size, relpos.y);
                     break;
                 case TextAlignment.TopLeft:
-                    pos = new Vector2(relpos.x, relpos.y - font.lineHeight * size);
+                    pos = new Vector2(relpos.x, relpos.y - style.font.lineHeight * size);
                     break;
                 default:
                     break;
@@ -157,7 +167,7 @@ namespace Game.Fonts {
             Vector2[] vertices;
             int[] elements;
             Vector2[] uvs;
-            SetTextHelper(font.fontTexture.Size.Width, size, font.fontTexture.Size.Height, out vertices, out elements, out uvs);
+            SetTextHelper(style.font.fontTexture.Size.Width, style.size, style.font.fontTexture.Size.Height, out vertices, out elements, out uvs);
             model.vao.UpdateAll(vertices, elements, uvs);
 
         }
@@ -166,6 +176,10 @@ namespace Game.Fonts {
             sb_text.Clear();
             sb_text.Append(s);
             UpdateText();
+        }
+
+        public string GetText() {
+            return sb_text.ToString();
         }
 
         public void InsertCharacter(int index, char c) {
@@ -188,7 +202,7 @@ namespace Game.Fonts {
             Debug.Assert(!s.Contains(' '));
             int xptr = 0;
             foreach (char c in s) {
-                CharacterInfo info = font.charSet[c];
+                CharacterInfo info = style.font.charSet[c];
                 xptr += info.xadvance;
             }
             return xptr;
@@ -204,7 +218,7 @@ namespace Game.Fonts {
 
         internal void Dispose() {
             if (model != null)
-                model.Dispose();
+                model.DisposeVao();
         }
     }
 }

@@ -63,7 +63,7 @@ namespace Game.Assets {
                 case Item.StaffBlue: {
                         Vector2 pos = Player.Instance.data.Position.val;
                         pos += new Vector2(Player.Instance.Hitbox.Width / 2, Player.Instance.Hitbox.Height / 2);
-                        pos += MathUtil.RandVector2(Program.Rand, new Vector2(-1, -1), new Vector2(1, 1));
+                        pos += MathUtil.RandVector2(Program.Rand, -1, 1);
                         Vector2 vel = Input.RayCast().Normalize();
                         Vector2 playervel = new Vector2(Player.Instance.data.vel.x, Player.Instance.data.vel.y);
                         vel += playervel;
@@ -73,7 +73,7 @@ namespace Game.Assets {
                 case Item.StaffRed: {
                         Vector2 pos = Player.Instance.data.Position.val;
                         pos += new Vector2(Player.Instance.Hitbox.Width / 2, Player.Instance.Hitbox.Height / 2);
-                        pos += MathUtil.RandVector2(Program.Rand, new Vector2(-1, -1), new Vector2(1, 1));
+                        pos += MathUtil.RandVector2(Program.Rand, -1, 1);
                         Vector2 vel = Input.RayCast().Normalize();
                         Vector2 playervel = new Vector2(Player.Instance.data.vel.x, Player.Instance.data.vel.y);
                         vel += playervel;
@@ -83,7 +83,11 @@ namespace Game.Assets {
                 case Item.StaffPurple: {
                         Vector2 pos = Player.Instance.data.Position.val;
                         pos += new Vector2(Player.Instance.Hitbox.Width / 2, Player.Instance.Hitbox.Height / 2);
-                        StaffParticlePurple.Create(pos);
+                        pos += MathUtil.RandVector2(Program.Rand, -1, 1);
+                        Vector2 vel = Input.RayCast().Normalize();
+                        Vector2 playervel = new Vector2(Player.Instance.data.vel.x, Player.Instance.data.vel.y);
+                        vel += playervel;
+                        StaffParticlePurple.Create(pos, vel);
                     }
                     break;
             }

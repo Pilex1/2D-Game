@@ -92,6 +92,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\GameRenderer.cs" />
     <Compile Include="Entities\Shooter.cs" />
+    <Compile Include="Terrains\CaveGen.cs" />
     <Compile Include="Terrains\ExplosionData.cs" />
     <Compile Include="Terrains\Lighting.cs" />
     <Compile Include="Terrains\Terrain.cs" />

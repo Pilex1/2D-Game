@@ -53,11 +53,12 @@ namespace Game.Interaction {
 
 
             Frame = new GuiModel(FrameVao(), TextureUtil.CreateTexture(new Vector3(0, 0, 0.1)), BeginMode.Lines, new Vector2(1, 1));
-            ItemDisplay = new GuiModel(ItemDisplayVao(), Asset.ItemTexture, BeginMode.Triangles, new Vector2(1, 1));
+            ItemDisplay = new GuiModel(ItemDisplayVao(), Textures.ItemTexture, BeginMode.Triangles, new Vector2(1, 1));
             SelectedDisplay = GuiModel.CreateWireRectangleTopLeft(new Vector2(Hotbar.SizeX, Hotbar.SizeY), Color.Blue);
             Background = GuiModel.CreateRectangleTopLeft(new Vector2(InvColumns * Hotbar.SizeX, (InvRows - 1) * Hotbar.SizeY), Color.DimGray);
 
-            text = new Text("Inventory", TextFont.Chiller, 0.5f, Vector2.Zero, 1, 1, TextAlignment.CenterCenter);
+            TextStyle style = new TextStyle(TextAlignment.CenterCenter, TextFont.Chiller, 0.5f, 1f, 1, new Vector3(1, 1, 1));
+            text = new Text("Inventory", style, new Vector2(0, 0));
             textbg = GuiModel.CreateRectangle(new Vector2(0.5, 0.05), Color.DimGray);
         }
 
@@ -168,11 +169,11 @@ namespace Game.Interaction {
             //ItemDisplay?.Dispose();
             //SelectedDisplay?.Dispose();
             if (Frame != null)
-                Frame.Dispose();
+                Frame.DisposeAll();
             if (ItemDisplay != null)
-                ItemDisplay.Dispose();
+                ItemDisplay.DisposeVao();
             if (SelectedDisplay != null)
-                SelectedDisplay.Dispose();
+                SelectedDisplay.DisposeAll();
         }
 
     }

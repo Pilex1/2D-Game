@@ -34,6 +34,10 @@ namespace Game.Util {
         public static implicit operator Vector2(BoundedVector2 v) {
             return new Vector2(v.x, v.y);
         }
+
+        public override string ToString() {
+            return String.Format("{0}, {1}", bfx, bfy);
+        }
     }
 
     [Serializable]
