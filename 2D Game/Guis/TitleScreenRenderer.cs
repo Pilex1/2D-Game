@@ -116,9 +116,9 @@ namespace Game.TitleScreen {
 
             txt_Main_Title = new Text("TITLE HERE", new TextStyle(TextAlignment.CenterCenter, TextFont.Chiller, 3f, 2f, 1, new Vector3(1, 1, 1)), new Vector2(0, 1));
             backgroundpos = Vector2.Zero;
-            float s = 1f/Program.AspectRatio;
+            float s = 1f / Program.AspectRatio;
             float imageAspectRatio = (float)Textures.TitleBackgroundTex.Size.Width / Textures.TitleBackgroundTex.Size.Height;
-            background = GuiModel.CreateRectangle(new Vector2(s*imageAspectRatio, s), Textures.TitleBackgroundTex);
+            background = GuiModel.CreateRectangle(new Vector2(s * imageAspectRatio, s), Textures.TitleBackgroundTex);
             background.vao.UpdateUVs(new Vector2[] {
                 backgroundpos+new Vector2(0,1f),
                 backgroundpos+new Vector2(0,0),
@@ -250,7 +250,7 @@ namespace Game.TitleScreen {
             if (backgroundpos.x < Program.AspectRatio - (float)Textures.TitleBackgroundTex.Size.Width / Textures.TitleBackgroundTex.Size.Height) {
                 backgrounddx *= -1;
             }
-            Debug.WriteLine(backgroundpos);
+            // Debug.WriteLine(backgroundpos);
 
             if (state == State.NewWorld) {
                 string worldname = txtbx_NewWorld_Name.GetText();
@@ -282,7 +282,7 @@ namespace Game.TitleScreen {
 
             RenderInstance(background, backgroundpos, new Vector3(1, 0.9, 0.9));
 
-            Debug.WriteLine(btn_NewWorld_CreateWorld.colour);
+            //  Debug.WriteLine(btn_NewWorld_CreateWorld.colour);
 
             foreach (var b in CurButtons)
                 RenderInstance(b.model, b.pos, b.colour);

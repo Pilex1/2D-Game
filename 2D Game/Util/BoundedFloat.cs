@@ -1,5 +1,6 @@
 ﻿using OpenGL;
 using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Game.Util {
@@ -52,6 +53,7 @@ namespace Game.Util {
             get { return _val; }
             set {
                 if (Math.Abs(value) < Epsilon) value = 0;
+                if (double.IsNaN(value)) value = 0;
                 if (value < min) value = min;
                 if (value > max) value = max;
                 _val = value;
@@ -107,6 +109,7 @@ namespace Game.Util {
         }
 
         public static void MoveVals(ref BoundedFloat src, ref BoundedFloat dest, float val) {
+            Debug.Assert(!double.IsNaN(src) && !double.IsNaN(dest));
             dest.val += val;
             src.val -= val;
             if (dest.val > dest.max) {
@@ -125,6 +128,7 @@ namespace Game.Util {
                 dest.val += (src.min - src.val);
                 src.val = src.min;
             }
+            Debug.Assert(!double.IsNaN(src) && !double.IsNaN(dest));
         }
 
         public static implicit operator float(BoundedFloat f) {

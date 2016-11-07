@@ -9,11 +9,11 @@ using System.Text;
 namespace Game.Logics {
 
     [Serializable]
-    class LogicLampData : PowerDrainData {
+    class LogicLampAttribs : PowerDrainData {
 
         public bool state { get; protected set; }
 
-        public LogicLampData() {
+        public LogicLampAttribs() {
             powerinL.max = powerinR.max = powerinU.max = powerinD.max = 16;
             cost = 2;
             state = false;

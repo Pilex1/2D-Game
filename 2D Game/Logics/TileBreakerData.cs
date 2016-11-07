@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Game.Logics {
     [Serializable]
-    class TileBreakerData : PowerDrainData {
+    class TileBreakerAttribs : PowerDrainData {
 
 
 

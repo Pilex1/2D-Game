@@ -1,6 +1,5 @@
 ﻿using System;
 using Game.Terrains;
-using Game.Fluids;
 using Game.Logics;
 using Game.Particles;
 using OpenGL;
@@ -18,6 +17,7 @@ namespace Game.Assets {
 
         public static void Interact(Item item, int x, int y) {
             switch (item) {
+                #region Deco
                 case Item.PurpleStone: Terrain.SetTile(x, y, Tile.PurpleStone); break;
                 case Item.Grass: Terrain.SetTile(x, y, Tile.Grass); break;
                 case Item.Sand: Terrain.SetTile(x, y, Tile.Sand); break;
@@ -39,17 +39,24 @@ namespace Game.Assets {
                 case Item.Nuke: Terrain.SetTile(x, y, Tile.Nuke); break;
                 case Item.Cactus: Terrain.SetTile(x, y, Tile.Cactus); break;
                 case Item.Bounce: Terrain.SetTile(x, y, Tile.Bounce); break;
+                #endregion
+
+                #region Logic
+                case Item.Wire: Terrain.SetTile(x, y, Tile.Wire); break;
+                case Item.Switch: Terrain.SetTile(x, y, Tile.Switch); break;
+                case Item.LogicLamp: Terrain.SetTile(x, y, Tile.LogicLamp); break;
+                case Item.GateAnd: Terrain.SetTile(x, y, Tile.GateAnd); break;
+                case Item.GateOr: Terrain.SetTile(x, y, Tile.GateOr); break;
+                case Item.GateNot: Terrain.SetTile(x, y, Tile.GateNot); break;
+                case Item.LogicBridge: Terrain.SetTile(x, y, Tile.LogicBridge); break;
+                case Item.StickyTilePusher: Terrain.SetTile(x, y, Tile.TilePusher); break;
+                case Item.StickyTilePuller: Terrain.SetTile(x, y, Tile.TilePuller); break;
+                case Item.TileBreaker: Terrain.SetTile(x, y, Tile.TileBreaker); break;
+                #endregion
+
                 case Item.Water: Terrain.SetTile(x, y, Tile.Water); break;
-                case Item.Wire: Terrain.SetTile(x, y, Tile.CreateWire()); break;
-                case Item.Switch: Terrain.SetTile(x, y, Tile.CreateSwitch()); break;
-                case Item.LogicLamp: Terrain.SetTile(x, y, Tile.CreateLogicLamp()); break;
-                case Item.GateAnd: Terrain.SetTile(x, y, Tile.CreateGateAnd()); break;
-                case Item.GateOr: Terrain.SetTile(x, y, Tile.CreateGateOr()); break;
-                case Item.GateNot: Terrain.SetTile(x, y, Tile.CreateGateNot()); break;
-                case Item.LogicBridge: Terrain.SetTile(x, y, Tile.CreateLogicBridge()); break;
-                case Item.StickyTilePusher: Terrain.SetTile(x, y, Tile.CreateTilePusher()); break;
-                case Item.StickyTilePuller: Terrain.SetTile(x, y, Tile.CreateTilePuller()); break;
-                case Item.TileBreaker: Terrain.SetTile(x, y, Tile.CreateTileBreaker()); break;
+
+                #region Weapons
                 case Item.StaffGreen: {
                         Vector2 pos = Player.Instance.data.Position.val;
                         pos += new Vector2(Player.Instance.Hitbox.Width / 2, Player.Instance.Hitbox.Height / 2);
@@ -90,6 +97,7 @@ namespace Game.Assets {
                         StaffParticlePurple.Create(pos, vel);
                     }
                     break;
+                    #endregion
             }
         }
     }

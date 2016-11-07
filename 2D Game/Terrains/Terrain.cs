@@ -6,9 +6,9 @@ using Game.Assets;
 using Game.Util;
 using System.Diagnostics;
 using System.Linq;
-using Game.Fluids;
 using Game.Logics;
 using Game.Core;
+using Game.Fluids;
 
 namespace Game.Terrains {
 
@@ -24,7 +24,8 @@ namespace Game.Terrains {
         public static bool UpdateMesh = true;
         public static TerrainVAO vao;
 
-        public static Dictionary<Vector2i, LogicData> LogicDict = new Dictionary<Vector2i, LogicData>();
+        public static Dictionary<Vector2i, LogicAttribs> LogicDict = new Dictionary<Vector2i, LogicAttribs>();
+        public static Dictionary<Vector2i, FluidAttribs> FluidDict = new Dictionary<Vector2i, FluidAttribs>();
 
         private const int TerrainTextureSize = 16;
 
@@ -55,9 +56,14 @@ namespace Game.Terrains {
             Terrain.Tiles = Tiles;
             for (int i = 0; i < Terrain.Tiles.GetLength(0); i++) {
                 for (int j = 0; j < Terrain.Tiles.GetLength(1); j++) {
-                    LogicData logic = Terrain.Tiles[i, j].tileattribs as LogicData;
+                    LogicAttribs logic = Terrain.Tiles[i, j].tileattribs as LogicAttribs;
                     if (logic != null) {
                         LogicDict.Add(new Vector2i(i, j), logic);
+                    }
+
+                    FluidAttribs fluid = Terrain.Tiles[i, j].tileattribs as FluidAttribs;
+                    if (fluid != null) {
+                        FluidDict.Add(new Vector2i(i, j), fluid);
                     }
                 }
             }
@@ -153,10 +159,14 @@ namespace Game.Terrains {
                         //half pixel correction
                         float h = 1f / (TerrainTextureSize * TerrainTextureSize * 2);
 
-                        float height = 1;
+                        // float height = 1;
                         //TODO
                         //something like
-                        //float height = t.tiledata is Fluid ? ((Fluid)(t.tiledata)).height : 1;
+                        float height = 1;
+                        FluidAttribs fattribs = Tiles[i, j].tileattribs as FluidAttribs;
+                        if (fattribs != null) {
+                            height = fattribs.height;
+                        }
 
                         //top left, bottom left, top right, bottom right
                         verticesList.AddRange(new Vector2[] {
@@ -315,14 +325,19 @@ namespace Game.Terrains {
 
             Tiles[x, y] = tile;
 
-            LogicData logic = tile.tileattribs as LogicData;
+            LogicAttribs logic = tile.tileattribs as LogicAttribs;
             if (logic != null && update) {
                 LogicDict.Add(new Vector2i(x, y), logic);
             }
 
-            LightData light = tile.tileattribs as LightData;
+            LightAttribs light = tile.tileattribs as LightAttribs;
             if (light != null) {
                 Lighting.AddLight(x, y, light.intensity);
+            }
+
+            FluidAttribs fluid = tile.tileattribs as FluidAttribs;
+            if (fluid != null) {
+                FluidDict.Add(new Vector2i(x, y), fluid);
             }
 
             UpdateMesh = true;
@@ -335,7 +350,10 @@ namespace Game.Terrains {
             Tile tile = TileAt(x, y);
             if (tile.enumId == TileEnum.Air) return Tile.Air;
             if (tile.enumId == TileEnum.Bedrock) return Tile.Invalid;
+
             LogicDict.Remove(new Vector2i(x, y));
+            FluidDict.Remove(new Vector2i(x, y));
+
             Tiles[x, y] = Tile.Air;
             UpdateMesh = true;
             if (Heights[x] == y) {
@@ -364,10 +382,10 @@ namespace Game.Terrains {
             if (tile.enumId == TileEnum.Air) return Tile.Air;
             if (tile.enumId == TileEnum.Bedrock) return Tile.Invalid;
             LogicDict.Remove(new Vector2i(x, y));
+            FluidDict.Remove(new Vector2i(x, y));
             Tiles[x, y] = Tile.Air;
             UpdateMesh = true;
-            // if (terrainGenerated)
-            // Console.WriteLine(String.Format("{0} tile removed at {{{1}, {2}}}", tile.enumId.ToString(), x, y));
+
             if (Heights[x] == y) {
                 for (int j = y - 1; j > 0; j--) {
                     if (!Tiles[x, j].tileattribs.transparent) {
@@ -384,7 +402,7 @@ namespace Game.Terrains {
             switch (dir) {
                 case Direction.Left:
                     if (TileAt(x - 1, y).enumId == TileEnum.Air) {
-                        LogicData logic;
+                        LogicAttribs logic;
                         if (LogicDict.TryGetValue(v, out logic)) {
                             LogicDict.Remove(v);
                             LogicDict.Add(new Vector2i(x - 1, y), logic);
@@ -397,7 +415,7 @@ namespace Game.Terrains {
                     break;
                 case Direction.Right:
                     if (TileAt(x + 1, y).enumId == TileEnum.Air) {
-                        LogicData logic;
+                        LogicAttribs logic;
                         if (LogicDict.TryGetValue(v, out logic)) {
                             LogicDict.Remove(v);
                             LogicDict.Add(new Vector2i(x + 1, y), logic);
@@ -410,7 +428,7 @@ namespace Game.Terrains {
                     break;
                 case Direction.Up:
                     if (TileAt(x, y + 1).enumId == TileEnum.Air) {
-                        LogicData logic;
+                        LogicAttribs logic;
                         if (LogicDict.TryGetValue(v, out logic)) {
                             LogicDict.Remove(v);
                             LogicDict.Add(new Vector2i(x, y + 1), logic);
@@ -423,7 +441,7 @@ namespace Game.Terrains {
                     break;
                 case Direction.Down:
                     if (TileAt(x, y - 1).enumId == TileEnum.Air) {
-                        LogicData logic;
+                        LogicAttribs logic;
                         if (LogicDict.TryGetValue(v, out logic)) {
                             LogicDict.Remove(v);
                             LogicDict.Add(new Vector2i(x, y - 1), logic);
@@ -453,7 +471,7 @@ namespace Game.Terrains {
 
         public static void Update() {
 
-            // FluidsManager.Update();
+            FluidManager.Update();
             LogicManager.Update();
 
             if (UpdateMesh) {

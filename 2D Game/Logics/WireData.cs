@@ -8,11 +8,11 @@ using System.Text;
 namespace Game.Logics {
 
     [Serializable]
-    class WireData : PowerTransmitterData {
+    class WireAttribs : PowerTransmitterData {
 
         public bool state { get; private set; }
 
-        public WireData() {
+        public WireAttribs() {
             poweroutL.max = poweroutR.max = poweroutU.max = poweroutD.max = 64;
             powerinL.max = powerinR.max = powerinU.max = powerinD.max = 64;
             transparent = true;

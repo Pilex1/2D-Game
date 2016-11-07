@@ -7,12 +7,12 @@ using System.Diagnostics;
 namespace Game.Logics {
 
     [Serializable]
-    internal abstract class LogicData : TileAttribs {
+    internal abstract class LogicAttribs : TileAttribs {
         internal abstract void Update(int x, int y);
     }
 
     [Serializable]
-    internal abstract class PowerSourceData : LogicData {
+    internal abstract class PowerSourceData : LogicAttribs {
 
         //power available to draw from each side
         protected BoundedFloat poweroutL = BoundedFloat.Zero;
@@ -22,7 +22,7 @@ namespace Game.Logics {
     }
 
     [Serializable]
-    internal abstract class PowerTransmitterData : LogicData {
+    internal abstract class PowerTransmitterData : LogicAttribs {
 
         //power on each side
         protected BoundedFloat poweroutL = BoundedFloat.Zero;
@@ -127,7 +127,7 @@ namespace Game.Logics {
     }
 
     [Serializable]
-    internal abstract class PowerDrainData : LogicData {
+    internal abstract class PowerDrainData : LogicAttribs {
 
         //power received
         internal BoundedFloat powerinL = BoundedFloat.Zero;

@@ -63,7 +63,6 @@ namespace Game.TitleScreen {
             float x = Input.NDCMouseX, y = Input.NDCMouseY;
             if (x >= pos.x - model.size.x && x <= pos.x + model.size.x && y >= pos.y - model.size.y * Program.AspectRatio && y <= pos.y + model.size.y * Program.AspectRatio) {
                 hoveredover = true;
-                Debug.WriteLine("Dfdfd");
                 if (Input.Mouse[Input.MouseLeft] && cooldown.Ready()) {
                     OnPress();
                     cooldown.Reset();

@@ -9,7 +9,7 @@ using System.Text;
 namespace Game.Logics {
 
     [Serializable]
-    class SwitchData : PowerSourceData {
+    class SwitchAttribs : PowerSourceData {
 
         [NonSerialized]
         private CooldownTimer cooldown;
@@ -18,7 +18,7 @@ namespace Game.Logics {
 
         private BoundedFloat src = new BoundedFloat(0, 0, 256);
 
-        public SwitchData() {
+        public SwitchAttribs() {
             poweroutL.max = poweroutR.max = poweroutU.max = poweroutD.max = src.max;
             state = false;
         }

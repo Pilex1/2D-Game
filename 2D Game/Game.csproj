@@ -23,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <IntermediateOutputPath>C:\Users\Brain\AppData\Local\Temp\vsB350.tmp\Debug\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -32,6 +33,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <IntermediateOutputPath>C:\Users\Brain\AppData\Local\Temp\vsB350.tmp\Release\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -64,7 +66,6 @@
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\Hitbox.cs" />
     <Compile Include="Core\GameLogic.cs" />
-    <Compile Include="Fluids\FluidsManager.cs" />
     <Compile Include="Guis\Text.cs" />
     <Compile Include="Guis\GameGuiRenderer.cs" />
     <Compile Include="Guis\Hotbar.cs" />
@@ -75,9 +76,9 @@
     <Compile Include="Guis\Label.cs" />
     <Compile Include="Guis\Textbox.cs" />
     <Compile Include="Guis\TextFont.cs" />
-    <Compile Include="Logics\AndGateData.cs" />
+    <Compile Include="Logics\AndGateAttribs.cs" />
     <Compile Include="Logics\LogicData.cs" />
-    <Compile Include="Logics\LogicBridgeData.cs" />
+    <Compile Include="Logics\LogicBridgeAttribs.cs" />
     <Compile Include="Logics\LogicLampData.cs" />
     <Compile Include="Logics\LogicManager.cs" />
     <Compile Include="Logics\NotGateData.cs" />
@@ -93,8 +94,15 @@
     <Compile Include="Core\GameRenderer.cs" />
     <Compile Include="Entities\Shooter.cs" />
     <Compile Include="Terrains\CaveGen.cs" />
+    <Compile Include="Terrains\Desert.cs" />
     <Compile Include="Terrains\ExplosionData.cs" />
+    <Compile Include="Fluids\FluidAttribs.cs" />
+    <Compile Include="Fluids\FluidManager.cs" />
     <Compile Include="Terrains\Lighting.cs" />
+    <Compile Include="Terrains\Mountain.cs" />
+    <Compile Include="Terrains\Nature.cs" />
+    <Compile Include="Terrains\Plains.cs" />
+    <Compile Include="Terrains\SnowForest.cs" />
     <Compile Include="Terrains\Terrain.cs" />
     <Compile Include="Terrains\TerrainGen.cs" />
     <Compile Include="Terrains\Tile.cs" />

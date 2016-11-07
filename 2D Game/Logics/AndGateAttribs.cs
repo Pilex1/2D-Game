@@ -11,10 +11,10 @@ namespace Game.Logics {
     //inputs from top and bottom
     //output from right iff top > 0 && bottom > 0
     [Serializable]
-    class AndGateData : PowerTransmitterData {
+    class AndGateAttribs : PowerTransmitterData {
 
 
-        public AndGateData() {
+        public AndGateAttribs() {
             poweroutL.max = poweroutU.max = poweroutD.max = 0;
             poweroutR.max = 64;
 

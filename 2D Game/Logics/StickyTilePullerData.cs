@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Game.Logics {
     [Serializable]
-    class StickyTilePullerData : PowerDrainData {
+    class StickyTilePullerAttribs : PowerDrainData {
 
         [NonSerialized]
         private CooldownTimer cooldown;
@@ -17,7 +17,7 @@ namespace Game.Logics {
 
         public bool state { get; private set; }
 
-        public StickyTilePullerData() {
+        public StickyTilePullerAttribs() {
             powerinL.max = powerinR.max = powerinU.max = powerinD.max = 64;
             cooldown = new CooldownTimer(40);
             cost = 8;

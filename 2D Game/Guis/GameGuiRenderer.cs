@@ -41,7 +41,7 @@ namespace Game.Interaction {
 
 
             Buttons = new HashSet<Button>();
-            Buttons.Add(btn_BackToTitle);
+            // Buttons.Add(btn_BackToTitle);
         }
 
         public static void Update() {
@@ -51,7 +51,7 @@ namespace Game.Interaction {
                 Paused.Toggle();
             }
             foreach (Button b in Buttons) {
-                b.Update();
+                //    b.Update();
             }
         }
 
@@ -99,8 +99,8 @@ namespace Game.Interaction {
             }
 
             if (Paused) {
-                RenderInstance(btn_BackToTitle.model, btn_BackToTitle.pos);
-                RenderInstance(btn_BackToTitle.text.model, btn_BackToTitle.text.pos);
+                //  RenderInstance(btn_BackToTitle.model, btn_BackToTitle.pos);
+                //    RenderInstance(btn_BackToTitle.text.model, btn_BackToTitle.text.pos);
             }
 
             //hotbar

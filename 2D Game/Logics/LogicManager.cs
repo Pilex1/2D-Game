@@ -9,7 +9,7 @@ namespace Game.Logics {
 
     static class LogicManager {
 
-        private static CooldownTimer cooldown = new CooldownTimer(1000 / 60);
+        private static CooldownTimer cooldown = new CooldownTimer(1000f / 60);
 
         public static void Update() {
             if (!cooldown.Ready()) return;
@@ -18,17 +18,17 @@ namespace Game.Logics {
             var logicDict = Terrain.LogicDict;
             var list = new List<Vector2i>(logicDict.Keys);
             foreach (Vector2i v in list) {
-                LogicData logic;
+                LogicAttribs logic;
                 logicDict.TryGetValue(v, out logic);
                 if (logic == null) continue;
                 logic.Update(v.x, v.y);
 
-                SwitchData switchdata = logic as SwitchData;
-                WireData wiredata = logic as WireData;
-                StickyTilePusherData tilepusherdata = logic as StickyTilePusherData;
-                StickyTilePullerData tilepullerdata = logic as StickyTilePullerData;
-                LogicLampData logiclampdata = logic as LogicLampData;
-                LogicBridgeData logicbridgedata = logic as LogicBridgeData;
+                SwitchAttribs switchdata = logic as SwitchAttribs;
+                WireAttribs wiredata = logic as WireAttribs;
+                StickyTilePusherAttribs tilepusherdata = logic as StickyTilePusherAttribs;
+                StickyTilePullerAttribs tilepullerdata = logic as StickyTilePullerAttribs;
+                LogicLampAttribs logiclampdata = logic as LogicLampAttribs;
+                LogicBridgeAttribs logicbridgedata = logic as LogicBridgeAttribs;
 
                 if (switchdata != null) {
                     Terrain.TileAt(v.x, v.y).enumId = switchdata.state ? TileEnum.SwitchOn : TileEnum.SwitchOff;

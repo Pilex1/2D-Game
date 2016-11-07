@@ -8,11 +8,11 @@ namespace Game.Logics {
     //inputs from the left
     //output from right iff left == 0
     [Serializable]
-    class NotGateData : PowerTransmitterData {
+    class NotGateAttribs : PowerTransmitterData {
 
         private BoundedFloat src = new BoundedFloat(0, 0, 256);
 
-        public NotGateData() {
+        public NotGateAttribs() {
             poweroutL.max = poweroutU.max = poweroutD.max = 0;
             poweroutR.max = src.max;
 

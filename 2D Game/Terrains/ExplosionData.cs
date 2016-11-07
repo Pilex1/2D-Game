@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Game.Terrains {
+
+    [Serializable]
     class ExplosionData : TileAttribs {
 
         public float radius, error;

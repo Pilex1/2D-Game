@@ -58,7 +58,6 @@ namespace Game {
             sb.AppendLine("Loaded Entities: " + Entity.LoadedEntities);
             sb.AppendLine("--------------");
             sb.AppendLine(AdditionalDebugText);
-            // return "https://github.com/Pilex1";
             return sb.ToString();
         }
     }

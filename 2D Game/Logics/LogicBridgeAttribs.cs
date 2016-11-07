@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 namespace Game.Logics {
 
     [Serializable]
-    class LogicBridgeData : PowerTransmitterData {
+    class LogicBridgeAttribs : PowerTransmitterData {
 
         public bool stateHorz { get; private set; }
         public bool stateVert { get; private set; }
 
-        public LogicBridgeData() {
+        public LogicBridgeAttribs() {
             poweroutL.max = poweroutR.max = poweroutU.max = poweroutD.max = 64;
             powerinL.max = powerinR.max = powerinU.max = powerinD.max = 64;
             stateHorz = stateVert = false;

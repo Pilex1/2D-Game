@@ -92,7 +92,6 @@ namespace Game.Terrains {
         public static readonly Tile PlexSpecial = new Tile(TileEnum.PlexSpecial);
         public static readonly Tile PurpleStone = new Tile(TileEnum.PurpleStone);
         public static readonly Tile Cactus = new Tile(TileEnum.Cactus);
-        public static readonly Tile Water = new Tile(TileEnum.Water);
         public static readonly Tile Snow = new Tile(TileEnum.Snow);
         public static readonly Tile SnowWood = new Tile(TileEnum.SnowWood);
         public static readonly Tile SnowLeaf = new Tile(TileEnum.SnowLeaf);
@@ -100,16 +99,16 @@ namespace Game.Terrains {
         #endregion Normal
 
         #region Logic
-        public static Tile CreateWire() { return new Tile(TileEnum.WireOff, new WireData()); }
-        public static Tile CreateSwitch() { return new Tile(TileEnum.SwitchOff, new SwitchData()); }
-        public static Tile CreateLogicLamp() { return new Tile(TileEnum.LogicLampUnlit, new LogicLampData()); }
-        public static Tile CreateGateAnd() { return new Tile(TileEnum.GateAnd, new AndGateData()); }
-        public static Tile CreateGateOr() { return new Tile(TileEnum.GateOr, new OrGateData()); }
-        public static Tile CreateGateNot() { return new Tile(TileEnum.GateNot, new NotGateData()); }
-        public static Tile CreateLogicBridge() { return new Tile(TileEnum.LogicBridgeOff, new LogicBridgeData()); }
-        public static Tile CreateTilePusher() { return new Tile(TileEnum.TilePusherOff, new StickyTilePusherData()); }
-        public static Tile CreateTilePuller() { return new Tile(TileEnum.TilePullerOff, new StickyTilePullerData()); }
-        public static Tile CreateTileBreaker() { return new Tile(TileEnum.TileBreakerOff, new TileBreakerData()); }
+        public static Tile Wire { get { return new Tile(TileEnum.WireOff, new WireAttribs()); } }
+        public static Tile Switch { get { return new Tile(TileEnum.SwitchOff, new SwitchAttribs()); } }
+        public static Tile LogicLamp { get { return new Tile(TileEnum.LogicLampUnlit, new LogicLampAttribs()); } }
+        public static Tile GateAnd { get { return new Tile(TileEnum.GateAnd, new AndGateAttribs()); } }
+        public static Tile GateOr { get { return new Tile(TileEnum.GateOr, new OrGateAttribs()); } }
+        public static Tile GateNot { get { return new Tile(TileEnum.GateNot, new NotGateAttribs()); } }
+        public static Tile LogicBridge { get { return new Tile(TileEnum.LogicBridgeOff, new LogicBridgeAttribs()); } }
+        public static Tile TilePusher { get { return new Tile(TileEnum.TilePusherOff, new StickyTilePusherAttribs()); } }
+        public static Tile TilePuller { get { return new Tile(TileEnum.TilePullerOff, new StickyTilePullerAttribs()); } }
+        public static Tile TileBreaker { get { return new Tile(TileEnum.TileBreakerOff, new TileBreakerAttribs()); } }
         #endregion Logic
 
         #region Misc
@@ -118,7 +117,11 @@ namespace Game.Terrains {
         public static readonly Tile Nuke = new Tile(TileEnum.Nuke, new ExplosionData { radius = 50, error = 2 });
         #endregion Misc
 
-        public static readonly Tile Light = new Tile(TileEnum.Light, new LightData(16));
+        #region Fluids
+        public static Tile Water { get { return new Tile(TileEnum.Water, new WaterAttribs()); } }
+        #endregion
+
+        public static readonly Tile Light = new Tile(TileEnum.Light, new LightAttribs(16));
 
         public override string ToString() {
             return enumId.ToString();
@@ -143,10 +146,10 @@ namespace Game.Terrains {
     }
 
     [Serializable]
-    class LightData : TileAttribs {
+    class LightAttribs : TileAttribs {
         public int intensity { get; private set; }
 
-        public LightData(int intensity) {
+        public LightAttribs(int intensity) {
             this.intensity = intensity;
         }
     }
