@@ -24,10 +24,20 @@ namespace Game.Fluids {
 
         //flow downwrds, flowing outwards
         public virtual void Update(int x, int y) {
+
+            //TileEnum below = Terrain.TileAt(x, y - 1).enumId;
+            //if (below == TileEnum.Air) {
+            //    Fall(x, y);
+            //}else {
+            //    Spread(x, y);
+            //}
+
             TileEnum below = Terrain.TileAt(x, y - 1).enumId;
-            if (below == TileEnum.Air || below == TileEnum.Water) {
+            FluidAttribs fluid = Terrain.TileAt(x, y - 1).tileattribs as FluidAttribs;
+            if (below == TileEnum.Air || (fluid != null && fluid._height < 1 && below == TileEnum.Water)) {
                 Fall(x, y);
-            } else {
+            }
+            else {
                 Spread(x, y);
             }
         }
@@ -38,7 +48,8 @@ namespace Game.Fluids {
             FluidAttribs d = Terrain.TileAt(x, y - 1).tileattribs as FluidAttribs;
             if (d != null) {
                 BoundedFloat.MoveVals(ref _height, ref d._height, viscosity);
-            } else {
+            }
+            else {
                 if (Terrain.TileAt(x, y - 1).enumId == TileEnum.Air) {
                     Tile newWater = Tile.Water;
                     FluidAttribs fluid = ((FluidAttribs)newWater.tileattribs);
@@ -48,63 +59,6 @@ namespace Game.Fluids {
                 }
             }
         }
-
-        //protected virtual void Spread(int x, int y) {
-        //    if (_height == 0) return;
-
-        //    FluidAttribs l = Terrain.TileAt(x - 1, y).tileattribs as FluidAttribs;
-        //    FluidAttribs r = Terrain.TileAt(x + 1, y).tileattribs as FluidAttribs;
-
-        //    float lspace;
-        //    float rspace;
-        //    if (l == null) {
-        //        if (Terrain.TileAt(x - 1, y).enumId == TileEnum.Air) {
-        //            Tile newWater = Tile.Water;
-        //            FluidAttribs fluid = ((FluidAttribs)newWater.tileattribs);
-        //            fluid._height.Empty();
-        //            Terrain.SetTile(x - 1, y, newWater);
-        //            l = fluid;
-        //            lspace = 1;
-        //        }
-        //        else {
-        //            lspace = 0;
-        //        }
-        //    }
-        //    else {
-        //        lspace = 1 - l._height;
-        //    }
-        //    if (r == null) {
-        //        if (Terrain.TileAt(x + 1, y).enumId == TileEnum.Air) {
-        //            Tile newWater = Tile.Water;
-        //            FluidAttribs fluid = ((FluidAttribs)newWater.tileattribs);
-        //            fluid._height.Empty();
-        //            Terrain.SetTile(x + 1, y, newWater);
-        //            r = fluid;
-        //            rspace = 1;
-        //        }
-        //        else {
-        //            rspace = 0;
-        //        }
-        //    }
-        //    else {
-        //        rspace = 1 - r._height;
-        //    }
-
-        //    //if left and right are both full or if they are both non air tiles
-        //    if (lspace + rspace == 0) return;
-
-        //    if (_height > viscosity) {
-        //        if (l != null)
-        //            BoundedFloat.MoveVals(ref _height, ref l._height, viscosity * lspace / (lspace + rspace));
-        //        if (r != null)
-        //            BoundedFloat.MoveVals(ref _height, ref r._height, viscosity * rspace / (lspace + rspace));
-        //    } else {
-        //        if (l != null)
-        //            BoundedFloat.MoveVals(ref _height, ref l._height, _height * lspace / _height);
-        //        if (r != null)
-        //            BoundedFloat.MoveVals(ref _height, ref r._height, _height * rspace / _height);
-        //    }
-        //}
 
         protected virtual void Spread(int x, int y) {
             if (_height == 0) return;
@@ -140,10 +94,10 @@ namespace Game.Fluids {
 
             float amt = viscosity / count;
             if (l != null && l.height < _height) {
-                BoundedFloat.MoveVals(ref _height, ref l._height, amt);
+                BoundedFloat.MoveVals(ref _height, ref l._height, l._height + amt > _height ? _height - l._height : amt);
             }
             if (r != null && r.height < _height) {
-                BoundedFloat.MoveVals(ref _height, ref r._height, amt);
+                BoundedFloat.MoveVals(ref _height, ref r._height, r._height + amt > _height ? _height - r._height : amt);
             }
         }
 
@@ -151,13 +105,6 @@ namespace Game.Fluids {
             return "Amount: " + _height.val;
         }
     }
-
-    [Serializable]
-    class WaterAttribs : FluidAttribs {
-        public WaterAttribs()
-            : base(0.2f) {
-
-        }
-    }
+    
 
 }

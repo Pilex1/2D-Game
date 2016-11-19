@@ -8,6 +8,7 @@ using Game.Assets;
 using Game.Terrains;
 using Game.Util;
 using Game.Core;
+using Game.Terrains.Gen;
 
 namespace Game {
 

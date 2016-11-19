@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Game.Terrains {
+namespace Game.Terrains.Gen {
     static class Nature {
 
         #region Tree

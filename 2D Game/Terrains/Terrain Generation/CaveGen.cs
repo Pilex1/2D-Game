@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Game.Terrains {
+namespace Game.Terrains.Gen {
     static class CaveGen {
 
         private const float caveFrequency = 0.001f;

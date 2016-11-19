@@ -119,6 +119,7 @@ namespace Game.Terrains {
 
         #region Fluids
         public static Tile Water { get { return new Tile(TileEnum.Water, new WaterAttribs()); } }
+        public static Tile Lava { get { return new Tile(TileEnum.Lava, new LavaAttribs()); }  }
         #endregion
 
         public static readonly Tile Light = new Tile(TileEnum.Light, new LightAttribs(16));
@@ -157,100 +158,9 @@ namespace Game.Terrains {
 
 
     enum TileEnum {
-        Invalid = -1, Air, Grass, Sand, Dirt, Wood, Leaf, Stone, Bedrock, Tnt, Sandstone, Sapling, TileBreakerOn, Brick, Metal1, SmoothSlab, WeatheredStone, Metal2, FutureMetal, SmoothSlab2, Marble, PlexSpecial, PurpleStone, Nuke, Cactus, Bounce, Water, WireOn, WireOff, SwitchOn, SwitchOff, LogicLampUnlit, LogicLampLit, Snow, SnowWood, SnowLeaf, GrassDeco, GateAnd, GateOr, GateNot, LogicBridgeOff, LogicBridgeHorzVertOn, LogicBridgeHorzOn, LogicBridgeVertOn, TilePusherOff, TilePusherOn, TilePullerOn, TilePullerOff, TileBreakerOff, Light
+        Invalid = -1, Air, Grass, Sand, Dirt, Wood, Leaf, Stone, Bedrock, Tnt, Sandstone, Sapling, TileBreakerOn, Brick, Metal1, SmoothSlab, WeatheredStone, Metal2, FutureMetal, SmoothSlab2, Marble, PlexSpecial, PurpleStone, Nuke, Cactus, Bounce, Water, WireOn, WireOff, SwitchOn, SwitchOff, LogicLampUnlit, LogicLampLit, Snow, SnowWood, SnowLeaf, GrassDeco, GateAnd, GateOr, GateNot, LogicBridgeOff, LogicBridgeHorzVertOn, LogicBridgeHorzOn, LogicBridgeVertOn, TilePusherOff, TilePusherOn, TilePullerOn, TilePullerOff, TileBreakerOff, Light, Accelerator, Lava
     }
 
-    #region Fluids
-
-    //abstract class Fluid : Tile {
-    //    public virtual float Height { get; protected set; }
-    //    public Fluid(int x, int y, TileEnum id, float height) : base(x, y, id) {
-    //        Height = height;
-    //    }
-    //    public void Update() {
-    //        Fall();
-    //        Spread();
-    //    }
-    //    protected abstract void Fall();
-    //    protected abstract void Spread();
-    //}
-
-    //class Water : Fluid {
-
-    //    private float _height;
-    //    public override float Height {
-    //        get { return _height; }
-    //        protected set {
-    //            if (value > 1) {
-    //                _height = 1;
-    //                new Water(x, y + 1, value - 1);
-    //            }
-    //        }
-    //    }
-
-    //    private const float viscosity = 0.2f;
-
-    //    public Water(int x, int y, float height = 1f) : base(x, y, TileEnum.Water, height) {
-    //    }
-
-    //    protected override void Fall() {
-    //        Tile d = Terrain.TileAt(x, y - 1);
-
-    //        float amt = viscosity * GameLogic.DeltaTime;
-    //        if (d.id == TileEnum.Air) {
-
-    //            if (Height > amt) {
-    //                Height -= amt;
-    //                new Water(x, y - 1, amt);
-    //            } else {
-    //                Terrain.BreakTile(this);
-    //                new Water(x, y - 1, Height);
-    //            }
-
-    //        } else if (d.id == TileEnum.Water) {
-
-    //            Water w = (Water)d;
-
-    //            if (Height > amt) {
-    //                if (w.Height + amt <= 1) {
-    //                    w.Height += amt;
-    //                    Height -= amt;
-    //                } else {
-    //                    w.Height = 1;
-    //                    Height -= (1 - w.Height);
-    //                }
-    //            } else {
-    //                if (w.Height + Height <= 1) {
-    //                    w.Height += Height;
-    //                    Terrain.BreakTile(this);
-    //                } else {
-    //                    Height -= (1 - w.Height);
-    //                    w.Height = 1;
-    //                }
-    //            }
-    //        }
-    //    }
-
-    //    protected override void Spread() {
-    //        float amt = viscosity * GameLogic.DeltaTime;
-
-    //        Tile l = Terrain.TileAt(x - 1, y), r = Terrain.TileAt(x + 1, y);
-    //        if (l is Air && r is Air) {
-
-    //            if (Height > amt * 3) {
-    //                new Water(x - 1, y, amt);
-    //                new Water(x + 1, y, amt);
-    //                Height -= amt * 2;
-    //            }
-
-    //        }
-    //    }
-
-
-    //    public override string ToString() {
-    //        return String.Format("Water [{0}, {1}] Height: {2}", x, y, Height);
-    //    }
-    //}
-    #endregion Fluids
+ 
 
 }

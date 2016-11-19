@@ -45,11 +45,18 @@ namespace Game.Particles {
             base.Hitbox.Position = base.data.Position.val - hitboxoffset;
             ParticleData pdata = (ParticleData)data;
             pdata.Update();
-            if (pdata.life < 0)
-                Entity.RemoveEntity(this);
+            base.data.colour.w = base.data.life.val / base.data.life.max;
+        }
+
+        protected void RemoveIfColliding() {
             if (Terrain.IsColliding(base.Hitbox))
                 Entity.RemoveEntity(this);
-            base.data.colour.w = base.data.life.val / base.data.life.max;
+        }
+
+        protected void RemoveIfNoLife() {
+            ParticleData pdata = (ParticleData)data;
+            if (pdata.life < 0)
+                Entity.RemoveEntity(this);
         }
     }
 }

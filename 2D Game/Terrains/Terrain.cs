@@ -9,6 +9,7 @@ using System.Linq;
 using Game.Logics;
 using Game.Core;
 using Game.Fluids;
+using Game.Terrains.Gen;
 
 namespace Game.Terrains {
 
@@ -284,6 +285,7 @@ namespace Game.Terrains {
         }
 
         internal static int HighestPoint(int x) {
+            if (x < 0 || x >= Tiles.GetLength(0)) return 0;
             for (int i = Tiles.GetLength(1) - 1; i > 0; i--) {
                 if (Tiles[x, i].enumId != TileEnum.Air) return i + 1;
             }
@@ -311,6 +313,10 @@ namespace Game.Terrains {
         internal static void SetTileTerrainGen(int x, int y, Tile tile, bool overwrite) {
             if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return;
             if (!overwrite && Tiles[x, y].enumId != TileEnum.Air) return;
+            FluidAttribs fluid = tile.tileattribs as FluidAttribs;
+            if (fluid != null) {
+                FluidDict.Add(new Vector2i(x, y), fluid);
+            }
             Tiles[x, y] = tile;
         }
 
@@ -353,6 +359,7 @@ namespace Game.Terrains {
 
             LogicDict.Remove(new Vector2i(x, y));
             FluidDict.Remove(new Vector2i(x, y));
+            Lighting.RemoveLight(x, y);
 
             Tiles[x, y] = Tile.Air;
             UpdateMesh = true;

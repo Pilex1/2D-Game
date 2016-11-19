@@ -22,7 +22,7 @@ namespace Game.Fluids {
                 if (fluid == null) continue;
                 fluid.Update(f.x, f.y);
 
-                if (fluid.height <= 0)
+                if (fluid.height <= 0.0001f)
                     Terrain.BreakTile(f);
             }
         }

@@ -99,8 +99,9 @@ namespace Game.Terrains {
         }
 
         public static void RemoveLight(int x, int y) {
-            ArtificialLight.Remove(new Vector2i(x, y));
-            UpdateAround(x, y);
+            if (ArtificialLight.Remove(new Vector2i(x, y))) {
+                UpdateAround(x, y);
+            }
         }
 
         internal static void QueueUpdate(int x, int y) {

@@ -109,26 +109,12 @@ namespace Game.Util {
         }
 
         public static void MoveVals(ref BoundedFloat src, ref BoundedFloat dest, float val) {
-            Debug.Assert(!double.IsNaN(src) && !double.IsNaN(dest));
-            dest.val += val;
-            src.val -= val;
-            if (dest.val > dest.max) {
-                src.val += (dest.val - dest.max);
-                dest.val = dest.max;
-            }
-            if (dest.val < dest.min) {
-                src.val += (dest.min - dest.val);
-                dest.val = dest.min;
-            }
-            if (src.val > src.max) {
-                dest.val += (src.val - src.max);
-                src.val = src.max;
-            }
-            if (src.val < src.min) {
-                dest.val += (src.min - src.val);
-                src.val = src.min;
-            }
-            Debug.Assert(!double.IsNaN(src) && !double.IsNaN(dest));
+            if (val > src._val) val = src._val;
+            if (dest._val + val > dest.max) val = dest.max - dest._val;
+
+            dest._val += val;
+            src._val -= val;
+            Debug.Assert(src.val >= src.min && src.val <= src.max && dest.val >= dest.min && dest.val <= dest.max);
         }
 
         public static implicit operator float(BoundedFloat f) {

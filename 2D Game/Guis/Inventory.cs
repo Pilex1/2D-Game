@@ -27,7 +27,7 @@ namespace Game.Interaction {
 
         public static BoolSwitch toggle = new BoolSwitch(false, 20);
 
-        internal const int InvColumns = 9, InvRows = 6;
+        internal const int InvColumns = 9, InvRows = 7;
         public static Tuple<Item, uint>[,] Items = new Tuple<Item, uint>[InvRows, InvColumns];
 
         public static void Init(Tuple<Item, uint>[,] items) {

@@ -3,10 +3,10 @@ using System.Diagnostics;
 using Game.Assets;
 using Game.Util;
 
-namespace Game.Terrains {
+namespace Game.Terrains.Gen {
 
     enum Biome {
-        None, Plains, Desert, Mountain, SnowForest, Ocean
+        None, Plains, Desert, Mountain, SnowForest, Jungle
     }
 
     internal static class TerrainGen {
@@ -69,7 +69,8 @@ namespace Game.Terrains {
             int biomeSizeMin = 10, biomeSizeMax = 20;
             while (ptr < size / widthfactor) {
                 int biomeSize = MathUtil.RandInt(rand, biomeSizeMin, biomeSizeMax);
-                Biome b = (Biome)MathUtil.RandInt(rand, (int)Biome.Plains, (int)Biome.Ocean);
+                Biome b = (Biome)MathUtil.RandInt(rand, (int)Biome.Plains, (int)Biome.Jungle);
+                // b = Biome.Ocean;
                 h = GenBiome(ptr * widthfactor, h, biomeSize, b);
                 for (int i = ptr; i < ptr + biomeSize; i++) {
                     Terrain.TerrainBiomes[i] = b;
@@ -98,9 +99,9 @@ namespace Game.Terrains {
                 case Biome.SnowForest:
                     lastHeight = SnowForest.Generate(posX, posY, size);
                     break;
-                case Biome.Ocean:
-
-                    break;
+                    //case Biome.Ocean:
+                    //    lastHeight = Ocean.Generate(posX, posY, size);
+                    //    break;
             }
 
             return lastHeight;

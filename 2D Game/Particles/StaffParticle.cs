@@ -14,7 +14,8 @@ using Game.Assets;
 
 namespace Game.Particles {
     abstract class StaffParticle : Particle {
-        public StaffParticle(EntityID model, Vector2 pos) : base(model, pos) {
+        public StaffParticle(EntityID model, Vector2 pos)
+            : base(model, pos) {
 
         }
 
@@ -34,16 +35,26 @@ namespace Game.Particles {
             new StaffParticlePurple(pos, vel);
         }
 
-        private StaffParticlePurple(Vector2 pos, Vector2 vel) : base(EntityID.ParticlePurple, pos) {
-            base.data.life = new BoundedFloat(5, 0, 5);
+        private StaffParticlePurple(Vector2 pos, Vector2 vel)
+            : base(EntityID.ParticlePurple, pos) {
+            base.data.life = new BoundedFloat(100, 0, 100);
             base.data.vel.val = vel;
             base.data.AirResis = 1f;
         }
 
         public override void Update() {
             base.Update();
-            Player.Instance.data.vel.y += 0.001f;
-           
+            if (Terrain.IsColliding(base.Hitbox) || ((ParticleData)data).life <= 0) {
+                int x = (int)base.data.Position.x;
+                int y = (int)base.data.Position.y;
+
+                Terrain.SetTile(x - 1, y, Tile.Water);
+                Terrain.SetTile(x + 1, y, Tile.Water);
+                Terrain.SetTile(x, y + 1, Tile.Water);
+                Terrain.SetTile(x, y - 1, Tile.Water);
+
+                Entity.RemoveEntity(this);
+            }
         }
 
     }
@@ -62,7 +73,8 @@ namespace Game.Particles {
             new StaffParticleRed(pos, vel);
         }
 
-        private StaffParticleRed(Vector2 pos, Vector2 vel) : base(EntityID.ParticleRed, pos) {
+        private StaffParticleRed(Vector2 pos, Vector2 vel)
+            : base(EntityID.ParticleRed, pos) {
             base.data.life = new BoundedFloat(100, 0, 100);
             base.data.vel.val = vel;
             base.data.AirResis = 1f;
@@ -75,10 +87,11 @@ namespace Game.Particles {
             base.Update();
             List<Entity> colliding = this.EntityCollisions();
             foreach (Entity e in colliding) {
-                if (e is Player) continue;
-                Vector2 offset = base.data.vel.val / 150;
-                e.data.vel.val += offset;
+                // if (e is Player) continue;
+                e.data.vel.x *= 1.0001f;
             }
+            if (colliding.Count > 0) Entity.RemoveEntity(this);
+            base.RemoveIfNoLife();
         }
     }
 
@@ -105,11 +118,14 @@ namespace Game.Particles {
                     }
                 }
                 base.data.life.val -= 2;
+                base.data.vel.val *= 0.9f;
                 //Entity.RemoveEntity(this);
             }
+            base.RemoveIfNoLife();
         }
 
-        private StaffParticleBlue(Vector2 pos, Vector2 vel) : base(EntityID.ParticleBlue, pos) {
+        private StaffParticleBlue(Vector2 pos, Vector2 vel)
+            : base(EntityID.ParticleBlue, pos) {
             base.data.vel.val = vel;
             base.data.AirResis = 1f;
             base.data.UseGravity = false;
@@ -136,6 +152,7 @@ namespace Game.Particles {
         public override void Update() {
             base.Update();
             List<Entity> colliding = this.EntityCollisions();
+            bool flag = false;
             foreach (Entity e in colliding) {
                 if (e is Player) continue;
                 if (e is Particle) continue;
@@ -143,11 +160,14 @@ namespace Game.Particles {
                 e.data.vel.val *= -10;
                 e.UpdatePosition();
                 e.data.vel.val /= -10;
-                Entity.RemoveEntity(this);
+                flag = true;
             }
+            if (flag) Entity.RemoveEntity(this);
+            base.RemoveIfNoLife();
         }
 
-        private StaffParticleGreen(Vector2 pos, Vector2 vel) : base(EntityID.ParticleGreen, pos) {
+        private StaffParticleGreen(Vector2 pos, Vector2 vel)
+            : base(EntityID.ParticleGreen, pos) {
             base.data.vel.val = vel;
             base.data.AirResis = 0.999f;
             base.data.Grav = 0.01f;

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Game.Terrains {
+namespace Game.Terrains.Gen {
     class Desert {
         internal static int Generate(int posX, int posY, int size) {
             float heightVar = 10;
@@ -49,6 +49,6 @@ namespace Game.Terrains {
         }
 
 
-        
+
     }
 }

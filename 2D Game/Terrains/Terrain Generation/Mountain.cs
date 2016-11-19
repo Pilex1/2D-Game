@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Game.Terrains {
+namespace Game.Terrains.Gen {
     static class Mountain {
         internal static int Generate(int posX, int posY, int size) {
             float maxHeightVar = 20, minHeightVar = -3;
