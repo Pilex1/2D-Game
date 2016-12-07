@@ -9,7 +9,7 @@ using Game.Util;
 using Game.Particles;
 using System.Drawing;
 
-namespace Game {
+namespace Game.Entities {
 
     enum EntityID {
         //16 x 16
@@ -44,7 +44,7 @@ namespace Game {
 
     [Serializable]
     abstract class Entity {
-        #region Fields
+        #region Static fields
         internal const float maxHorzSpeed = 0.8f;
         internal const float maxVertSpeed = 1f;
 
@@ -53,19 +53,21 @@ namespace Game {
         private const int GridY = 4;
         private static HashSet<Entity>[,] EntityGrid;
         public static ShaderProgram shader;
+        #endregion
 
+        #region Fields
         public EntityID entityId;
         public Hitbox Hitbox { get; protected set; }
-        public static Color Colornew { get; private set; }
-
         public EntityData data = new EntityData { };
         #endregion
 
         #region Initialisation
-        protected Entity(EntityID texid, Hitbox hitbox, EntityData data) {
+        protected Entity(EntityID entityId, Hitbox hitbox, EntityData data) {
             this.data = data;
-            this.entityId = texid;
+            this.entityId = entityId;
             Hitbox = hitbox;
+            Hitbox.Size.x -= MathUtil.Epsilon;
+            Hitbox.Size.y -= MathUtil.Epsilon;
             if (data.CorrectCollisions) CorrectTerrainCollision();
         }
 
@@ -73,15 +75,12 @@ namespace Game {
 
         protected Entity(EntityID entityId, Vector2 position) : this(entityId, new RectangularHitbox(position, Assets.Models.GetModel(entityId).size), position) { }
 
-        protected Entity(EntityID entityId, Hitbox hitbox, Vector2 position) {
+        protected Entity(EntityID entityId, Hitbox hitbox, Vector2 position) : this(entityId, hitbox, new EntityData()){
             data.Position.val = position;
-            this.entityId = entityId;
-            Hitbox = hitbox;
         }
 
-        public static void Load(Entity[] Entities) {
-            Debug.Assert(Entities != null);
-            foreach (Entity e in Entities) {
+        public static void Load(Entity[] entities) {
+            foreach (Entity e in entities) {
                 AddEntity(e);
             }
         }
@@ -98,6 +97,8 @@ namespace Game {
                 }
             }
         }
+
+        public abstract void InitTimers();
         #endregion
 
         #region Movement
@@ -113,8 +114,7 @@ namespace Game {
                 if (!data.InAir) {
                     data.vel.y = data.jumppower;
                 }
-            }
-            else {
+            } else {
                 data.vel.y = data.jumppower;
             }
         }
@@ -128,97 +128,94 @@ namespace Game {
 
 
 
-        /*
-        private void UpdateX(float x) {
-            Tile col;
-            Vector2 offset = new Vector2(x, 0);
-            if (Terrain.WillCollide(this, offset, out col)) {
-                if (x > 0)
-                    col.tileattribs.OnTerrainIntersect((int)data.Position.x, (int)data.Position.y, Direction.Right, this);
-                else
-                    col.tileattribs.OnTerrainIntersect((int)data.Position.x, (int)data.Position.y, Direction.Left, this);
-            }
-            else {
-                data.Position.val += offset;
-            }
-        }
 
-        private void UpdateY(float y) {
-            Tile col;
-            Vector2 offset = new Vector2(0, y);
-            if (Terrain.WillCollide(this, offset, out col)) {
-                if (y > 0)
-                    col.tileattribs.OnTerrainIntersect((int)data.Position.x, (int)data.Position.y, Direction.Up, this);
-                else
-                    col.tileattribs.OnTerrainIntersect((int)data.Position.x, (int)data.Position.y, Direction.Down, this);
-            }
-            else {
-                data.Position.val += offset;
-                if (y != 0)
-                    data.InAir = true;
-            }
-        }
+        //private void UpdateX(float x) {
+        //    Tile col;
+        //    int colx, coly;
+        //    Vector2 offset = new Vector2(x, 0);
+        //    if (Terrain.WillCollide(this, offset, out col, out colx, out coly)) {
+        //        if (x > 0)
+        //            col.tileattribs.OnTerrainIntersect(colx, coly, Direction.Right, this);
+        //        else
+        //            col.tileattribs.OnTerrainIntersect(colx, coly, Direction.Left, this);
+        //    } else {
+        //        data.Position.val += offset;
+        //    }
+        //}
 
-        public virtual void UpdatePosition() {
-
-            Vector2i gridPrev = GridArray(this);
-
-            //air resisstance & gravity
-            if (data.UseGravity)
-                data.vel.y -= data.Grav * GameTime.DeltaTime;
-            data.vel.x *= (float)Math.Pow(data.AirResis, GameTime.DeltaTime);
-
-            float delta = 0.02f;
-
-            float xcopy = data.vel.x;
-            float ycopy = data.vel.y;
-            bool xneg = xcopy < 0;
-            bool yneg = ycopy < 0;
-            bool xflag = xcopy == 0;
-            bool yflag = ycopy == 0;
-            xcopy = Math.Abs(xcopy);
-            ycopy = Math.Abs(ycopy);
-
-            while (true) {
-
-                if (xflag && yflag) break;
-
-                //update x
-                if (!xflag) {
-                    float amt = (xcopy >= delta ? delta : xcopy) * (xneg ? -1 : 1);
-                    xcopy -= delta;
-                    UpdateX(amt);
-
-                    if (xcopy <= 0) xflag = true;
-                }
-
-                //update y
-                if (!yflag) {
-                    float amt = (ycopy >= delta ? delta : ycopy) * (yneg ? -1 : 1);
-                    ycopy -= delta;
-                    UpdateY(amt);
-
-                    if (ycopy <= 0) yflag = true;
-                }
-            }
+        //private void UpdateY(float y) {
+        //    Tile col;
+        //    int colx, coly;
+        //    Vector2 offset = new Vector2(0, y);
+        //    if (Terrain.WillCollide(this, offset, out col, out colx, out coly)) {
+        //        if (y > 0)
+        //            col.tileattribs.OnTerrainIntersect(colx, coly, Direction.Up, this);
+        //        else
+        //            col.tileattribs.OnTerrainIntersect(colx, coly, Direction.Down, this);
+        //    } else {
+        //        data.Position.val += offset;
+        //        if (y != 0)
+        //            data.InAir = true;
+        //    }
+        //}
 
 
+        //public virtual void UpdatePosition() {
+
+        //    Vector2i gridPrev = GridArray(this);
+
+        //    //air resisstance & gravity
+        //    if (data.UseGravity)
+        //        data.vel.y -= data.Grav * GameTime.DeltaTime;
+        //    data.vel.x *= (float)Math.Pow(data.AirResis, GameTime.DeltaTime);
+
+        //    float delta = 0.005f;
+
+        //    float xcopy = data.vel.x * GameTime.DeltaTime;
+        //    float ycopy = data.vel.y * GameTime.DeltaTime;
+        //    bool xneg = xcopy < 0;
+        //    bool yneg = ycopy < 0;
+        //    bool xflag = xcopy == 0;
+        //    bool yflag = ycopy == 0;
+        //    xcopy = Math.Abs(xcopy);
+        //    ycopy = Math.Abs(ycopy);
+
+        //    while (true) {
+
+        //        if (xflag && yflag) break;
+
+        //        //update x
+        //        if (!xflag) {
+        //            float amt = xcopy >= delta ? delta : xcopy;
+        //            xcopy -= amt;
+        //            UpdateX(amt * (xneg ? -1 : 1));
+
+        //            if (xcopy <= 0) xflag = true;
+        //        }
+
+        //        //update y
+        //        if (!yflag) {
+        //            float amt = ycopy >= delta ? delta : ycopy;
+        //            ycopy -= delta;
+        //            UpdateY(amt * (yneg ? -1 : 1));
+
+        //            if (ycopy <= 0) yflag = true;
+        //        }
+        //    }
 
 
-            Vector2i gridNow = GridArray(this);
-            if (gridPrev != gridNow) {
-                //recalc grid array
-                EntityGrid[gridPrev.x, gridPrev.y].Remove(this);
-                EntityGrid[gridNow.x, gridNow.y].Add(this);
-            }
-        }
-
-        */
+        //    Vector2i gridNow = GridArray(this);
+        //    if (gridPrev != gridNow) {
+        //        //recalc grid array
+        //        EntityGrid[gridPrev.x, gridPrev.y].Remove(this);
+        //        EntityGrid[gridNow.x, gridNow.y].Add(this);
+        //    }
+        //}
 
 
 
-        public bool UpdatePosition()
-        {
+
+        public void UpdatePosition() {
 
             Vector2i gridPrev = GridArray(this);
             bool moved = false;
@@ -231,15 +228,13 @@ namespace Game {
             {
                 Tile col;
                 Vector2 offset = new Vector2(0, data.vel.y * GameTime.DeltaTime);
-                if (Terrain.WillCollide(this, offset, out col))
-                {
-                    if (data.vel.y > 0)
-                        moved = col.tileattribs.OnTerrainIntersect((int)data.Position.x, (int)data.Position.y, Direction.Up, this);
+                int colx, coly;
+                if (Terrain.WillCollide(this, offset, out col, out colx, out coly)) {
+                    if (offset.y > 0)
+                        moved = col.tileattribs.OnTerrainIntersect(colx, coly, Direction.Up, this);
                     else
-                        moved = col.tileattribs.OnTerrainIntersect((int)data.Position.x, (int)data.Position.y, Direction.Down, this);
-                }
-                else
-                {
+                        moved = col.tileattribs.OnTerrainIntersect(colx, coly, Direction.Down, this);
+                } else {
                     data.Position.val += offset;
                     if (offset.y != 0) moved = true;
                     data.InAir = true;
@@ -249,15 +244,13 @@ namespace Game {
             {
                 Tile col;
                 Vector2 offset = new Vector2(data.vel.x * GameTime.DeltaTime, 0);
-                if (Terrain.WillCollide(this, offset, out col))
-                {
-                    if (data.vel.x > 0)
-                        moved = col.tileattribs.OnTerrainIntersect((int)data.Position.x, (int)data.Position.y, Direction.Right, this);
+                int colx, coly;
+                if (Terrain.WillCollide(this, offset, out col, out colx, out coly)) {
+                    if (offset.x > 0)
+                        moved = col.tileattribs.OnTerrainIntersect(colx, coly, Direction.Right, this);
                     else
-                        moved = col.tileattribs.OnTerrainIntersect((int)data.Position.x, (int)data.Position.y, Direction.Left, this);
-                }
-                else
-                {
+                        moved = col.tileattribs.OnTerrainIntersect(colx, coly, Direction.Left, this);
+                } else {
                     data.Position.val += offset;
                     if (offset.x != 0) moved = true;
                 }
@@ -266,14 +259,11 @@ namespace Game {
 
 
             Vector2i gridNow = GridArray(this);
-            if (gridPrev != gridNow)
-            {
+            if (gridPrev != gridNow) {
                 //recalc grid array
                 EntityGrid[gridPrev.x, gridPrev.y].Remove(this);
                 EntityGrid[gridNow.x, gridNow.y].Add(this);
             }
-
-            return moved;
         }
 
 
@@ -454,8 +444,7 @@ namespace Game {
                         HashSet<Entity> setbatch;
                         if (EntitiesMap.TryGetValue(e.entityId, out setbatch)) {
                             setbatch.Add(e);
-                        }
-                        else {
+                        } else {
                             setbatch = new HashSet<Entity>();
                             setbatch.Add(e);
                             EntitiesMap.Add(e.entityId, setbatch);
@@ -483,8 +472,7 @@ namespace Game {
                         Vector4 colouroffset = TextureUtil.ToVec4(Color.DarkGoldenrod) * new Vector4(offsetval, offsetval, offsetval, 1);
                         colouroffset *= e.data.colour;
                         shader["clr"].SetValue(colouroffset);
-                    }
-                    else {
+                    } else {
                         shader["clr"].SetValue(e.data.colour);
                     }
 
@@ -498,13 +486,16 @@ namespace Game {
             Gl.UseProgram(0);
         }
 
-        public static void CleanUp() {
+        public static void ClearEntities() {
             for (int i = 0; i < EntityGrid.GetLength(0); i++) {
                 for (int j = 0; j < EntityGrid.GetLength(1); j++) {
                     EntityGrid[i, j].Clear();
                 }
             }
+            AddEntity(Player.Instance);
+        }
 
+        public static void CleanUp() {
             Gl.DeleteShader(shader.FragmentShader.ShaderID);
             Gl.DeleteShader(shader.VertexShader.ShaderID);
             Gl.DeleteProgram(shader.ProgramID);

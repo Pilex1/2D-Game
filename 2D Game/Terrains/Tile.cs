@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Game.Entities;
 
 namespace Game.Terrains {
 
@@ -21,20 +22,20 @@ namespace Game.Terrains {
         public virtual bool OnTerrainIntersect(int x, int y, Direction side, Entity e) {
             switch (side) {
                 case Direction.Up:
-                    e.data.Position.y = (int)Math.Ceiling(e.data.Position.y);
+                    e.data.Position.y = (float)Math.Ceiling(e.data.Position.y) - MathUtil.Epsilon;
                     e.data.vel.y = 0;
                     break;
                 case Direction.Down:
-                    e.data.Position.y = (int)Math.Floor(e.data.Position.y);
+                    e.data.Position.y = (float)Math.Floor(e.data.Position.y) + MathUtil.Epsilon;
                     e.data.vel.y = 0;
                     e.data.InAir = false;
                     break;
                 case Direction.Left:
-                    e.data.Position.x = (int)Math.Floor(e.data.Position.x);
+                    e.data.Position.x = (float)Math.Floor(e.data.Position.x) + MathUtil.Epsilon;
                     e.data.vel.x = 0;
                     break;
                 case Direction.Right:
-                    e.data.Position.x = (int)Math.Ceiling(e.data.Position.x - 0.01);
+                    e.data.Position.x = (float)Math.Ceiling(e.data.Position.x) - MathUtil.Epsilon;
                     e.data.vel.x = 0;
                     break;
             }
@@ -108,6 +109,7 @@ namespace Game.Terrains {
         public static Tile LogicBridge { get { return new Tile(TileEnum.LogicBridgeOff, new LogicBridgeAttribs()); } }
         public static Tile TilePusher { get { return new Tile(TileEnum.TilePusherOff, new StickyTilePusherAttribs()); } }
         public static Tile TilePuller { get { return new Tile(TileEnum.TilePullerOff, new StickyTilePullerAttribs()); } }
+        public static Tile SingleTilePusher { get { return new Tile(TileEnum.SingleTilePusherOff, new SingleTilePusherAttribs()); } }
         public static Tile TileBreaker { get { return new Tile(TileEnum.TileBreakerOff, new TileBreakerAttribs()); } }
         #endregion Logic
 
@@ -119,8 +121,10 @@ namespace Game.Terrains {
 
         #region Fluids
         public static Tile Water { get { return new Tile(TileEnum.Water, new WaterAttribs()); } }
-        public static Tile Lava { get { return new Tile(TileEnum.Lava, new LavaAttribs()); }  }
+        //public static Tile Lava { get { return new Tile(TileEnum.Lava, new LavaAttribs()); } }
         #endregion
+
+        public static Tile Accelerator = new Tile(TileEnum.Accelerator, new AcceleratorAttribs());
 
         public static readonly Tile Light = new Tile(TileEnum.Light, new LightAttribs(16));
 
@@ -158,9 +162,9 @@ namespace Game.Terrains {
 
 
     enum TileEnum {
-        Invalid = -1, Air, Grass, Sand, Dirt, Wood, Leaf, Stone, Bedrock, Tnt, Sandstone, Sapling, TileBreakerOn, Brick, Metal1, SmoothSlab, WeatheredStone, Metal2, FutureMetal, SmoothSlab2, Marble, PlexSpecial, PurpleStone, Nuke, Cactus, Bounce, Water, WireOn, WireOff, SwitchOn, SwitchOff, LogicLampUnlit, LogicLampLit, Snow, SnowWood, SnowLeaf, GrassDeco, GateAnd, GateOr, GateNot, LogicBridgeOff, LogicBridgeHorzVertOn, LogicBridgeHorzOn, LogicBridgeVertOn, TilePusherOff, TilePusherOn, TilePullerOn, TilePullerOff, TileBreakerOff, Light, Accelerator, Lava
+        Invalid = -1, Air, Grass, Sand, Dirt, Wood, Leaf, Stone, Bedrock, Tnt, Sandstone, Sapling, TileBreakerOn, Brick, Metal1, SmoothSlab, WeatheredStone, Metal2, FutureMetal, SmoothSlab2, Marble, PlexSpecial, PurpleStone, Nuke, Cactus, Bounce, Water, WireOn, WireOff, SwitchOn, SwitchOff, LogicLampUnlit, LogicLampLit, Snow, SnowWood, SnowLeaf, GrassDeco, GateAnd, GateOr, GateNot, LogicBridgeOff, LogicBridgeHorzVertOn, LogicBridgeHorzOn, LogicBridgeVertOn, TilePusherOff, TilePusherOn, TilePullerOn, TilePullerOff, TileBreakerOff, Light, Accelerator, SingleTilePusherOff, SingleTilePusherOn
     }
 
- 
+
 
 }

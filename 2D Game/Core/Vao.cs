@@ -9,6 +9,7 @@ using Game.TitleScreen;
 using Game.Terrains;
 using Game.Particles;
 using System.Diagnostics;
+using Game.Entities;
 
 namespace Game.Core {
 
@@ -20,7 +21,7 @@ namespace Game.Core {
         public uint elementsID { get; private set; }
 
         public int count { get; private set; }
-
+            
         public EntityVAO(Vector2[] vertices, int[] elements, Vector2[] uvs) {
 
             ShaderProgram program = Entity.shader;

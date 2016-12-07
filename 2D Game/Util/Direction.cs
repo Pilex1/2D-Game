@@ -12,7 +12,8 @@ namespace Game.Util {
     enum Direction {
         Up, Right, Down, Left
     }
-    static class DirectionHelper {
+
+    static class DirectionUtil {
         public static Direction TurnClockwise(Direction dir, Direction amt) {
             int res = (int)dir + (int)amt;
             res %= 4;

@@ -116,7 +116,7 @@ namespace Game.Util {
 
         public static readonly float Sqrt2 = (float)Math.Sqrt(2);
 
-        public const float Epsilon = 0.0001f;
+        public const float Epsilon = 0.01f;
 
         #region Clamp
         public static void Clamp(ref int x, int min, int max) {

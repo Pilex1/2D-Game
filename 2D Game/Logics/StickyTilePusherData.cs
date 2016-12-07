@@ -52,7 +52,8 @@ namespace Game.Logics {
                         var list = done.ToList();
                         list.Sort(new TilePositionComparer());
                         foreach (var v in list) {
-                            Terrain.MoveTile(v.x, v.y, Direction.Right);
+                            //here
+                            Terrain.MoveTile(v.x, v.y, rotation);
                         }
                         cooldown.Reset();
                     }

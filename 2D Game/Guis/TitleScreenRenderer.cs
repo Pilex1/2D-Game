@@ -12,6 +12,7 @@ using Tao.FreeGlut;
 using Game.Guis;
 using System.Diagnostics;
 using Game.Assets;
+using Game.Core.World_Serialization;
 
 namespace Game.TitleScreen {
     static class TitleScreenRenderer {
@@ -21,6 +22,7 @@ namespace Game.TitleScreen {
 
         private static GuiModel background;
         private static Vector2 backgroundpos;
+        private static float backgroundhue;
         private static float backgrounddx;
 
         private static HashSet<Text> CurTexts = new HashSet<Text>();
@@ -28,26 +30,31 @@ namespace Game.TitleScreen {
         private static HashSet<Textbox> CurTextboxes = new HashSet<Textbox>();
         private static HashSet<Label> CurLabels = new HashSet<Label>();
 
-        private static Button btn_Main_Play, btn_Main_Credits, btn_Main_Options, btn_Main_Exit;
+        private static Button btn_Main_Play, btn_Main_Credits, btn_Main_Help, btn_Main_Exit;
         private static Text txt_Main_Title;
 
+        private static Text txt_Help;
+
         private static Button btn_Back_Title;
-        private static Button btn_Back_WorldSelect;
+        private static Button btn_NewWorld_Back;
 
         private static Textbox txtbx_NewWorld_Name;
         private static Textbox txtbx_NewWorld_Seed;
         private static Text txt_NewWorld_Name;
         private static Text txt_NewWorld_Seed;
         private static Button btn_NewWorld_CreateWorld;
+        private static Button btn_NewWorld_RandSeed;
 
         private static List<Button> btnWorldPickers;
         private static List<Textbox> txtboxWorldPickers;
 
         private static Text txt_CreditsInfo;
+
+        private static string[] worlds;
         #endregion
 
         enum State {
-            None, Main, WorldPicker, NewWorld, Credits, Options
+            None, Main, WorldSelect, NewWorld, Credits, Help
         }
 
         #region Init
@@ -55,20 +62,20 @@ namespace Game.TitleScreen {
 
             internal bool emptyworld;
             internal Button btnNewWorld, btnDeleteWorld;
-            internal Button btnWorldName;
+            internal Button btnLaunchWorld;
 
             internal WorldPicker(string worldname, int i) {
 
                 Vector2 buttonSize = new Vector2(0.15, 0.03);
                 Vector2 worldButtonSize = new Vector2(0.3, 0.03);
 
-                btnNewWorld = new Button(new Vector2(0.2, 0.85 - i * 0.3), buttonSize, "New World", TextFont.Chiller, 0.6f, delegate () {
+                btnNewWorld = new Button(new Vector2(0.2, 0.85 - i * 0.3), buttonSize, "New World", TextStyle.Chiller_SingleLine_Small, delegate () {
                     SwitchTo(State.NewWorld);
                 });
-                btnWorldName = new Button(new Vector2(-0.45, 0.85 - i * 0.3), worldButtonSize, worldname, TextFont.Chiller, 0.6f, delegate () {
+                btnLaunchWorld = new Button(new Vector2(-0.45, 0.85 - i * 0.3), worldButtonSize, worldname, TextStyle.Chiller_SingleLine_Small, delegate () {
                     try {
-                        WorldData worlddata = Serialization.LoadWorld(btnWorldName.ToString());
-                        Program.worldname = btnWorldName.ToString();
+                        WorldData worlddata = Serialization.LoadWorld(btnLaunchWorld.ToString());
+                        Program.worldname = btnLaunchWorld.ToString();
                         Program.SwitchToGame(worlddata);
                     } catch (Exception e) {
                         //if world file failed to load (usually because it's corrupted), then delete the world
@@ -76,25 +83,25 @@ namespace Game.TitleScreen {
                         btnDeleteWorld.OnPress();
                     }
                 });
-                //btnWorldName.SetTextAlignment(TextAlignment.CenterCenter);
 
-                btnDeleteWorld = new Button(new Vector2(0.2, 0.85 - i * 0.3 - 0.12), buttonSize, "Delete World", TextFont.Chiller, 0.6f, delegate () {
+                btnDeleteWorld = new Button(new Vector2(0.2, 0.85 - i * 0.3 - 0.12), buttonSize, "Delete World", TextStyle.Chiller_SingleLine_Small, delegate () {
                     if (!emptyworld)
                         try {
-                            Serialization.DeleteWorld(btnWorldName.ToString());
-                            btnWorldName.SetText("<Empty World>");
-                            btnWorldName.disabled = true;
+                            Core.World_Serialization.Serialization.DeleteWorld(btnLaunchWorld.ToString());
+                            btnLaunchWorld.SetText("");
+                            btnLaunchWorld.disabled = true;
                             btnDeleteWorld.disabled = true;
+                            btnNewWorld.disabled = false;
                         } catch (Exception) { }
                 });
 
                 emptyworld = worldname == null;
                 btnNewWorld.disabled = !emptyworld;
-                btnWorldName.disabled = emptyworld;
+                btnLaunchWorld.disabled = emptyworld;
                 btnDeleteWorld.disabled = emptyworld;
 
                 btnWorldPickers.Add(btnNewWorld);
-                btnWorldPickers.Add(btnWorldName);
+                btnWorldPickers.Add(btnLaunchWorld);
                 btnWorldPickers.Add(btnDeleteWorld);
             }
         }
@@ -103,18 +110,18 @@ namespace Game.TitleScreen {
         public static void Init() {
 
             Vector2 buttonSize = new Vector2(0.3, 0.08);
+            btn_Back_Title = new Button(new Vector2(0, -0.7), buttonSize, "Back", TextStyle.Chiller_SingleLine_Large, delegate () { SwitchTo(State.Main); });
+            backgroundhue = 0.5f;
 
-            {
-                //home screen
-                btn_Main_Play = new Button(new Vector2(0, 0.3), buttonSize, "Play", TextFont.Chiller, delegate () { SwitchTo(State.WorldPicker); });
-                btn_Main_Credits = new Button(new Vector2(0, -0.05), buttonSize, "Credits", TextFont.Chiller, delegate () { SwitchTo(State.Credits); });
-                btn_Main_Options = new Button(new Vector2(0, -0.4), buttonSize, "Options", TextFont.Chiller, delegate () { SwitchTo(State.Options); });
-                btn_Main_Exit = new Button(new Vector2(0, -0.75), buttonSize, "Exit", TextFont.Chiller, delegate () { Glut.glutLeaveMainLoop(); });
-            }
+            #region Home Screen
+            btn_Main_Play = new Button(new Vector2(0, 0.3), buttonSize, "Play", TextStyle.Chiller_SingleLine_Large, delegate () { SwitchTo(State.WorldSelect); });
+            btn_Main_Credits = new Button(new Vector2(0, -0.05), buttonSize, "Credits", TextStyle.Chiller_SingleLine_Large, delegate () { SwitchTo(State.Credits); });
+            btn_Main_Help = new Button(new Vector2(0, -0.4), buttonSize, "Help", TextStyle.Chiller_SingleLine_Large, delegate () { SwitchTo(State.Help); });
+            btn_Main_Exit = new Button(new Vector2(0, -0.75), buttonSize, "Exit", TextStyle.Chiller_SingleLine_Large, delegate () { Glut.glutLeaveMainLoop(); });
+            #endregion
 
-
-
-            txt_Main_Title = new Text("TITLE HERE", new TextStyle(TextAlignment.CenterCenter, TextFont.Chiller, 3f, 2f, 1, new Vector3(1, 1, 1)), new Vector2(0, 1));
+            #region Background
+            txt_Main_Title = new Text("TITLE HERE", new TextStyle(TextAlignment.CenterCenter, TextFont.Chiller, 3f, 2f, 1, 1f, new Vector3(0.5f, 0f, 1f)), new Vector2(0, 1));
             backgroundpos = Vector2.Zero;
             float s = 1f / Program.AspectRatio;
             float imageAspectRatio = (float)Textures.TitleBackgroundTex.Size.Width / Textures.TitleBackgroundTex.Size.Height;
@@ -127,36 +134,51 @@ namespace Game.TitleScreen {
             });
             backgrounddx = 0.00001f;
             //backgrounddx = 0;
+            #endregion
 
+            #region Credits
+            TextStyle tstyle = new TextStyle(TextAlignment.CenterCenter, TextFont.Chiller, 0.8f, 1.8f, 1 << 30, 0.5f, new Vector3(0.5f, 0f, 1f));
+            txt_CreditsInfo = new Text("Copyright Alex Tan (2016). Apache License. https://github.com/Pilex1/2D-Game/blob/master/LICENSE" + Environment.NewLine + Environment.NewLine+"- code, bugs, game design, bugs, graphics, bugs, everything you see here, bugs. Did I mention bugs?" + Environment.NewLine + Environment.NewLine + "Help me continue making these projects:" + Environment.NewLine + Environment.NewLine + "Visit my github repositories to view and download the full source code plus my other projects" + Environment.NewLine + " - https://github.com/Pilex1" + Environment.NewLine + " - https://github.com/Pilex1/2D-Game" + Environment.NewLine + Environment.NewLine + "Subscribe to my youtube channel where I post videos of Mandelbrot renders and game development" + Environment.NewLine + " - Pilex", tstyle, new Vector2(0, 0.9));
+            #endregion
 
-            //credits screen
-            txt_CreditsInfo = new Text("An open source project made by Alex Tan", new TextStyle(TextAlignment.CenterCenter, TextFont.Chiller, 0.6f, 2, Int32.MaxValue, new Vector3(1, 1, 1)), new Vector2(0, 0.7));
-
-
-            //picking a world
+            #region World Select
             btnWorldPickers = new List<Button>();
 
             txtboxWorldPickers = new List<Textbox>();
-            string[] worlds = Serialization.GetWorlds();
+            worlds = Core.World_Serialization.Serialization.GetWorlds();
             for (int i = 0; i < 5; i++) {
                 new WorldPicker(i < worlds.Length ? worlds[i] : null, i);
             }
+            #endregion
 
-            {
-                //creating new world
-                txtbx_NewWorld_Name = new Textbox(new Vector2(0, 0.5), new Vector2(0.3, 0.03), TextFont.Chiller, 0.6f);
-                txtbx_NewWorld_Seed = new Textbox(new Vector2(0, 0.2), new Vector2(0.3, 0.03), TextFont.Chiller, 0.6f);
-                float offset = 0.15f;
-                TextStyle style = new TextStyle(TextAlignment.CenterCenter, TextFont.Chiller, 1f, 1f, 1, new Vector3(1, 1, 1));
-                txt_NewWorld_Name = new Text("World Name", style, new Vector2(0, 0.5 + offset));
-                txt_NewWorld_Seed = new Text("Seed", style, new Vector2(0, 0.2 + offset));
-                btn_NewWorld_CreateWorld = new Button(new Vector2(0, -0.3), new Vector2(0.3, 0.08), "Create", TextFont.Chiller, delegate () {
-                    Program.SwitchToGame(txtbx_NewWorld_Name.GetText(), Int32.Parse(txtbx_NewWorld_Seed.GetText()));
-                });
-            }
+            #region New World
+            //creating new world
+            txtbx_NewWorld_Name = new Textbox(new Vector2(0, 0.5), new Vector2(0.3, 0.03), TextFont.Chiller, 0.6f);
+            txtbx_NewWorld_Seed = new Textbox(new Vector2(0, 0.2), new Vector2(0.3, 0.03), TextFont.Chiller, 0.6f);
+            float offset = 0.15f;
+            txt_NewWorld_Name = new Text("World Name", tstyle, new Vector2(0, 0.5 + offset));
+            txt_NewWorld_Seed = new Text("Seed", tstyle, new Vector2(0, 0.2 + offset));
+            btn_NewWorld_CreateWorld = new Button(new Vector2(0, -0.3), new Vector2(0.3, 0.08), "Create", TextStyle.Chiller_SingleLine_Large, delegate () {
+                Program.SwitchToGame(txtbx_NewWorld_Name.GetText(), Int32.Parse(txtbx_NewWorld_Seed.GetText()));
+            });
+            btn_NewWorld_RandSeed = new Button(new Vector2(0.5, 0.2), new Vector2(0.15, 0.03), "Random seed", TextStyle.Chiller_SingleLine_Small, delegate () {
+                int irand = MathUtil.RandInt(Program.Rand, 1 << 24, 1 << 30);
+                txtbx_NewWorld_Seed.SetText(irand.ToString());
+            });
+            btn_NewWorld_Back = new Button(new Vector2(0, -0.7), buttonSize, "Back", TextStyle.Chiller_SingleLine_Large, delegate () {
+                txtbx_NewWorld_Name.ClearText();
+                txtbx_NewWorld_Name.disabled = true;
 
-            btn_Back_Title = new Button(new Vector2(0, -0.7), buttonSize, "Back", TextFont.Chiller, delegate () { SwitchTo(State.Main); });
-            btn_Back_WorldSelect = new Button(new Vector2(0, -0.7), buttonSize, "Back", TextFont.Chiller, delegate () { SwitchTo(State.WorldPicker); });
+                txtbx_NewWorld_Seed.ClearText();
+                txtbx_NewWorld_Seed.disabled = true;
+
+                SwitchTo(State.WorldSelect);
+            });
+            #endregion
+
+            #region Help
+            txt_Help = new Text("How to play:" + Environment.NewLine + "W A S D - movement" + Environment.NewLine + "Left click - destroy tile" + Environment.NewLine + "Right click - interact / place tile" + Environment.NewLine + "E - open / close inventory" + Environment.NewLine + "Mousewheel and keys 1 to 9 - hotbar selection" + Environment.NewLine + Environment.NewLine + "Debug controls: (pretend these don't exist)" + Environment.NewLine + "F1 - toggle tile data view" + Environment.NewLine + "F - toggle flying", tstyle, new Vector2(0, 0.9));
+            #endregion
 
             SwitchTo(State.Main);
         }
@@ -195,18 +217,17 @@ namespace Game.TitleScreen {
                 case State.Main:
                     AddButton(btn_Main_Play);
                     AddButton(btn_Main_Credits);
-                    AddButton(btn_Main_Options);
+                    AddButton(btn_Main_Help);
                     AddButton(btn_Main_Exit);
                     AddText(txt_Main_Title);
                     break;
 
-                case State.WorldPicker:
+                case State.WorldSelect:
                     foreach (var b in btnWorldPickers) {
                         AddButton(b);
                     }
                     foreach (var t in txtboxWorldPickers) {
                         AddTextbox(t);
-                        t.cooldown.SetTime(-10);
                     }
                     AddButton(btn_Back_Title);
                     break;
@@ -216,7 +237,8 @@ namespace Game.TitleScreen {
                     AddText(txt_CreditsInfo);
                     break;
 
-                case State.Options:
+                case State.Help:
+                    AddText(txt_Help);
                     AddButton(btn_Back_Title);
                     break;
 
@@ -225,9 +247,17 @@ namespace Game.TitleScreen {
                     AddTextbox(txtbx_NewWorld_Seed);
                     AddText(txt_NewWorld_Name);
                     AddText(txt_NewWorld_Seed);
+                    AddButton(btn_NewWorld_RandSeed);
                     AddButton(btn_NewWorld_CreateWorld);
-                    AddButton(btn_Back_WorldSelect);
+                    AddButton(btn_NewWorld_Back);
                     break;
+            }
+
+            foreach (var b in CurButtons) {
+                b.cooldown.SetTime(0);
+            }
+            foreach (var t in CurTextboxes) {
+                t.cooldown.SetTime(0);
             }
             TitleScreenRenderer.state = state;
         }
@@ -246,19 +276,30 @@ namespace Game.TitleScreen {
                 t.Update();
             }
 
-            backgroundpos.x -= backgrounddx;
-            if (backgroundpos.x < Program.AspectRatio - (float)Textures.TitleBackgroundTex.Size.Width / Textures.TitleBackgroundTex.Size.Height) {
-                backgrounddx *= -1;
-            }
+            //backgroundpos.x -= backgrounddx;
+            //if (backgroundpos.x < 1 || backgroundpos.x > 2) {
+            //    backgrounddx *= -1;
+            //}
             // Debug.WriteLine(backgroundpos);
+
+            backgroundhue += GameTime.DeltaTime / 50;
 
             if (state == State.NewWorld) {
                 string worldname = txtbx_NewWorld_Name.GetText();
                 string seed = txtbx_NewWorld_Seed.GetText();
-                btn_NewWorld_CreateWorld.disabled = worldname.Length == 0 || worldname.StartsWith(" ") || StringUtil.StartsWithNumber(worldname) || seed.Length == 0 || !StringUtil.IsNumeric(seed);
+
+                btn_NewWorld_CreateWorld.disabled = !IsValidNewWorld(worldname, seed);
             }
 
 
+        }
+
+        private static bool IsValidNewWorld(string name, string seed) {
+            if (!StringUtil.StartsWithLetter(name)) return false;
+            int i_seed;
+            if (!int.TryParse(seed, out i_seed)) return false;
+
+            return true;
         }
 
         private static void RenderInstance(GuiModel model, Vector2 pos, Vector3 colour) {
@@ -280,7 +321,8 @@ namespace Game.TitleScreen {
 
             shader["aspectRatio"].SetValue(Program.AspectRatio);
 
-            RenderInstance(background, backgroundpos, new Vector3(1, 0.9, 0.9));
+            RenderInstance(background, backgroundpos, new Vector3(backgroundhue, 0f, 1f));
+            Debug.WriteLine(backgroundhue);
 
             //  Debug.WriteLine(btn_NewWorld_CreateWorld.colour);
 
@@ -292,7 +334,7 @@ namespace Game.TitleScreen {
 
 
             foreach (Textbox t in CurTextboxes)
-                RenderInstance(t.model, t.pos, t.active ? new Vector3(1, 0.5, 1) : new Vector3(1, 1, 1));
+                RenderInstance(t.model, t.pos, t.colour);
 
             foreach (Text t in CurTexts)
                 RenderInstance(t.model, t.pos, t.style.colour);
@@ -319,8 +361,8 @@ namespace Game.TitleScreen {
                 btn_Main_Play.Dispose();
             if (btn_Main_Credits != null)
                 btn_Main_Credits.Dispose();
-            if (btn_Main_Options != null)
-                btn_Main_Options.Dispose();
+            if (btn_Main_Help != null)
+                btn_Main_Help.Dispose();
 
             if (btnWorldPickers != null)
                 foreach (var b in btnWorldPickers) {
@@ -336,7 +378,7 @@ namespace Game.TitleScreen {
             if (txt_CreditsInfo != null)
                 txt_CreditsInfo.Dispose();
 
-            btn_Main_Play = btn_Main_Credits = btn_Main_Options = btn_Back_Title = null;
+            btn_Main_Play = btn_Main_Credits = btn_Main_Help = btn_Back_Title = null;
             txt_Main_Title = txt_CreditsInfo = null;
         }
         #endregion  

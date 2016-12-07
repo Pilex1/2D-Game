@@ -6,6 +6,8 @@ using Game.Entities;
 using Game.Util;
 
 namespace Game {
+
+    [Serializable]
     class Shooter : Entity {
 
         private CooldownTimer shootCooldown;
@@ -20,6 +22,10 @@ namespace Game {
             this.shootCooldown = new CooldownTimer(shootCooldown);
             this.projlife = projlife;
             base.CorrectTerrainCollision();
+        }
+
+        public override void InitTimers() {
+            CooldownTimer.AddTimer(shootCooldown);
         }
 
         public override void Update() {

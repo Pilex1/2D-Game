@@ -3,6 +3,7 @@ using Game.Guis;
 using Game.Util;
 using OpenGL;
 using System;
+using Game.Entities;
 
 namespace Game.Assets {
 
@@ -11,6 +12,7 @@ namespace Game.Assets {
         public static Texture ButtonTex, LabelTex, TextboxTex;
         public static Texture TitleBackgroundTex, GameBackgroundTex, DesertBackgroundTex, NightBackgroundTex;
         public static Texture FontCenturyGothicTex, FontChillerTex, FontDialogInputTex, FontLucidaConsoleTex;
+        public static Texture HealthbarTexture;
 
         internal static void Init() {
             ButtonTex = TextureUtil.CreateTexture("Assets/Textures/Button.png", TextureUtil.TextureInterp.Nearest);
@@ -27,12 +29,11 @@ namespace Game.Assets {
             FontChillerTex = TextureUtil.CreateTexture("Assets/Fonts/Chiller.png", TextureUtil.TextureInterp.Nearest);
             FontDialogInputTex = TextureUtil.CreateTexture("Assets/Fonts/DialogInput.png", TextureUtil.TextureInterp.Nearest);
             FontLucidaConsoleTex = TextureUtil.CreateTexture("Assets/Fonts/LucidaConsole.png", TextureUtil.TextureInterp.Nearest);
-        }
 
-        internal static void InitInGame() {
             ItemTexture = TextureUtil.CreateTexture("Assets/Textures/ItemTextures.png", TextureUtil.TextureInterp.Nearest);
             TerrainTexture = TextureUtil.CreateTexture("Assets/Textures/TerrainTextures.png", TextureUtil.TextureInterp.Nearest);
             EntityTexture = TextureUtil.CreateTexture("Assets/Textures/EntityTextures.png", TextureUtil.TextureInterp.Nearest);
+            HealthbarTexture = TextureUtil.CreateTexture("Assets/Textures/Healthbar.png", TextureUtil.TextureInterp.Nearest);
         }
 
         internal static void Dispose() {
@@ -84,7 +85,7 @@ namespace Game.Assets {
 
         private static EntityModel[] EntityModels;
 
-        internal static void InitInGame() {
+        internal static void Init() {
             EntityModels = new EntityModel[255];
 
             EntityModels[(int)EntityID.ShooterProjectile] = EntityModel.CreateRectangle(new Vector2(1, 1), EntityID.ShooterProjectile);
@@ -105,7 +106,7 @@ namespace Game.Assets {
         }
     }
 
-    static class Manager {
+    static class AssetsManager {
 
         public static void Init() {
             Textures.Init();
@@ -114,10 +115,8 @@ namespace Game.Assets {
         }
 
         public static void InitInGame() {
-            Textures.InitInGame();
-            Models.InitInGame();
+            Models.Init();
         }
-
 
         public static void Dispose() {
             Textures.Dispose();

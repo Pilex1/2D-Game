@@ -13,6 +13,8 @@ using Game.TitleScreen;
 using Game.Interaction;
 using Game.Assets;
 using Game.Terrains;
+using Game.Core.World_Serialization;
+using Game.Entities;
 
 namespace Game {
 
@@ -38,7 +40,7 @@ namespace Game {
 
         static void Main() {
 
-            Serialization.GetWorlds();
+            Core.World_Serialization.Serialization.GetWorlds();
 
             Init();
 
@@ -73,7 +75,7 @@ namespace Game {
             //Console.SetWindowPosition(0, 0);
             Mode = ProgramMode.TitleScreen;
 
-            Manager.Init();
+            AssetsManager.Init();
             Input.Init();
             Gui.Init();
             SwitchToTitleScreen();
@@ -98,12 +100,6 @@ namespace Game {
         }
 
 
-
-
-
-
-
-
         public static void SwitchToTitleScreen() {
             Mode = ProgramMode.TitleScreen;
             GameRenderer.CleanUp();
@@ -114,23 +110,23 @@ namespace Game {
         public static void SwitchToGame(string worldname, int seed) {
             Mode = ProgramMode.Game;
             Program.worldname = worldname;
+
             GameRenderer.InitNew(seed);
-            Manager.InitInGame();
-            GameLogic.Init();
+            AssetsManager.InitInGame();
+            GameLogic.InitNew();
             Gui.SwitchToGame();
             ResetAgain = true;
         }
 
-        public static void SwitchToGame(WorldData data) {
+        public static void SwitchToGame(WorldData world) {
             Mode = ProgramMode.Game;
-            GameRenderer.InitLoad(data);
-            Manager.InitInGame();
-            GameLogic.Init();
+
+            GameRenderer.InitLoad(world.terrain, world.entities);
+            AssetsManager.InitInGame();
+            GameLogic.InitLoad();
             Gui.SwitchToGame();
             ResetAgain = true;
         }
-
-
 
 
         private static void MainGameLoop() {
@@ -165,7 +161,7 @@ namespace Game {
 
             Input.Update();
 
-          //  Thread.Sleep((int)((float)1000 / 60));
+          //  Thread.Sleep((int)((float)1000 / 20));
 
             Glut.glutSwapBuffers();
         }
@@ -173,8 +169,10 @@ namespace Game {
         private static void Dispose() {
             GameRenderer.CleanUp();
             if (Mode == ProgramMode.Game) {
-                WorldData worlddata = new WorldData(Terrain.Tiles, Terrain.TerrainBiomes, (PlayerData)Player.Instance.data, Entity.GetAllEntities());
-                Serialization.SaveWorld(worldname, worlddata);
+                TerrainData worlddata = new TerrainData(Terrain.Tiles, Terrain.TerrainBiomes);
+                EntitiesData entitydata = new EntitiesData((PlayerData)Player.Instance.data, Entity.GetAllEntities());
+
+                Serialization.SaveWorld(worldname, worlddata, entitydata);
             }
 
             Gui.Dispose();

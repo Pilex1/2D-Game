@@ -21,6 +21,7 @@ namespace Game.Interaction {
         private static GuiModel Background;
         private static Text DebugText;
         private static GuiModel Healthbar;
+        private static GuiModel HealthbarTexture;
         private static Button btn_BackToTitle;
 
         private static HashSet<Button> Buttons;
@@ -33,10 +34,11 @@ namespace Game.Interaction {
             RenderDebugText = new BoolSwitch(false, 30);
 
 
-            btn_BackToTitle = new Button(new Vector2(0, -0.5), new Vector2(0.25, 0.04), "Save and Quit", TextFont.Chiller, delegate () { Program.SwitchToTitleScreen(); });
-            TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.5f, 2f, Int32.MaxValue, new Vector3(1, 1, 1));
+            btn_BackToTitle = new Button(new Vector2(0, -0.5), new Vector2(0.25, 0.04), "Save and Quit", TextStyle.Chiller_SingleLine_Large, delegate () { Program.SwitchToTitleScreen(); });
+            TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.5f, 2f, Int32.MaxValue, 1.5f,new Vector3(0.5,0f,1f));
             DebugText = new Text("", style, new Vector2(-0.99, 0.97));
             Healthbar = GuiModel.CreateRectangle(new Vector2(0.4, 0.04), Color.DarkRed);
+            HealthbarTexture = GuiModel.CreateRectangle(new Vector2(0.55, 0.065), Assets.Textures.HealthbarTexture);
             Background = GuiModel.CreateRectangle(new Vector2(1, 1), Textures.GameBackgroundTex);
 
 
@@ -71,7 +73,7 @@ namespace Game.Interaction {
             Gl.UseProgram(Gui.shader.ProgramID);
             float ratio = Player.Instance.data.Position.y / Terrains.Terrain.Tiles.GetLength(1);
             ratio = CalcBackgroundColour(ratio);
-            RenderInstance(Background, new Vector2(0, 0), new Vector3(ratio, ratio, ratio));
+            RenderInstance(Background, new Vector2(0, 0), new Vector3(0.5, 0, ratio));
             Gl.UseProgram(0);
         }
 
@@ -81,8 +83,9 @@ namespace Game.Interaction {
             Gl.UseProgram(Gui.shader.ProgramID);
 
             //healthbar
+            RenderInstance(Healthbar, new Vector2(0, -0.7));
+            RenderInstance(HealthbarTexture, new Vector2(0, -0.7));
             Healthbar.size.x = Player.Instance.data.life.val / Player.Instance.data.life.max * 0.5f;
-            RenderInstance(Healthbar, new Vector2(0, -0.75));
 
             //inventory
             if (Inventory.toggle) {
@@ -118,7 +121,7 @@ namespace Game.Interaction {
         }
 
         private static void RenderInstance(GuiModel model, Vector2 position) {
-            RenderInstance(model, position, new Vector3(1, 1, 1));
+            RenderInstance(model, position, new Vector3(0.5f, 0f, 1f));
         }
 
         private static void RenderText(Text t) {

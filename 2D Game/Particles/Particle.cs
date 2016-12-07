@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Game.Particles {
 
+    [Serializable]
     class ParticleData : EntityData {
         public float rotfactor = 0;
         public void Update() {
@@ -19,6 +20,7 @@ namespace Game.Particles {
         }
     }
 
+    [Serializable]
     abstract class Particle : Entity {
         private Vector2 hitboxoffset;
         private static readonly float sqrt2 = (float)Math.Sqrt(2);

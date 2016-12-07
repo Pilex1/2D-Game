@@ -17,8 +17,10 @@ namespace Game.Core {
         public static bool[] Mouse { get; private set; }
         public static int MouseX { get; private set; }
         public static int MouseY { get; private set; }
+        public static Vector2i MouseCoords { get { return new Vector2i(MouseX, MouseY); } }
         public static float NDCMouseX { get { return (2.0f * MouseX) / Program.Width - 1.0f; } }
         public static float NDCMouseY { get { return 1.0f - (2.0f * MouseY + 28) / Program.Height; } }
+        public static Vector2 NDCMouse { get { return new Vector2(NDCMouseX, NDCMouseY); } }
         public static int MouseScroll { get; private set; }
         public const int MouseLeft = 0, MouseMiddle = 1, MouseRight = 2;
 

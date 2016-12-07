@@ -7,6 +7,12 @@ using System.Threading.Tasks;
 
 namespace Game.Util {
     class StringUtil {
+        public static bool StartsWithLetter(string s) {
+            if (s == "") return false;
+            char c = s[0];
+            if (char.IsLetter(c)) return true;
+            return false;
+        }
         public static bool IsAlphaNumericSpace(char c) {
             return char.IsLetterOrDigit(c) || c == ' ';
         }

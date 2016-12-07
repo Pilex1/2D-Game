@@ -23,21 +23,9 @@ namespace Game.TitleScreen {
 
         private bool hoveredover = false;
 
-        private bool _disabled;
-        internal bool disabled {
-            get { return _disabled; }
-            set {
-                _disabled = value;
-                text.style.colour = _disabled ? new Vector3(0.5, 0.5, 0.5) : new Vector3(1, 1, 1);
-                colour = _disabled ? new Vector3(0.5, 0.5, 0.5) : new Vector3(1, 1, 1);
-            }
-        }
+        public bool disabled;
 
-        public Button(Vector2 pos, Vector2 size, string textstring, TextFont font, float textsize, Action OnPress) : this(pos, size, textstring, new TextStyle(TextAlignment.CenterCenter, font, textsize, 2f, 1, new Vector3(1, 1, 1)), OnPress, 20) { }
-
-        public Button(Vector2 pos, Vector2 size, string textstring, TextFont font, Action OnPress) : this(pos, size, textstring, new TextStyle(TextAlignment.CenterCenter, font, 1f, 2f, 1, new Vector3(1, 1, 1)), OnPress, 20) { }
-
-        public Button(Vector2 pos, Vector2 size, string textstring, TextStyle style, Action OnPress, float cooldowntime) {
+        public Button(Vector2 pos, Vector2 size, string textstring, TextStyle style, Action OnPress) {
             Debug.Assert(style.font.fontTexture.TextureID != 0);
             this.pos = pos;
             this.OnPress = OnPress;
@@ -45,11 +33,11 @@ namespace Game.TitleScreen {
 
             colour = new Vector3(1, 1, 1);
             model = GuiModel.CreateRectangle(size, Assets.Textures.ButtonTex);
-            cooldown = new CooldownTimer(cooldowntime);
+            cooldown = new CooldownTimer(20);
         }
 
         public void SetText(string str) {
-            text = new Text(str, text.style, text.pos);
+            text.UpdateText(str);
         }
 
         public void ResetCooldown() {
@@ -57,11 +45,9 @@ namespace Game.TitleScreen {
         }
 
         internal void Update() {
-            if (disabled)
-                return;
 
             float x = Input.NDCMouseX, y = Input.NDCMouseY;
-            if (x >= pos.x - model.size.x && x <= pos.x + model.size.x && y >= pos.y - model.size.y * Program.AspectRatio && y <= pos.y + model.size.y * Program.AspectRatio) {
+            if (!disabled && x >= pos.x - model.size.x && x <= pos.x + model.size.x && y >= pos.y - model.size.y * Program.AspectRatio && y <= pos.y + model.size.y * Program.AspectRatio) {
                 hoveredover = true;
                 if (Input.Mouse[Input.MouseLeft] && cooldown.Ready()) {
                     OnPress();
@@ -70,7 +56,15 @@ namespace Game.TitleScreen {
             } else
                 hoveredover = false;
 
-            colour = hoveredover ? new Vector3(1, 0.5, 1) : new Vector3(1, 1, 1);
+            text.style.colour = colour = 
+                //disabled
+                disabled ? new Vector3(0.5, 0, 0.25) : 
+
+                //hovered over
+                hoveredover ? new Vector3(0.5, 0, 0.75) : 
+
+                //active
+                new Vector3(0.5, 0, 1);
         }
 
         public void Dispose() {

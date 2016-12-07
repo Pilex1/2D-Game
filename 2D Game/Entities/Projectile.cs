@@ -9,6 +9,8 @@ using Game.Util;
 using Game.Interaction;
 
 namespace Game {
+
+    [Serializable]
     class Projectile : Entity {
 
         private float RotationSpeed = 0.05f;
@@ -26,6 +28,9 @@ namespace Game {
             base.data.AirResis = 1;
             RotationSpeed = rotationSpeed;
             base.data.CorrectCollisions = false;
+        }
+
+        public override void InitTimers() {
         }
 
         public override void Update() {

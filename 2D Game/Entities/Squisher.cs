@@ -6,8 +6,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Game.Core;
 
 namespace Game.Entities {
+
+    [Serializable]
     class Squisher : Entity {
 
         private CooldownTimer trackTimer;
@@ -24,6 +27,11 @@ namespace Game.Entities {
             base.data.AirResis = 0.99f;
             base.data.life = new BoundedFloat(10, 0, 10);
             base.CorrectTerrainCollision();
+        }
+
+        public override void InitTimers() {
+            CooldownTimer.AddTimer(trackTimer);
+            CooldownTimer.AddTimer(dmgTimer);
         }
 
         public override void Update() {

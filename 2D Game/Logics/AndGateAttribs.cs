@@ -15,6 +15,7 @@ namespace Game.Logics {
 
 
         public AndGateAttribs() {
+
             poweroutL.max = poweroutU.max = poweroutD.max = 0;
             poweroutR.max = 64;
 

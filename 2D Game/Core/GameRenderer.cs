@@ -1,6 +1,10 @@
-﻿using Game.Interaction;
+﻿using Game.Core;
+using Game.Core.World_Serialization;
+using Game.Entities;
+using Game.Interaction;
 using Game.Particles;
 using Game.Terrains;
+using Game.Util;
 using OpenGL;
 
 namespace Game {
@@ -19,21 +23,41 @@ namespace Game {
             Player.CreateNew();
             Entity.AddEntity(Player.Instance);
             Player.Instance.CorrectTerrainCollision();
+            Inventory.Init();
+            Inventory.LoadDefaultItems();
+
+           
 
             InitMatrices();
         }
 
-        public static void InitLoad(WorldData worlddata) {
+        public static void InitLoad(TerrainData worlddata, EntitiesData entitiesdata) {
 
-            //terrain
+            #region Terrain
             Terrain.Load(worlddata.terrain);
             Terrain.Init();
+            #endregion
 
-            //entities
+            #region Entities
             Entity.Init();
-            Player.LoadPlayer(worlddata.playerdata);
-            // Entity.Load(worlddata.entities);
+
+            //load other entities
+            foreach (var e in entitiesdata.entities) {
+                Entity.AddEntity(e);
+                e.InitTimers();
+            }
+            #endregion
+
+            #region Player
+            //load player data
+            Player.LoadPlayer(entitiesdata.player);
             Entity.AddEntity(Player.Instance);
+
+            //load player inventory
+            PlayerData playerdata = (PlayerData)Player.Instance.data;
+            Inventory.Init();
+            Inventory.LoadItems(playerdata.items);
+            #endregion
 
             //Load matrices  
             InitMatrices();

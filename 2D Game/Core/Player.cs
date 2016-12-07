@@ -10,7 +10,7 @@ using Game.Util;
 using Game.Core;
 using Game.Terrains.Gen;
 
-namespace Game {
+namespace Game.Core {
 
     [Serializable]
     class PlayerData : EntityData {
@@ -30,6 +30,10 @@ namespace Game {
             base.data.speed = 0.08f;
             base.data.jumppower = 0.5f;
             base.data.life = new BoundedFloat(20, 0, 20);
+        }
+
+        public override void InitTimers() { 
+           
         }
 
         private static Player DefaultPlayer() {
@@ -88,7 +92,6 @@ namespace Game {
                 }
                 if (Mouse[Input.MouseMiddle]) {
                     int x = (int)v.x, y = (int)v.y;
-
                 }
             }
             if (Keys['a']) {

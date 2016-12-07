@@ -18,14 +18,7 @@ namespace Game {
 
         public static string AdditionalDebugText = "";
 
-
-        public static void Init() {
-
-
-            PlayerData playerdata = (PlayerData)Player.Instance.data;
-            Inventory.Init(playerdata.items);
-
-            //new Shooter(new Vector2(500, 0), 50, 150);
+        public static void InitNew() {
             for (int i = 1; i <= 1000; i++) {
                 Shooter s = new Shooter(new Vector2(i * 20 * MathUtil.RandFloat(Program.Rand, 0.8f, 1.2f), 0), 100, 250);
                 Entity.AddEntity(s);
@@ -33,9 +26,12 @@ namespace Game {
                 Squisher sq = new Squisher(new Vector2(i * 20 * MathUtil.RandFloat(Program.Rand, 0.8f, 1.2f), 0));
                 Entity.AddEntity(sq);
             }
-           // Entity.AddEntity(new Squisher(Player.Instance.data.Position));
         }
 
+
+        public static void InitLoad() {
+           
+        }
 
         public static void Update() {
 
@@ -60,5 +56,6 @@ namespace Game {
             sb.AppendLine(AdditionalDebugText);
             return sb.ToString();
         }
+
     }
 }

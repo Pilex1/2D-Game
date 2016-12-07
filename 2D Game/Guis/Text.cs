@@ -24,21 +24,46 @@ namespace Game.Fonts {
         public float size;
         public float maxwidth;
         public int maxlines;
+        public float linespacing;
         public Vector3 colour;
 
-        public TextStyle(TextAlignment alignment, TextFont font, float size, float maxwidth, int maxlines, Vector3 colour) {
+        public TextStyle(TextAlignment alignment, TextFont font, float size, float maxwidth, int maxlines, float linespacing, Vector3 colour) {
             this.alignment = alignment;
             this.font = font;
             this.maxwidth = maxwidth * font.fontTexture.Size.Width / size;
             this.size = size / font.fontTexture.Size.Width;
             this.maxlines = maxlines;
             this.colour = colour;
+            this.linespacing = linespacing;
         }
+
+        #region Constants
+        public static readonly TextStyle Chiller_SingleLine_Large = new TextStyle(TextAlignment.CenterCenter, TextFont.Chiller, 1f, 2f, 1, 0.5f,new Vector3(0.5f, 0f, 1f));
+        public static readonly TextStyle Chiller_SingleLine_Small = new TextStyle(TextAlignment.CenterCenter, TextFont.Chiller, 0.6f, 2f, 1, 0.5f, new Vector3(0.5f, 0f, 1f));
+        public static readonly TextStyle Chiller_MultiLine_Large = new TextStyle(TextAlignment.CenterCenter, TextFont.Chiller, 1f, 2f, 1 << 30, 0.5f, new Vector3(0.5f, 0f, 1f));
+        public static readonly TextStyle Chiller_MultiLine_Small = new TextStyle(TextAlignment.CenterCenter, TextFont.Chiller, 0.6f, 2f, 1 << 30, 0.5f, new Vector3(0.5f, 0f, 1f));
+
+        public static readonly TextStyle LucidaConsole_SingleLine_Large = new TextStyle(TextAlignment.CenterCenter, TextFont.LucidaConsole, 1f, 2f, 1, 1f, new Vector3(0.5f, 0f, 1f));
+        public static readonly TextStyle LucidaConsole_SingleLine_Small = new TextStyle(TextAlignment.CenterCenter, TextFont.LucidaConsole, 0.6f, 2f, 1, 1f, new Vector3(0.5f, 0f, 1f));
+        public static readonly TextStyle LucidaConsole_MultiLine_Large = new TextStyle(TextAlignment.CenterCenter, TextFont.LucidaConsole, 1f, 2f, 1 << 30, 1f, new Vector3(0.5f, 0f, 1f));
+        public static readonly TextStyle LucidaConsole_MultiLine_Small = new TextStyle(TextAlignment.CenterCenter, TextFont.LucidaConsole, 0.6f, 2f, 1 << 30, 1f, new Vector3(0.5f, 0f, 1f));
+
+        public static readonly TextStyle DialogInput_SingleLine_Large = new TextStyle(TextAlignment.CenterCenter, TextFont.DialogInput, 1f, 2f, 1, 1f, new Vector3(0.5f, 0f, 1f));
+        public static readonly TextStyle DialogInput_SingleLine_Small = new TextStyle(TextAlignment.CenterCenter, TextFont.DialogInput, 0.6f, 2f, 1, 1f, new Vector3(0.5f, 0f, 1f));
+        public static readonly TextStyle DialogInput_MultiLine_Large = new TextStyle(TextAlignment.CenterCenter, TextFont.DialogInput, 1f, 2f, 1 << 30, 1f, new Vector3(0.5f, 0f, 1f));
+        public static readonly TextStyle DialogInput_MultiLine_Small = new TextStyle(TextAlignment.CenterCenter, TextFont.DialogInput, 0.6f, 2f, 1 << 30, 1f, new Vector3(0.5f, 0f, 1f));
+
+        public static readonly TextStyle CenturyGothic_SingleLine_Large = new TextStyle(TextAlignment.CenterCenter, TextFont.CenturyGothic, 1f, 2f, 1, 1f, new Vector3(0.5f, 0f, 1f));
+        public static readonly TextStyle CenturyGothic_SingleLine_Small = new TextStyle(TextAlignment.CenterCenter, TextFont.CenturyGothic, 0.6f, 2f, 1, 1f, new Vector3(0.5f, 0f, 1f));
+        public static readonly TextStyle CenturyGothic_MultiLine_Large = new TextStyle(TextAlignment.CenterCenter, TextFont.CenturyGothic, 1f, 2f, 1 << 30, 1f, new Vector3(0.5f, 0f, 1f));
+        public static readonly TextStyle CenturyGothic_MultiLine_Small = new TextStyle(TextAlignment.CenterCenter, TextFont.CenturyGothic, 0.6f, 2f, 1 << 30, 1f, new Vector3(0.5f, 0f, 1f));
+        #endregion
+
     }
 
     class Text {
         internal GuiModel model;
-        
+
         internal TextStyle style;
 
         private Vector2 relpos;
@@ -53,6 +78,21 @@ namespace Game.Fonts {
             this.style = style;
             this.relpos = pos;
             InitModel();
+        }
+
+        public void ClearText() {
+            UpdateText("");
+        }
+
+        public void UpdateText(string text) {
+            sb_text.Clear();
+            sb_text.Append(text);
+
+            Vector2[] vertices;
+            int[] elements;
+            Vector2[] uvs;
+            SetTextHelper(style.font.fontTexture.Size.Width, style.size, style.font.fontTexture.Size.Height, out vertices, out elements, out uvs);
+            model.vao.UpdateAll(vertices, elements, uvs);
         }
 
         private void InitModel() {
@@ -71,11 +111,9 @@ namespace Game.Fonts {
 
             string[] lines = s.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
 
-
-
             int vptr = 0;
             int xptr = 0;
-            int lineheight = style.font.lineHeight;
+            float lineheight = style.font.lineHeight * style.linespacing;
             int line = 0;
 
             float actualmaxwidth = 0;

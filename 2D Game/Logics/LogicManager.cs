@@ -29,6 +29,7 @@ namespace Game.Logics {
                 StickyTilePullerAttribs tilepullerdata = logic as StickyTilePullerAttribs;
                 LogicLampAttribs logiclampdata = logic as LogicLampAttribs;
                 LogicBridgeAttribs logicbridgedata = logic as LogicBridgeAttribs;
+                SingleTilePusherAttribs singletilepusherdata = logic as SingleTilePusherAttribs;
 
                 if (switchdata != null) {
                     Terrain.TileAt(v.x, v.y).enumId = switchdata.state ? TileEnum.SwitchOn : TileEnum.SwitchOff;
@@ -42,6 +43,8 @@ namespace Game.Logics {
                     Terrain.TileAt(v.x, v.y).enumId = logicbridgedata.stateHorz ? (logicbridgedata.stateVert ? TileEnum.LogicBridgeHorzVertOn : TileEnum.LogicBridgeHorzOn) : (logicbridgedata.stateVert ? TileEnum.LogicBridgeVertOn : TileEnum.LogicBridgeOff);
                 } else if (tilepullerdata != null) {
                     Terrain.TileAt(v.x, v.y).enumId = tilepullerdata.state ? TileEnum.TilePullerOn : TileEnum.TilePullerOff;
+                } else if (singletilepusherdata != null) {
+                    Terrain.TileAt(v.x, v.y).enumId = singletilepusherdata.state ? TileEnum.SingleTilePusherOn : TileEnum.SingleTilePusherOff;
                 }
             }
         }

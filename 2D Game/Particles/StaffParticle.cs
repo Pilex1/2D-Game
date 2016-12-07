@@ -13,6 +13,8 @@ using Game.Terrains;
 using Game.Assets;
 
 namespace Game.Particles {
+
+    [Serializable]
     abstract class StaffParticle : Particle {
         public StaffParticle(EntityID model, Vector2 pos)
             : base(model, pos) {
@@ -21,6 +23,7 @@ namespace Game.Particles {
 
     }
 
+    [Serializable]
     class StaffParticlePurple : StaffParticle {
 
         private static CooldownTimer cooldown;
@@ -28,6 +31,11 @@ namespace Game.Particles {
         internal static new void Init() {
             cooldown = new CooldownTimer(1f);
         }
+
+        public override void InitTimers() {
+            CooldownTimer.AddTimer(cooldown);
+        }
+
 
         public static void Create(Vector2 pos, Vector2 vel) {
             if (!cooldown.Ready()) return;
@@ -59,12 +67,17 @@ namespace Game.Particles {
 
     }
 
+    [Serializable]
     class StaffParticleRed : StaffParticle {
 
         private static CooldownTimer cooldown;
 
         internal static new void Init() {
             cooldown = new CooldownTimer(1f);
+        }
+
+        public override void InitTimers() {
+            CooldownTimer.AddTimer(cooldown);
         }
 
         public static void Create(Vector2 pos, Vector2 vel) {
@@ -88,19 +101,24 @@ namespace Game.Particles {
             List<Entity> colliding = this.EntityCollisions();
             foreach (Entity e in colliding) {
                 // if (e is Player) continue;
-                e.data.vel.x *= 1.0001f;
+                e.data.vel.x *= 1.0005f;
             }
             if (colliding.Count > 0) Entity.RemoveEntity(this);
             base.RemoveIfNoLife();
         }
     }
 
+    [Serializable]
     class StaffParticleBlue : StaffParticle {
 
         private static CooldownTimer cooldown;
 
         internal static new void Init() {
             cooldown = new CooldownTimer(0.4f);
+        }
+
+        public override void InitTimers() {
+            CooldownTimer.AddTimer(cooldown);
         }
 
         public static void Create(Vector2 pos, Vector2 vel) {
@@ -135,12 +153,17 @@ namespace Game.Particles {
         }
     }
 
+    [Serializable]
     class StaffParticleGreen : StaffParticle {
 
         private static CooldownTimer cooldown;
 
         internal static new void Init() {
             cooldown = new CooldownTimer(1f);
+        }
+
+        public override void InitTimers() {
+            CooldownTimer.AddTimer(cooldown);
         }
 
         public static void Create(Vector2 pos, Vector2 vel) {

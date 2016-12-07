@@ -2,12 +2,14 @@
 using OpenGL;
 
 namespace Game.Entities {
+
+    [Serializable]
     abstract class Hitbox {
         public abstract float Width { get; set; }
         public abstract float Height { get; set; }
 
-        public Vector2 Position { get; set; }
-        public Vector2 Size { get; set; }
+        public Vector2 Position;
+        public Vector2 Size;
 
         //protected static bool IntersectingCircleCircle(CircleHitbox h1, CircleHitbox h2) {
         //    float distanceX = h1.Position.x - h2.Position.x;
@@ -40,6 +42,8 @@ namespace Game.Entities {
 
         public abstract bool Intersecting(Hitbox box);
     }
+
+    [Serializable]
     class RectangularHitbox : Hitbox {
 
         public RectangularHitbox(Vector2 position, Vector2 size) {

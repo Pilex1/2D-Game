@@ -169,19 +169,49 @@ namespace Game.Terrains {
                             height = fattribs.height;
                         }
 
-                        //top left, bottom left, top right, bottom right
+                        //top left, bottom left, bottom right, top right
                         verticesList.AddRange(new Vector2[] {
                             new Vector2(i,j+height),
                             new Vector2(i,j),
-                            new Vector2(i+1,j+height),
-                            new Vector2(i+1,j)
+                            new Vector2(i+1,j),
+                            new Vector2(i+1,j+height)
                         });
-                        uvList.AddRange(new Vector2[] {
-                            new Vector2(x+h,y+s-h),
-                            new Vector2(x+h,y+h),
-                            new Vector2(x+s-h,y+s-h),
-                            new Vector2(x+s-h,y+h)
-                        });
+
+                        switch (Tiles[i, j].tileattribs.rotation) {
+                            case Direction.Up:
+                                //top left, bottom left, bottom right, top right
+                                uvList.AddRange(new Vector2[] {
+                                    new Vector2(x+h,y+s-h),
+                                    new Vector2(x+h,y+h),
+                                    new Vector2(x+s-h,y+h),
+                                    new Vector2(x+s-h,y+s-h)
+                                });
+                                break;
+                            case Direction.Right:
+                                uvList.AddRange(new Vector2[] {
+                                    new Vector2(x+h,y+h),
+                                    new Vector2(x+s-h,y+h),
+                                    new Vector2(x+s-h,y+s-h),
+                                    new Vector2(x+h,y+s-h)
+                                });
+                                break;
+                            case Direction.Down:
+                                uvList.AddRange(new Vector2[] {
+                                    new Vector2(x+s-h,y+h),
+                                    new Vector2(x+s-h,y+s-h),
+                                    new Vector2(x+h,y+s-h),
+                                    new Vector2(x+h,y+h),
+                                });
+                                break;
+                            case Direction.Left:
+                                uvList.AddRange(new Vector2[] {
+                                    new Vector2(x+s-h,y+s-h),
+                                    new Vector2(x+h,y+s-h),
+                                    new Vector2(x+h,y+h),
+                                    new Vector2(x+s-h,y+h)
+                                });
+                                break;
+                        }
                     }
                 }
             }
@@ -194,8 +224,8 @@ namespace Game.Terrains {
                 elements[6 * i + 1] = 4 * i + 1;
                 elements[6 * i + 2] = 4 * i + 2;
                 elements[6 * i + 3] = 4 * i + 2;
-                elements[6 * i + 4] = 4 * i + 1;
-                elements[6 * i + 5] = 4 * i + 3;
+                elements[6 * i + 4] = 4 * i + 3;
+                elements[6 * i + 5] = 4 * i + 0;
             }
         }
 
@@ -212,28 +242,32 @@ namespace Game.Terrains {
         #endregion Mesh
 
         #region Collision
-        public static bool WillCollide(Entity entity, Vector2 offset, out Tile collidedTile) { return WillCollide(entity.Hitbox, offset, out collidedTile); }
-        public static bool WillCollide(Hitbox hitbox, Vector2 offset, out Tile collidedTile) {
+        public static bool WillCollide(Entity entity, Vector2 offset, out Tile collidedTile, out int collision_x, out int collision_y) { return WillCollide(entity.Hitbox, offset, out collidedTile, out collision_x, out collision_y); }
+        public static bool WillCollide(Hitbox hitbox, Vector2 offset, out Tile collidedTile, out int collision_x, out int collision_y) {
             if (offset.x > 1) offset.x = 1;
             if (offset.x < -1) offset.x = -1;
             if (offset.y > 1) offset.y = 1;
             if (offset.y < -1) offset.y = -1;
 
-            int x1 = (int)(hitbox.Position.x + offset.x);
-            int x2 = (int)(hitbox.Position.x + hitbox.Width + offset.x - Epsilon);
+            int x1 = (int)Math.Floor(hitbox.Position.x + offset.x + Epsilon);
+            int x2 = (int)Math.Floor(hitbox.Position.x + hitbox.Width + offset.x - Epsilon);
 
-            int y1 = (int)(hitbox.Position.y + offset.y);
-            int y2 = (int)(hitbox.Position.y + hitbox.Height + offset.y - Epsilon);
+            int y1 = (int)Math.Floor(hitbox.Position.y + offset.y + Epsilon);
+            int y2 = (int)Math.Floor(hitbox.Position.y + hitbox.Height + offset.y - Epsilon);
 
             for (int i = x1; i <= x2; i++) {
                 for (int j = y1; j <= y2; j++) {
                     if (TileAt(i, j).tileattribs.solid) {
                         collidedTile = TileAt(i, j);
+                        collision_x = i;
+                        collision_y = j;
                         return true;
                     }
                 }
             }
             collidedTile = Tile.Air;
+            collision_x = -1;
+            collision_y = -1;
             return false;
         }
 
@@ -248,7 +282,8 @@ namespace Game.Terrains {
         }
 
         public static bool IsColliding(Hitbox h, out Tile col) {
-            return WillCollide(h, Vector2.Zero, out col);
+            int colx, coly;
+            return WillCollide(h, Vector2.Zero, out col, out colx, out coly);
         }
 
         public static bool IsColliding(Entity entity, out Tile col) {
@@ -320,6 +355,11 @@ namespace Game.Terrains {
             Tiles[x, y] = tile;
         }
 
+        public static void SetTile(int x, int y, Tile tile, Vector2 v) {
+            Direction d = DirectionUtil.FromVector2(v);
+            tile.tileattribs.rotation = d;
+            SetTile(x, y, tile);
+        }
         public static void SetTile(int x, int y, Tile tile) { SetTile(x, y, tile, true); }
         private static void SetTileNoUpdate(int x, int y, Tile tile) { SetTile(x, y, tile, false); }
         private static void SetTile(int x, int y, Tile tile, bool update) {
@@ -347,7 +387,7 @@ namespace Game.Terrains {
             }
 
             UpdateMesh = true;
-            if (!tile.tileattribs.transparent && y > Heights[x]) Heights[x] = y;
+            if (y > Heights[x]) Heights[x] = y;
             Lighting.QueueUpdate(x, y);
         }
 
@@ -497,12 +537,8 @@ namespace Game.Terrains {
 
 
         public static void CleanUp() {
-
             TerrainShader.DisposeChildren = true;
             TerrainShader.Dispose();
-
-            //serialise terrain
-            //   Serialization.SaveTerrain(Tiles);
         }
 
         #endregion
