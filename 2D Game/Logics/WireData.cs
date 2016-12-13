@@ -1,7 +1,4 @@
 ﻿using System;
-using Game.Assets;
-using OpenGL;
-using Game.Terrains;
 using Game.Util;
 using System.Text;
 

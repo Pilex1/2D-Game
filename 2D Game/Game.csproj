@@ -23,7 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IntermediateOutputPath>C:\Users\Brain\AppData\Local\Temp\vs2C37.tmp\Debug\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\Brain\AppData\Local\Temp\vs38B9.tmp\Debug\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,7 +33,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IntermediateOutputPath>C:\Users\Brain\AppData\Local\Temp\vs2C37.tmp\Release\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\Brain\AppData\Local\Temp\vs38B9.tmp\Release\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -62,6 +62,7 @@
     <Compile Include="Core\Model.cs" />
     <Compile Include="Core\World Serialization\EntityData.cs" />
     <Compile Include="Core\World Serialization\Serialization.cs" />
+    <Compile Include="Entities\EntityManager.cs" />
     <Compile Include="Entities\Squisher.cs" />
     <Compile Include="Fluids\Lava.cs" />
     <Compile Include="Fluids\Water.cs" />

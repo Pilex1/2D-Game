@@ -1,12 +1,7 @@
 ﻿using Game.Fluids;
 using Game.Logics;
 using Game.Util;
-using OpenGL;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Game.Entities;
 
 namespace Game.Terrains {
@@ -19,27 +14,26 @@ namespace Game.Terrains {
         public Direction rotation = Direction.Up;
 
         public virtual void Interact(int x, int y) { }
-        public virtual bool OnTerrainIntersect(int x, int y, Direction side, Entity e) {
+        public virtual void OnTerrainIntersect(int x, int y, Direction side, Entity e) {
             switch (side) {
                 case Direction.Up:
-                    e.data.Position.y = (float)Math.Ceiling(e.data.Position.y) - MathUtil.Epsilon;
+                    e.data.pos.y = y - e.hitbox.Size.y - MathUtil.Epsilon;
                     e.data.vel.y = 0;
                     break;
                 case Direction.Down:
-                    e.data.Position.y = (float)Math.Floor(e.data.Position.y) + MathUtil.Epsilon;
+                    e.data.pos.y = y + 1;
                     e.data.vel.y = 0;
                     e.data.InAir = false;
                     break;
                 case Direction.Left:
-                    e.data.Position.x = (float)Math.Floor(e.data.Position.x) + MathUtil.Epsilon;
+                    e.data.pos.x = x + 1;
                     e.data.vel.x = 0;
                     break;
                 case Direction.Right:
-                    e.data.Position.x = (float)Math.Ceiling(e.data.Position.x) - MathUtil.Epsilon;
+                    e.data.pos.x = x - e.hitbox.Size.x - MathUtil.Epsilon;
                     e.data.vel.x = 0;
                     break;
             }
-            return true;
         }
 
         public override string ToString() {
@@ -139,14 +133,13 @@ namespace Game.Terrains {
         float bouncePowerVert = -1.2f;
         float bouncePowerHorz = -1.8f;
 
-        public override bool OnTerrainIntersect(int x, int y, Direction side, Entity e) {
+        public override void OnTerrainIntersect(int x, int y, Direction side, Entity e) {
             if (side == Direction.Up || side == Direction.Down) {
                 e.data.vel.y *= bouncePowerVert;
             }
             if (side == Direction.Left || side == Direction.Right) {
                 e.data.vel.x *= bouncePowerHorz;
             }
-            return true;
         }
     }
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using Game.Terrains;
-using Game.Logics;
 using Game.Particles;
 using OpenGL;
 using Game.Util;
@@ -64,44 +63,44 @@ namespace Game.Assets {
                 case Item.Accelerator: Terrain.SetTile(x, y, Tile.Accelerator); break;
 
                 #region Weapons
-                case Item.StaffGreen: {
-                        Vector2 pos = Player.Instance.data.Position.val;
-                        pos += new Vector2(Player.Instance.Hitbox.Width / 2, Player.Instance.Hitbox.Height / 2);
+                case Item.StaffPurple: {
+                        Vector2 pos = Player.Instance.data.pos.val;
+                        pos += new Vector2(Player.Instance.hitbox.Size.x / 2, Player.Instance.hitbox.Size.y / 2);
                         pos += MathUtil.RandVector2(Program.Rand, new Vector2(-1, -1), new Vector2(1, 1));
                         Vector2 vel = Input.RayCast().Normalize();
                         Vector2 playervel = new Vector2(Player.Instance.data.vel.x, Player.Instance.data.vel.y);
                         vel += playervel;
-                        StaffParticleGreen.Create(pos, vel);
-                    }
-                    break;
-                case Item.StaffBlue: {
-                        Vector2 pos = Player.Instance.data.Position.val;
-                        pos += new Vector2(Player.Instance.Hitbox.Width / 2, Player.Instance.Hitbox.Height / 2);
-                        pos += MathUtil.RandVector2(Program.Rand, -1, 1);
-                        Vector2 vel = Input.RayCast().Normalize();
-                        Vector2 playervel = new Vector2(Player.Instance.data.vel.x, Player.Instance.data.vel.y);
-                        vel += playervel;
-                        StaffParticleBlue.Create(pos, vel);
+                        SParc_Damage.Create(pos, vel);
                     }
                     break;
                 case Item.StaffRed: {
-                        Vector2 pos = Player.Instance.data.Position.val;
-                        pos += new Vector2(Player.Instance.Hitbox.Width / 2, Player.Instance.Hitbox.Height / 2);
+                        Vector2 pos = Player.Instance.data.pos.val;
+                        pos += new Vector2(Player.Instance.hitbox.Size.x / 2, Player.Instance.hitbox.Size.y / 2);
                         pos += MathUtil.RandVector2(Program.Rand, -1, 1);
                         Vector2 vel = Input.RayCast().Normalize();
                         Vector2 playervel = new Vector2(Player.Instance.data.vel.x, Player.Instance.data.vel.y);
                         vel += playervel;
-                        StaffParticleRed.Create(pos, vel);
+                        SParc_Destroy.Create(pos, vel);
                     }
                     break;
-                case Item.StaffPurple: {
-                        Vector2 pos = Player.Instance.data.Position.val;
-                        pos += new Vector2(Player.Instance.Hitbox.Width / 2, Player.Instance.Hitbox.Height / 2);
+                case Item.StaffGreen: {
+                        Vector2 pos = Player.Instance.data.pos.val;
+                        pos += new Vector2(Player.Instance.hitbox.Size.x / 2, Player.Instance.hitbox.Size.y / 2);
                         pos += MathUtil.RandVector2(Program.Rand, -1, 1);
                         Vector2 vel = Input.RayCast().Normalize();
                         Vector2 playervel = new Vector2(Player.Instance.data.vel.x, Player.Instance.data.vel.y);
                         vel += playervel;
-                        StaffParticlePurple.Create(pos, vel);
+                        SParc_Speed.Create(pos, vel);
+                    }
+                    break;
+                case Item.StaffBlue: {
+                        Vector2 pos = Player.Instance.data.pos.val;
+                        pos += new Vector2(Player.Instance.hitbox.Size.x / 2, Player.Instance.hitbox.Size.y / 2);
+                        pos += MathUtil.RandVector2(Program.Rand, -1, 1);
+                        Vector2 vel = Input.RayCast().Normalize();
+                        Vector2 playervel = new Vector2(Player.Instance.data.vel.x, Player.Instance.data.vel.y);
+                        vel += playervel;
+                        SParc_Water.Create(pos, vel);
                     }
                     break;
                     #endregion

@@ -1,14 +1,7 @@
 ﻿using Game.Assets;
-using Game.Fonts;
 using Game.Guis;
 using Game.Interaction;
-using Game.Util;
 using OpenGL;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.TitleScreen {
     static class Gui {

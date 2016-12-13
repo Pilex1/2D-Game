@@ -1,9 +1,6 @@
-﻿using Game.Assets;
-using Game.Terrains;
+﻿using Game.Terrains;
 using Game.Util;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Game.Logics {
 

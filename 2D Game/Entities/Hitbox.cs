@@ -5,8 +5,6 @@ namespace Game.Entities {
 
     [Serializable]
     abstract class Hitbox {
-        public abstract float Width { get; set; }
-        public abstract float Height { get; set; }
 
         public Vector2 Position;
         public Vector2 Size;
@@ -51,19 +49,6 @@ namespace Game.Entities {
             Size = size;
         }
 
-        public override float Width {
-            get {
-                return Size.x;
-            }
-            set { Size = new Vector2(value, Size.y); }
-        }
-
-        public override float Height {
-            get {
-                return Size.y;
-            }
-            set { Size = new Vector2(Size.x, value); }
-        }
 
         public override bool Intersecting(Hitbox box) {
             if (box is RectangularHitbox) return IntersectingRectRect(this, box as RectangularHitbox);

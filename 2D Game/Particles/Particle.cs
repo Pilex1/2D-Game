@@ -1,13 +1,9 @@
 ﻿using Game.Core;
 using Game.Entities;
 using Game.Terrains;
+using Game.Util;
 using OpenGL;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Particles {
 
@@ -16,49 +12,44 @@ namespace Game.Particles {
         public float rotfactor = 0;
         public void Update() {
             life.val -= GameTime.DeltaTime;
-            base.rot += rotfactor * GameTime.DeltaTime;
+            rot += rotfactor * GameTime.DeltaTime;
         }
     }
 
     [Serializable]
     abstract class Particle : Entity {
-        private Vector2 hitboxoffset;
-        private static readonly float sqrt2 = (float)Math.Sqrt(2);
 
-        public static new void Init() {
-            StaffParticleGreen.Init();
-            StaffParticleBlue.Init();
-            StaffParticleRed.Init();
-            StaffParticlePurple.Init();
+        private Vector2 hitboxoffset;
+
+        public static void Init() {
+            SParc_Damage.Init();
+            SParc_Destroy.Init();
+            SParc_Speed.Init();
+            SParc_Water.Init();
         }
 
-        public Particle(EntityID model, Vector2 pos) : base(model) {
+        public Particle(EntityID model, Vector2 pos) : base(model, pos) {
             Vector2 size = Assets.Models.GetModel(model).size;
-            hitboxoffset = new Vector2((1 - sqrt2) / 2 * size.x, (1 - sqrt2) / 2 * size.y);
-            base.Hitbox = new RectangularHitbox(pos - hitboxoffset, sqrt2 * size);
-            base.data = new ParticleData();
-            base.data.Position.val = pos;
-            base.data.UseGravity = true;
-            Entity.AddEntity(this);
+            hitboxoffset = MathUtil.Sqrt2_Offset * size;
+            hitbox = new RectangularHitbox(pos - hitboxoffset, MathUtil.Sqrt2 * size);
+            data = new ParticleData();
+            data.pos.val = pos;
+            data.useGravity = true;
+            EntityManager.AddEntity(this);
+        }
+
+        public override void UpdateHitbox() {
+            hitbox.Position = data.pos.val - hitboxoffset;
         }
 
         public override void Update() {
-            base.UpdatePosition();
-            base.Hitbox.Position = base.data.Position.val - hitboxoffset;
-            ParticleData pdata = (ParticleData)data;
-            pdata.Update();
-            base.data.colour.w = base.data.life.val / base.data.life.max;
+            UpdatePosition();
+            ((ParticleData)data).Update();
+            data.colour.w = data.life.val / data.life.max;
         }
 
         protected void RemoveIfColliding() {
-            if (Terrain.IsColliding(base.Hitbox))
-                Entity.RemoveEntity(this);
-        }
-
-        protected void RemoveIfNoLife() {
-            ParticleData pdata = (ParticleData)data;
-            if (pdata.life < 0)
-                Entity.RemoveEntity(this);
+            if (Terrain.IsColliding(this)) EntityManager.RemoveEntity(this);
         }
     }
 }

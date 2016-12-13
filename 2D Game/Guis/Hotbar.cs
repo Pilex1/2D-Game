@@ -2,11 +2,6 @@
 using Game.Core;
 using Game.Util;
 using OpenGL;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Interaction {
     static class Hotbar {

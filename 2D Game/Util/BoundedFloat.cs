@@ -1,7 +1,5 @@
 ﻿using OpenGL;
 using System;
-using System.Diagnostics;
-using System.Linq;
 
 namespace Game.Util {
 
@@ -46,13 +44,11 @@ namespace Game.Util {
 
         public static BoundedFloat Zero = new BoundedFloat(0, 0, 0);
 
-        private static float Epsilon = 0.0001f;
-
         private float _val;
         public float val {
             get { return _val; }
             set {
-                if (Math.Abs(value) < Epsilon) value = 0;
+                if (Math.Abs(value) < MathUtil.Epsilon) value = 0;
                 if (double.IsNaN(value)) value = 0;
                 if (value < min) value = min;
                 if (value > max) value = max;
@@ -67,7 +63,7 @@ namespace Game.Util {
         public float min, max;
 
         public BoundedFloat(float val, float min, float max) {
-            if (Math.Abs(val) < Epsilon) val = 0;
+            if (Math.Abs(val) < MathUtil.Epsilon) val = 0;
             _val = val;
             this.min = min;
             this.max = max;
@@ -114,7 +110,6 @@ namespace Game.Util {
 
             dest._val += val;
             src._val -= val;
-            Debug.Assert(src.val >= src.min && src.val <= src.max && dest.val >= dest.min && dest.val <= dest.max);
         }
 
         public static implicit operator float(BoundedFloat f) {
@@ -122,7 +117,11 @@ namespace Game.Util {
         }
 
         public override string ToString() {
-            return val.ToString() + " : [" + min + ", " + max + "]";
+            return val.ToString();
+        }
+
+        internal bool IsEmpty() {
+            return val == min;
         }
     }
 }

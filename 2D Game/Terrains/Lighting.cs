@@ -1,6 +1,4 @@
-﻿using System;
-using Game.Assets;
-using Game.Util;
+﻿using Game.Util;
 using System.Diagnostics;
 using System.Collections.Generic;
 using Game.Core;
@@ -42,7 +40,7 @@ namespace Game.Terrains {
         }
 
         internal static void RecalcAll() {
-            float x = Player.Instance.data.Position.x, y = Player.Instance.data.Position.y;
+            float x = Player.Instance.data.pos.x, y = Player.Instance.data.pos.y;
 
             int startX = (int)(x + GameRenderer.zoom / 2 - LightRadius), endX = (int)(x - GameRenderer.zoom / 2 + LightRadius);
             int startY = (int)((y + GameRenderer.zoom / 2 - LightRadius) / Program.AspectRatio), endY = (int)((y - GameRenderer.zoom / 2 + LightRadius) / Program.AspectRatio);
@@ -122,8 +120,8 @@ namespace Game.Terrains {
 
             float posX, posY;
             if (Player.Instance != null) {
-                posX = (int)Player.Instance.data.Position.x;
-                posY = (int)Player.Instance.data.Position.y;
+                posX = (int)Player.Instance.data.pos.x;
+                posY = (int)Player.Instance.data.pos.y;
             } else {
                 posX = Player.StartX;
                 posY = Player.StartY;

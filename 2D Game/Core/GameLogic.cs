@@ -1,41 +1,77 @@
 ﻿using System;
-using System.Collections.Generic;
 using OpenGL;
-using Tao.FreeGlut;
-using System.Diagnostics;
 using Game.Entities;
 using Game.Terrains;
 using Game.Core;
-using System.Threading;
 using Game.Util;
-using Game.TitleScreen;
 using Game.Interaction;
-using Game.Particles;
 using System.Text;
+using Game.Core.World_Serialization;
 
 namespace Game {
     static class GameLogic {
 
         public static string AdditionalDebugText = "";
 
-        public static void InitNew() {
-            for (int i = 1; i <= 1000; i++) {
+        public static void InitNew(int seed) {
+
+            Terrain.CreateNew(seed);
+            Terrain.Init();
+
+            EntityManager.Init();
+            Player.CreateNew();
+            EntityManager.AddEntity(Player.Instance);
+            Player.Instance.CorrectTerrainCollision();
+            Inventory.Init();
+            Inventory.LoadDefaultItems();
+
+
+            for (int i = 1; i <= 300; i++) {
                 Shooter s = new Shooter(new Vector2(i * 20 * MathUtil.RandFloat(Program.Rand, 0.8f, 1.2f), 0), 100, 250);
-                Entity.AddEntity(s);
+                EntityManager.AddEntity(s);
+                s.CorrectTerrainCollision();
 
                 Squisher sq = new Squisher(new Vector2(i * 20 * MathUtil.RandFloat(Program.Rand, 0.8f, 1.2f), 0));
-                Entity.AddEntity(sq);
+                EntityManager.AddEntity(sq);
+                sq.CorrectTerrainCollision();
             }
         }
 
 
-        public static void InitLoad() {
-           
+
+        public static void InitLoad(TerrainData worlddata, EntitiesData entitiesdata) {
+
+            #region Terrain
+            Terrain.Load(worlddata.terrain);
+            Terrain.Init();
+            #endregion
+
+            #region Entities
+            EntityManager.Init();
+
+            //load other entities
+            foreach (var e in entitiesdata.entities) {
+                EntityManager.AddEntity(e);
+                e.InitTimers();
+            }
+            #endregion
+
+            #region Player
+            //load player data
+            Player.LoadPlayer(entitiesdata.player);
+            EntityManager.AddEntity(Player.Instance);
+
+            //load player inventory
+            PlayerData playerdata = (PlayerData)Player.Instance.data;
+            Inventory.Init();
+            Inventory.LoadItems(playerdata.items);
+            #endregion
+
         }
 
         public static void Update() {
 
-            Entity.UpdateAll();
+            EntityManager.UpdateAll();
             Player.Instance.Heal(0.002f * GameTime.DeltaTime);
 
             Terrain.Update();
@@ -47,11 +83,11 @@ namespace Game {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("Debug - ");
             sb.AppendLine("FPS: " + GameTime.FPS);
-            Vector2 playerpos = Player.Instance.data.Position.val;
+            Vector2 playerpos = Player.Instance.data.pos.val;
             Vector2 playervel = Player.Instance.data.vel.val;
             sb.AppendLine("Position: " + String.Format("{0:0.0000}, {1:0.0000}", playerpos.x, playerpos.y));
             sb.AppendLine("Velocity: " + String.Format("{0:0.0000}, {1:0.0000}", playervel.x, playervel.y));
-            sb.AppendLine("Loaded Entities: " + Entity.LoadedEntities);
+            sb.AppendLine("Loaded Entities: " + EntityManager.LoadedEntities);
             sb.AppendLine("--------------");
             sb.AppendLine(AdditionalDebugText);
             return sb.ToString();

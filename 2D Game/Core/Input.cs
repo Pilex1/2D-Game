@@ -1,10 +1,5 @@
 ﻿using Game.Util;
 using OpenGL;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tao.FreeGlut;
 
 namespace Game.Core {
@@ -74,12 +69,12 @@ namespace Game.Core {
 
         public static Vector2 TerrainIntersect() {
             Vector2 rayWorld = RayCast();
-            Vector2 intersectTerrain = Player.Instance.data.Position.val - rayWorld * GameRenderer.zoom;
+            Vector2 intersectTerrain = Player.Instance.data.pos.val - rayWorld * GameRenderer.zoom;
             return intersectTerrain;
         }
 
         public static float RayCastAngle() {
-            Vector2 playerpos = Player.Instance.data.Position.val;
+            Vector2 playerpos = Player.Instance.data.pos.val;
             Vector2 raycast = TerrainIntersect();
             return MathUtil.AngleFrom(playerpos, raycast);
         }

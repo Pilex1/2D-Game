@@ -5,7 +5,6 @@ using Game.Entities;
 using Game.Assets;
 using Game.Util;
 using System.Diagnostics;
-using System.Linq;
 using Game.Logics;
 using Game.Core;
 using Game.Fluids;
@@ -29,8 +28,6 @@ namespace Game.Terrains {
         public static Dictionary<Vector2i, FluidAttribs> FluidDict = new Dictionary<Vector2i, FluidAttribs>();
 
         private const int TerrainTextureSize = 16;
-
-        private const float Epsilon = 0.001f;
 
         public static ShaderProgram TerrainShader { get; private set; }
         #endregion
@@ -70,11 +67,13 @@ namespace Game.Terrains {
             }
         }
 
-        public static void Init() {
+        public static void LoadShaders() {
             TerrainShader = new ShaderProgram(Shaders.TerrainVert, Shaders.TerrainFrag);
             Console.WriteLine("Terrain Shader Log: ");
             Console.WriteLine(TerrainShader.ProgramLog);
+        }
 
+        public static void Init() {
             InitHeights();
             Lighting.Init();
             InitMesh();
@@ -127,8 +126,8 @@ namespace Game.Terrains {
         public static void Range(out int minx, out int maxx, out int miny, out int maxy) {
             float posX, posY;
             if (Player.Instance != null) {
-                posX = (int)Player.Instance.data.Position.x;
-                posY = (int)Player.Instance.data.Position.y;
+                posX = (int)Player.Instance.data.pos.x;
+                posY = (int)Player.Instance.data.pos.y;
             } else {
                 posX = Player.StartX;
                 posY = Player.StartY;
@@ -242,18 +241,13 @@ namespace Game.Terrains {
         #endregion Mesh
 
         #region Collision
-        public static bool WillCollide(Entity entity, Vector2 offset, out Tile collidedTile, out int collision_x, out int collision_y) { return WillCollide(entity.Hitbox, offset, out collidedTile, out collision_x, out collision_y); }
+        public static bool WillCollide(Entity entity, Vector2 offset, out Tile collidedTile, out int collision_x, out int collision_y) { return WillCollide(entity.hitbox, offset, out collidedTile, out collision_x, out collision_y); }
         public static bool WillCollide(Hitbox hitbox, Vector2 offset, out Tile collidedTile, out int collision_x, out int collision_y) {
-            if (offset.x > 1) offset.x = 1;
-            if (offset.x < -1) offset.x = -1;
-            if (offset.y > 1) offset.y = 1;
-            if (offset.y < -1) offset.y = -1;
+            int x1 = (int)Math.Floor(hitbox.Position.x + offset.x);
+            int x2 = (int)Math.Floor(hitbox.Position.x + hitbox.Size.x + offset.x);
 
-            int x1 = (int)Math.Floor(hitbox.Position.x + offset.x + Epsilon);
-            int x2 = (int)Math.Floor(hitbox.Position.x + hitbox.Width + offset.x - Epsilon);
-
-            int y1 = (int)Math.Floor(hitbox.Position.y + offset.y + Epsilon);
-            int y2 = (int)Math.Floor(hitbox.Position.y + hitbox.Height + offset.y - Epsilon);
+            int y1 = (int)Math.Floor(hitbox.Position.y + offset.y);
+            int y2 = (int)Math.Floor(hitbox.Position.y + hitbox.Size.y + offset.y);
 
             for (int i = x1; i <= x2; i++) {
                 for (int j = y1; j <= y2; j++) {
@@ -287,18 +281,19 @@ namespace Game.Terrains {
         }
 
         public static bool IsColliding(Entity entity, out Tile col) {
-            return IsColliding(entity.Hitbox, out col);
+            return IsColliding(entity.hitbox, out col);
         }
 
         public static Vector2 CorrectTerrainCollision(Entity entity) {
             int height = -1;
-            //find highest intersecting terrain
-            for (int i = (int)entity.data.Position.x; i < entity.data.Position.x + entity.Hitbox.Width - Epsilon; i++) {
-                int curHeight = NonCollisionAbove(i, (int)entity.data.Position.y, (int)entity.Hitbox.Height);
+            //find highest non intersecting terrain
+            for (int i = (int)entity.data.pos.x; i < entity.data.pos.x + entity.hitbox.Size.x + MathUtil.Epsilon; i++) {
+                int curHeight = NonCollisionAbove(i, (int)entity.data.pos.y, (int)(entity.hitbox.Size.y + MathUtil.Epsilon));
                 if (curHeight > height) height = curHeight;
             }
-            if (height == -1) return entity.data.Position.val;
-            return new Vector2(entity.data.Position.x, height);
+            if (height == -1)
+                return entity.data.pos.val;
+            return new Vector2(entity.data.pos.x, height);
         }
 
         private static int NonCollisionAbove(int x, int y, int height) {
@@ -313,7 +308,7 @@ namespace Game.Terrains {
         private static bool Valid(int x, int y, int height) {
             if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return true;
             for (int i = 0; i < height; i++) {
-                if (y + i >= Tiles.GetLength(1)) return true;
+                if (y + i >= Tiles.GetLength(1)) continue;
                 if (Tiles[x, y + i].enumId != TileEnum.Air) return false;
             }
             return true;
@@ -365,8 +360,8 @@ namespace Game.Terrains {
         private static void SetTile(int x, int y, Tile tile, bool update) {
             if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return;
             if (Tiles[x, y].enumId != TileEnum.Air) return;
-            int xmin = (int)Math.Floor(Player.Instance.data.Position.x), xmax = (int)Math.Ceiling(Player.Instance.data.Position.x + Player.Instance.Hitbox.Size.x - 1);
-            int ymin = (int)Math.Floor(Player.Instance.data.Position.y), ymax = (int)Math.Ceiling(Player.Instance.data.Position.y + Player.Instance.Hitbox.Size.y - 1);
+            int xmin = (int)Math.Floor(Player.Instance.data.pos.x), xmax = (int)Math.Ceiling(Player.Instance.data.pos.x + Player.Instance.hitbox.Size.x - 1);
+            int ymin = (int)Math.Floor(Player.Instance.data.pos.y), ymax = (int)Math.Ceiling(Player.Instance.data.pos.y + Player.Instance.hitbox.Size.y - 1);
             if (x >= xmin && x <= xmax && y >= ymin && y <= ymax) return;
 
             Tiles[x, y] = tile;

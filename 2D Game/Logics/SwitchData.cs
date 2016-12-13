@@ -1,9 +1,6 @@
 ﻿using System;
-using OpenGL;
-using Game.Assets;
 using Game.Util;
 using Game.Terrains;
-using System.Diagnostics;
 using System.Text;
 
 namespace Game.Logics {

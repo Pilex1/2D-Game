@@ -1,14 +1,9 @@
 ﻿using System;
 using OpenGL;
 using Tao.FreeGlut;
-using System.IO;
-using System.Text;
 using System.Diagnostics;
-using System.Threading;
 using Game.Util;
-using System.Linq;
 using Game.Core;
-using Game.Fonts;
 using Game.TitleScreen;
 using Game.Interaction;
 using Game.Assets;
@@ -111,9 +106,8 @@ namespace Game {
             Mode = ProgramMode.Game;
             Program.worldname = worldname;
 
-            GameRenderer.InitNew(seed);
-            AssetsManager.InitInGame();
-            GameLogic.InitNew();
+            GameRenderer.Init();
+            GameLogic.InitNew(seed);
             Gui.SwitchToGame();
             ResetAgain = true;
         }
@@ -121,9 +115,8 @@ namespace Game {
         public static void SwitchToGame(WorldData world) {
             Mode = ProgramMode.Game;
 
-            GameRenderer.InitLoad(world.terrain, world.entities);
-            AssetsManager.InitInGame();
-            GameLogic.InitLoad();
+            GameRenderer.Init();
+            GameLogic.InitLoad(world.terrain, world.entities);
             Gui.SwitchToGame();
             ResetAgain = true;
         }
@@ -161,7 +154,7 @@ namespace Game {
 
             Input.Update();
 
-          //  Thread.Sleep((int)((float)1000 / 20));
+            //Thread.Sleep((int)((float)1000 / 20));
 
             Glut.glutSwapBuffers();
         }
@@ -170,7 +163,7 @@ namespace Game {
             GameRenderer.CleanUp();
             if (Mode == ProgramMode.Game) {
                 TerrainData worlddata = new TerrainData(Terrain.Tiles, Terrain.TerrainBiomes);
-                EntitiesData entitydata = new EntitiesData((PlayerData)Player.Instance.data, Entity.GetAllEntities());
+                EntitiesData entitydata = new EntitiesData((PlayerData)Player.Instance.data, EntityManager.GetAllEntities());
 
                 Serialization.SaveWorld(worldname, worlddata, entitydata);
             }

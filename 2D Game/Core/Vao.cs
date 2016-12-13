@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenGL;
 using System.Runtime.InteropServices;
 using Game.TitleScreen;
 using Game.Terrains;
-using Game.Particles;
 using System.Diagnostics;
 using Game.Entities;
 
@@ -24,7 +19,7 @@ namespace Game.Core {
             
         public EntityVAO(Vector2[] vertices, int[] elements, Vector2[] uvs) {
 
-            ShaderProgram program = Entity.shader;
+            ShaderProgram program = EntityManager.shader;
             Debug.Assert(program != null);
 
             count = elements.Length;

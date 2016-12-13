@@ -1,76 +1,79 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenGL;
-using System.Drawing;
 using Game.Util;
 using Game.Core;
 using Game.Entities;
-using System.Diagnostics;
 using Game.Terrains;
-using Game.Assets;
 
 namespace Game.Particles {
 
     [Serializable]
     abstract class StaffParticle : Particle {
-        public StaffParticle(EntityID model, Vector2 pos)
+        public StaffParticle(EntityID model, Vector2 pos, Vector2 vel)
             : base(model, pos) {
-
+            data.vel.val = vel;
+            data.calcTerrainCollisions = false;
+            ((ParticleData)data).rotfactor = 0.01f;
         }
 
+        public override void OnTerrainCollision(int x, int y, Direction d, Tile t) {
+            EntityManager.RemoveEntity(this);
+        }
     }
 
     [Serializable]
-    class StaffParticlePurple : StaffParticle {
+    class SParc_Water : StaffParticle {
 
         private static CooldownTimer cooldown;
+
+        private SParc_Water(Vector2 pos, Vector2 vel)
+            : base(EntityID.ParticleBlue, pos, vel) {
+            data.life = new BoundedFloat(100, 0, 100);
+            data.airResis = 1f;
+        }
 
         internal static new void Init() {
             cooldown = new CooldownTimer(1f);
         }
-
         public override void InitTimers() {
             CooldownTimer.AddTimer(cooldown);
         }
-
-
         public static void Create(Vector2 pos, Vector2 vel) {
             if (!cooldown.Ready()) return;
             cooldown.Reset();
-            new StaffParticlePurple(pos, vel);
-        }
-
-        private StaffParticlePurple(Vector2 pos, Vector2 vel)
-            : base(EntityID.ParticlePurple, pos) {
-            base.data.life = new BoundedFloat(100, 0, 100);
-            base.data.vel.val = vel;
-            base.data.AirResis = 1f;
+            new SParc_Water(pos, vel);
         }
 
         public override void Update() {
             base.Update();
-            if (Terrain.IsColliding(base.Hitbox) || ((ParticleData)data).life <= 0) {
-                int x = (int)base.data.Position.x;
-                int y = (int)base.data.Position.y;
+            if (Terrain.IsColliding(hitbox) || ((ParticleData)data).life <= 0) {
+                int x = (int)data.pos.x;
+                int y = (int)data.pos.y;
 
                 Terrain.SetTile(x - 1, y, Tile.Water);
                 Terrain.SetTile(x + 1, y, Tile.Water);
                 Terrain.SetTile(x, y + 1, Tile.Water);
                 Terrain.SetTile(x, y - 1, Tile.Water);
 
-                Entity.RemoveEntity(this);
+                EntityManager.RemoveEntity(this);
+
             }
         }
 
     }
 
     [Serializable]
-    class StaffParticleRed : StaffParticle {
+    class SParc_Speed : StaffParticle {
 
         private static CooldownTimer cooldown;
+
+        private SParc_Speed(Vector2 pos, Vector2 vel)
+            : base(EntityID.ParticleGreen, pos, vel) {
+            data.life = new BoundedFloat(100, 0, 100);
+            data.airResis = 1f;
+            data.useGravity = false;
+        }
 
         internal static new void Init() {
             cooldown = new CooldownTimer(1f);
@@ -83,98 +86,79 @@ namespace Game.Particles {
         public static void Create(Vector2 pos, Vector2 vel) {
             if (!cooldown.Ready()) return;
             cooldown.Reset();
-            new StaffParticleRed(pos, vel);
+            new SParc_Speed(pos, vel);
         }
 
-        private StaffParticleRed(Vector2 pos, Vector2 vel)
-            : base(EntityID.ParticleRed, pos) {
-            base.data.life = new BoundedFloat(100, 0, 100);
-            base.data.vel.val = vel;
-            base.data.AirResis = 1f;
-            base.data.UseGravity = false;
-            ParticleData pdata = (ParticleData)base.data;
-            pdata.rotfactor = 0.001f;
-        }
 
         public override void Update() {
             base.Update();
-            List<Entity> colliding = this.EntityCollisions();
+            List<Entity> colliding = this.GetEntityCollisions();
             foreach (Entity e in colliding) {
                 // if (e is Player) continue;
                 e.data.vel.x *= 1.0005f;
             }
-            if (colliding.Count > 0) Entity.RemoveEntity(this);
-            base.RemoveIfNoLife();
+            if (colliding.Count > 0) EntityManager.RemoveEntity(this);
         }
     }
 
     [Serializable]
-    class StaffParticleBlue : StaffParticle {
+    class SParc_Destroy : StaffParticle {
 
         private static CooldownTimer cooldown;
+
+        private SParc_Destroy(Vector2 pos, Vector2 vel)
+            : base(EntityID.ParticleRed, pos, vel) {
+            data.airResis = 1f;
+            data.useGravity = false;
+            data.life = new BoundedFloat(100, 0, 100);
+        }
 
         internal static new void Init() {
             cooldown = new CooldownTimer(0.4f);
         }
-
         public override void InitTimers() {
             CooldownTimer.AddTimer(cooldown);
         }
-
         public static void Create(Vector2 pos, Vector2 vel) {
             if (!cooldown.Ready()) return;
             cooldown.Reset();
-            new StaffParticleBlue(pos, vel);
+            new SParc_Destroy(pos, vel);
         }
 
-        public override void Update() {
-            base.Update();
-            if (Terrain.IsColliding(this)) {
-                for (int i = (int)Hitbox.Position.x; i <= (int)Math.Ceiling(Hitbox.Position.x + Hitbox.Width); i++) {
-                    for (int j = (int)Hitbox.Position.y; j < (int)Math.Ceiling(Hitbox.Position.y + Hitbox.Height); j++) {
-                        Terrain.BreakTile(i, j);
-                    }
-                }
-                base.data.life.val -= 2;
-                base.data.vel.val *= 0.9f;
-                //Entity.RemoveEntity(this);
-            }
-            base.RemoveIfNoLife();
-        }
-
-        private StaffParticleBlue(Vector2 pos, Vector2 vel)
-            : base(EntityID.ParticleBlue, pos) {
-            base.data.vel.val = vel;
-            base.data.AirResis = 1f;
-            base.data.UseGravity = false;
-            base.data.life = new BoundedFloat(100, 0, 100);
-            ParticleData pdata = (ParticleData)base.data;
-            pdata.rotfactor = 0.001f;
+        public override void OnTerrainCollision(int x, int y, Direction d, Tile t) {
+            Terrain.BreakTile(x, y);
+            data.life.val -= 10;
         }
     }
 
     [Serializable]
-    class StaffParticleGreen : StaffParticle {
+    class SParc_Damage : StaffParticle {
 
         private static CooldownTimer cooldown;
+
+        private SParc_Damage(Vector2 pos, Vector2 vel)
+            : base(EntityID.ParticlePurple, pos, vel) {
+            data.airResis = 0.999f;
+            data.grav = 0.01f;
+            data.useGravity = true;
+            data.life = new BoundedFloat(100, 0, 100);
+        }
 
         internal static new void Init() {
             cooldown = new CooldownTimer(1f);
         }
-
         public override void InitTimers() {
             CooldownTimer.AddTimer(cooldown);
         }
-
         public static void Create(Vector2 pos, Vector2 vel) {
             if (!cooldown.Ready()) return;
             cooldown.Reset();
-            new StaffParticleGreen(pos, vel);
+            new SParc_Damage(pos, vel);
         }
 
         public override void Update() {
             base.Update();
-            List<Entity> colliding = this.EntityCollisions();
+            List<Entity> colliding = GetEntityCollisions();
             bool flag = false;
             foreach (Entity e in colliding) {
                 if (e is Player) continue;
@@ -185,19 +169,7 @@ namespace Game.Particles {
                 e.data.vel.val /= -10;
                 flag = true;
             }
-            if (flag) Entity.RemoveEntity(this);
-            base.RemoveIfNoLife();
-        }
-
-        private StaffParticleGreen(Vector2 pos, Vector2 vel)
-            : base(EntityID.ParticleGreen, pos) {
-            base.data.vel.val = vel;
-            base.data.AirResis = 0.999f;
-            base.data.Grav = 0.01f;
-            base.data.UseGravity = true;
-            base.data.life = new BoundedFloat(100, 0, 100);
-            ParticleData pdata = (ParticleData)base.data;
-            pdata.rotfactor = 0.001f;
+            if (flag) EntityManager.RemoveEntity(this);
         }
     }
 }

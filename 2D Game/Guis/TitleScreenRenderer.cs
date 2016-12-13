@@ -1,16 +1,11 @@
 ﻿using Game.Fonts;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenGL;
 using Game.Core;
 using Game.Util;
-using Game.Terrains;
 using Tao.FreeGlut;
 using Game.Guis;
-using System.Diagnostics;
 using Game.Assets;
 using Game.Core.World_Serialization;
 
@@ -23,7 +18,6 @@ namespace Game.TitleScreen {
         private static GuiModel background;
         private static Vector2 backgroundpos;
         private static float backgroundhue;
-        private static float backgrounddx;
 
         private static HashSet<Text> CurTexts = new HashSet<Text>();
         private static HashSet<Button> CurButtons = new HashSet<Button>();
@@ -50,7 +44,7 @@ namespace Game.TitleScreen {
 
         private static Text txt_CreditsInfo;
 
-        private static string[] worlds;
+        private static HashSet<string> worlds;
         #endregion
 
         enum State {
@@ -87,7 +81,9 @@ namespace Game.TitleScreen {
                 btnDeleteWorld = new Button(new Vector2(0.2, 0.85 - i * 0.3 - 0.12), buttonSize, "Delete World", TextStyle.Chiller_SingleLine_Small, delegate () {
                     if (!emptyworld)
                         try {
-                            Core.World_Serialization.Serialization.DeleteWorld(btnLaunchWorld.ToString());
+                            string w = btnLaunchWorld.ToString();
+                            Serialization.DeleteWorld(w);
+                            worlds.Remove(w);
                             btnLaunchWorld.SetText("");
                             btnLaunchWorld.disabled = true;
                             btnDeleteWorld.disabled = true;
@@ -132,22 +128,24 @@ namespace Game.TitleScreen {
                 backgroundpos+new Vector2(1,0),
                 backgroundpos+new Vector2(1, 1f)
             });
-            backgrounddx = 0.00001f;
-            //backgrounddx = 0;
             #endregion
 
             #region Credits
             TextStyle tstyle = new TextStyle(TextAlignment.CenterCenter, TextFont.Chiller, 0.8f, 1.8f, 1 << 30, 0.5f, new Vector3(0.5f, 0f, 1f));
-            txt_CreditsInfo = new Text("Copyright Alex Tan (2016). Apache License. https://github.com/Pilex1/2D-Game/blob/master/LICENSE" + Environment.NewLine + Environment.NewLine+"- code, bugs, game design, bugs, graphics, bugs, everything you see here, bugs. Did I mention bugs?" + Environment.NewLine + Environment.NewLine + "Help me continue making these projects:" + Environment.NewLine + Environment.NewLine + "Visit my github repositories to view and download the full source code plus my other projects" + Environment.NewLine + " - https://github.com/Pilex1" + Environment.NewLine + " - https://github.com/Pilex1/2D-Game" + Environment.NewLine + Environment.NewLine + "Subscribe to my youtube channel where I post videos of Mandelbrot renders and game development" + Environment.NewLine + " - Pilex", tstyle, new Vector2(0, 0.9));
+            txt_CreditsInfo = new Text("Copyright Alex Tan (2016). Apache License. https://github.com/Pilex1/2D-Game/blob/master/LICENSE" + Environment.NewLine + Environment.NewLine + "- code, bugs, game design, bugs, graphics, bugs, everything you see here, bugs. Did I mention bugs?" + Environment.NewLine + Environment.NewLine + "Help me continue making these projects:" + Environment.NewLine + Environment.NewLine + "Visit my github repositories to view and download the full source code plus my other projects" + Environment.NewLine + " - https://github.com/Pilex1" + Environment.NewLine + " - https://github.com/Pilex1/2D-Game" + Environment.NewLine + Environment.NewLine + "Subscribe to my youtube channel where I post videos of Mandelbrot renders and game development" + Environment.NewLine + " - Pilex", tstyle, new Vector2(0, 0.9));
             #endregion
 
             #region World Select
             btnWorldPickers = new List<Button>();
 
             txtboxWorldPickers = new List<Textbox>();
-            worlds = Core.World_Serialization.Serialization.GetWorlds();
+            worlds = new HashSet<string>();
+            string[] worldsarr = Serialization.GetWorlds();
+            foreach (var w in worldsarr) {
+                worlds.Add(w);
+            }
             for (int i = 0; i < 5; i++) {
-                new WorldPicker(i < worlds.Length ? worlds[i] : null, i);
+                new WorldPicker(i < worldsarr.Length ? worldsarr[i] : null, i);
             }
             #endregion
 
@@ -159,7 +157,9 @@ namespace Game.TitleScreen {
             txt_NewWorld_Name = new Text("World Name", tstyle, new Vector2(0, 0.5 + offset));
             txt_NewWorld_Seed = new Text("Seed", tstyle, new Vector2(0, 0.2 + offset));
             btn_NewWorld_CreateWorld = new Button(new Vector2(0, -0.3), new Vector2(0.3, 0.08), "Create", TextStyle.Chiller_SingleLine_Large, delegate () {
-                Program.SwitchToGame(txtbx_NewWorld_Name.GetText(), Int32.Parse(txtbx_NewWorld_Seed.GetText()));
+                string worldname = txtbx_NewWorld_Name.GetText();
+                Program.SwitchToGame(worldname, Int32.Parse(txtbx_NewWorld_Seed.GetText()));
+                worlds.Add(worldname);
             });
             btn_NewWorld_RandSeed = new Button(new Vector2(0.5, 0.2), new Vector2(0.15, 0.03), "Random seed", TextStyle.Chiller_SingleLine_Small, delegate () {
                 int irand = MathUtil.RandInt(Program.Rand, 1 << 24, 1 << 30);
@@ -298,6 +298,7 @@ namespace Game.TitleScreen {
             if (!StringUtil.StartsWithLetter(name)) return false;
             int i_seed;
             if (!int.TryParse(seed, out i_seed)) return false;
+            if (worlds.Contains(name)) return false;
 
             return true;
         }
@@ -322,9 +323,7 @@ namespace Game.TitleScreen {
             shader["aspectRatio"].SetValue(Program.AspectRatio);
 
             RenderInstance(background, backgroundpos, new Vector3(backgroundhue, 0f, 1f));
-            Debug.WriteLine(backgroundhue);
-
-            //  Debug.WriteLine(btn_NewWorld_CreateWorld.colour);
+            // Debug.WriteLine(backgroundhue);
 
             foreach (var b in CurButtons)
                 RenderInstance(b.model, b.pos, b.colour);

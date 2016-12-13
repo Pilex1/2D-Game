@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
-using Game.Assets;
 using Game.Util;
 
 namespace Game.Terrains.Gen {

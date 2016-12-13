@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenGL;
 using Game.TitleScreen;
 using Game.Core;
@@ -35,10 +32,10 @@ namespace Game.Interaction {
 
 
             btn_BackToTitle = new Button(new Vector2(0, -0.5), new Vector2(0.25, 0.04), "Save and Quit", TextStyle.Chiller_SingleLine_Large, delegate () { Program.SwitchToTitleScreen(); });
-            TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.5f, 2f, Int32.MaxValue, 1.5f,new Vector3(0.5,0f,1f));
+            TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.5f, 2f, Int32.MaxValue, 1.5f, new Vector3(0.5, 0f, 1f));
             DebugText = new Text("", style, new Vector2(-0.99, 0.97));
             Healthbar = GuiModel.CreateRectangle(new Vector2(0.4, 0.04), Color.DarkRed);
-            HealthbarTexture = GuiModel.CreateRectangle(new Vector2(0.55, 0.065), Assets.Textures.HealthbarTexture);
+            HealthbarTexture = GuiModel.CreateRectangle(new Vector2(0.55, 0.065), Textures.HealthbarTexture);
             Background = GuiModel.CreateRectangle(new Vector2(1, 1), Textures.GameBackgroundTex);
 
 
@@ -71,7 +68,7 @@ namespace Game.Interaction {
 
         public static void RenderBackground() {
             Gl.UseProgram(Gui.shader.ProgramID);
-            float ratio = Player.Instance.data.Position.y / Terrains.Terrain.Tiles.GetLength(1);
+            float ratio = Player.Instance.data.pos.y / Terrains.Terrain.Tiles.GetLength(1);
             ratio = CalcBackgroundColour(ratio);
             RenderInstance(Background, new Vector2(0, 0), new Vector3(0.5, 0, ratio));
             Gl.UseProgram(0);

@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using OpenGL;
 using Game.Util;
 using Game.Fonts;
 using Game.Core;
-using Game.Guis;
 using System.Diagnostics;
 
 namespace Game.TitleScreen {

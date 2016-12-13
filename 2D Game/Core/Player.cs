@@ -7,7 +7,6 @@ using Game.Interaction;
 using Game.Assets;
 using Game.Terrains;
 using Game.Util;
-using Game.Core;
 using Game.Terrains.Gen;
 
 namespace Game.Core {
@@ -20,57 +19,44 @@ namespace Game.Core {
     }
 
     class Player : Entity {
+
         public const float StartX = TerrainGen.size / 2, StartY = 200;
 
         public static Player Instance { get; private set; }
 
-        private Player(Hitbox hitbox, Vector2 position) : base(EntityID.PlayerSimple, hitbox, position) {
-            base.data = new PlayerData { };
-            base.data.Position.val = position;
-            base.data.speed = 0.08f;
-            base.data.jumppower = 0.5f;
-            base.data.life = new BoundedFloat(20, 0, 20);
+        private Player(Vector2 position) : base(EntityID.PlayerSimple, position) {
+            data = new PlayerData { };
+            data.pos.val = position;
+            data.speed = 0.08f;
+            data.jumppower = 0.5f;
+            data.life = new BoundedFloat(20, 0, 20);
         }
 
-        public override void InitTimers() { 
-           
-        }
-
-        private static Player DefaultPlayer() {
-
-            Texture texture = TextureUtil.CreateTexture(new Vector3[,] {
-              {new Vector3(1, 0, 0), new Vector3(0, 1, 0)},
-              {new Vector3(0, 0, 1), new Vector3(1, 0, 1)}
-            }, TextureUtil.TextureInterp.Linear);
-
-            Vector2 position = new Vector2(StartX, StartY);
-            Hitbox hitbox = new RectangularHitbox(position, new Vector2(1, 2));
-            Player player = new Player(hitbox, position);
-            return player;
+        public override void InitTimers() {
+            ((PlayerData)data).flying.AddTimer();
         }
 
         public static void CreateNew() {
-            Instance = DefaultPlayer();
+            Instance = new Player(new Vector2(StartX, StartY));
         }
 
         public static void LoadPlayer(PlayerData data) {
-            Instance = DefaultPlayer();
+            CreateNew();
             Instance.data = data;
-            data.flying.AddTimer();
         }
 
-        public static new void CleanUp() {
+        public static void CleanUp() {
             PlayerData playerdata = (PlayerData)Instance.data;
             playerdata.items = Inventory.Items;
             playerdata.slot = Hotbar.CurSelectedSlot;
-            //Serialization.SavePlayer((PlayerData)Instance.data);
+        }
+
+        public override void UpdateHitbox() {
+            hitbox.Position = data.pos.val;
         }
 
         public override void Update() {
-            Vector2 prevpos = Instance.data.Position;
-            if (Instance.data.life <= 0) {
-                Instance.data.life.Fill();
-            }
+            Vector2 prevpos = Instance.data.pos;
             PlayerData playerdata = (PlayerData)data;
             bool[] Keys = Input.Keys;
             bool[] Mouse = Input.Mouse;
@@ -104,17 +90,17 @@ namespace Game.Core {
                 Instance.Jump();
             }
             if (playerdata.flying) {
-                Instance.data.UseGravity = false;
+                Instance.data.useGravity = false;
                 if (Keys['s']) Instance.Fall();
             } else {
-                Instance.data.UseGravity = true;
+                Instance.data.useGravity = true;
             }
             if (Keys['f']) {
                 playerdata.flying.Toggle();
             }
 
             Instance.UpdatePosition();
-            if (Instance.data.Position != prevpos) {
+            if (Instance.data.pos != prevpos) {
                 Terrain.UpdateMesh = true;
             }
             if (playerdata.flying) {
@@ -139,26 +125,34 @@ namespace Game.Core {
             }
 
 
-            Hitbox.Position = data.Position.val;
+            if (IsStuck()) {
+                Debug.WriteLine("Player stuck! Position: " + data.pos + " Velocity: " + data.vel);
+                CorrectTerrainCollision();
+            }
+
+
+
 
         }
 
         public static float DistToPlayer(Vector2 pos) {
-            float x = Instance.data.Position.x - pos.x;
-            float y = Instance.data.Position.y - pos.y;
+            float x = Instance.data.pos.x - pos.x;
+            float y = Instance.data.pos.y - pos.y;
             return (float)Math.Sqrt(x * x + y * y);
         }
-        public static Vector2 ToPlayer(Vector2 pos) { return new Vector2(Instance.data.Position.x - pos.x, Instance.data.Position.y - pos.y).Normalize(); }
+        public static Vector2 ToPlayer(Vector2 pos) { return new Vector2(Instance.data.pos.x - pos.x, Instance.data.pos.y - pos.y).Normalize(); }
 
         public static bool InRange(Entity entity, float maxDist) {
-            float x = entity.data.Position.x, y = entity.data.Position.y;
-            return (Instance.data.Position.x - x) * (Instance.data.Position.x - x) + (Instance.data.Position.y - y) * (Instance.data.Position.y - y) <= maxDist;
+            float x = entity.data.pos.x, y = entity.data.pos.y;
+            return (Instance.data.pos.x - x) * (Instance.data.pos.x - x) + (Instance.data.pos.y - y) * (Instance.data.pos.y - y) <= maxDist;
         }
 
         public static bool Intersecting(Entity entity) {
-            return Instance.Hitbox.Intersecting(entity.Hitbox);
+            return Instance.hitbox.Intersecting(entity.hitbox);
         }
 
-
+        public override void OnDeath() {
+            Instance.HealFull();
+        }
     }
 }

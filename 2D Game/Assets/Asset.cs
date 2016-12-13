@@ -1,8 +1,6 @@
 ﻿using Game.Core;
-using Game.Guis;
 using Game.Util;
 using OpenGL;
-using System;
 using Game.Entities;
 
 namespace Game.Assets {

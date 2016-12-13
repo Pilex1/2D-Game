@@ -1,16 +1,10 @@
 ﻿using Game.Core;
 using Game.Guis;
-using Game.TitleScreen;
-using Game.Util;
 using OpenGL;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Game.Fonts {
 
