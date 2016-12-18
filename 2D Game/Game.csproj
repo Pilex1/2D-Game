@@ -72,7 +72,6 @@
     <Compile Include="Core\GameLogic.cs" />
     <Compile Include="Guis\Text.cs" />
     <Compile Include="Guis\GameGuiRenderer.cs" />
-    <Compile Include="Guis\Hotbar.cs" />
     <Compile Include="Guis\Inventory.cs" />
     <Compile Include="Core\Player.cs" />
     <Compile Include="Core\Program.cs" />
@@ -229,6 +228,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\Textures\TitleScreenBackground2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="freeglut.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="OpenGL.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tao.FreeGlut.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Todo.txt" />

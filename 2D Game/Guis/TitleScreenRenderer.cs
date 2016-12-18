@@ -117,7 +117,7 @@ namespace Game.TitleScreen {
             #endregion
 
             #region Background
-            txt_Main_Title = new Text("TITLE HERE", new TextStyle(TextAlignment.CenterCenter, TextFont.Chiller, 3f, 2f, 1, 1f, new Vector3(0.5f, 0f, 1f)), new Vector2(0, 1));
+            txt_Main_Title = new Text("TITLE HERE", new TextStyle(TextAlignment.Center, TextFont.Chiller, 3f, 2f, 1, 1f, new Vector3(0.5f, 0f, 1f)), new Vector2(0, 1));
             backgroundpos = Vector2.Zero;
             float s = 1f / Program.AspectRatio;
             float imageAspectRatio = (float)Textures.TitleBackgroundTex.Size.Width / Textures.TitleBackgroundTex.Size.Height;
@@ -131,7 +131,7 @@ namespace Game.TitleScreen {
             #endregion
 
             #region Credits
-            TextStyle tstyle = new TextStyle(TextAlignment.CenterCenter, TextFont.Chiller, 0.8f, 1.8f, 1 << 30, 0.5f, new Vector3(0.5f, 0f, 1f));
+            TextStyle tstyle = new TextStyle(TextAlignment.Center, TextFont.Chiller, 0.8f, 1.8f, 1 << 30, 0.5f, new Vector3(0.5f, 0f, 1f));
             txt_CreditsInfo = new Text("Copyright Alex Tan (2016). Apache License. https://github.com/Pilex1/2D-Game/blob/master/LICENSE" + Environment.NewLine + Environment.NewLine + "- code, bugs, game design, bugs, graphics, bugs, everything you see here, bugs. Did I mention bugs?" + Environment.NewLine + Environment.NewLine + "Help me continue making these projects:" + Environment.NewLine + Environment.NewLine + "Visit my github repositories to view and download the full source code plus my other projects" + Environment.NewLine + " - https://github.com/Pilex1" + Environment.NewLine + " - https://github.com/Pilex1/2D-Game" + Environment.NewLine + Environment.NewLine + "Subscribe to my youtube channel where I post videos of Mandelbrot renders and game development" + Environment.NewLine + " - Pilex", tstyle, new Vector2(0, 0.9));
             #endregion
 

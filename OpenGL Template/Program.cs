@@ -3,6 +3,7 @@ using Pencil.Gaming.Graphics;
 using Pencil.Gaming.MathUtils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,20 +13,19 @@ namespace OpenGL_Template {
         public static int width = 1280, height = 720;
         private static GlfwWindowPtr window;
 
-        internal static ShaderProgram shader;
-
-        private static Entity quad;
-        private static Grid grid;
-
         static void Main(string[] args) {
             if (!Glfw.Init())
                 return;
 
             window = Glfw.CreateWindow(width, height, "", GlfwMonitorPtr.Null, GlfwWindowPtr.Null);
             Glfw.MakeContextCurrent(window);
+            Glfw.SetInputMode(window, InputMode.CursorMode, CursorMode.CursorCaptured);
             Glfw.SetErrorCallback(OnError);
             Input.Init(window);
 
+            Renderer.Init();
+            Camera.Init(new Vector3(0, 0, -5), Vector3.Zero);
+            Terrain.Init(Terrain.GenerateHeights());
             Init();
 
             while (!Glfw.WindowShouldClose(window))
@@ -34,38 +34,18 @@ namespace OpenGL_Template {
             Glfw.DestroyWindow(window);
             Glfw.Terminate();
 
-            CleanUp();
+            Renderer.CleanUp();
         }
-
-        private static void CleanUp() {
-            shader.Dispose();
-        }
-
         private static void Init() {
-            shader = new ShaderProgram("Assets/Shaders/Shader.vert", "Assets/Shaders/Shader.frag");
 
-            shader.AddUniform("vposoffset");
-            shader.AddUniform("vsize");
+            var quad_model = Model.CreateRectangle(new Color4[] { Color4.Red, Color4.Blue, Color4.Green, Color4.Violet });
+            var quad = new Entity(quad_model, Vector3.Zero, new Vector3(0.5f, 0.5f, 1), Vector3.Zero);
+            Renderer.AddEntity(quad);
 
-            /*
-             * 
-             * write your code here
-             * 
-             */
+            var cube_model = Model.CreateCube(new Color4[] { Color4.Red, Color4.Blue, Color4.Green, Color4.Violet, Color4.Orange, Color4.Yellow, Color4.Turquoise, Color4.Peru });
+            var cube = new Entity(cube_model, new Vector3(1, 0, -1), 0.1f * Vector3.One, new Vector3(0, 0, 0.3f));
+            Renderer.AddEntity(cube);
 
-            quad = new Entity(Model.CreateRectangle(new Vector2(1, 1), new Vector4[] { new Vector4(1, 0, 0, 1), new Vector4(0, 1, 0, 1), new Vector4(0, 0, 1, 1), new Vector4(1, 0, 1, 1) }), new Vector2(0, 0));
-
-            grid = new Grid(10,10, Vector2.Zero, 0.2f);
-        //    grid.SetColour(0, 0, new Vector4(1, 1, 0, 1));
-        //    grid.SetColour(1, 1, new Vector4(0, 1, 0, 1));
-        //    grid.SetColour(2, 2, new Vector4(0, 0, 1, 1));
-            grid.Update();
-
-            /*
-             * 
-             *
-             * 
-             */
         }
 
 
@@ -77,15 +57,13 @@ namespace OpenGL_Template {
 
             CooldownTimer.Update();
 
-
+            Glfw.PollEvents();
             Update();
-            Render(quad);
-            Render(grid);
+            Renderer.Render();
 
 
             Glfw.SwapBuffers(window);
 
-            Glfw.PollEvents();
         }
 
         private static void Update() {
@@ -96,53 +74,29 @@ namespace OpenGL_Template {
              * 
              */
 
-            float x = 0.01f * GameTime.DeltaTime;
-            float y = 0.01f * GameTime.DeltaTime;
+            float speed_x = 0.05f * GameTime.DeltaTime;
 
-            if (Input.Keys(Key.W)) {
-                quad.pos.Y += y;
+            if (Input.KeyDown(Key.W)) {
+                Camera.MoveForward(speed_x);
             }
-            if (Input.Keys(Key.S)) {
-                quad.pos.Y -= y;
+            if (Input.KeyDown(Key.S)) {
+                Camera.MoveBackward(speed_x);
             }
-            if (Input.Keys(Key.D)) {
-                quad.pos.X += x;
+            if (Input.KeyDown(Key.D)) {
+                Camera.MoveRight(speed_x);
             }
-            if (Input.Keys(Key.A)) {
-                quad.pos.X -= x;
+            if (Input.KeyDown(Key.A)) {
+                Camera.MoveLeft(speed_x);
+            }
+            if (Input.KeyDown(Key.Space)) {
+                Camera.MoveUp(speed_x);
+            }
+            if (Input.KeyDown(Key.LeftShift)) {
+                Camera.MoveDown(speed_x);
             }
 
-            /*
-             *
-             *
-             * 
-             */
-        }
-
-        private static void Render(Entity entity) {
-
-            /*
-            * 
-            * write your code here
-            * 
-            */
-
-            Model model = entity.model;
-            GL.UseProgram(shader.id);
-            GL.BindVertexArray(model.vao.ID);
-
-            shader.SetUniform2f("vposoffset", entity.pos);
-            shader.SetUniform2f("vsize", model.size);
-
-            GL.DrawElements(model.drawmode, model.vao.count, DrawElementsType.UnsignedInt, 0);
-            GL.BindVertexArray(0);
-            GL.UseProgram(0);
-
-            /*
-            *
-            *
-            * 
-            */
+            Camera.rot = new Vector3(Input.mouse_cumul_y,  0 ,Input.mouse_cumul_x);
+            
         }
 
         private static void OnError(GlfwError code, string desc) {

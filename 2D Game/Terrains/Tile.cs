@@ -80,9 +80,7 @@ namespace Game.Terrains {
         public static readonly Tile Metal1 = new Tile(TileEnum.Metal1);
         public static readonly Tile SmoothSlab = new Tile(TileEnum.SmoothSlab);
         public static readonly Tile WeatheredStone = new Tile(TileEnum.WeatheredStone);
-        public static readonly Tile Metal2 = new Tile(TileEnum.Metal2);
         public static readonly Tile FutureMetal = new Tile(TileEnum.FutureMetal);
-        public static readonly Tile SmoothSlab2 = new Tile(TileEnum.SmoothSlab2);
         public static readonly Tile Marble = new Tile(TileEnum.Marble);
         public static readonly Tile PlexSpecial = new Tile(TileEnum.PlexSpecial);
         public static readonly Tile PurpleStone = new Tile(TileEnum.PurpleStone);
@@ -100,7 +98,7 @@ namespace Game.Terrains {
         public static Tile GateAnd { get { return new Tile(TileEnum.GateAnd, new AndGateAttribs()); } }
         public static Tile GateOr { get { return new Tile(TileEnum.GateOr, new OrGateAttribs()); } }
         public static Tile GateNot { get { return new Tile(TileEnum.GateNot, new NotGateAttribs()); } }
-        public static Tile LogicBridge { get { return new Tile(TileEnum.LogicBridgeOff, new LogicBridgeAttribs()); } }
+        public static Tile WireBridge { get { return new Tile(TileEnum.WireBridgeOff, new LogicBridgeAttribs()); } }
         public static Tile TilePusher { get { return new Tile(TileEnum.TilePusherOff, new StickyTilePusherAttribs()); } }
         public static Tile TilePuller { get { return new Tile(TileEnum.TilePullerOff, new StickyTilePullerAttribs()); } }
         public static Tile SingleTilePusher { get { return new Tile(TileEnum.SingleTilePusherOff, new SingleTilePusherAttribs()); } }
@@ -155,7 +153,7 @@ namespace Game.Terrains {
 
 
     enum TileEnum {
-        Invalid = -1, Air, Grass, Sand, Dirt, Wood, Leaf, Stone, Bedrock, Tnt, Sandstone, Sapling, TileBreakerOn, Brick, Metal1, SmoothSlab, WeatheredStone, Metal2, FutureMetal, SmoothSlab2, Marble, PlexSpecial, PurpleStone, Nuke, Cactus, Bounce, Water, WireOn, WireOff, SwitchOn, SwitchOff, LogicLampUnlit, LogicLampLit, Snow, SnowWood, SnowLeaf, GrassDeco, GateAnd, GateOr, GateNot, LogicBridgeOff, LogicBridgeHorzVertOn, LogicBridgeHorzOn, LogicBridgeVertOn, TilePusherOff, TilePusherOn, TilePullerOn, TilePullerOff, TileBreakerOff, Light, Accelerator, SingleTilePusherOff, SingleTilePusherOn
+        Invalid = -1, Air, Grass, Sand, Dirt, Wood, Leaf, Stone, Bedrock, Tnt, Sandstone, Sapling, Snow, Brick, Metal1, SmoothSlab, WeatheredStone, SnowWood, FutureMetal, Light, Marble, PlexSpecial, PurpleStone, Nuke, Cactus, Bounce, Water, WireOn, WireOff, SwitchOn, SwitchOff, LogicLampUnlit, LogicLampLit, SingleTilePusherOff, SingleTilePusherOn, SnowLeaf, GrassDeco, GateAnd, GateOr, GateNot, WireBridgeOff, WireBridgeHorzVertOn, WireBridgeHorzOn, WireBridgeVertOn, TilePusherOff, TilePusherOn, TilePullerOn, TilePullerOff, TileBreakerOff , Accelerator
     }
 
 

@@ -76,7 +76,7 @@ namespace Game.Particles {
         }
 
         internal static new void Init() {
-            cooldown = new CooldownTimer(1f);
+            cooldown = new CooldownTimer(0.4f);
         }
 
         public override void InitTimers() {
@@ -95,7 +95,8 @@ namespace Game.Particles {
             List<Entity> colliding = this.GetEntityCollisions();
             foreach (Entity e in colliding) {
                 // if (e is Player) continue;
-                e.data.vel.x *= 1.0005f;
+                e.data.vel.x += data.vel.val.x/20;
+                e.data.vel.y += data.vel.val.y / 100;
             }
             if (colliding.Count > 0) EntityManager.RemoveEntity(this);
         }

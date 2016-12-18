@@ -14,7 +14,7 @@ namespace Game.Core {
     [Serializable]
     class PlayerData : EntityData {
         public BoolSwitch flying = new BoolSwitch(false, 10);
-        public Tuple<Item, uint>[,] items = null;
+        public Item[,] items = null;
         public int slot = 0;
     }
 
@@ -47,8 +47,8 @@ namespace Game.Core {
 
         public static void CleanUp() {
             PlayerData playerdata = (PlayerData)Instance.data;
-            playerdata.items = Inventory.Items;
-            playerdata.slot = Hotbar.CurSelectedSlot;
+            playerdata.items = PlayerInventory.Instance.Items;
+            playerdata.slot = PlayerInventory.Instance.CurSelectedSlot;
         }
 
         public override void UpdateHitbox() {
@@ -62,18 +62,64 @@ namespace Game.Core {
             bool[] Mouse = Input.Mouse;
             int dir = Input.MouseScroll;
             int MouseX = Input.MouseX, MouseY = Input.MouseY;
-            if (!Inventory.toggle) {
+            if (!PlayerInventory.Instance.InventoryOpen) {
                 Vector2 v = Input.TerrainIntersect();
 
                 Tile tile = Terrain.TileAt(v.x, v.y);
                 GameLogic.AdditionalDebugText = tile.ToString() + Environment.NewLine + tile.tileattribs.ToString();
 
+                var p = PlayerInventory.Instance;
+
                 if (Mouse[Input.MouseLeft]) {
-                    Terrain.BreakTile((int)v.x, (int)v.y);
+                    Tile t = Terrain.BreakTile((int)v.x, (int)v.y);
+                    switch (t.enumId) {
+                        case TileEnum.Invalid:
+                        case TileEnum.Air:
+                        case TileEnum.Bedrock:
+                            break;
+
+                        case TileEnum.Grass: p.AddItem(ItemID.Grass); break;
+                        case TileEnum.Sand: p.AddItem(ItemID.Sand); break;
+                        case TileEnum.Dirt: p.AddItem(ItemID.Dirt); break;
+                        case TileEnum.Wood: p.AddItem(ItemID.Wood); break;
+                        case TileEnum.Leaf: p.AddItem(ItemID.Leaf); break;
+                        case TileEnum.Stone: p.AddItem(ItemID.Stone); break;
+                        case TileEnum.Tnt: p.AddItem(ItemID.Tnt); break;
+                        case TileEnum.Sandstone: p.AddItem(ItemID.Sandstone); break;
+                        case TileEnum.Sapling: p.AddItem(ItemID.Sapling); break;
+                        case TileEnum.Brick: p.AddItem(ItemID.Brick); break;
+                        case TileEnum.Metal1: p.AddItem(ItemID.Metal1); break;
+                        case TileEnum.SmoothSlab: p.AddItem(ItemID.SmoothSlab); break;
+                        case TileEnum.WeatheredStone: p.AddItem(ItemID.WeatheredStone); break;
+                        case TileEnum.FutureMetal: p.AddItem(ItemID.FutureMetal); break;
+                        case TileEnum.Marble: p.AddItem(ItemID.Marble); break;
+                        case TileEnum.PlexSpecial: p.AddItem(ItemID.PlexSpecial); break;
+                        case TileEnum.PurpleStone: p.AddItem(ItemID.PurpleStone); break;
+                        case TileEnum.Nuke: p.AddItem(ItemID.Nuke); break;
+                        case TileEnum.Cactus: p.AddItem(ItemID.Cactus); break;
+                        case TileEnum.Bounce: p.AddItem(ItemID.Bounce); break;
+                        case TileEnum.Water: break;
+                        case TileEnum.WireOn: case TileEnum.WireOff: p.AddItem(ItemID.Wire); break;
+                        case TileEnum.SwitchOn: case TileEnum.SwitchOff: p.AddItem(ItemID.Switch); break;
+                        case TileEnum.LogicLampUnlit: case TileEnum.LogicLampLit: p.AddItem(ItemID.LogicLamp); break;
+                        case TileEnum.Snow: p.AddItem(ItemID.Snow); break;
+                        case TileEnum.SnowWood: p.AddItem(ItemID.SnowWood); break;
+                        case TileEnum.SnowLeaf: p.AddItem(ItemID.SnowLeaf); break;
+                        case TileEnum.GrassDeco: p.AddItem(ItemID.GrassDeco); break;
+                        case TileEnum.GateAnd: p.AddItem(ItemID.GateAnd); break;
+                        case TileEnum.GateOr: p.AddItem(ItemID.GateOr); break;
+                        case TileEnum.GateNot: p.AddItem(ItemID.GateNot); break;
+                        case TileEnum.WireBridgeOff: case TileEnum.WireBridgeHorzVertOn: case TileEnum.WireBridgeHorzOn: case TileEnum.WireBridgeVertOn: p.AddItem(ItemID.WireBridge); break;
+                        case TileEnum.TilePusherOff: case TileEnum.TilePusherOn: p.AddItem(ItemID.StickyTilePusher); break;
+                        case TileEnum.TilePullerOn: case TileEnum.TilePullerOff: p.AddItem(ItemID.StickyTilePuller); break;
+                        case TileEnum.Light: p.AddItem(ItemID.Light); break;
+                        case TileEnum.Accelerator: p.AddItem(ItemID.Accelerator); break;
+                        case TileEnum.SingleTilePusherOff: case TileEnum.SingleTilePusherOn: p.AddItem(ItemID.SingleTilePusher); break;
+                    }
                 }
                 if (Mouse[Input.MouseRight]) {
                     int x = (int)v.x, y = (int)v.y;
-                    ItemInteract.Interact(Hotbar.CurrentlySelectedItem(), x, y);
+                    ItemInteract.Interact(PlayerInventory.Instance.CurrentlySelectedItem(), x, y);
                     Terrain.TileAt(x, y).tileattribs.Interact(x, y);
                 }
                 if (Mouse[Input.MouseMiddle]) {
@@ -107,18 +153,18 @@ namespace Game.Core {
                 Instance.data.vel.y = 0;
             }
 
-            if (Keys['1']) Hotbar.CurSelectedSlot = 0;
-            if (Keys['2']) Hotbar.CurSelectedSlot = 1;
-            if (Keys['3']) Hotbar.CurSelectedSlot = 2;
-            if (Keys['4']) Hotbar.CurSelectedSlot = 3;
-            if (Keys['5']) Hotbar.CurSelectedSlot = 4;
-            if (Keys['6']) Hotbar.CurSelectedSlot = 5;
-            if (Keys['7']) Hotbar.CurSelectedSlot = 6;
-            if (Keys['8']) Hotbar.CurSelectedSlot = 7;
-            if (Keys['9']) Hotbar.CurSelectedSlot = 8;
+            if (Keys['1']) PlayerInventory.Instance.CurSelectedSlot = 0;
+            if (Keys['2']) PlayerInventory.Instance.CurSelectedSlot = 1;
+            if (Keys['3']) PlayerInventory.Instance.CurSelectedSlot = 2;
+            if (Keys['4']) PlayerInventory.Instance.CurSelectedSlot = 3;
+            if (Keys['5']) PlayerInventory.Instance.CurSelectedSlot = 4;
+            if (Keys['6']) PlayerInventory.Instance.CurSelectedSlot = 5;
+            if (Keys['7']) PlayerInventory.Instance.CurSelectedSlot = 6;
+            if (Keys['8']) PlayerInventory.Instance.CurSelectedSlot = 7;
+            if (Keys['9']) PlayerInventory.Instance.CurSelectedSlot = 8;
 
-            if (dir < 0) Hotbar.IncrSlot();
-            if (dir > 0) Hotbar.DecrSlot();
+            if (dir < 0) PlayerInventory.Instance.IncreaseHotbarSelection();
+            if (dir > 0) PlayerInventory.Instance.DecreaseHotbarSelection();
 
             if (Input.SpecialKeys[Glut.GLUT_KEY_F1]) {
                 GameGuiRenderer.RenderDebugText.Toggle();

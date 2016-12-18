@@ -49,9 +49,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Camera.cs" />
     <Compile Include="CooldownTimer.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="Model.cs" />
+    <Compile Include="Renderer.cs" />
+    <Compile Include="Terrain.cs" />
     <Compile Include="VAO.cs" />
     <Compile Include="GameTime.cs" />
     <Compile Include="Input.cs" />

@@ -25,7 +25,6 @@ namespace Game.Interaction {
 
         public static void Init() {
             TextFont.Init();
-            Hotbar.Init();
 
             Paused = new BoolSwitch(false, 30);
             RenderDebugText = new BoolSwitch(false, 30);
@@ -44,8 +43,7 @@ namespace Game.Interaction {
         }
 
         public static void Update() {
-            Hotbar.Update();
-            Inventory.Update();
+            PlayerInventory.Instance.Update();
             if (Input.Keys[27]) {
                 Paused.Toggle();
             }
@@ -85,13 +83,21 @@ namespace Game.Interaction {
             Healthbar.size.x = Player.Instance.data.life.val / Player.Instance.data.life.max * 0.5f;
 
             //inventory
-            if (Inventory.toggle) {
-                RenderInstance(Inventory.Background, Inventory.Pos);
-                RenderInstance(Inventory.Frame, Inventory.Pos);
-                RenderInstance(Inventory.ItemDisplay, Inventory.Pos);
-                if (Inventory.Selected.HasValue) {
-                    int cx = Inventory.Selected.Value.x, cy = Inventory.Selected.Value.y;
-                    RenderInstance(Inventory.SelectedDisplay, Inventory.Pos + new Vector2(cx * Hotbar.SizeX, cy * Hotbar.SizeY * Program.AspectRatio));
+            if (PlayerInventory.Instance.InventoryOpen) {
+                RenderInstance(PlayerInventory.Instance.Background, PlayerInventory.Instance.Pos);
+                RenderInstance(PlayerInventory.Instance.Frame, PlayerInventory.Instance.Pos);
+                RenderInstance(PlayerInventory.Instance.ItemDisplay, PlayerInventory.Instance.Pos);
+                for (int i = 0; i < PlayerInventory.Instance.ItemCountText.GetLength(0); i++) {
+                    for (int j = 0; j < PlayerInventory.Instance.ItemCountText.GetLength(1); j++) {
+                        Text t = PlayerInventory.Instance.ItemCountText[i, j];
+                        RenderInstance(t.model, PlayerInventory.Instance.Pos + PlayerInventory.Instance.TextPosOffset + t.pos);
+                    }
+                }
+
+
+                if (PlayerInventory.Instance.Selected.HasValue) {
+                    int cx = PlayerInventory.Instance.Selected.Value.x, cy = PlayerInventory.Instance.Selected.Value.y;
+                    RenderInstance(PlayerInventory.Instance.SelectedDisplay, PlayerInventory.Instance.Pos + new Vector2(cx * PlayerInventory.SizeX, cy * PlayerInventory.SizeY * Program.AspectRatio));
                 }
 
                 // RenderInstance(Inventory.textbg, Vector2.Zero);
@@ -104,9 +110,15 @@ namespace Game.Interaction {
             }
 
             //hotbar
-            RenderInstance(Hotbar.Frame, new Vector2(((2 - Inventory.InvColumns * Hotbar.SizeX) / 2) - 1, -1));
-            RenderInstance(Hotbar.ItemDisplay, new Vector2(((2 - Inventory.InvColumns * Hotbar.SizeX) / 2) - 1, -1));
-            RenderInstance(Hotbar.SelectedDisplay, new Vector2(((2 - Inventory.InvColumns * Hotbar.SizeX) / 2 + Hotbar.CurSelectedSlot * Hotbar.SizeX) - 1, -1));
+            RenderInstance(PlayerInventory.Instance.HotbarFrame, PlayerInventory.Instance.HotbarPos);
+            RenderInstance(PlayerInventory.Instance.HotbarItemDisplay, PlayerInventory.Instance.HotbarPos);
+            RenderInstance(PlayerInventory.Instance.HotbarSelectedDisplay, new Vector2(((2 - PlayerInventory.Instance.Items.GetLength(0) * PlayerInventory.SizeX) / 2 + PlayerInventory.Instance.CurSelectedSlot * PlayerInventory.SizeX) - 1, -1));
+
+            for (int i = 0; i < PlayerInventory.Instance.HotbarItemCountText.GetLength(0); i++) {
+                Text t = PlayerInventory.Instance.HotbarItemCountText[i];
+                Vector2 pos = PlayerInventory.Instance.HotbarPos + PlayerInventory.Instance.TextPosOffset + t.pos;
+                RenderInstance(t.model, pos);
+            }
 
             if (RenderDebugText)
                 RenderText(DebugText);
@@ -146,8 +158,8 @@ namespace Game.Interaction {
         }
 
         public static void Dispose() {
-            Inventory.Dispose();
-            Hotbar.Dispose();
+            if (PlayerInventory.Instance != null)
+                PlayerInventory.Instance.Dispose();
         }
     }
 }

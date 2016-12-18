@@ -1,13 +1,15 @@
-﻿#version 410 core
+﻿#version 400 core
 
-in vec2 vpos;
-in vec4 vcolour;
-out vec4 fcolour;
+in vec3 v_pos;
+in vec4 v_colour;
 
-uniform vec2 vposoffset;
-uniform vec2 vsize;
+out vec4 f_colour;
+
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
 
 void main(void) {
-	gl_Position = vec4(vsize * vpos + vposoffset, 0, 1);
-	fcolour = vcolour;
+	gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(v_pos, 1);
+	f_colour = v_colour;
 }

@@ -11,7 +11,7 @@ namespace Game.Terrains {
         public object HotbarExplosion { get; private set; }
 
         public override void Interact(int x, int y) {
-            if (Hotbar.CurrentlySelectedItem() == Assets.Item.Igniter)
+            if (PlayerInventory.Instance.CurrentlySelectedItem() == Assets.ItemID.Igniter)
                 Terrain.Explode(x, y, radius, error);
         }
     }

@@ -37,7 +37,7 @@ namespace Game.Logics {
                 } else if (logiclampdata != null) {
                     Terrain.TileAt(v.x, v.y).enumId = logiclampdata.state ? TileEnum.LogicLampLit : TileEnum.LogicLampUnlit;
                 } else if (logicbridgedata != null) {
-                    Terrain.TileAt(v.x, v.y).enumId = logicbridgedata.stateHorz ? (logicbridgedata.stateVert ? TileEnum.LogicBridgeHorzVertOn : TileEnum.LogicBridgeHorzOn) : (logicbridgedata.stateVert ? TileEnum.LogicBridgeVertOn : TileEnum.LogicBridgeOff);
+                    Terrain.TileAt(v.x, v.y).enumId = logicbridgedata.stateHorz ? (logicbridgedata.stateVert ? TileEnum.WireBridgeHorzVertOn : TileEnum.WireBridgeHorzOn) : (logicbridgedata.stateVert ? TileEnum.WireBridgeVertOn : TileEnum.WireBridgeOff);
                 } else if (tilepullerdata != null) {
                     Terrain.TileAt(v.x, v.y).enumId = tilepullerdata.state ? TileEnum.TilePullerOn : TileEnum.TilePullerOff;
                 } else if (singletilepusherdata != null) {

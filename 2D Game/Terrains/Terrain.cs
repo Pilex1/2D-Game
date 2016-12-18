@@ -360,9 +360,12 @@ namespace Game.Terrains {
         private static void SetTile(int x, int y, Tile tile, bool update) {
             if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return;
             if (Tiles[x, y].enumId != TileEnum.Air) return;
+
+            //remove this 
             int xmin = (int)Math.Floor(Player.Instance.data.pos.x), xmax = (int)Math.Ceiling(Player.Instance.data.pos.x + Player.Instance.hitbox.Size.x - 1);
             int ymin = (int)Math.Floor(Player.Instance.data.pos.y), ymax = (int)Math.Ceiling(Player.Instance.data.pos.y + Player.Instance.hitbox.Size.y - 1);
             if (x >= xmin && x <= xmax && y >= ymin && y <= ymax) return;
+            //
 
             Tiles[x, y] = tile;
 

@@ -1,9 +1,9 @@
-﻿#version 410 core
+﻿#version 400 core
 
-in vec4 fcolour;
+in vec4 f_colour;
 
 out vec4 frag;
 
 void main(void) {
-	frag = fcolour;
+	frag = f_colour;
 }

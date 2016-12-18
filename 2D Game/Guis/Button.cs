@@ -32,7 +32,7 @@ namespace Game.TitleScreen {
         }
 
         public void SetText(string str) {
-            text.UpdateText(str);
+            text.SetText(str);
         }
 
         public void ResetCooldown() {

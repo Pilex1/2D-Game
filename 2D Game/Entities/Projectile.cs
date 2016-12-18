@@ -31,13 +31,14 @@ namespace Game {
             hitbox.Position = data.pos.val - hitboxoffset;
         }
 
+        public override void OnTerrainCollision(int x, int y, Direction d, Tile t) {
+            EntityManager.RemoveEntity(this);
+        }
+
         public override void Update() {
             UpdatePosition();
 
             data.rot += rotationSpeed * GameTime.DeltaTime;
-            if (Terrain.IsColliding(this)) {
-                EntityManager.RemoveEntity(this);
-            }
             if (Player.Intersecting(this)) {
                 Player.Instance.Damage(1);
                 EntityManager.RemoveEntity(this);

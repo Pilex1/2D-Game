@@ -17,9 +17,9 @@ namespace OpenGL_Template {
 
         public int count { get; private set; }
 
-        public VAO(Vector2[] vertices, Vector4[] colours, int[] elements) {
+        public VAO(Vector3[] vertices, Color4[] colours, int[] elements) {
 
-            ShaderProgram program = Program.shader;
+            ShaderProgram program = Renderer.shader;
             Debug.Assert(program != null);
 
             count = elements.Length;
@@ -30,16 +30,16 @@ namespace OpenGL_Template {
             {
                 this.verticesID = GL.GenBuffer();
                 GL.BindBuffer(BufferTarget.ArrayBuffer, verticesID);
-                GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(2 * sizeof(float) * vertices.Length), vertices, BufferUsageHint.StaticDraw);
-                uint vertexAttribLocation = (uint)GL.GetAttribLocation(program.id, "vpos");
-                GL.VertexAttribPointer(vertexAttribLocation, 2, VertexAttribPointerType.Float, true, 2 * sizeof(float), IntPtr.Zero);
+                GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(3 * sizeof(float) * vertices.Length), vertices, BufferUsageHint.StaticDraw);
+                uint vertexAttribLocation = (uint)GL.GetAttribLocation(program.id, "v_pos");
+                GL.VertexAttribPointer(vertexAttribLocation, 3, VertexAttribPointerType.Float, true, 3 * sizeof(float), IntPtr.Zero);
                 GL.EnableVertexAttribArray(vertexAttribLocation);
                 GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
                 this.coloursID = GL.GenBuffer();
                 GL.BindBuffer(BufferTarget.ArrayBuffer, coloursID);
                 GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(4 * sizeof(float) * colours.Length), colours, BufferUsageHint.StaticDraw);
-                uint colourAttribLocation = (uint)GL.GetAttribLocation(program.id, "vcolour");
+                uint colourAttribLocation = (uint)GL.GetAttribLocation(program.id, "v_colour");
                 GL.VertexAttribPointer(colourAttribLocation, 4, VertexAttribPointerType.Float, true, 4 * sizeof(float), IntPtr.Zero);
                 GL.EnableVertexAttribArray(colourAttribLocation);
                 GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
@@ -52,18 +52,18 @@ namespace OpenGL_Template {
             GL.BindVertexArray(0);
         }
 
-        public void UpdateVertexData(Vector2[] vertices) {
+        public void UpdateVertexData(Vector3[] vertices) {
             GL.BindVertexArray(ID);
 
-            ShaderProgram shader = Program.shader;
+            ShaderProgram shader = Renderer.shader;
             Debug.Assert(shader != null);
 
             GL.DeleteBuffer(verticesID);
             this.verticesID = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, verticesID);
-            GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(2 * sizeof(float) * vertices.Length), vertices, BufferUsageHint.StreamDraw);
-            uint vertexAttribLocation = (uint)GL.GetAttribLocation(shader.id, "vpos");
-            GL.VertexAttribPointer(vertexAttribLocation, 2, VertexAttribPointerType.Float, true, 2 * sizeof(float), IntPtr.Zero);
+            GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(3 * sizeof(float) * vertices.Length), vertices, BufferUsageHint.StreamDraw);
+            uint vertexAttribLocation = (uint)GL.GetAttribLocation(shader.id, "v_pos");
+            GL.VertexAttribPointer(vertexAttribLocation, 3, VertexAttribPointerType.Float, true, 3 * sizeof(float), IntPtr.Zero);
             GL.EnableVertexAttribArray(vertexAttribLocation);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
@@ -72,7 +72,7 @@ namespace OpenGL_Template {
         public void UpdateElementData(int[] elements) {
             GL.BindVertexArray(ID);
 
-            ShaderProgram shader = Program.shader;
+            ShaderProgram shader = Renderer.shader;
             Debug.Assert(shader != null);
 
             GL.DeleteBuffer(elementsID);
@@ -86,15 +86,15 @@ namespace OpenGL_Template {
         public void UpdateColourData(Vector4[] colours) {
             GL.BindVertexArray(ID);
 
-            ShaderProgram shader = Program.shader;
+            ShaderProgram shader = Renderer.shader;
             Debug.Assert(shader != null);
 
             GL.DeleteBuffer(coloursID);
             this.verticesID = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, coloursID);
             GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(4 * sizeof(float) * colours.Length), colours, BufferUsageHint.StreamDraw);
-            uint colourAttribLocation = (uint)GL.GetAttribLocation(shader.id, "vcolour");
-            GL.VertexAttribPointer(colourAttribLocation, 4, VertexAttribPointerType.Float, true, 2 * sizeof(float), IntPtr.Zero);
+            uint colourAttribLocation = (uint)GL.GetAttribLocation(shader.id, "v_colour");
+            GL.VertexAttribPointer(colourAttribLocation, 4, VertexAttribPointerType.Float, true, 4 * sizeof(float), IntPtr.Zero);
             GL.EnableVertexAttribArray(colourAttribLocation);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 

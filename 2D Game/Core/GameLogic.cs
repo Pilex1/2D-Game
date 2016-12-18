@@ -22,8 +22,8 @@ namespace Game {
             Player.CreateNew();
             EntityManager.AddEntity(Player.Instance);
             Player.Instance.CorrectTerrainCollision();
-            Inventory.Init();
-            Inventory.LoadDefaultItems();
+            PlayerInventory.Init();
+            PlayerInventory.Instance.LoadDefaultItems();
 
 
             for (int i = 1; i <= 300; i++) {
@@ -63,8 +63,8 @@ namespace Game {
 
             //load player inventory
             PlayerData playerdata = (PlayerData)Player.Instance.data;
-            Inventory.Init();
-            Inventory.LoadItems(playerdata.items);
+            PlayerInventory.Init();
+            PlayerInventory.Instance.LoadItems(playerdata.items);
             #endregion
 
         }
