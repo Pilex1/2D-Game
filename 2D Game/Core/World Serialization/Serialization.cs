@@ -79,7 +79,7 @@ namespace Game.Core.World_Serialization {
             List<string> worlds = new List<string>();
             foreach (string s in Directory.GetDirectories(path)) {
                 if (File.Exists(s + "\\" + worldFile) && File.Exists(s + "\\" + entityFile))
-                    worlds.Add(s.Substring(Serialization.dir.Length + Serialization.worlddir.Length));
+                    worlds.Add(s.Substring(dir.Length + worlddir.Length));
             }
             return worlds.ToArray();
         }

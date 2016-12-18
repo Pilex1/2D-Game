@@ -5,6 +5,8 @@ using Game.Util;
 using Game.Core;
 using Game.Entities;
 using Game.Terrains;
+using Game.Guis;
+using Game.Assets;
 
 namespace Game.Particles {
 
@@ -20,6 +22,59 @@ namespace Game.Particles {
         public override void OnTerrainCollision(int x, int y, Direction d, Tile t) {
             EntityManager.RemoveEntity(this);
         }
+    }
+
+    [Serializable]
+    class SParc_Place : StaffParticle {
+
+        private static CooldownTimer cooldown;
+
+        private SParc_Place(Vector2 pos, Vector2 vel)
+            : base(EntityID.ParticleYellow, pos, vel) {
+            data.life = new BoundedFloat(100, 0, 100);
+            data.airResis = 1f;
+        }
+
+        internal static new void Init() {
+            cooldown = new CooldownTimer(1f);
+        }
+        public override void InitTimers() {
+            CooldownTimer.AddTimer(cooldown);
+        }
+        public static void Create(Vector2 pos, Vector2 vel) {
+            if (!cooldown.Ready()) return;
+            cooldown.Reset();
+            new SParc_Place(pos, vel);
+        }
+
+        public override void OnTerrainCollision(int x, int y, Direction d, Tile t) {
+            base.OnTerrainCollision(x, y, d, t);
+            var slot = PlayerInventory.Instance.CurSelectedSlot + 1;
+            if (slot >= PlayerInventory.Instance.Items.GetLength(0)) slot = 0;
+            var item = PlayerInventory.Instance.Items[slot, 0];
+            var attribs = item.rawitem.attribs;
+            if (!(attribs is ItemTileAttribs)) return;
+
+            switch (d) {
+                case Direction.Up:
+                    attribs.Use(PlayerInventory.Instance, new Vector2i(slot, 0), new Vector2(x, y - 1));
+                    break;
+                case Direction.Right:
+                    attribs.Use(PlayerInventory.Instance, new Vector2i(slot, 0), new Vector2(x - 1, y));
+                    break;
+                case Direction.Down:
+                    attribs.Use(PlayerInventory.Instance, new Vector2i(slot, 0), new Vector2(x, y + 1));
+                    break;
+                case Direction.Left:
+                    attribs.Use(PlayerInventory.Instance, new Vector2i(slot, 0), new Vector2(x + 1, y));
+                    break;
+            }
+        }
+
+        public override void Update() {
+            base.Update();
+        }
+
     }
 
     [Serializable]
@@ -95,7 +150,7 @@ namespace Game.Particles {
             List<Entity> colliding = this.GetEntityCollisions();
             foreach (Entity e in colliding) {
                 // if (e is Player) continue;
-                e.data.vel.x += data.vel.val.x/20;
+                e.data.vel.x += data.vel.val.x / 20;
                 e.data.vel.y += data.vel.val.y / 100;
             }
             if (colliding.Count > 0) EntityManager.RemoveEntity(this);
@@ -127,7 +182,7 @@ namespace Game.Particles {
         }
 
         public override void OnTerrainCollision(int x, int y, Direction d, Tile t) {
-            Terrain.BreakTile(x, y);
+            PlayerInventory.Instance.CurrentlySelectedItem().rawitem.attribs.BreakTile(PlayerInventory.Instance, new Vector2i(x, y));
             data.life.val -= 10;
         }
     }

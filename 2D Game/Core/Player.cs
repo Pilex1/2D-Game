@@ -8,6 +8,9 @@ using Game.Assets;
 using Game.Terrains;
 using Game.Util;
 using Game.Terrains.Gen;
+using Game.Fluids;
+using Game.Particles;
+using Game.Guis;
 
 namespace Game.Core {
 
@@ -64,66 +67,21 @@ namespace Game.Core {
             int MouseX = Input.MouseX, MouseY = Input.MouseY;
             if (!PlayerInventory.Instance.InventoryOpen) {
                 Vector2 v = Input.TerrainIntersect();
+                Vector2i vi = new Vector2i((int)v.x, (int)v.y);
 
-                Tile tile = Terrain.TileAt(v.x, v.y);
+                Tile tile = Terrain.TileAt(vi);
                 GameLogic.AdditionalDebugText = tile.ToString() + Environment.NewLine + tile.tileattribs.ToString();
 
-                var p = PlayerInventory.Instance;
 
                 if (Mouse[Input.MouseLeft]) {
-                    Tile t = Terrain.BreakTile((int)v.x, (int)v.y);
-                    switch (t.enumId) {
-                        case TileEnum.Invalid:
-                        case TileEnum.Air:
-                        case TileEnum.Bedrock:
-                            break;
-
-                        case TileEnum.Grass: p.AddItem(ItemID.Grass); break;
-                        case TileEnum.Sand: p.AddItem(ItemID.Sand); break;
-                        case TileEnum.Dirt: p.AddItem(ItemID.Dirt); break;
-                        case TileEnum.Wood: p.AddItem(ItemID.Wood); break;
-                        case TileEnum.Leaf: p.AddItem(ItemID.Leaf); break;
-                        case TileEnum.Stone: p.AddItem(ItemID.Stone); break;
-                        case TileEnum.Tnt: p.AddItem(ItemID.Tnt); break;
-                        case TileEnum.Sandstone: p.AddItem(ItemID.Sandstone); break;
-                        case TileEnum.Sapling: p.AddItem(ItemID.Sapling); break;
-                        case TileEnum.Brick: p.AddItem(ItemID.Brick); break;
-                        case TileEnum.Metal1: p.AddItem(ItemID.Metal1); break;
-                        case TileEnum.SmoothSlab: p.AddItem(ItemID.SmoothSlab); break;
-                        case TileEnum.WeatheredStone: p.AddItem(ItemID.WeatheredStone); break;
-                        case TileEnum.FutureMetal: p.AddItem(ItemID.FutureMetal); break;
-                        case TileEnum.Marble: p.AddItem(ItemID.Marble); break;
-                        case TileEnum.PlexSpecial: p.AddItem(ItemID.PlexSpecial); break;
-                        case TileEnum.PurpleStone: p.AddItem(ItemID.PurpleStone); break;
-                        case TileEnum.Nuke: p.AddItem(ItemID.Nuke); break;
-                        case TileEnum.Cactus: p.AddItem(ItemID.Cactus); break;
-                        case TileEnum.Bounce: p.AddItem(ItemID.Bounce); break;
-                        case TileEnum.Water: break;
-                        case TileEnum.WireOn: case TileEnum.WireOff: p.AddItem(ItemID.Wire); break;
-                        case TileEnum.SwitchOn: case TileEnum.SwitchOff: p.AddItem(ItemID.Switch); break;
-                        case TileEnum.LogicLampUnlit: case TileEnum.LogicLampLit: p.AddItem(ItemID.LogicLamp); break;
-                        case TileEnum.Snow: p.AddItem(ItemID.Snow); break;
-                        case TileEnum.SnowWood: p.AddItem(ItemID.SnowWood); break;
-                        case TileEnum.SnowLeaf: p.AddItem(ItemID.SnowLeaf); break;
-                        case TileEnum.GrassDeco: p.AddItem(ItemID.GrassDeco); break;
-                        case TileEnum.GateAnd: p.AddItem(ItemID.GateAnd); break;
-                        case TileEnum.GateOr: p.AddItem(ItemID.GateOr); break;
-                        case TileEnum.GateNot: p.AddItem(ItemID.GateNot); break;
-                        case TileEnum.WireBridgeOff: case TileEnum.WireBridgeHorzVertOn: case TileEnum.WireBridgeHorzOn: case TileEnum.WireBridgeVertOn: p.AddItem(ItemID.WireBridge); break;
-                        case TileEnum.TilePusherOff: case TileEnum.TilePusherOn: p.AddItem(ItemID.StickyTilePusher); break;
-                        case TileEnum.TilePullerOn: case TileEnum.TilePullerOff: p.AddItem(ItemID.StickyTilePuller); break;
-                        case TileEnum.Light: p.AddItem(ItemID.Light); break;
-                        case TileEnum.Accelerator: p.AddItem(ItemID.Accelerator); break;
-                        case TileEnum.SingleTilePusherOff: case TileEnum.SingleTilePusherOn: p.AddItem(ItemID.SingleTilePusher); break;
-                    }
+                    PlayerInventory.Instance.CurrentlySelectedItem().rawitem.attribs.BreakTile(PlayerInventory.Instance,vi);
                 }
                 if (Mouse[Input.MouseRight]) {
-                    int x = (int)v.x, y = (int)v.y;
-                    ItemInteract.Interact(PlayerInventory.Instance.CurrentlySelectedItem(), x, y);
-                    Terrain.TileAt(x, y).tileattribs.Interact(x, y);
+                    PlayerInventory.Instance.CurrentlySelectedItem().rawitem.attribs.Use(PlayerInventory.Instance, new Vector2i(PlayerInventory.Instance.CurSelectedSlot, 0), new Vector2(vi.x, vi.y));
+                    Terrain.TileAt(vi.x, vi.y).tileattribs.Interact(vi.x, vi.y);
                 }
                 if (Mouse[Input.MouseMiddle]) {
-                    int x = (int)v.x, y = (int)v.y;
+
                 }
             }
             if (Keys['a']) {

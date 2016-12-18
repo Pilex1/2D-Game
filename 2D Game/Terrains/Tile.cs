@@ -56,9 +56,9 @@ namespace Game.Terrains {
         public TileAttribs tileattribs;
 
         private Tile(TileEnum enumId) : this(enumId, new TileAttribs()) { }
-        private Tile(TileEnum enumId, TileAttribs tiledata) {
+        private Tile(TileEnum enumId, TileAttribs tileattribs) {
             this.enumId = enumId;
-            this.tileattribs = tiledata;
+            this.tileattribs = tileattribs;
         }
 
         #region Special
@@ -107,8 +107,8 @@ namespace Game.Terrains {
 
         #region Misc
         public static readonly Tile Bounce = new Tile(TileEnum.Bounce, new BounceAttribs());
-        public static readonly Tile Tnt = new Tile(TileEnum.Tnt, new ExplosionData { radius = 10, error = 2 });
-        public static readonly Tile Nuke = new Tile(TileEnum.Nuke, new ExplosionData { radius = 50, error = 2 });
+        public static readonly Tile Tnt = new Tile(TileEnum.Tnt, new ExplosionAttribs { radius = 10, error = 2 });
+        public static readonly Tile Nuke = new Tile(TileEnum.Nuke, new ExplosionAttribs { radius = 50, error = 2 });
         #endregion Misc
 
         #region Fluids
@@ -116,7 +116,7 @@ namespace Game.Terrains {
         //public static Tile Lava { get { return new Tile(TileEnum.Lava, new LavaAttribs()); } }
         #endregion
 
-        public static Tile Accelerator = new Tile(TileEnum.Accelerator, new AcceleratorAttribs());
+        public static Tile Accelerator = new Tile(TileEnum.Accelerator);
 
         public static readonly Tile Light = new Tile(TileEnum.Light, new LightAttribs(16));
 

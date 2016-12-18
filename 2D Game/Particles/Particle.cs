@@ -26,6 +26,7 @@ namespace Game.Particles {
             SParc_Destroy.Init();
             SParc_Speed.Init();
             SParc_Water.Init();
+            SParc_Place.Init();
         }
 
         public Particle(EntityID model, Vector2 pos) : base(model, pos) {

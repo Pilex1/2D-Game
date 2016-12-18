@@ -92,6 +92,7 @@ namespace Game.Assets {
             EntityModels[(int)EntityID.ParticleRed] = EntityModel.CreateRectangle(new Vector2(particlesize, particlesize), EntityID.ParticleRed);
             EntityModels[(int)EntityID.ParticleGreen] = EntityModel.CreateRectangle(new Vector2(particlesize, particlesize), EntityID.ParticleGreen);
             EntityModels[(int)EntityID.ParticleBlue] = EntityModel.CreateRectangle(new Vector2(particlesize, particlesize), EntityID.ParticleBlue);
+            EntityModels[(int)EntityID.ParticleYellow] = EntityModel.CreateRectangle(new Vector2(particlesize, particlesize), EntityID.ParticleYellow);
             EntityModels[(int)EntityID.Squisher] = EntityModel.CreateRectangle(new Vector2(1, 1), EntityID.Squisher);
 
             EntityModels[(int)EntityID.Shooter] = EntityModel.CreateRectangle(new Vector2(1, 2), EntityID.Shooter);
