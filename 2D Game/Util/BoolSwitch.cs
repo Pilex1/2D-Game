@@ -5,7 +5,7 @@ namespace Game.Util {
     [Serializable]
     class BoolSwitch {
 
-        private bool val;
+        public bool val;
 
         private CooldownTimer cooldowntimer;
 
@@ -31,9 +31,6 @@ namespace Game.Util {
         }
         public static implicit operator bool(BoolSwitch bs) {
             return bs.val;
-        }
-        public static implicit operator BoolSwitch(bool b) {
-            return new BoolSwitch(b);
         }
 
         internal void ResetTimer() {

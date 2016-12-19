@@ -11,16 +11,8 @@ namespace Game.TitleScreen {
         public static void Init() {
             shader = new ShaderProgram(Shaders.GuiVert,Shaders.GuiFrag);
             TextFont.Init();
-        }
-
-        public static void SwitchToTitleScreen() {
-            GameGuiRenderer.Dispose();
-            TitleScreenRenderer.Init();
-        }
-
-        public static void SwitchToGame() {
-            TitleScreenRenderer.Dispose();
             GameGuiRenderer.Init();
+            TitleScreenRenderer.Init();
         }
 
         public static void Update() {

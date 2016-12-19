@@ -44,9 +44,9 @@ namespace Game.Logics {
 
         public override string ToString() {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine(String.Format("Right: Out {0}", powerOutRCache));
-            sb.AppendLine(String.Format("Up: In {0}", powerInUCache));
-            sb.AppendLine(String.Format("Down: In {0}", powerInDCache));
+            sb.AppendLine(string.Format("Right: Out {0}", powerOutRCache));
+            sb.AppendLine(string.Format("Up: In {0}", powerInUCache));
+            sb.AppendLine(string.Format("Down: In {0}", powerInDCache));
             return sb.ToString();
         }
     }

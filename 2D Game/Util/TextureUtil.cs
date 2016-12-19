@@ -66,7 +66,7 @@ namespace Game.Util {
             Bitmap bmp = new Bitmap(colours.GetLength(0), colours.GetLength(1));
             for (int i = 0; i < colours.GetLength(0); i++) {
                 for (int j = 0; j < colours.GetLength(1); j++) {
-                    bmp.SetPixel(i, j, Color.FromArgb(1, (int)(255 * colours[i, j].x), (int)(255 * colours[i, j].y), (int)(255 * colours[i, j].z)));
+                    bmp.SetPixel(i, j, Color.FromArgb(255, (int)(255 * colours[i, j].x), (int)(255 * colours[i, j].y), (int)(255 * colours[i, j].z)));
                 }
             }
             Texture tex = new Texture(bmp);

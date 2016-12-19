@@ -32,25 +32,25 @@ namespace Game.Fonts {
         }
 
         #region Constants
-        public static readonly TextStyle Chiller_SingleLine_Large = new TextStyle(TextAlignment.Center, TextFont.Chiller, 1f, 2f, 1, 0.5f, new Vector3(0.5f, 0f, 1f));
-        public static readonly TextStyle Chiller_SingleLine_Small = new TextStyle(TextAlignment.Center, TextFont.Chiller, 0.6f, 2f, 1, 0.5f, new Vector3(0.5f, 0f, 1f));
-        public static readonly TextStyle Chiller_MultiLine_Large = new TextStyle(TextAlignment.Center, TextFont.Chiller, 1f, 2f, 1 << 30, 0.5f, new Vector3(0.5f, 0f, 1f));
-        public static readonly TextStyle Chiller_MultiLine_Small = new TextStyle(TextAlignment.Center, TextFont.Chiller, 0.6f, 2f, 1 << 30, 0.5f, new Vector3(0.5f, 0f, 1f));
+        public static readonly TextStyle Chiller_SingleLine_Large = new TextStyle(TextAlignment.Center, TextFont.Chiller, 1f, 2f, 1, 0.5f, new Vector3(1, 1, 1));
+        public static readonly TextStyle Chiller_SingleLine_Small = new TextStyle(TextAlignment.Center, TextFont.Chiller, 0.6f, 2f, 1, 0.5f, new Vector3(1, 1, 1));
+        public static readonly TextStyle Chiller_MultiLine_Large = new TextStyle(TextAlignment.Center, TextFont.Chiller, 1f, 2f, 1 << 30, 0.5f, new Vector3(1, 1, 1));
+        public static readonly TextStyle Chiller_MultiLine_Small = new TextStyle(TextAlignment.Center, TextFont.Chiller, 0.6f, 2f, 1 << 30, 0.5f, new Vector3(1, 1, 1));
 
-        public static readonly TextStyle LucidaConsole_SingleLine_Large = new TextStyle(TextAlignment.Center, TextFont.LucidaConsole, 1f, 2f, 1, 1f, new Vector3(0.5f, 0f, 1f));
-        public static readonly TextStyle LucidaConsole_SingleLine_Small = new TextStyle(TextAlignment.Center, TextFont.LucidaConsole, 0.6f, 2f, 1, 1f, new Vector3(0.5f, 0f, 1f));
-        public static readonly TextStyle LucidaConsole_MultiLine_Large = new TextStyle(TextAlignment.Center, TextFont.LucidaConsole, 1f, 2f, 1 << 30, 1f, new Vector3(0.5f, 0f, 1f));
-        public static readonly TextStyle LucidaConsole_MultiLine_Small = new TextStyle(TextAlignment.Center, TextFont.LucidaConsole, 0.6f, 2f, 1 << 30, 1f, new Vector3(0.5f, 0f, 1f));
+        public static readonly TextStyle LucidaConsole_SingleLine_Large = new TextStyle(TextAlignment.Center, TextFont.LucidaConsole, 1f, 2f, 1, 1f, new Vector3(1, 1, 1));
+        public static readonly TextStyle LucidaConsole_SingleLine_Small = new TextStyle(TextAlignment.Center, TextFont.LucidaConsole, 0.6f, 2f, 1, 1f, new Vector3(1, 1, 1));
+        public static readonly TextStyle LucidaConsole_MultiLine_Large = new TextStyle(TextAlignment.Center, TextFont.LucidaConsole, 1f, 2f, 1 << 30, 1f, new Vector3(1, 1, 1));
+        public static readonly TextStyle LucidaConsole_MultiLine_Small = new TextStyle(TextAlignment.Center, TextFont.LucidaConsole, 0.6f, 2f, 1 << 30, 1f, new Vector3(1, 1, 1));
 
-        public static readonly TextStyle DialogInput_SingleLine_Large = new TextStyle(TextAlignment.Center, TextFont.DialogInput, 1f, 2f, 1, 1f, new Vector3(0.5f, 0f, 1f));
-        public static readonly TextStyle DialogInput_SingleLine_Small = new TextStyle(TextAlignment.Center, TextFont.DialogInput, 0.6f, 2f, 1, 1f, new Vector3(0.5f, 0f, 1f));
-        public static readonly TextStyle DialogInput_MultiLine_Large = new TextStyle(TextAlignment.Center, TextFont.DialogInput, 1f, 2f, 1 << 30, 1f, new Vector3(0.5f, 0f, 1f));
-        public static readonly TextStyle DialogInput_MultiLine_Small = new TextStyle(TextAlignment.Center, TextFont.DialogInput, 0.6f, 2f, 1 << 30, 1f, new Vector3(0.5f, 0f, 1f));
+        public static readonly TextStyle DialogInput_SingleLine_Large = new TextStyle(TextAlignment.Center, TextFont.DialogInput, 1f, 2f, 1, 1f, new Vector3(1, 1, 1));
+        public static readonly TextStyle DialogInput_SingleLine_Small = new TextStyle(TextAlignment.Center, TextFont.DialogInput, 0.6f, 2f, 1, 1f, new Vector3(1, 1, 1));
+        public static readonly TextStyle DialogInput_MultiLine_Large = new TextStyle(TextAlignment.Center, TextFont.DialogInput, 1f, 2f, 1 << 30, 1f, new Vector3(1, 1, 1));
+        public static readonly TextStyle DialogInput_MultiLine_Small = new TextStyle(TextAlignment.Center, TextFont.DialogInput, 0.6f, 2f, 1 << 30, 1f, new Vector3(1, 1, 1));
 
-        public static readonly TextStyle CenturyGothic_SingleLine_Large = new TextStyle(TextAlignment.Center, TextFont.CenturyGothic, 1f, 2f, 1, 1f, new Vector3(0.5f, 0f, 1f));
-        public static readonly TextStyle CenturyGothic_SingleLine_Small = new TextStyle(TextAlignment.Center, TextFont.CenturyGothic, 0.6f, 2f, 1, 1f, new Vector3(0.5f, 0f, 1f));
-        public static readonly TextStyle CenturyGothic_MultiLine_Large = new TextStyle(TextAlignment.Center, TextFont.CenturyGothic, 1f, 2f, 1 << 30, 1f, new Vector3(0.5f, 0f, 1f));
-        public static readonly TextStyle CenturyGothic_MultiLine_Small = new TextStyle(TextAlignment.Center, TextFont.CenturyGothic, 0.6f, 2f, 1 << 30, 1f, new Vector3(0.5f, 0f, 1f));
+        public static readonly TextStyle CenturyGothic_SingleLine_Large = new TextStyle(TextAlignment.Center, TextFont.CenturyGothic, 1f, 2f, 1, 1f, new Vector3(1, 1, 1));
+        public static readonly TextStyle CenturyGothic_SingleLine_Small = new TextStyle(TextAlignment.Center, TextFont.CenturyGothic, 0.6f, 2f, 1, 1f, new Vector3(1, 1, 1));
+        public static readonly TextStyle CenturyGothic_MultiLine_Large = new TextStyle(TextAlignment.Center, TextFont.CenturyGothic, 1f, 2f, 1 << 30, 1f, new Vector3(1, 1, 1));
+        public static readonly TextStyle CenturyGothic_MultiLine_Small = new TextStyle(TextAlignment.Center, TextFont.CenturyGothic, 0.6f, 2f, 1 << 30, 1f, new Vector3(1, 1, 1));
         #endregion
 
     }
@@ -81,6 +81,11 @@ namespace Game.Fonts {
             SetTextHelper(style.font.fontTexture.Size.Width, style.size, style.font.fontTexture.Size.Height, out vertices, out elements, out uvs);
             GuiVAO vao = new GuiVAO(vertices, elements, uvs);
             model = new GuiModel(vao, style.font.fontTexture, BeginMode.Triangles, new Vector2(style.size, style.size));
+        }
+
+        public void SetPos(Vector2 pos) {
+            relpos = pos;
+            UpdateModel();
         }
 
         private void SetTextHelper(int texwidth, float size, int texheight, out Vector2[] vertices, out int[] elements, out Vector2[] uvs) {
@@ -155,7 +160,7 @@ namespace Game.Fonts {
                     pos = new Vector2(relpos.x, relpos.y - style.font.lineHeight * size);
                     break;
                 case TextAlignment.Top:
-                    pos = new Vector2(relpos.x + actualmaxwidth / 2 * size, relpos.y - style.font.lineHeight * size);
+                    pos = new Vector2(relpos.x - actualmaxwidth / 2 * size, relpos.y - style.font.lineHeight * size);
                     break;
                 case TextAlignment.TopRight:
                     pos = new Vector2(relpos.x - actualmaxwidth / 2 * size, relpos.y - style.font.lineHeight * size);

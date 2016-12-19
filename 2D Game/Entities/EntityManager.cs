@@ -7,9 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Entities {
     static class EntityManager {
@@ -18,9 +15,10 @@ namespace Game.Entities {
         internal const float maxHorzSpeed = 0.8f;
         internal const float maxVertSpeed = 1f;
 
-        public static int LoadedEntities { get; private set; }
         private const int GridX = 4;
         private const int GridY = 4;
+
+        public static int LoadedEntities { get; private set; }
         internal static HashSet<Entity>[,] EntityGrid;
         public static ShaderProgram shader;
         #endregion
@@ -70,14 +68,41 @@ namespace Game.Entities {
 
         #region Entity Grid Array
 
-        internal static Vector2i GetGridArray(Entity e) {
-            int gx = (int)Math.Floor(e.data.pos.x / GridX);
-            int gy = (int)Math.Floor(e.data.pos.y / GridY);
+        public static Entity[] GetEntitiesAt(Vector2 pos, Vector2 size) {
+            var g = GetGridArray(pos);
+            var search = new List<Entity>();
+            search.AddRange(EntityGrid[g.x - 1, g.y - 1]);
+            search.AddRange(EntityGrid[g.x, g.y - 1]);
+            search.AddRange(EntityGrid[g.x + 1, g.y - 1]);
+            search.AddRange(EntityGrid[g.x - 1, g.y]);
+            search.AddRange(EntityGrid[g.x, g.y]);
+            search.AddRange(EntityGrid[g.x + 1, g.y]);
+            search.AddRange(EntityGrid[g.x - 1, g.y + 1]);
+            search.AddRange(EntityGrid[g.x, g.y + 1]);
+            search.AddRange(EntityGrid[g.x + 1, g.y + 1]);
+            var r = new List<Entity>();
+            foreach (var e in search) {
+                if (e.hitbox.Intersecting(new RectangularHitbox(pos, size)))
+                    r.Add(e);
+            }
+            return r.ToArray();
+        }
+        public static Entity[] GetEntitiesAt(Vector2 pos) {
+            return GetEntitiesAt(pos, new Vector2(1, 1));
+        }
+
+        internal static Vector2i GetGridArray(Vector2 pos) {
+            int gx = (int)Math.Floor(pos.x / GridX);
+            int gy = (int)Math.Floor(pos.y / GridY);
             if (gx < 0) gx = 0;
             if (gx >= EntityGrid.GetLength(0)) gx = EntityGrid.GetLength(0) - 1;
             if (gy < 0) gy = 0;
             if (gy >= EntityGrid.GetLength(1)) gy = EntityGrid.GetLength(1) - 1;
             return new Vector2i(gx, gy);
+        }
+
+        internal static Vector2i GetGridArray(Entity e) {
+            return GetGridArray(e.data.pos);
         }
 
         public static void AddEntity(Entity e) {
@@ -135,8 +160,8 @@ namespace Game.Entities {
                         e.data.recentDmg -= GameTime.DeltaTime;
                         MathUtil.ClampMin(ref e.data.recentDmg, 0);
 
-                        e.Update();
                         e.UpdateHitbox();
+                        e.Update();
 
                         if (e.data.life.IsEmpty()) {
                             e.OnDeath();
@@ -178,14 +203,14 @@ namespace Game.Entities {
             }
 
             LoadedEntities = 0;
+
+            Gl.Enable(EnableCap.Blend);
+            Gl.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             Gl.BindTexture(Assets.Textures.EntityTexture.TextureTarget, Assets.Textures.EntityTexture.TextureID);
             foreach (EntityID entityId in EntitiesMap.Keys) {
                 EntityModel model = Assets.Models.GetModel(entityId);
                 Gl.BindVertexArray(model.vao.ID);
-                if (model.blend) {
-                    Gl.Enable(EnableCap.Blend);
-                    Gl.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-                }
+
 
                 foreach (Entity e in EntitiesMap[entityId]) {
                     LoadedEntities++;
@@ -203,10 +228,25 @@ namespace Game.Entities {
                     Gl.DrawElements(model.drawmode, model.vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
                 }
 
-                Gl.Disable(EnableCap.Blend);
+
+            }
+
+            if (GameLogic.RenderHitboxes) {
+                var model = Assets.Models.GetModel(EntityID.HitboxOutline);
+                Gl.BindVertexArray(model.vao.ID);
+                foreach (EntityID entityId in EntitiesMap.Keys) {
+                    foreach (Entity e in EntitiesMap[entityId]) {
+                        var h = e.hitbox;
+                        shader["modelMatrix"].SetValue(MathUtil.ModelMatrix(h.Size, 0, h.Position));
+                        Gl.DrawElements(model.drawmode, model.vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+                    }
+                }
                 Gl.BindVertexArray(0);
             }
+
             Gl.BindTexture(Assets.Textures.EntityTexture.TextureTarget, 0);
+            Gl.Disable(EnableCap.Blend);
+            Gl.BindVertexArray(0);
             Gl.UseProgram(0);
         }
 

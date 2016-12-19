@@ -1,45 +1,11 @@
 ﻿using System;
 using OpenGL;
 using Game.Terrains;
-using System.Diagnostics;
 using System.Collections.Generic;
 using Game.Core;
 using Game.Util;
-using Game.Particles;
-using System.Drawing;
 
 namespace Game.Entities {
-
-    enum EntityID {
-        //16 x 16
-        None = 0, ShooterProjectile, ParticlePurple, ParticleRed, ParticleGreen, ParticleBlue, Squisher, ParticleYellow,
-
-        //16 x 32
-        Shooter = 128, Player, PlayerSimple
-    }
-
-    [Serializable]
-    class EntityData {
-
-        public const float maxRecentDmgTime = 10;
-        [NonSerialized]
-        public float recentDmg = 0;
-
-        public float speed = 0;
-        public float rot = 0;
-        public bool useGravity = true;
-        public float grav = 0.02f;
-        public float airResis = 0.9f;
-        public float jumppower = 0;
-        public bool InAir = false;
-        public bool calcTerrainCollisions = true;
-        public BoundedFloat life = new BoundedFloat(0, 0, 0);
-        public BoundedVector2 vel = new BoundedVector2(new BoundedFloat(0, -EntityManager.maxHorzSpeed, EntityManager.maxHorzSpeed), new BoundedFloat(0, -EntityManager.maxVertSpeed, EntityManager.maxVertSpeed));
-        public BoundedVector2 pos = new BoundedVector2(new BoundedFloat(0, 0, Terrain.Tiles.GetLength(0) - 1), new BoundedFloat(0, 0, Terrain.Tiles.GetLength(1) - 1));
-        public Vector4 colour = new Vector4(1, 1, 1, 1);
-
-        public EntityID entityId = EntityID.None;
-    }
 
     [Serializable]
     abstract class Entity {
@@ -88,16 +54,17 @@ namespace Game.Entities {
         }
 
         private void UpdateX(float x) {
+            MathUtil.Clamp(ref x, -1, 1);
             Tile col;
             int colx, coly;
             Vector2 offset = new Vector2(x, 0);
             if (Terrain.WillCollide(this, offset, out col, out colx, out coly)) {
-                if (x > 0) {
+                if (x >= 0) {
                     if (data.calcTerrainCollisions)
                         col.tileattribs.OnTerrainIntersect(colx, coly, Direction.Right, this);
 
                     OnTerrainCollision(colx, coly, Direction.Right, col);
-                } else if (x < 0) {
+                } else {
                     if (data.calcTerrainCollisions)
                         col.tileattribs.OnTerrainIntersect(colx, coly, Direction.Left, this);
 
@@ -109,16 +76,17 @@ namespace Game.Entities {
         }
 
         private void UpdateY(float y) {
+            MathUtil.Clamp(ref y, -1, 1);
             Tile col;
             int colx, coly;
             Vector2 offset = new Vector2(0, y);
             if (Terrain.WillCollide(this, offset, out col, out colx, out coly)) {
-                if (y > 0) {
+                if (y >= 0) {
                     if (data.calcTerrainCollisions)
                         col.tileattribs.OnTerrainIntersect(colx, coly, Direction.Up, this);
 
                     OnTerrainCollision(colx, coly, Direction.Up, col);
-                } else if (y < 0) {
+                } else {
                     if (data.calcTerrainCollisions)
                         col.tileattribs.OnTerrainIntersect(colx, coly, Direction.Down, this);
 
@@ -194,6 +162,7 @@ namespace Game.Entities {
             }
             return colliding;
         }
+
         #endregion
 
         #region Health
@@ -222,17 +191,11 @@ namespace Game.Entities {
 
         #endregion
 
-        public virtual Matrix4 ModelMatrix() {
-            Vector2 size = Assets.Models.GetModel(entityId).size;
-            return Matrix4.CreateScaling(new Vector3(size.x, size.y, 0)) * Matrix4.CreateRotationZ(data.rot) * Matrix4.CreateTranslation(new Vector3(data.pos.x, data.pos.y, 0));
-        }
-
+        public virtual Matrix4 ModelMatrix() { return MathUtil.ModelMatrix(Assets.Models.GetModel(entityId).size, data.rot, data.pos); }
         public abstract void InitTimers();
         public abstract void Update();
-        public abstract void UpdateHitbox();
+        public virtual void UpdateHitbox() { hitbox.Position = data.pos; }
         public virtual void OnTerrainCollision(int x, int y, Direction d, Tile t) { }
-        public virtual void OnDeath() {
-            EntityManager.RemoveEntity(this);
-        }
+        public virtual void OnDeath() { EntityManager.RemoveEntity(this); }
     }
 }

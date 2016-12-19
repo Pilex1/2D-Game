@@ -40,8 +40,8 @@ namespace Game.Logics {
 
         public override string ToString() {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine(String.Format("Left: In {0}", powerInLCache));
-            sb.AppendLine(String.Format("Right: Out {0}", powerOutRCache));
+            sb.AppendLine(string.Format("Left: In {0}", powerInLCache));
+            sb.AppendLine(string.Format("Right: Out {0}", powerOutRCache));
             return sb.ToString();
         }
     }

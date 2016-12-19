@@ -28,10 +28,6 @@ namespace Game.Entities {
             CooldownTimer.AddTimer(dmgTimer);
         }
 
-        public override void UpdateHitbox() {
-            hitbox.Position = data.pos.val;
-        }
-
         public override void Update() {
             UpdatePosition();
             if (Player.Intersecting(this) && dmgTimer.Ready()) {

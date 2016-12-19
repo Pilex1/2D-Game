@@ -36,11 +36,11 @@ namespace Game.Logics {
 
         public override string ToString() {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine(String.Format("Required: {0}", cost));
-            sb.AppendLine(String.Format("Left: In {0}", powerInLCache));
-            sb.AppendLine(String.Format("Right: In {0}", powerInRCache));
-            sb.AppendLine(String.Format("Up: In {0}", powerInUCache));
-            sb.AppendLine(String.Format("Down: In {0}", powerInDCache));
+            sb.AppendLine(string.Format("Required: {0}", cost));
+            sb.AppendLine(string.Format("Left: In {0}", powerInLCache));
+            sb.AppendLine(string.Format("Right: In {0}", powerInRCache));
+            sb.AppendLine(string.Format("Up: In {0}", powerInUCache));
+            sb.AppendLine(string.Format("Down: In {0}", powerInDCache));
             return sb.ToString();
         }
     }

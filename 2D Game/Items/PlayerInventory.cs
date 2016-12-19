@@ -1,17 +1,14 @@
 ﻿using Game.Assets;
 using Game.Core;
 using Game.Fonts;
+using Game.Guis;
 using Game.Interaction;
+using Game.Items;
 using Game.Util;
 using OpenGL;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Game.Guis {
+namespace Game.Items {
     class PlayerInventory : Inventory {
 
         #region Fields
@@ -30,16 +27,19 @@ namespace Game.Guis {
         public GuiModel Background;
 
         public Text[,] ItemCountText;
-        public Text text;
-        public GuiModel textbg;
+        public Text InvText;
+        public GuiModel InvTextBackground;
+        public GuiModel InvTextLine;
         public Vector2i? Selected;
         public BoolSwitch InventoryOpen = new BoolSwitch(false, 20);
 
+        public Text ItemNameText;
 
         public Text[] HotbarItemCountText;
         public GuiModel HotbarFrame;
         public GuiModel HotbarItemDisplay;
         public GuiModel HotbarSelectedDisplay;
+        public GuiModel HotbarBackground;
 
         public int CurSelectedSlot;
 
@@ -90,18 +90,23 @@ namespace Game.Guis {
 
             }
             SelectedDisplay = GuiModel.CreateWireRectangleTopLeft(new Vector2(SizeX, SizeY), Color.Blue);
-            Background = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, (y - 1) * SizeY), Color.DimGray);
+            Background = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, (y - 1) * SizeY), ColourUtil.TexFromColour(new Vector4(0.3, 0.3, 0.3, 0.8)));
+            HotbarBackground = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, SizeY), ColourUtil.TexFromColour(new Vector4(0.3, 0.3, 0.3, 0.8)));
 
-            TextStyle style = new TextStyle(TextAlignment.Center, TextFont.Chiller, 0.5f, 1f, 1, 1f, new Vector3(1, 1, 1));
-            text = new Text("Inventory", style, new Vector2(0, 0));
-            textbg = GuiModel.CreateRectangle(new Vector2(0.5, 0.05), Color.DimGray);
+            TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.8f, 1f, 1, 1f, new Vector3(1, 1, 1));
+            InvText = new Text("Inventory", style, new Vector2(0.015 + Pos.x, Pos.y + 2 * (y - 0.5) * SizeY));
+            InvTextBackground = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, SizeY), ColourUtil.TexFromColour(new Vector4(0.3, 0.3, 0.3, 0.8)));
+            InvTextLine = GuiModel.CreateLine(new Vector2(x * SizeX, 0), ColourUtil.TexFromColour(new Vector4(0.05, 0.05, 0.1, 0.9)));
+            var itemnamestyle = TextStyle.LucidaConsole_SingleLine_Small;
+            itemnamestyle.alignment = TextAlignment.Bottom;
+            ItemNameText = new Text("", itemnamestyle, HotbarPos + new Vector2(0, SizeY));
 
             //hotbar
             CurSelectedSlot = 0;
 
             HotbarFrame = new GuiModel(Generate_HotbarFrameVao(), TextureUtil.CreateTexture(new Vector3(0, 0, 0.1)), BeginMode.Lines, new Vector2(1, 1));
             HotbarItemDisplay = new GuiModel(Generate_HotbarItemDisplayVao(), Textures.ItemTexture, BeginMode.Triangles, new Vector2(1, 1));
-            HotbarSelectedDisplay = GuiModel.CreateWireRectangleTopLeft(new Vector2(SizeX, SizeY), ColourUtil.ColourFromVec3(new Vector3(0, 0, 1)));
+            HotbarSelectedDisplay = GuiModel.CreateWireRectangleTopLeft(new Vector2(SizeX, SizeY), Color.Blue);
 
         }
 
@@ -112,54 +117,54 @@ namespace Game.Guis {
         public void LoadDefaultItems() {
             int row = 1;
 
-            Items[0, row] = new Item(RawItem.Grass, MaxItems);
-            Items[1, row] = new Item(RawItem.Dirt, MaxItems);
-            Items[2, row] = new Item(RawItem.Sand, MaxItems);
-            Items[3, row] = new Item(RawItem.Stone, MaxItems);
-            Items[4, row] = new Item(RawItem.Wood, MaxItems);
-            Items[5, row] = new Item(RawItem.Leaf, MaxItems);
-            Items[6, row] = new Item(RawItem.SnowWood, MaxItems);
-            Items[7, row] = new Item(RawItem.SnowLeaf, MaxItems);
-            Items[8, row] = new Item(RawItem.Cactus, MaxItems);
+            Items[0, row] = new Item(RawItem.Grass, RawItem.Grass.attribs.stackSize);
+            Items[1, row] = new Item(RawItem.Dirt, RawItem.Dirt.attribs.stackSize);
+            Items[2, row] = new Item(RawItem.Sand, RawItem.Sand.attribs.stackSize);
+            Items[3, row] = new Item(RawItem.Stone, RawItem.Stone.attribs.stackSize);
+            Items[4, row] = new Item(RawItem.Wood, RawItem.Wood.attribs.stackSize);
+            Items[5, row] = new Item(RawItem.Leaf, RawItem.Leaf.attribs.stackSize);
+            Items[6, row] = new Item(RawItem.SnowWood, RawItem.SnowWood.attribs.stackSize);
+            Items[7, row] = new Item(RawItem.SnowLeaf, RawItem.SnowLeaf.attribs.stackSize);
+            Items[8, row] = new Item(RawItem.Cactus, RawItem.Cactus.attribs.stackSize);
 
             row++;
-            Items[0, row] = new Item(RawItem.Sapling, MaxItems);
-            Items[1, row] = new Item(RawItem.GrassDeco, MaxItems);
+            Items[0, row] = new Item(RawItem.Sapling, RawItem.Sapling.attribs.stackSize);
+            Items[1, row] = new Item(RawItem.GrassDeco, RawItem.GrassDeco.attribs.stackSize);
 
             row++;
-            Items[0, row] = new Item(RawItem.Brick, MaxItems);
-            Items[1, row] = new Item(RawItem.Metal1, MaxItems);
-            Items[2, row] = new Item(RawItem.SmoothSlab, MaxItems);
-            Items[3, row] = new Item(RawItem.WeatheredStone, MaxItems);
-            Items[4, row] = new Item(RawItem.FutureMetal, MaxItems);
-            Items[5, row] = new Item(RawItem.Marble, MaxItems);
-            Items[6, row] = new Item(RawItem.PlexSpecial, MaxItems);
-            Items[7, row] = new Item(RawItem.Sandstone, MaxItems);
+            Items[0, row] = new Item(RawItem.Brick, RawItem.Brick.attribs.stackSize);
+            Items[1, row] = new Item(RawItem.Metal1, RawItem.Metal1.attribs.stackSize);
+            Items[2, row] = new Item(RawItem.SmoothSlab, RawItem.SmoothSlab.attribs.stackSize);
+            Items[3, row] = new Item(RawItem.WeatheredStone, RawItem.WeatheredStone.attribs.stackSize);
+            Items[4, row] = new Item(RawItem.FutureMetal, RawItem.FutureMetal.attribs.stackSize);
+            Items[5, row] = new Item(RawItem.Marble, RawItem.Marble.attribs.stackSize);
+            Items[6, row] = new Item(RawItem.PlexSpecial, RawItem.PlexSpecial.attribs.stackSize);
+            Items[7, row] = new Item(RawItem.Sandstone, RawItem.Sandstone.attribs.stackSize);
 
             row++;
-            Items[0, row] = new Item(RawItem.Bounce, MaxItems);
-            Items[1, row] = new Item(RawItem.Accelerator, MaxItems);
-            Items[2, row] = new Item(RawItem.Water, MaxItems);
+            Items[0, row] = new Item(RawItem.Bounce, RawItem.Bounce.attribs.stackSize);
+            Items[1, row] = new Item(RawItem.Accelerator, RawItem.Accelerator.attribs.stackSize);
+            Items[2, row] = new Item(RawItem.Water, RawItem.Water.attribs.stackSize);
 
             row++;
-            Items[0, row] = new Item(RawItem.Tnt, MaxItems);
-            Items[1, row] = new Item(RawItem.Nuke, MaxItems);
-            Items[2, row] = new Item(RawItem.Igniter, MaxItems);
-            Items[3, row] = new Item(RawItem.StaffGreen, MaxItems);
-            Items[4, row] = new Item(RawItem.StaffBlue, MaxItems);
-            Items[5, row] = new Item(RawItem.StaffRed, MaxItems);
-            Items[6, row] = new Item(RawItem.StaffPurple, MaxItems);
-            Items[7, row] = new Item(RawItem.StaffYellow, MaxItems);
+            Items[0, row] = new Item(RawItem.Tnt, RawItem.Tnt.attribs.stackSize);
+            Items[1, row] = new Item(RawItem.Nuke, RawItem.Nuke.attribs.stackSize);
+            Items[2, row] = new Item(RawItem.Igniter, RawItem.Igniter.attribs.stackSize);
+            Items[3, row] = new Item(RawItem.StaffGreen, RawItem.StaffGreen.attribs.stackSize);
+            Items[4, row] = new Item(RawItem.StaffBlue, RawItem.StaffBlue.attribs.stackSize);
+            Items[5, row] = new Item(RawItem.StaffRed, RawItem.StaffRed.attribs.stackSize);
+            Items[6, row] = new Item(RawItem.StaffPurple, RawItem.StaffPurple.attribs.stackSize);
+            Items[7, row] = new Item(RawItem.StaffYellow, RawItem.StaffYellow.attribs.stackSize);
 
             row++;
-            Items[0, row] = new Item(RawItem.Switch, MaxItems);
-            Items[1, row] = new Item(RawItem.Wire, MaxItems);
-            Items[2, row] = new Item(RawItem.WireBridge, MaxItems);
-            Items[3, row] = new Item(RawItem.GateAnd, MaxItems);
-            Items[4, row] = new Item(RawItem.GateOr, MaxItems);
-            Items[5, row] = new Item(RawItem.GateNot, MaxItems);
-            Items[6, row] = new Item(RawItem.LogicLamp, MaxItems);
-            Items[7, row] = new Item(RawItem.SingleTilePusher, MaxItems);
+            Items[0, row] = new Item(RawItem.Switch, RawItem.Switch.attribs.stackSize);
+            Items[1, row] = new Item(RawItem.Wire, RawItem.Wire.attribs.stackSize);
+            Items[2, row] = new Item(RawItem.WireBridge, RawItem.WireBridge.attribs.stackSize);
+            Items[3, row] = new Item(RawItem.GateAnd, RawItem.GateAnd.attribs.stackSize);
+            Items[4, row] = new Item(RawItem.GateOr, RawItem.GateOr.attribs.stackSize);
+            Items[5, row] = new Item(RawItem.GateNot, RawItem.GateNot.attribs.stackSize);
+            Items[6, row] = new Item(RawItem.LogicLamp, RawItem.LogicLamp.attribs.stackSize);
+            Items[7, row] = new Item(RawItem.SingleTilePusher, RawItem.SingleTilePusher.attribs.stackSize);
         }
 
         #endregion
@@ -245,7 +250,7 @@ namespace Game.Guis {
             return uvs;
         }
 
-        private void Update_ItemText() {
+        private void Update_ItemCountText() {
             for (int i = 0; i < ItemCountText.GetLength(0); i++) {
                 for (int j = 0; j < ItemCountText.GetLength(1); j++) {
                     var s = Items[i, j + 1].amt.ToString();
@@ -256,6 +261,11 @@ namespace Game.Guis {
                 var s = Items[i, 0].amt.ToString();
                 HotbarItemCountText[i].SetText(s == "0" ? "" : s);
             }
+        }
+
+        private void Update_HotbarItemNameText() {
+            ItemNameText.SetText(CurrentlySelectedItem().rawitem.attribs.name);
+            ItemNameText.SetPos(HotbarPos + new Vector2((CurSelectedSlot+0.5) * SizeX + ItemTextureOffset, 2*SizeY));
         }
 
         private void Update_ItemDisplayData() {
@@ -339,17 +349,19 @@ namespace Game.Guis {
         public void Update() {
 
             HotbarItemDisplay.vao.UpdateUVs(Generate_HotbarTexturedItemsUV());
-            Update_ItemText();
+            Update_ItemCountText();
             Update_ItemDisplayData();
+            Update_HotbarItemNameText();
 
-            if (Input.Keys['e'])
-                InventoryOpen.Toggle();
+            if (Input.Keys['e']) InventoryOpen.Toggle();
+            if (Input.Keys[27]) InventoryOpen.val = false;
+
             float x = Input.NDCMouseX, y = Input.NDCMouseY;
             y -= 24f / Program.Height;
 
             int cx = (int)(10 * (x - Pos.x));
             int cy = (int)(10 / Program.AspectRatio * (y - Pos.y));
-            if (cx < 0 || cx >= Items.GetLength(0) || cy < 0 || cy >= Items.GetLength(1) || !InventoryOpen) {
+            if (cx < 0 || cx >= Items.GetLength(0) || cy < 0 || cy >= Items.GetLength(1) - 1 || !InventoryOpen) {
                 Selected = null;
                 return;
             }

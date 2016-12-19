@@ -10,25 +10,17 @@ namespace Game {
     [Serializable]
     class Projectile : Entity {
 
-        private float rotationSpeed = 0.05f;
-
-        private static Vector2 hitboxoffset = new Vector2((1 - MathUtil.Sqrt2) / 2, (1 - MathUtil.Sqrt2) / 2);
-
-        public Projectile(Vector2 position, Vector2 velocity, int maxlife, float rotationSpeed) : base(EntityID.ShooterProjectile, new RectangularHitbox(position - hitboxoffset, new Vector2(MathUtil.Sqrt2, MathUtil.Sqrt2)), position) {
+        public Projectile(Vector2 position, Vector2 velocity, int maxlife) : base(EntityID.ShooterProjectile, position) {
             data.speed = 0;
             data.jumppower = 0;
             data.life = new BoundedFloat(100, 0, 100);
             data.vel.val = velocity;
             data.useGravity = false;
+            data.calcTerrainCollisions = false;
             data.airResis = 1;
-            this.rotationSpeed = rotationSpeed;
         }
 
         public override void InitTimers() {
-        }
-
-        public override void UpdateHitbox() {
-            hitbox.Position = data.pos.val - hitboxoffset;
         }
 
         public override void OnTerrainCollision(int x, int y, Direction d, Tile t) {
@@ -37,12 +29,12 @@ namespace Game {
 
         public override void Update() {
             UpdatePosition();
+            data.life -= GameTime.DeltaTime;
+            data.colour.w = (float)Math.Pow(Math.Sin(Math.PI / 2 * data.life.GetFilledRatio()), 0.25);
 
-            data.rot += rotationSpeed * GameTime.DeltaTime;
             if (Player.Intersecting(this)) {
                 Player.Instance.Damage(1);
                 EntityManager.RemoveEntity(this);
-
             }
         }
     }

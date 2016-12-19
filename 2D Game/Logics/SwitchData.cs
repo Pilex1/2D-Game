@@ -17,7 +17,7 @@ namespace Game.Logics {
 
         public SwitchAttribs() {
             poweroutL.max = poweroutR.max = poweroutU.max = poweroutD.max = src.max;
-            state = false;
+            state = new BoolSwitch(false);
         }
 
 
@@ -56,10 +56,10 @@ namespace Game.Logics {
 
         public override string ToString() {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine(String.Format("Left: Out {0}", poweroutL.val));
-            sb.AppendLine(String.Format("Right: Out {0}", poweroutR.val));
-            sb.AppendLine(String.Format("Up: Out {0}", poweroutU.val));
-            sb.AppendLine(String.Format("Down: Out {0}", poweroutD.val));
+            sb.AppendLine(string.Format("Left: Out {0}", poweroutL.val));
+            sb.AppendLine(string.Format("Right: Out {0}", poweroutR.val));
+            sb.AppendLine(string.Format("Up: Out {0}", poweroutU.val));
+            sb.AppendLine(string.Format("Down: Out {0}", poweroutD.val));
             return sb.ToString();
         }
     }

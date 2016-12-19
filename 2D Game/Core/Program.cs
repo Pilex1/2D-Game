@@ -10,6 +10,7 @@ using Game.Assets;
 using Game.Terrains;
 using Game.Core.World_Serialization;
 using Game.Entities;
+using Game.Items;
 
 namespace Game {
 
@@ -22,30 +23,15 @@ namespace Game {
 
         public static int ScreenWidth, ScreenHeight;
         public static int Width = 1280, Height = 720;
-        //public static int Width = 1600, Height = 900;
         public static float AspectRatio = (float)Width / Height;
-
-        public static bool FullScreen { get; private set; }
-
         public static ProgramMode Mode { get; private set; }
 
-        public static string worldname;
-
-        private static bool ResetAgain;
+        private static string worldname;
 
         static void Main() {
-
-            Core.World_Serialization.Serialization.GetWorlds();
-
             Init();
-
             Glut.glutMainLoop();
-
             Dispose();
-
-            //Console.WriteLine("Press any key to continue...");
-            //Console.ReadKey();
-
         }
 
         private static void Init() {
@@ -82,23 +68,9 @@ namespace Game {
             AspectRatio = (float)Width / height;
         }
 
-        //todo
-        public static void EnterFullScreen() {
-            Glut.glutEnterGameMode();
-            FullScreen = true;
-        }
-
-        //todo
-        public static void ExitFullScreen() {
-            Glut.glutLeaveGameMode();
-            FullScreen = false;
-        }
-
-
         public static void SwitchToTitleScreen() {
             Mode = ProgramMode.TitleScreen;
-            GameRenderer.CleanUp();
-            Gui.SwitchToTitleScreen();
+            TitleScreenRenderer.Reset();
         }
 
 
@@ -108,68 +80,54 @@ namespace Game {
 
             GameRenderer.Init();
             GameLogic.InitNew(seed);
-            Gui.SwitchToGame();
-            ResetAgain = true;
+            GameTime.Update();
         }
 
-        public static void SwitchToGame(WorldData world) {
+        public static void SwitchToGame(string worldname, WorldData world) {
             Mode = ProgramMode.Game;
 
+            Program.worldname = worldname;
             GameRenderer.Init();
             GameLogic.InitLoad(world.terrain, world.entities);
-            Gui.SwitchToGame();
-            ResetAgain = true;
+            GameTime.Update();
         }
 
 
         private static void MainGameLoop() {
             Gl.ClearColor(1, 1, 1, 1);
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
             ErrorCode error = Gl.GetError();
             Debug.Assert(error == ErrorCode.NoError);
 
-            if (ResetAgain) {
-                GameTime.Update();
-                ResetAgain = false;
-            }
-
             GameTime.Update();
-
-
-            if (Mode == ProgramMode.Game)
-                GameGuiRenderer.RenderBackground();
-
+            CooldownTimer.Update();
 
             if (Mode == ProgramMode.Game) {
+                GameGuiRenderer.RenderBackground();
                 GameRenderer.Render();
                 GameLogic.Update();
             }
-
             Gui.Render();
             Gui.Update();
 
-            CooldownTimer.Update();
-
-
             Input.Update();
-
-            //Thread.Sleep((int)((float)1000 / 20));
-
             Glut.glutSwapBuffers();
+        }
+
+        public static void SaveWorld() {
+            TerrainData worlddata = new TerrainData(Terrain.Tiles, Terrain.TerrainBiomes);
+            EntitiesData entitydata = new EntitiesData(Player.Instance.data, PlayerInventory.Instance.Items, EntityManager.GetAllEntities());
+
+            Serialization.SaveWorld(worldname, worlddata, entitydata);
         }
 
         private static void Dispose() {
             GameRenderer.CleanUp();
-            if (Mode == ProgramMode.Game) {
-                TerrainData worlddata = new TerrainData(Terrain.Tiles, Terrain.TerrainBiomes);
-                EntitiesData entitydata = new EntitiesData((PlayerData)Player.Instance.data, EntityManager.GetAllEntities());
-
-                Serialization.SaveWorld(worldname, worlddata, entitydata);
-            }
-
             Gui.Dispose();
-        }
 
+
+            if (Mode == ProgramMode.Game)
+                SaveWorld();
+        }
     }
 }

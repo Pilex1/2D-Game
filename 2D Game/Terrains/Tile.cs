@@ -62,7 +62,7 @@ namespace Game.Terrains {
         }
 
         #region Special
-        public static readonly Tile Invalid = new Tile(TileEnum.Invalid, new TileAttribs { solid = false, movable = false });
+        public static readonly Tile Invalid = new Tile(TileEnum.Invalid, new TileAttribs { solid = true, movable = false });
         public static readonly Tile Air = new Tile(TileEnum.Air, new TileAttribs { solid = false, movable = false, transparent = true });
         public static readonly Tile Bedrock = new Tile(TileEnum.Bedrock);
         #endregion Special
@@ -77,7 +77,7 @@ namespace Game.Terrains {
         public static readonly Tile Sandstone = new Tile(TileEnum.Sandstone);
         public static readonly Tile Sapling = new Tile(TileEnum.Sapling);
         public static readonly Tile Brick = new Tile(TileEnum.Brick);
-        public static readonly Tile Metal1 = new Tile(TileEnum.Metal1);
+        public static readonly Tile Metal = new Tile(TileEnum.Metal1);
         public static readonly Tile SmoothSlab = new Tile(TileEnum.SmoothSlab);
         public static readonly Tile WeatheredStone = new Tile(TileEnum.WeatheredStone);
         public static readonly Tile FutureMetal = new Tile(TileEnum.FutureMetal);
@@ -88,7 +88,7 @@ namespace Game.Terrains {
         public static readonly Tile Snow = new Tile(TileEnum.Snow);
         public static readonly Tile SnowWood = new Tile(TileEnum.SnowWood);
         public static readonly Tile SnowLeaf = new Tile(TileEnum.SnowLeaf);
-        public static readonly Tile GrassDeco = new Tile(TileEnum.GrassDeco, new TileAttribs { solid = false });
+        public static readonly Tile GrassPlant = new Tile(TileEnum.GrassDeco, new TileAttribs { solid = false });
         #endregion Normal
 
         #region Logic

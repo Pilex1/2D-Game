@@ -51,7 +51,7 @@ namespace Game.Util {
         }
 
         public override string ToString() {
-            return String.Format("{0} / {1}", time, cooldown);
+            return string.Format("{0} / {1}", time, cooldown);
         }
 
     }

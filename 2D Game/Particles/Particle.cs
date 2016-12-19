@@ -19,8 +19,6 @@ namespace Game.Particles {
     [Serializable]
     abstract class Particle : Entity {
 
-        private Vector2 hitboxoffset;
-
         public static void Init() {
             SParc_Damage.Init();
             SParc_Destroy.Init();
@@ -31,16 +29,10 @@ namespace Game.Particles {
 
         public Particle(EntityID model, Vector2 pos) : base(model, pos) {
             Vector2 size = Assets.Models.GetModel(model).size;
-            hitboxoffset = MathUtil.Sqrt2_Offset * size;
-            hitbox = new RectangularHitbox(pos - hitboxoffset, MathUtil.Sqrt2 * size);
             data = new ParticleData();
             data.pos.val = pos;
             data.useGravity = true;
             EntityManager.AddEntity(this);
-        }
-
-        public override void UpdateHitbox() {
-            hitbox.Position = data.pos.val - hitboxoffset;
         }
 
         public override void Update() {

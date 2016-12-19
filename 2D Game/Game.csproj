@@ -55,7 +55,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Asset.cs" />
-    <Compile Include="Core\Item.cs" />
+    <Compile Include="Entities\EntityCage.cs" />
+    <Compile Include="Entities\EntityData.cs" />
+    <Compile Include="Entities\EntityID.cs" />
+    <Compile Include="Items\Item.cs" />
+    <Compile Include="Items\ItemAttribs.cs" />
+    <Compile Include="Items\ItemID.cs" />
     <Compile Include="Core\GameTime.cs" />
     <Compile Include="Core\Input.cs" />
     <Compile Include="Core\Vao.cs" />
@@ -70,16 +75,17 @@
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\Hitbox.cs" />
     <Compile Include="Core\GameLogic.cs" />
-    <Compile Include="Guis\PlayerInventory.cs" />
+    <Compile Include="Items\PlayerInventory.cs" />
     <Compile Include="Guis\Text.cs" />
     <Compile Include="Guis\GameGuiRenderer.cs" />
-    <Compile Include="Guis\Inventory.cs" />
+    <Compile Include="Items\Inventory.cs" />
     <Compile Include="Core\Player.cs" />
     <Compile Include="Core\Program.cs" />
     <Compile Include="Entities\Projectile.cs" />
     <Compile Include="Guis\Label.cs" />
     <Compile Include="Guis\Textbox.cs" />
     <Compile Include="Guis\TextFont.cs" />
+    <Compile Include="Items\RawItem.cs" />
     <Compile Include="Logics\AndGateAttribs.cs" />
     <Compile Include="Logics\LogicData.cs" />
     <Compile Include="Logics\LogicBridgeAttribs.cs" />

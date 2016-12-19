@@ -27,10 +27,6 @@ namespace Game {
             CooldownTimer.AddTimer(shootCooldown);
         }
 
-        public override void UpdateHitbox() {
-            hitbox.Position = data.pos.val;
-        }
-
         public override void Update() {
             UpdatePosition();
             if (!shootCooldown.Ready())
@@ -40,7 +36,7 @@ namespace Game {
             Vector2 vel = Player.ToPlayer(data.pos.val);
             vel.x += MathUtil.RandFloat(Program.Rand, -0.1, 0.1);
             vel /= 5;
-            Projectile proj = new Projectile(data.pos.val, vel, projlife, 0.01f);
+            Projectile proj = new Projectile(data.pos.val, vel, projlife);
 
             if (!Terrain.IsColliding(proj)) EntityManager.AddEntity(proj);
         }

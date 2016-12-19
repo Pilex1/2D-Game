@@ -3,7 +3,7 @@
 in vec2 fuv;
 
 uniform sampler2D texture;
-uniform vec3 colour;
+uniform vec4 colour;
 
 out vec4 fragment;
 
@@ -16,7 +16,7 @@ vec3 hsv2rgb(vec3 c) {
 
 void main(void) {
 	fragment = texture2D(texture, fuv);
-	fragment.xyz *= hsv2rgb(colour);
+	fragment *= colour;
 	if (fragment.a == 0) discard;
 }
 

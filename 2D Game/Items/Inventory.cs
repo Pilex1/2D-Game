@@ -1,18 +1,11 @@
-﻿using Game.Assets;
-using Game.Core;
-using Game.Fonts;
-using Game.Guis;
+﻿using Game.Items;
 using Game.Util;
-using OpenGL;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 
-namespace Game.Interaction {
+namespace Game.Items {
 
     class Inventory {
-
-        public const int MaxItems = 999;
 
         public Item[,] Items;
 
@@ -45,7 +38,7 @@ namespace Game.Interaction {
             var l = new List<Vector2i>();
             for (int j = 0; j < Items.GetLength(1); j++) {
                 for (int i = 0; i < Items.GetLength(0); i++) {
-                    if (Items[i, j].rawitem.id == item.id && Items[i, j].amt < MaxItems)
+                    if (Items[i, j].rawitem.id == item.id && Items[i, j].amt < Items[i,j].rawitem.attribs.stackSize)
                         l.Add(new Vector2i(i, j));
                 }
             }
@@ -89,17 +82,17 @@ namespace Game.Interaction {
             }
         }
 
-        private bool AddAmount(int x, int y, uint amt) {
+        private bool AddAmount(int x, int y, int amt) {
             Items[x, y].amt += amt;
-            if (Items[x, y].amt > MaxItems) {
+            if (Items[x, y].amt > Items[x,y].rawitem.attribs.stackSize) {
                 var l = GetFirstEmptyItemLocation();
                 if (l == null) {
                     Items[x, y].amt -= amt;
                     return false;
                 }
                 var l2 = (Vector2i)l;
-                Items[l2.x, l2.y] = new Item(Items[x, y].rawitem, Items[x, y].amt - MaxItems);
-                Items[x, y].amt = MaxItems;
+                Items[l2.x, l2.y] = new Item(Items[x, y].rawitem, Items[x, y].amt - Items[x,y].rawitem.attribs.stackSize);
+                Items[x, y].amt = Items[x,y].rawitem.attribs.stackSize;
             }
             return true;
         }
@@ -120,7 +113,7 @@ namespace Game.Interaction {
             return RemoveItem(new Item(i, 1));
         }
 
-        public bool RemoveItem(int x, int y, uint amt) {
+        public bool RemoveItem(int x, int y, int amt) {
             if (Items[x, y].amt < amt) return false;
             Items[x, y].amt -= amt;
             if (Items[x, y].amt == 0) Items[x, y] = new Item(RawItem.None, 0);

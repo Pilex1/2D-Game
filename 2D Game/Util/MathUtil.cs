@@ -270,5 +270,13 @@ namespace Game.Util {
         public static Vector2 Vec2FromAngle(float theta) {
             return new Vector2(Math.Cos(theta), Math.Sin(theta));
         }
+
+        public static Matrix4 ModelMatrix(Vector2 scale, float rotation, Vector2 translation) {
+            return ModelMatrix(new Vector3(scale.x, scale.y, 0), new Vector3(0, 0, rotation), new Vector3(translation.x, translation.y, 0));
+        }
+
+        public static Matrix4 ModelMatrix(Vector3 scale, Vector3 rotation, Vector3 translation) {
+            return Matrix4.CreateScaling(scale) * Matrix4.CreateRotationX(rotation.x) * Matrix4.CreateRotationY(rotation.y) * Matrix4.CreateRotationZ(rotation.z) * Matrix4.CreateTranslation(translation);
+        }
     }
 }

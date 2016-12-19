@@ -6,7 +6,7 @@ using Game.Core;
 using Game.Entities;
 using Game.Terrains;
 using Game.Guis;
-using Game.Assets;
+using Game.Items;
 
 namespace Game.Particles {
 

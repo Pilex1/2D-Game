@@ -5,7 +5,7 @@ using System.Drawing;
 namespace Game.Util {
     static class ColourUtil {
         public static Color ColourFromVec3(Vector3 vec) {
-            return Color.FromArgb(1, (int)(vec.x * 255), (int)(vec.y * 255), (int)(vec.z * 255));
+            return Color.FromArgb(255, (int)(vec.x * 255), (int)(vec.y * 255), (int)(vec.z * 255));
         }
         public static Color ColourFromVec4(Vector4 vec) {
             return Color.FromArgb((int)(vec.w * 255), (int)(vec.x * 255), (int)(vec.y * 255), (int)(vec.z * 255));

@@ -52,7 +52,6 @@ namespace Game {
             if (Program.Mode != ProgramMode.Game) return;
             Terrain.CleanUp();
             EntityManager.CleanUp();
-            Player.CleanUp();
         }
     }
 }
