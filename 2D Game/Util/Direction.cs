@@ -21,7 +21,7 @@ namespace Game.Util {
         }
 
         public static Direction FromVector2(Vector2 v) {
-            float angle = MathUtil.Angle(v);
+            float angle = MathUtil.GetAngle(v);
             if (angle >= Math.PI / 4 && angle <= Math.PI * 3 / 4)
                 return Direction.Up;
             if (angle >= Math.PI * 3 / 4 || angle <= -Math.PI * 3 / 4)

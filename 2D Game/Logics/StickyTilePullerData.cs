@@ -67,7 +67,7 @@ namespace Game.Logics {
             processed = new HashSet<Vector2i>();
             var processing = new HashSet<Vector2i>();
 
-            if (Terrain.TileAt(x, y).enumId != TileEnum.Air) return false;
+            if (Terrain.TileAt(x, y).enumId != TileID.Air) return false;
 
             processing.Add(new Vector2i(x, y));
 
@@ -82,12 +82,12 @@ namespace Game.Logics {
 
                     Vector2i lv = new Vector2i(v.x - 1, v.y);
                     Tile l = Terrain.TileAt(lv);
-                    if (lv.x - 1 >= x && l.enumId != TileEnum.Air && !processed.Contains(lv)) {
+                    if (lv.x - 1 >= x && l.enumId != TileID.Air && !processed.Contains(lv)) {
                         processed.Add(lv);
                         Vector2i[] arr = Neighbours(lv);
                         processing.Add(lv);
                         foreach (var a in arr)
-                            if (Terrain.TileAt(a).enumId != TileEnum.Air && a.x - 1 > x)
+                            if (Terrain.TileAt(a).enumId != TileID.Air && a.x - 1 > x)
                                 processing.Add(a);
                     } else {
                         processing.Remove(lv);
@@ -95,12 +95,12 @@ namespace Game.Logics {
 
                     Vector2i rv = new Vector2i(v.x + 1, v.y);
                     Tile r = Terrain.TileAt(rv);
-                    if (rv.x - 1 >= x && r.enumId != TileEnum.Air && !processed.Contains(rv)) {
+                    if (rv.x - 1 >= x && r.enumId != TileID.Air && !processed.Contains(rv)) {
                         processed.Add(rv);
                         Vector2i[] arr = Neighbours(rv);
                         processing.Add(rv);
                         foreach (var a in arr)
-                            if (Terrain.TileAt(a).enumId != TileEnum.Air && a.x - 1 > x)
+                            if (Terrain.TileAt(a).enumId != TileID.Air && a.x - 1 > x)
                                 processing.Add(a);
                     } else {
                         processing.Remove(rv);
@@ -108,12 +108,12 @@ namespace Game.Logics {
 
                     Vector2i uv = new Vector2i(v.x, v.y + 1);
                     Tile u = Terrain.TileAt(uv);
-                    if (uv.x - 1 >= x && u.enumId != TileEnum.Air && !processed.Contains(uv)) {
+                    if (uv.x - 1 >= x && u.enumId != TileID.Air && !processed.Contains(uv)) {
                         processed.Add(uv);
                         Vector2i[] arr = Neighbours(uv);
                         processing.Add(uv);
                         foreach (var a in arr)
-                            if (Terrain.TileAt(a).enumId != TileEnum.Air && a.x - 1 > x)
+                            if (Terrain.TileAt(a).enumId != TileID.Air && a.x - 1 > x)
                                 processing.Add(a);
                     } else {
                         processing.Remove(uv);
@@ -121,12 +121,12 @@ namespace Game.Logics {
 
                     Vector2i dv = new Vector2i(v.x, v.y - 1);
                     Tile d = Terrain.TileAt(dv);
-                    if (dv.x - 1 >= x && d.enumId != TileEnum.Air && !processed.Contains(dv)) {
+                    if (dv.x - 1 >= x && d.enumId != TileID.Air && !processed.Contains(dv)) {
                         processed.Add(dv);
                         Vector2i[] arr = Neighbours(dv);
                         processing.Add(dv);
                         foreach (var a in arr)
-                            if (Terrain.TileAt(a).enumId != TileEnum.Air && a.x - 1 > x)
+                            if (Terrain.TileAt(a).enumId != TileID.Air && a.x - 1 > x)
                                 processing.Add(a);
                     } else {
                         processing.Remove(dv);

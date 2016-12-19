@@ -29,19 +29,19 @@ namespace Game.Logics {
                 SingleTilePusherAttribs singletilepusherdata = logic as SingleTilePusherAttribs;
 
                 if (switchdata != null) {
-                    Terrain.TileAt(v.x, v.y).enumId = switchdata.state ? TileEnum.SwitchOn : TileEnum.SwitchOff;
+                    Terrain.TileAt(v.x, v.y).enumId = switchdata.state ? TileID.SwitchOn : TileID.SwitchOff;
                 } else if (wiredata != null) {
-                    Terrain.TileAt(v.x, v.y).enumId = wiredata.state ? TileEnum.WireOn : TileEnum.WireOff;
+                    Terrain.TileAt(v.x, v.y).enumId = wiredata.state ? TileID.WireOn : TileID.WireOff;
                 } else if (tilepusherdata != null) {
-                    Terrain.TileAt(v.x, v.y).enumId = tilepusherdata.state ? TileEnum.TilePusherOn : TileEnum.TilePusherOff;
+                    Terrain.TileAt(v.x, v.y).enumId = tilepusherdata.state ? TileID.TilePusherOn : TileID.TilePusherOff;
                 } else if (logiclampdata != null) {
-                    Terrain.TileAt(v.x, v.y).enumId = logiclampdata.state ? TileEnum.LogicLampLit : TileEnum.LogicLampUnlit;
+                    Terrain.TileAt(v.x, v.y).enumId = logiclampdata.state ? TileID.LogicLampLit : TileID.LogicLampUnlit;
                 } else if (logicbridgedata != null) {
-                    Terrain.TileAt(v.x, v.y).enumId = logicbridgedata.stateHorz ? (logicbridgedata.stateVert ? TileEnum.WireBridgeHorzVertOn : TileEnum.WireBridgeHorzOn) : (logicbridgedata.stateVert ? TileEnum.WireBridgeVertOn : TileEnum.WireBridgeOff);
+                    Terrain.TileAt(v.x, v.y).enumId = logicbridgedata.stateHorz ? (logicbridgedata.stateVert ? TileID.WireBridgeHorzVertOn : TileID.WireBridgeHorzOn) : (logicbridgedata.stateVert ? TileID.WireBridgeVertOn : TileID.WireBridgeOff);
                 } else if (tilepullerdata != null) {
-                    Terrain.TileAt(v.x, v.y).enumId = tilepullerdata.state ? TileEnum.TilePullerOn : TileEnum.TilePullerOff;
+                    Terrain.TileAt(v.x, v.y).enumId = tilepullerdata.state ? TileID.TilePullerOn : TileID.TilePullerOff;
                 } else if (singletilepusherdata != null) {
-                    Terrain.TileAt(v.x, v.y).enumId = singletilepusherdata.state ? TileEnum.SingleTilePusherOn : TileEnum.SingleTilePusherOff;
+                    Terrain.TileAt(v.x, v.y).enumId = singletilepusherdata.state ? TileID.SingleTilePusherOn : TileID.SingleTilePusherOff;
                 }
             }
         }

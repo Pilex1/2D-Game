@@ -150,8 +150,8 @@ namespace Game.Terrains {
             List<Vector2> uvList = new List<Vector2>((endX - startX) * (endY - startY));
             for (int i = startX; i <= endX; i++) {
                 for (int j = startY; j <= endY; j++) {
-                    if (Tiles[i, j].enumId != TileEnum.Air) {
-                        TileEnum t = Tiles[i, j].enumId;
+                    if (Tiles[i, j].enumId != TileID.Air) {
+                        TileID t = Tiles[i, j].enumId;
 
                         float x = ((float)((int)t % TerrainTextureSize)) / TerrainTextureSize;
                         float y = ((float)((int)t / TerrainTextureSize)) / TerrainTextureSize;
@@ -309,7 +309,7 @@ namespace Game.Terrains {
             if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return true;
             for (int i = 0; i < height; i++) {
                 if (y + i >= Tiles.GetLength(1)) continue;
-                if (Tiles[x, y + i].enumId != TileEnum.Air) return false;
+                if (Tiles[x, y + i].enumId != TileID.Air) return false;
             }
             return true;
         }
@@ -317,7 +317,7 @@ namespace Game.Terrains {
         internal static int HighestPoint(int x) {
             if (x < 0 || x >= Tiles.GetLength(0)) return 0;
             for (int i = Tiles.GetLength(1) - 1; i > 0; i--) {
-                if (Tiles[x, i].enumId != TileEnum.Air) return i + 1;
+                if (Tiles[x, i].enumId != TileID.Air) return i + 1;
             }
             return 1;
         }
@@ -332,7 +332,7 @@ namespace Game.Terrains {
             for (float i = -radius + MathUtil.RandFloat(Rand, -error, error); i <= radius + MathUtil.RandFloat(Rand, -error, error); i++) {
                 for (float j = -radius + MathUtil.RandFloat(Rand, -error, error); j <= radius + MathUtil.RandFloat(Rand, -error, error); j++) {
                     if (i * i + j * j <= radius * radius) {
-                        if (BreakTileNoLightingUpdate((int)(x + i), (int)(j + y)).enumId == TileEnum.Tnt) Explode(x + i, j + y, radius, error);
+                        if (BreakTileNoLightingUpdate((int)(x + i), (int)(j + y)).enumId == TileID.Tnt) Explode(x + i, j + y, radius, error);
                     }
                 }
             }
@@ -342,7 +342,7 @@ namespace Game.Terrains {
 
         internal static void SetTileTerrainGen(int x, int y, Tile tile, bool overwrite) {
             if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return;
-            if (!overwrite && Tiles[x, y].enumId != TileEnum.Air) return;
+            if (!overwrite && Tiles[x, y].enumId != TileID.Air) return;
             FluidAttribs fluid = tile.tileattribs as FluidAttribs;
             if (fluid != null) {
                 FluidDict.Add(new Vector2i(x, y), fluid);
@@ -359,7 +359,7 @@ namespace Game.Terrains {
         private static void SetTileNoUpdate(int x, int y, Tile tile) { SetTile(x, y, tile, false); }
         private static void SetTile(int x, int y, Tile tile, bool update) {
             if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return;
-            if (Tiles[x, y].enumId != TileEnum.Air) return;
+            if (Tiles[x, y].enumId != TileID.Air) return;
 
             //remove this 
             int xmin = (int)Math.Floor(Player.Instance.data.pos.x), xmax = (int)Math.Ceiling(Player.Instance.data.pos.x + Player.Instance.hitbox.Size.x - 1);
@@ -371,7 +371,7 @@ namespace Game.Terrains {
 
             LogicAttribs logic = tile.tileattribs as LogicAttribs;
             if (logic != null && update) {
-                LogicDict.Add(new Vector2i(x, y), logic);
+                LogicDict[new Vector2i(x, y)] = logic;
             }
 
             LightAttribs light = tile.tileattribs as LightAttribs;
@@ -392,8 +392,8 @@ namespace Game.Terrains {
         public static Tile BreakTile(int x, int y) {
             if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return Tile.Invalid;
             Tile tile = TileAt(x, y);
-            if (tile.enumId == TileEnum.Air) return Tile.Air;
-            if (tile.enumId == TileEnum.Bedrock) return Tile.Invalid;
+            if (tile.enumId == TileID.Air) return Tile.Air;
+            if (tile.enumId == TileID.Bedrock) return Tile.Invalid;
 
             LogicDict.Remove(new Vector2i(x, y));
             FluidDict.Remove(new Vector2i(x, y));
@@ -424,8 +424,8 @@ namespace Game.Terrains {
         private static Tile BreakTileNoLightingUpdate(int x, int y) {
             if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return Tile.Invalid;
             Tile tile = TileAt(x, y);
-            if (tile.enumId == TileEnum.Air) return Tile.Air;
-            if (tile.enumId == TileEnum.Bedrock) return Tile.Invalid;
+            if (tile.enumId == TileID.Air) return Tile.Air;
+            if (tile.enumId == TileID.Bedrock) return Tile.Invalid;
             LogicDict.Remove(new Vector2i(x, y));
             FluidDict.Remove(new Vector2i(x, y));
             Tiles[x, y] = Tile.Air;
@@ -446,7 +446,7 @@ namespace Game.Terrains {
             Vector2i v = new Vector2i(x, y);
             switch (dir) {
                 case Direction.Left:
-                    if (TileAt(x - 1, y).enumId == TileEnum.Air) {
+                    if (TileAt(x - 1, y).enumId == TileID.Air) {
                         LogicAttribs logic;
                         if (LogicDict.TryGetValue(v, out logic)) {
                             LogicDict.Remove(v);
@@ -459,7 +459,7 @@ namespace Game.Terrains {
                     }
                     break;
                 case Direction.Right:
-                    if (TileAt(x + 1, y).enumId == TileEnum.Air) {
+                    if (TileAt(x + 1, y).enumId == TileID.Air) {
                         LogicAttribs logic;
                         if (LogicDict.TryGetValue(v, out logic)) {
                             LogicDict.Remove(v);
@@ -472,7 +472,7 @@ namespace Game.Terrains {
                     }
                     break;
                 case Direction.Up:
-                    if (TileAt(x, y + 1).enumId == TileEnum.Air) {
+                    if (TileAt(x, y + 1).enumId == TileID.Air) {
                         LogicAttribs logic;
                         if (LogicDict.TryGetValue(v, out logic)) {
                             LogicDict.Remove(v);
@@ -485,7 +485,7 @@ namespace Game.Terrains {
                     }
                     break;
                 case Direction.Down:
-                    if (TileAt(x, y - 1).enumId == TileEnum.Air) {
+                    if (TileAt(x, y - 1).enumId == TileID.Air) {
                         LogicAttribs logic;
                         if (LogicDict.TryGetValue(v, out logic)) {
                             LogicDict.Remove(v);

@@ -53,20 +53,20 @@ namespace Game.Particles {
             if (slot >= PlayerInventory.Instance.Items.GetLength(0)) slot = 0;
             var item = PlayerInventory.Instance.Items[slot, 0];
             var attribs = item.rawitem.attribs;
-            if (!(attribs is ItemTileAttribs)) return;
-
+            if (!(attribs is Item_Tile_Attribs)) return;
+            Vector2 v = Input.RayCast();
             switch (d) {
                 case Direction.Up:
-                    attribs.Use(PlayerInventory.Instance, new Vector2i(slot, 0), new Vector2(x, y - 1));
+                    attribs.Use(PlayerInventory.Instance, new Vector2i(slot, 0), new Vector2(x, y - 1), v);
                     break;
                 case Direction.Right:
-                    attribs.Use(PlayerInventory.Instance, new Vector2i(slot, 0), new Vector2(x - 1, y));
+                    attribs.Use(PlayerInventory.Instance, new Vector2i(slot, 0), new Vector2(x - 1, y), v);
                     break;
                 case Direction.Down:
-                    attribs.Use(PlayerInventory.Instance, new Vector2i(slot, 0), new Vector2(x, y + 1));
+                    attribs.Use(PlayerInventory.Instance, new Vector2i(slot, 0), new Vector2(x, y + 1), v);
                     break;
                 case Direction.Left:
-                    attribs.Use(PlayerInventory.Instance, new Vector2i(slot, 0), new Vector2(x + 1, y));
+                    attribs.Use(PlayerInventory.Instance, new Vector2i(slot, 0), new Vector2(x + 1, y), v);
                     break;
             }
         }

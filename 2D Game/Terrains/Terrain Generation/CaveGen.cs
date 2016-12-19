@@ -70,8 +70,8 @@ namespace Game.Terrains.Gen {
             for (int i = -radius; i <= radius; i++) {
                 for (int j = -radius; j <= radius; j++) {
                     if (i == 0 && j == 0) continue;
-                    TileEnum enumid = Terrain.TileAt(x + i, y + j).enumId;
-                    if (enumid != TileEnum.Air && enumid != TileEnum.Invalid) count++;
+                    TileID enumid = Terrain.TileAt(x + i, y + j).enumId;
+                    if (enumid != TileID.Air && enumid != TileID.Invalid) count++;
                 }
             }
             return count;

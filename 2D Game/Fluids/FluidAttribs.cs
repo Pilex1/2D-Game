@@ -27,9 +27,9 @@ namespace Game.Fluids {
             //    Spread(x, y);
             //}
 
-            TileEnum below = Terrain.TileAt(x, y - 1).enumId;
+            TileID below = Terrain.TileAt(x, y - 1).enumId;
             FluidAttribs fluid = Terrain.TileAt(x, y - 1).tileattribs as FluidAttribs;
-            if (below == TileEnum.Air || (fluid != null && fluid._height < 1 && below == TileEnum.Water)) {
+            if (below == TileID.Air || (fluid != null && fluid._height < 1 && below == TileID.Water)) {
                 Fall(x, y);
             }
             else {
@@ -45,7 +45,7 @@ namespace Game.Fluids {
                 BoundedFloat.MoveVals(ref _height, ref d._height, viscosity);
             }
             else {
-                if (Terrain.TileAt(x, y - 1).enumId == TileEnum.Air) {
+                if (Terrain.TileAt(x, y - 1).enumId == TileID.Air) {
                     Tile newWater = Tile.Water;
                     FluidAttribs fluid = ((FluidAttribs)newWater.tileattribs);
                     fluid._height.Empty();
@@ -61,14 +61,14 @@ namespace Game.Fluids {
             FluidAttribs l = Terrain.TileAt(x - 1, y).tileattribs as FluidAttribs;
             FluidAttribs r = Terrain.TileAt(x + 1, y).tileattribs as FluidAttribs;
 
-            if (l == null && Terrain.TileAt(x - 1, y).enumId == TileEnum.Air) {
+            if (l == null && Terrain.TileAt(x - 1, y).enumId == TileID.Air) {
                 Tile newWater = Tile.Water;
                 FluidAttribs fluid = ((FluidAttribs)newWater.tileattribs);
                 fluid._height.Empty();
                 Terrain.SetTile(x - 1, y, newWater);
                 l = fluid;
             }
-            if (r == null && Terrain.TileAt(x + 1, y).enumId == TileEnum.Air) {
+            if (r == null && Terrain.TileAt(x + 1, y).enumId == TileID.Air) {
                 Tile newWater = Tile.Water;
                 FluidAttribs fluid = ((FluidAttribs)newWater.tileattribs);
                 fluid._height.Empty();

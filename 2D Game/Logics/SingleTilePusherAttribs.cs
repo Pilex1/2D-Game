@@ -94,7 +94,7 @@ namespace Game.Logics {
                         break;
                 }
 
-                if (t.enumId == TileEnum.Air) break;
+                if (t.enumId == TileID.Air) break;
                 processed.Add(new Vector2i(x, y));
                 if (processed.Count > MaxTiles) return false;
             }

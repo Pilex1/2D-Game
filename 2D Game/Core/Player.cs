@@ -56,7 +56,7 @@ namespace Game.Core {
                     PlayerInventory.Instance.CurrentlySelectedItem().rawitem.attribs.BreakTile(PlayerInventory.Instance, vi);
                 }
                 if (Input.Mouse[Input.MouseRight]) {
-                    PlayerInventory.Instance.CurrentlySelectedItem().rawitem.attribs.Use(PlayerInventory.Instance, new Vector2i(PlayerInventory.Instance.CurSelectedSlot, 0), new Vector2(vi.x, vi.y));
+                    PlayerInventory.Instance.CurrentlySelectedItem().rawitem.attribs.Use(PlayerInventory.Instance, new Vector2i(PlayerInventory.Instance.CurSelectedSlot, 0), new Vector2(vi.x, vi.y), Input.RayCast());
                     Terrain.TileAt(vi.x, vi.y).tileattribs.Interact(vi.x, vi.y);
                 }
                 if (Input.Mouse[Input.MouseMiddle]) {

@@ -259,11 +259,11 @@ namespace Game.Util {
             return val.x >= min.x && val.x <= max.x && val.y >= min.y && val.y <= max.y;
         }
 
-        public static float Angle(Vector2 v) {
+        public static float GetAngle(Vector2 v) {
             return (float)Math.Atan2(v.y, v.x);
         }
 
-        public static float AngleFrom(Vector2 src, Vector2 dest) {
+        public static float GetAngleFrom(Vector2 src, Vector2 dest) {
             return (float)Math.Atan2(dest.y - src.y, dest.x - src.x);
         }
 

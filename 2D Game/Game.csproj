@@ -104,6 +104,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\GameRenderer.cs" />
     <Compile Include="Entities\Shooter.cs" />
+    <Compile Include="Terrains\BounceAttribs.cs" />
+    <Compile Include="Logics\EntitySpawnerAttribs.cs" />
+    <Compile Include="Terrains\LightAttribs.cs" />
     <Compile Include="Terrains\Terrain Generation\CaveGen.cs" />
     <Compile Include="Terrains\Terrain Generation\Desert.cs" />
     <Compile Include="Terrains\ExplosionData.cs" />
@@ -121,6 +124,8 @@
     <Compile Include="Guis\Gui.cs" />
     <Compile Include="Guis\TitleScreenRenderer.cs" />
     <Compile Include="Core\World Serialization\TerrainData.cs" />
+    <Compile Include="Terrains\TileAttribs.cs" />
+    <Compile Include="Terrains\TileID.cs" />
     <Compile Include="Util\BoolSwitch.cs" />
     <Compile Include="Util\BoundedFloat.cs" />
     <Compile Include="Util\ColourUtil.cs" />

@@ -136,7 +136,7 @@ namespace Game.Terrains {
             List<float> lightingsList = new List<float>();
             for (int i = startX; i <= endX; i++) {
                 for (int j = startY; j <= endY; j++) {
-                    if (Terrain.Tiles[i, j].enumId != TileEnum.Air) {
+                    if (Terrain.Tiles[i, j].enumId != TileID.Air) {
                         float val = Lightings[i, j] / LightRadius;
                         lightingsList.AddRange(new float[] {
                             val,val,val,val
