@@ -1,5 +1,6 @@
 ﻿using Game.Terrains;
 using Game.Util;
+using Game.Items;
 using System.Collections.Generic;
 
 namespace Game.Fluids {
@@ -18,8 +19,9 @@ namespace Game.Fluids {
                 if (fluid == null) continue;
                 fluid.Update(f.x, f.y);
 
-                if (fluid.height <= 0.0001f)
-                    Terrain.BreakTile(f);
+                if (fluid.height <= 0.0001f) {
+                    fluid.Destroy(f.x, f.y, PlayerInventory.Instance);
+                }
             }
         }
     }

@@ -62,8 +62,9 @@ namespace Game.Terrains {
         private static void UpdateAround(int x, int y) {
             for (int i = -LightRadius; i <= LightRadius; i++) {
                 for (int j = 0; j < Terrain.Tiles.GetLength(1); j++)
-                    SetLighting(x + i, j, 0);
+                    SetLighting(x + i, j, 0, false);
             }
+
             for (int i = -LightRadius * 2; i <= LightRadius * 2; i++) {
                 SunLighting(x + i);
             }
@@ -80,19 +81,18 @@ namespace Game.Terrains {
                 for (int j = -radius; j <= radius; j++) {
                     if (i * i + j * j <= radiusSq) {
                         float distSq = i * i + j * j;
-                        SetLighting(x + i, y + j, SunStrength * radius * (radiusSq - distSq) / radiusSq);
+                        SetLighting(x + i, y + j, SunStrength * radius * (radiusSq - distSq) / radiusSq, true);
                     }
                 }
             }
         }
 
-        private static void SetLighting(int x, int y, float lighting) {
+        private static void SetLighting(int x, int y, float lighting, bool over) {
             if (x < 0 || x >= Lightings.GetLength(0) || y < 0 || y >= Lightings.GetLength(1)) return;
-            if (lighting > Lightings[x, y]) Lightings[x, y] = lighting;
+            if (!over || (lighting > Lightings[x, y])) Lightings[x, y] = lighting;
         }
 
         public static void AddLight(int x, int y, int strength) {
-            Debug.Assert(strength <= LightRadius);
             ArtificialLight[new Vector2i(x, y)] = strength;
             UpdateAround(x, y);
         }

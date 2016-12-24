@@ -12,7 +12,8 @@ namespace Game.Logics {
         protected LogicAttribs(Func<RawItem> dropItem) : base(dropItem) { }
 
         internal abstract void Update(int x, int y);
-        public override void OnDestroy(int x, int y, Inventory inv) {
+
+        protected override void OnDestroy(int x, int y, Inventory inv) {
             base.OnDestroy(x, y, inv);
             Terrain.LogicDict.Remove(new Vector2i(x, y));
         }

@@ -377,7 +377,7 @@ namespace Game.Terrains {
 
             FluidAttribs fluid = tile.tileattribs as FluidAttribs;
             if (fluid != null) {
-                FluidDict.Add(new Vector2i(x, y), fluid);
+                FluidDict[new Vector2i(x, y)] = fluid;
             }
 
             UpdateMesh = true;

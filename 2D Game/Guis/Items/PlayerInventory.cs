@@ -131,6 +131,7 @@ namespace Game.Items {
             Items[2, row] = new Item(RawItem.Bounce, RawItem.Bounce.attribs.stackSize);
             Items[3, row] = new Item(RawItem.Accelerator, RawItem.Accelerator.attribs.stackSize);
             Items[4, row] = new Item(RawItem.Water, RawItem.Water.attribs.stackSize);
+            Items[5, row] = new Item(RawItem.WardedTile, RawItem.WardedTile.attribs.stackSize);
 
             row++;
             Items[0, row] = new Item(RawItem.Brick, RawItem.Brick.attribs.stackSize);

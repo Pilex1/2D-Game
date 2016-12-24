@@ -12,13 +12,13 @@ namespace Game.Fluids {
         internal BoundedFloat _height;
         public float viscosity { get; private set; }
 
-        protected FluidAttribs(float viscosity) : base(delegate() { return RawItem.None; }) {
+        protected FluidAttribs(float viscosity) : base(delegate () { return RawItem.None; }) {
             base.transparent = true;
             _height = new BoundedFloat(1, 0, 1);
             this.viscosity = viscosity;
         }
 
-        public override void OnDestroy(int x, int y, Inventory inv) {
+        protected override void OnDestroy(int x, int y, Inventory inv) {
             Terrain.FluidDict.Remove(new Vector2i(x, y));
         }
 

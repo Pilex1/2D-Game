@@ -47,7 +47,7 @@ namespace Game.Terrains {
                 OnDestroy(x, y, inv);
             }
         }
-        public virtual void OnDestroy(int x, int y, Inventory inv) {
+        protected virtual void OnDestroy(int x, int y, Inventory inv) {
             inv.AddItem(new Item(dropItem()));
         }
 

@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Game.Entities;
 using Game.Util;
 using Game.Items;
 
 namespace Game.Terrains {
+
+    [Serializable]
     class WardedTileAttribs : TileAttribs {
 
         public WardedTileAttribs() : base(delegate () { return RawItem.WardedTile; }) { }

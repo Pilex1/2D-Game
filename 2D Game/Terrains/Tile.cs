@@ -8,6 +8,7 @@ namespace Game.Terrains {
     [Serializable]
     class Tile {
 
+        #region Init
         private TileID _enumId;
         public TileID enumId {
             get { return _enumId; }
@@ -24,6 +25,7 @@ namespace Game.Terrains {
             this.enumId = enumId;
             this.tileattribs = tileattribs;
         }
+        #endregion
 
         #region Special
         public static readonly Tile Invalid = new Tile(TileID.Invalid, new TileAttribs(delegate () { return RawItem.None; }) { solid = true, movable = false });
