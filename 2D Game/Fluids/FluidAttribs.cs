@@ -1,4 +1,5 @@
-﻿using Game.Terrains;
+﻿using Game.Items;
+using Game.Terrains;
 using Game.Util;
 using System;
 
@@ -11,10 +12,14 @@ namespace Game.Fluids {
         internal BoundedFloat _height;
         public float viscosity { get; private set; }
 
-        protected FluidAttribs(float viscosity) {
+        protected FluidAttribs(float viscosity) : base(delegate() { return RawItem.None; }) {
             base.transparent = true;
             _height = new BoundedFloat(1, 0, 1);
             this.viscosity = viscosity;
+        }
+
+        public override void OnDestroy(int x, int y, Inventory inv) {
+            Terrain.FluidDict.Remove(new Vector2i(x, y));
         }
 
         //flow downwrds, flowing outwards
@@ -31,8 +36,7 @@ namespace Game.Fluids {
             FluidAttribs fluid = Terrain.TileAt(x, y - 1).tileattribs as FluidAttribs;
             if (below == TileID.Air || (fluid != null && fluid._height < 1 && below == TileID.Water)) {
                 Fall(x, y);
-            }
-            else {
+            } else {
                 Spread(x, y);
             }
         }
@@ -43,10 +47,9 @@ namespace Game.Fluids {
             FluidAttribs d = Terrain.TileAt(x, y - 1).tileattribs as FluidAttribs;
             if (d != null) {
                 BoundedFloat.MoveVals(ref _height, ref d._height, viscosity);
-            }
-            else {
+            } else {
                 if (Terrain.TileAt(x, y - 1).enumId == TileID.Air) {
-                    Tile newWater = Tile.Water;
+                    Tile newWater = Tile.Water();
                     FluidAttribs fluid = ((FluidAttribs)newWater.tileattribs);
                     fluid._height.Empty();
                     BoundedFloat.MoveVals(ref _height, ref fluid._height, viscosity);
@@ -62,14 +65,14 @@ namespace Game.Fluids {
             FluidAttribs r = Terrain.TileAt(x + 1, y).tileattribs as FluidAttribs;
 
             if (l == null && Terrain.TileAt(x - 1, y).enumId == TileID.Air) {
-                Tile newWater = Tile.Water;
+                Tile newWater = Tile.Water();
                 FluidAttribs fluid = ((FluidAttribs)newWater.tileattribs);
                 fluid._height.Empty();
                 Terrain.SetTile(x - 1, y, newWater);
                 l = fluid;
             }
             if (r == null && Terrain.TileAt(x + 1, y).enumId == TileID.Air) {
-                Tile newWater = Tile.Water;
+                Tile newWater = Tile.Water();
                 FluidAttribs fluid = ((FluidAttribs)newWater.tileattribs);
                 fluid._height.Empty();
                 Terrain.SetTile(x + 1, y, newWater);
@@ -100,6 +103,6 @@ namespace Game.Fluids {
             return "Amount: " + _height.val;
         }
     }
-    
+
 
 }

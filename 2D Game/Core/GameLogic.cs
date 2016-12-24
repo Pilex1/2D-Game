@@ -1,5 +1,4 @@
-﻿using System;
-using OpenGL;
+﻿using OpenGL;
 using Game.Entities;
 using Game.Terrains;
 using Game.Core;
@@ -7,9 +6,7 @@ using Game.Util;
 using Game.Interaction;
 using System.Text;
 using Game.Core.World_Serialization;
-using Game.Guis;
 using Game.Items;
-using System.Diagnostics;
 using Tao.FreeGlut;
 
 namespace Game {
@@ -124,15 +121,20 @@ namespace Game {
         }
 
         private static string DebugText() {
+            string brk = "--------------";
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Debug - ");
-            sb.AppendLine("FPS: " + GameTime.FPS);
+            sb.AppendLine("Debug");
+            sb.AppendLine(brk);
+            sb.AppendLine(GameTime.FPS+" FPS / " + string.Format("{0:0.0000}", 1000f/GameTime.FPS) +" ms");
+            sb.AppendLine("Loaded Entities: " + EntityManager.LoadedEntities);
+            sb.AppendLine("Logic tiles: " + Terrain.LogicDict.Keys.Count);
+            sb.AppendLine("Fluid tiles: " + Terrain.FluidDict.Keys.Count);
+            sb.AppendLine(brk);
             Vector2 playerpos = Player.Instance.data.pos.val;
             Vector2 playervel = Player.Instance.data.vel.val;
             sb.AppendLine("Position: " + string.Format("{0:0.0000}, {1:0.0000}", playerpos.x, playerpos.y));
             sb.AppendLine("Velocity: " + string.Format("{0:0.0000}, {1:0.0000}", playervel.x, playervel.y));
-            sb.AppendLine("Loaded Entities: " + EntityManager.LoadedEntities);
-            sb.AppendLine("--------------");
+            sb.AppendLine(brk);
             sb.AppendLine(AdditionalDebugText);
             return sb.ToString();
         }

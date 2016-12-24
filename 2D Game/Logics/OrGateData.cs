@@ -1,4 +1,5 @@
-﻿using Game.Util;
+﻿using Game.Items;
+using Game.Util;
 using System;
 using System.Text;
 
@@ -9,7 +10,7 @@ namespace Game.Logics {
     [Serializable]
     class OrGateAttribs : PowerTransmitterData {
 
-        public OrGateAttribs() {
+        public OrGateAttribs() : base(delegate () { return RawItem.GateOr; }) {
             poweroutL.max = poweroutU.max = poweroutD.max = 0;
             poweroutR.max = 64;
 
@@ -29,7 +30,7 @@ namespace Game.Logics {
             BoundedFloat.MoveVals(ref powerinU, ref bufferPower, powerinU);
             BoundedFloat.MoveVals(ref powerinD, ref bufferPower, powerinD);
 
-            base.EmptyInputs();
+            EmptyInputs();
 
             base.EmptyOutputs();
 

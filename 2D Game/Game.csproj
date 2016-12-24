@@ -23,7 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IntermediateOutputPath>C:\Users\Brain\AppData\Local\Temp\vs38B9.tmp\Debug\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\Brain\AppData\Local\Temp\vs1D0C.tmp\Debug\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,7 +33,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IntermediateOutputPath>C:\Users\Brain\AppData\Local\Temp\vs38B9.tmp\Release\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\Brain\AppData\Local\Temp\vs1D0C.tmp\Release\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -55,9 +55,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Asset.cs" />
+    <Compile Include="Entities\AutoDart.cs" />
     <Compile Include="Entities\EntityCage.cs" />
     <Compile Include="Entities\EntityData.cs" />
     <Compile Include="Entities\EntityID.cs" />
+    <Compile Include="Entities\Warder.cs" />
     <Compile Include="Items\Item.cs" />
     <Compile Include="Items\ItemAttribs.cs" />
     <Compile Include="Items\ItemID.cs" />
@@ -87,6 +89,7 @@
     <Compile Include="Guis\TextFont.cs" />
     <Compile Include="Items\RawItem.cs" />
     <Compile Include="Logics\AndGateAttribs.cs" />
+    <Compile Include="Logics\AutoShooterAttribs.cs" />
     <Compile Include="Logics\LogicData.cs" />
     <Compile Include="Logics\LogicBridgeAttribs.cs" />
     <Compile Include="Logics\LogicLampData.cs" />
@@ -126,6 +129,7 @@
     <Compile Include="Core\World Serialization\TerrainData.cs" />
     <Compile Include="Terrains\TileAttribs.cs" />
     <Compile Include="Terrains\TileID.cs" />
+    <Compile Include="Terrains\WardedTileAttribs.cs" />
     <Compile Include="Util\BoolSwitch.cs" />
     <Compile Include="Util\BoundedFloat.cs" />
     <Compile Include="Util\ColourUtil.cs" />

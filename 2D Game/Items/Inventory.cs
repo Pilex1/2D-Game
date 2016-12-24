@@ -1,5 +1,4 @@
-﻿using Game.Items;
-using Game.Util;
+﻿using Game.Util;
 using System;
 using System.Collections.Generic;
 
@@ -68,6 +67,7 @@ namespace Game.Items {
         }
 
         public bool AddItem(Item i) {
+            if (i.rawitem.id == ItemID.None) return false;
             var l = GetFirstNonFullItemLocations(i.rawitem);
             if (l == null) {
                 var e = GetFirstEmptyItemLocation();

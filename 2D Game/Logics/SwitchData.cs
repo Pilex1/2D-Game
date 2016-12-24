@@ -2,6 +2,7 @@
 using Game.Util;
 using Game.Terrains;
 using System.Text;
+using Game.Items;
 
 namespace Game.Logics {
 
@@ -15,13 +16,13 @@ namespace Game.Logics {
 
         private BoundedFloat src = new BoundedFloat(0, 0, 256);
 
-        public SwitchAttribs() {
+        public SwitchAttribs() : base(delegate () { return RawItem.Switch; }) {
             poweroutL.max = poweroutR.max = poweroutU.max = poweroutD.max = src.max;
             state = new BoolSwitch(false);
         }
 
 
-        public override void Interact(int x, int y) {
+        public override void OnInteract(int x, int y) {
             if (cooldown == null)
                 cooldown = new CooldownTimer(20);
 
@@ -52,6 +53,7 @@ namespace Game.Logics {
             if (u != null) BoundedFloat.MoveVals(ref poweroutU, ref u.powerinD, poweroutU.val);
             if (d != null) BoundedFloat.MoveVals(ref poweroutD, ref d.powerinU, poweroutD.val);
 
+            Terrain.TileAt(x, y).enumId = state ? TileID.SwitchOn : TileID.SwitchOff;
         }
 
         public override string ToString() {

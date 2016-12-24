@@ -15,12 +15,9 @@ namespace Game {
             data.jumppower = 0;
             data.life = new BoundedFloat(100, 0, 100);
             data.vel.val = velocity;
-            data.useGravity = false;
+            data.grav = 0;
             data.calcTerrainCollisions = false;
             data.airResis = 1;
-        }
-
-        public override void InitTimers() {
         }
 
         public override void OnTerrainCollision(int x, int y, Direction d, Tile t) {

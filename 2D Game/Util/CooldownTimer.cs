@@ -10,9 +10,8 @@ namespace Game.Util {
         private static HashSet<CooldownTimer> Timers = new HashSet<CooldownTimer>();
 
         private float cooldown;
-
-        [NonSerialized]
         private float time = 0;
+
         public CooldownTimer(float cooldown) {
             this.cooldown = cooldown;
             Timers.Add(this);
@@ -29,15 +28,6 @@ namespace Game.Util {
         public void SetTime(float time) {
             this.time = time;
         }
-
-        public static void AddTimer(CooldownTimer t) {
-            Timers.Add(t);
-        }
-
-        public static void Update() {
-            foreach (var t in Timers) t.UpdateInstance();
-        }
-
         public float GetTime() {
             return time;
         }
@@ -46,13 +36,20 @@ namespace Game.Util {
             return cooldown;
         }
 
-        private void UpdateInstance() {
-            time += GameTime.DeltaTime;
-        }
-
         public override string ToString() {
             return string.Format("{0} / {1}", time, cooldown);
         }
 
+
+        private void UpdateInstance() {
+            time += GameTime.DeltaTime;
+        }
+        public static void AddTimer(CooldownTimer t) {
+            Timers.Add(t);
+        }
+
+        public static void Update() {
+            foreach (var t in Timers) t.UpdateInstance();
+        }
     }
 }

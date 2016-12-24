@@ -1,7 +1,6 @@
 ﻿using Game.Core;
 using Game.Entities;
 using Game.Terrains;
-using Game.Util;
 using OpenGL;
 using System;
 
@@ -31,7 +30,6 @@ namespace Game.Particles {
             Vector2 size = Assets.Models.GetModel(model).size;
             data = new ParticleData();
             data.pos.val = pos;
-            data.useGravity = true;
             EntityManager.AddEntity(this);
         }
 

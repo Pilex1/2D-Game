@@ -1,4 +1,5 @@
-﻿using Game.Terrains;
+﻿using Game.Items;
+using Game.Terrains;
 using Game.Util;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace Game.Logics {
 
         public bool state { get; private set; }
 
-        public StickyTilePullerAttribs() {
+        public StickyTilePullerAttribs() : base(delegate () { return RawItem.StickyTilePuller; }) {
             powerinL.max = powerinR.max = powerinU.max = powerinD.max = 64;
             cooldown = new CooldownTimer(40);
             cost = 8;
@@ -28,10 +29,7 @@ namespace Game.Logics {
 
             BoundedFloat buffer = new BoundedFloat(0, 0, cost);
 
-            powerInLCache = powerinL.val;
-            powerInRCache = powerinR.val;
-            powerInUCache = powerinU.val;
-            powerInDCache = powerinD.val;
+            CachePowerLevels();
 
             if (powerinL + powerinR + powerinU + powerinD >= buffer.max) {
                 BoundedFloat.MoveVals(ref powerinL, ref buffer, powerinL);
@@ -40,7 +38,7 @@ namespace Game.Logics {
                 BoundedFloat.MoveVals(ref powerinD, ref buffer, powerinD);
             }
 
-            base.EmptyInputs();
+            EmptyInputs();
 
 
             if (buffer.IsFull()) {
@@ -59,6 +57,8 @@ namespace Game.Logics {
             } else {
                 state = false;
             }
+
+            Terrain.TileAt(x, y).enumId = state ? TileID.TilePullerOn : TileID.TilePullerOff;
         }
 
         //returns false if tiles cannot be moved, else returns true

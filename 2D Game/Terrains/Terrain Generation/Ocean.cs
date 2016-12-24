@@ -34,7 +34,7 @@ namespace Game.Terrains.Gen {
 
             for (int x = posX; x < posX + size * TerrainGen.widthfactor; x++) {
                 for (int y = Terrain.HighestPoint(x) + 1; y < TerrainGen.minlandheight; y++) {
-                    Terrain.SetTileTerrainGen(x, y, Tile.Water, false);
+                    Terrain.SetTileTerrainGen(x, y, Tile.Water(), false);
                 }
             }
 

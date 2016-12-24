@@ -1,6 +1,8 @@
 ﻿using System;
 using Game.Util;
 using System.Text;
+using Game.Terrains;
+using Game.Items;
 
 namespace Game.Logics {
 
@@ -9,7 +11,7 @@ namespace Game.Logics {
 
         public bool state { get; private set; }
 
-        public WireAttribs() {
+        public WireAttribs() : base(delegate () { return RawItem.Wire; }) {
             poweroutL.max = poweroutR.max = poweroutU.max = poweroutD.max = 64;
             powerinL.max = powerinR.max = powerinU.max = powerinD.max = 64;
             transparent = true;
@@ -30,7 +32,7 @@ namespace Game.Logics {
             BoundedFloat.MoveVals(ref powerinU, ref buffer, powerinU.val);
             BoundedFloat.MoveVals(ref powerinD, ref buffer, powerinD.val);
 
-            base.EmptyInputs();
+            EmptyInputs();
 
             buffer -= dissipate;
 
@@ -62,6 +64,8 @@ namespace Game.Logics {
             state = poweroutL > 0 || poweroutR > 0 || poweroutU > 0 || poweroutD > 0;
 
             base.UpdateAll(x, y);
+
+            Terrain.TileAt(x, y).enumId = state ? TileID.WireOn : TileID.WireOff;
         }
 
         public override string ToString() {

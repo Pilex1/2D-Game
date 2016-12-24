@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Game.Items;
+using System;
 
 namespace Game.Terrains {
     [Serializable]
     class LightAttribs : TileAttribs {
         public int intensity { get; private set; }
 
-        public LightAttribs(int intensity) {
+        public LightAttribs(Func<RawItem> dropItem, int intensity) : base(dropItem) {
             this.intensity = intensity;
         }
     }

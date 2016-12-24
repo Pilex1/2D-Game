@@ -5,7 +5,6 @@ using Game.Util;
 using Game.Core;
 using Game.Entities;
 using Game.Terrains;
-using Game.Guis;
 using Game.Items;
 
 namespace Game.Particles {
@@ -106,10 +105,10 @@ namespace Game.Particles {
                 int x = (int)data.pos.x;
                 int y = (int)data.pos.y;
 
-                Terrain.SetTile(x - 1, y, Tile.Water);
-                Terrain.SetTile(x + 1, y, Tile.Water);
-                Terrain.SetTile(x, y + 1, Tile.Water);
-                Terrain.SetTile(x, y - 1, Tile.Water);
+                Terrain.SetTile(x - 1, y, Tile.Water());
+                Terrain.SetTile(x + 1, y, Tile.Water());
+                Terrain.SetTile(x, y + 1, Tile.Water());
+                Terrain.SetTile(x, y - 1, Tile.Water());
 
                 EntityManager.RemoveEntity(this);
 
@@ -127,7 +126,7 @@ namespace Game.Particles {
             : base(EntityID.ParticleGreen, pos, vel) {
             data.life = new BoundedFloat(100, 0, 100);
             data.airResis = 1f;
-            data.useGravity = false;
+            data.grav = 0;
         }
 
         internal static new void Init() {
@@ -165,7 +164,7 @@ namespace Game.Particles {
         private SParc_Destroy(Vector2 pos, Vector2 vel)
             : base(EntityID.ParticleRed, pos, vel) {
             data.airResis = 1f;
-            data.useGravity = false;
+            data.grav = 0;
             data.life = new BoundedFloat(100, 0, 100);
         }
 
@@ -182,7 +181,7 @@ namespace Game.Particles {
         }
 
         public override void OnTerrainCollision(int x, int y, Direction d, Tile t) {
-            PlayerInventory.Instance.CurrentlySelectedItem().rawitem.attribs.BreakTile(PlayerInventory.Instance, new Vector2i(x, y));
+            t.tileattribs.Destroy(x, y, PlayerInventory.Instance);
             data.life.val -= 10;
         }
     }
@@ -196,7 +195,6 @@ namespace Game.Particles {
             : base(EntityID.ParticlePurple, pos, vel) {
             data.airResis = 0.999f;
             data.grav = 0.01f;
-            data.useGravity = true;
             data.life = new BoundedFloat(100, 0, 100);
         }
 
@@ -219,7 +217,7 @@ namespace Game.Particles {
             foreach (Entity e in colliding) {
                 if (e is Player) continue;
                 if (e is Particle) continue;
-                e.Damage(1f);
+                e.Damage(10f);
                 e.data.vel.val *= -10;
                 e.UpdatePosition();
                 e.data.vel.val /= -10;

@@ -2,8 +2,6 @@
 using Game.Core;
 using Game.Fonts;
 using Game.Guis;
-using Game.Interaction;
-using Game.Items;
 using Game.Util;
 using OpenGL;
 using System.Drawing;
@@ -130,6 +128,9 @@ namespace Game.Items {
             row++;
             Items[0, row] = new Item(RawItem.Sapling, RawItem.Sapling.attribs.stackSize);
             Items[1, row] = new Item(RawItem.GrassDeco, RawItem.GrassDeco.attribs.stackSize);
+            Items[2, row] = new Item(RawItem.Bounce, RawItem.Bounce.attribs.stackSize);
+            Items[3, row] = new Item(RawItem.Accelerator, RawItem.Accelerator.attribs.stackSize);
+            Items[4, row] = new Item(RawItem.Water, RawItem.Water.attribs.stackSize);
 
             row++;
             Items[0, row] = new Item(RawItem.Brick, RawItem.Brick.attribs.stackSize);
@@ -140,11 +141,6 @@ namespace Game.Items {
             Items[5, row] = new Item(RawItem.Marble, RawItem.Marble.attribs.stackSize);
             Items[6, row] = new Item(RawItem.PlexSpecial, RawItem.PlexSpecial.attribs.stackSize);
             Items[7, row] = new Item(RawItem.Sandstone, RawItem.Sandstone.attribs.stackSize);
-
-            row++;
-            Items[0, row] = new Item(RawItem.Bounce, RawItem.Bounce.attribs.stackSize);
-            Items[1, row] = new Item(RawItem.Accelerator, RawItem.Accelerator.attribs.stackSize);
-            Items[2, row] = new Item(RawItem.Water, RawItem.Water.attribs.stackSize);
 
             row++;
             Items[0, row] = new Item(RawItem.Tnt, RawItem.Tnt.attribs.stackSize);
@@ -165,6 +161,10 @@ namespace Game.Items {
             Items[5, row] = new Item(RawItem.GateNot, RawItem.GateNot.attribs.stackSize);
             Items[6, row] = new Item(RawItem.LogicLamp, RawItem.LogicLamp.attribs.stackSize);
             Items[7, row] = new Item(RawItem.SingleTilePusher, RawItem.SingleTilePusher.attribs.stackSize);
+            Items[8, row] = new Item(RawItem.EntitySpawner, RawItem.EntitySpawner.attribs.stackSize);
+
+            row++;
+            Items[0, row] = new Item(RawItem.AutoShooter, RawItem.AutoShooter.attribs.stackSize);
         }
 
         #endregion

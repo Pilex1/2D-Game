@@ -18,9 +18,8 @@ namespace Game.Entities {
             dmgTimer = new CooldownTimer(50);
             data.speed = 0;
             data.jumppower = 0;
-            data.useGravity = true;
             data.airResis = 0.99f;
-            data.life = new BoundedFloat(10, 0, 10);
+            data.life = new BoundedFloat(50, 0, 50);
         }
 
         public override void InitTimers() {

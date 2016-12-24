@@ -9,6 +9,7 @@ using Game.Logics;
 using Game.Core;
 using Game.Fluids;
 using Game.Terrains.Gen;
+using Game.Items;
 
 namespace Game.Terrains {
 
@@ -332,7 +333,7 @@ namespace Game.Terrains {
             for (float i = -radius + MathUtil.RandFloat(Rand, -error, error); i <= radius + MathUtil.RandFloat(Rand, -error, error); i++) {
                 for (float j = -radius + MathUtil.RandFloat(Rand, -error, error); j <= radius + MathUtil.RandFloat(Rand, -error, error); j++) {
                     if (i * i + j * j <= radius * radius) {
-                        if (BreakTileNoLightingUpdate((int)(x + i), (int)(j + y)).enumId == TileID.Tnt) Explode(x + i, j + y, radius, error);
+                        if (BreakTileNoLightingUpdate((int)(x + i), (int)(j + y), null).enumId == TileID.Tnt) Explode(x + i, j + y, radius, error);
                     }
                 }
             }
@@ -361,11 +362,6 @@ namespace Game.Terrains {
             if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return;
             if (Tiles[x, y].enumId != TileID.Air) return;
 
-            //remove this 
-            int xmin = (int)Math.Floor(Player.Instance.data.pos.x), xmax = (int)Math.Ceiling(Player.Instance.data.pos.x + Player.Instance.hitbox.Size.x - 1);
-            int ymin = (int)Math.Floor(Player.Instance.data.pos.y), ymax = (int)Math.Ceiling(Player.Instance.data.pos.y + Player.Instance.hitbox.Size.y - 1);
-            if (x >= xmin && x <= xmax && y >= ymin && y <= ymax) return;
-            //
 
             Tiles[x, y] = tile;
 
@@ -395,8 +391,6 @@ namespace Game.Terrains {
             if (tile.enumId == TileID.Air) return Tile.Air;
             if (tile.enumId == TileID.Bedrock) return Tile.Invalid;
 
-            LogicDict.Remove(new Vector2i(x, y));
-            FluidDict.Remove(new Vector2i(x, y));
             Lighting.RemoveLight(x, y);
 
             Tiles[x, y] = Tile.Air;
@@ -415,19 +409,12 @@ namespace Game.Terrains {
         public static Tile BreakTile(Vector2i v) {
             return BreakTile(v.x, v.y);
         }
-        public static Tile BreakTile(Vector2 v) {
-            return BreakTile(v.x, v.y);
-        }
-        public static Tile BreakTile(float x, float y) {
-            return BreakTile((int)x, (int)y);
-        }
-        private static Tile BreakTileNoLightingUpdate(int x, int y) {
+        private static Tile BreakTileNoLightingUpdate(int x, int y, Inventory inv) {
             if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return Tile.Invalid;
             Tile tile = TileAt(x, y);
             if (tile.enumId == TileID.Air) return Tile.Air;
             if (tile.enumId == TileID.Bedrock) return Tile.Invalid;
-            LogicDict.Remove(new Vector2i(x, y));
-            FluidDict.Remove(new Vector2i(x, y));
+            tile.tileattribs.Destroy(x, y, inv);
             Tiles[x, y] = Tile.Air;
             UpdateMesh = true;
 

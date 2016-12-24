@@ -1,26 +1,40 @@
-﻿using Game.Terrains;
+﻿using Game.Items;
+using Game.Terrains;
 using Game.Util;
 using System;
+using System.Text;
 
 namespace Game.Logics {
 
     [Serializable]
-    internal abstract class LogicAttribs : TileAttribs {
+    abstract class LogicAttribs : TileAttribs {
+
+        protected LogicAttribs(Func<RawItem> dropItem) : base(dropItem) { }
+
         internal abstract void Update(int x, int y);
+        public override void OnDestroy(int x, int y, Inventory inv) {
+            base.OnDestroy(x, y, inv);
+            Terrain.LogicDict.Remove(new Vector2i(x, y));
+        }
     }
 
     [Serializable]
     internal abstract class PowerSourceData : LogicAttribs {
+
+        protected PowerSourceData(Func<RawItem> dropItem) : base(dropItem) { }
 
         //power available to draw from each side
         protected BoundedFloat poweroutL = BoundedFloat.Zero;
         protected BoundedFloat poweroutR = BoundedFloat.Zero;
         protected BoundedFloat poweroutU = BoundedFloat.Zero;
         protected BoundedFloat poweroutD = BoundedFloat.Zero;
+
     }
 
     [Serializable]
     internal abstract class PowerTransmitterData : LogicAttribs {
+
+        protected PowerTransmitterData(Func<RawItem> dropItem) : base(dropItem) { }
 
         //power on each side
         protected BoundedFloat poweroutL = BoundedFloat.Zero;
@@ -127,6 +141,8 @@ namespace Game.Logics {
     [Serializable]
     internal abstract class PowerDrainData : LogicAttribs {
 
+        protected PowerDrainData(Func<RawItem> dropItem) : base(dropItem) { }
+
         //power received
         internal BoundedFloat powerinL = BoundedFloat.Zero;
         internal BoundedFloat powerinR = BoundedFloat.Zero;
@@ -142,6 +158,27 @@ namespace Game.Logics {
             powerinR.Empty();
             powerinU.Empty();
             powerinD.Empty();
+        }
+
+        protected void CachePowerLevels() {
+            powerInLCache = powerinL.val;
+            powerInRCache = powerinR.val;
+            powerInUCache = powerinU.val;
+            powerInDCache = powerinD.val;
+        }
+
+        public override string ToString() {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(string.Format("Required: {0}", cost));
+            if (powerinL.max > 0)
+                sb.AppendLine(string.Format("Left: In {0}", powerInLCache));
+            if (powerinR.max > 0)
+                sb.AppendLine(string.Format("Right: In {0}", powerInRCache));
+            if (powerinU.max > 0)
+                sb.AppendLine(string.Format("Up: In {0}", powerInUCache));
+            if (powerinD.max > 0)
+                sb.AppendLine(string.Format("Down: In {0}", powerInDCache));
+            return sb.ToString();
         }
 
     }

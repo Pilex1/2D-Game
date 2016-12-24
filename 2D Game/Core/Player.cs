@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
-using Tao.FreeGlut;
 using OpenGL;
 using Game.Entities;
-using Game.Interaction;
 using Game.Terrains;
 using Game.Util;
 using Game.Terrains.Gen;
-using Game.Guis;
 using Game.Items;
 
 namespace Game.Core {
@@ -24,10 +21,6 @@ namespace Game.Core {
             data.speed = 0.08f;
             data.jumppower = 0.5f;
             data.life = new BoundedFloat(20, 0, 20);
-        }
-
-        public override void InitTimers() {
-
         }
 
         public static void CreateNew() {
@@ -53,11 +46,11 @@ namespace Game.Core {
                 GameLogic.AdditionalDebugText = tile.ToString() + Environment.NewLine + tile.tileattribs.ToString();
 
                 if (Input.Mouse[Input.MouseLeft]) {
-                    PlayerInventory.Instance.CurrentlySelectedItem().rawitem.attribs.BreakTile(PlayerInventory.Instance, vi);
+                    tile.tileattribs.Destroy(vi.x, vi.y, PlayerInventory.Instance);
                 }
                 if (Input.Mouse[Input.MouseRight]) {
                     PlayerInventory.Instance.CurrentlySelectedItem().rawitem.attribs.Use(PlayerInventory.Instance, new Vector2i(PlayerInventory.Instance.CurSelectedSlot, 0), new Vector2(vi.x, vi.y), Input.RayCast());
-                    Terrain.TileAt(vi.x, vi.y).tileattribs.Interact(vi.x, vi.y);
+                    Terrain.TileAt(vi.x, vi.y).tileattribs.OnInteract(vi.x, vi.y);
                 }
                 if (Input.Mouse[Input.MouseMiddle]) {
 

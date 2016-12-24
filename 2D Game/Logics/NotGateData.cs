@@ -1,4 +1,5 @@
-﻿using Game.Util;
+﻿using Game.Items;
+using Game.Util;
 using System;
 using System.Text;
 
@@ -11,7 +12,7 @@ namespace Game.Logics {
 
         private BoundedFloat src = new BoundedFloat(0, 0, 256);
 
-        public NotGateAttribs() {
+        public NotGateAttribs() : base(delegate () { return RawItem.GateNot; }) {
             poweroutL.max = poweroutU.max = poweroutD.max = 0;
             poweroutR.max = src.max;
 
@@ -31,7 +32,7 @@ namespace Game.Logics {
                 poweroutR.val = src.max;
             }
 
-            base.EmptyInputs();
+            EmptyInputs();
 
             base.powerOutRCache = poweroutR;
 

@@ -65,14 +65,8 @@ namespace Game.Guis {
 
 
             text.style.colour = colour =
-            //disabled
-            disabled ? new Vector3(0.25, 0.25, 0.25) :
-
-            //hovered over
-            hoveredover ? new Vector3(0.75, 0.75, 0.75) :
-
-            //active
-            new Vector3(1, 1, 1);
+            !disabled ? new Vector3(1, 1, 1) :
+            hoveredover ? new Vector3(0.75, 0.75, 0.75) : new Vector3(0.5, 0.5, 0.5);
 
             if (disabled) {
                 if (text.ToString().EndsWith("_")) {

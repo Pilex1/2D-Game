@@ -17,11 +17,12 @@ namespace Game {
         public Shooter(Vector2 position, int shootCooldown, int projlife) : base(EntityID.Shooter, position) {
             data.speed = 0;
             data.jumppower = 0;
-            data.useGravity = true;
-            data.life = new BoundedFloat(10, 0, 10);
+            data.life = new BoundedFloat(50, 0, 50);
             this.shootCooldown = new CooldownTimer(shootCooldown);
             this.projlife = projlife;
         }
+
+        public Shooter(Vector2 position) : this(position, 100, 250) { }
 
         public override void InitTimers() {
             CooldownTimer.AddTimer(shootCooldown);

@@ -63,10 +63,13 @@ namespace Game.Items {
         public static readonly RawItem SingleTilePusher = new RawItem(ItemID.SingleTilePusher, new Item_DirectionalTile_Attribs("Single Tile Pusher", Tile.SingleTilePusher));
         public static readonly RawItem TileBreaker = new RawItem(ItemID.TileBreaker, new Item_DirectionalTile_Attribs("Tile Breaker", Tile.TileBreaker));
         public static readonly RawItem EntitySpawner = new RawItem(ItemID.EntitySpawner, new Item_DataTile_Attribs("Entity Spawner", Tile.EntitySpawner));
+        public static readonly RawItem AutoShooter = new RawItem(ItemID.AutoShooter, new Item_DataTile_Attribs("Auto Shooter", Tile.AutoShooter));
         #endregion
 
+        public static readonly RawItem WardedTile = new RawItem(ItemID.WardedTile, new Item_Tile_Attribs("Warded Tile", Tile.WardedTile));
+
         #region Fluids
-        public static readonly RawItem Water = new RawItem(ItemID.Water, new ItemFluidAttribs("Water", Tile.Water));
+        public static readonly RawItem Water = new RawItem(ItemID.Water, new Item_Fluid_Attribs("Water", Tile.Water));
         #endregion
 
         #region Weapons

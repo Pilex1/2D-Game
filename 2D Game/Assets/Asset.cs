@@ -86,19 +86,24 @@ namespace Game.Assets {
         internal static void Init() {
             EntityModels = new EntityModel[255];
 
-            EntityModels[(int)EntityID.ShooterProjectile] = EntityModel.CreateRectangle(new Vector2(1, 1), EntityID.ShooterProjectile);
-            float particlesize = 0.5f;
-            EntityModels[(int)EntityID.ParticlePurple] = EntityModel.CreateRectangle(new Vector2(particlesize, particlesize), EntityID.ParticlePurple);
-            EntityModels[(int)EntityID.ParticleRed] = EntityModel.CreateRectangle(new Vector2(particlesize, particlesize), EntityID.ParticleRed);
-            EntityModels[(int)EntityID.ParticleGreen] = EntityModel.CreateRectangle(new Vector2(particlesize, particlesize), EntityID.ParticleGreen);
-            EntityModels[(int)EntityID.ParticleBlue] = EntityModel.CreateRectangle(new Vector2(particlesize, particlesize), EntityID.ParticleBlue);
-            EntityModels[(int)EntityID.ParticleYellow] = EntityModel.CreateRectangle(new Vector2(particlesize, particlesize), EntityID.ParticleYellow);
-            EntityModels[(int)EntityID.Squisher] = EntityModel.CreateRectangle(new Vector2(1, 1), EntityID.Squisher);
             EntityModels[(int)EntityID.HitboxOutline] = EntityModel.CreateHitboxRectangle();
-            EntityModels[(int)EntityID.Shooter] = EntityModel.CreateRectangle(new Vector2(1, 2), EntityID.Shooter);
-            EntityModels[(int)EntityID.Player] = EntityModel.CreateRectangle(new Vector2(1, 2), EntityID.Player);
-            EntityModels[(int)EntityID.PlayerSimple] = EntityModel.CreateRectangle(new Vector2(1, 2), EntityID.PlayerSimple);
-            EntityModels[(int)EntityID.EntityCage] = EntityModel.CreateRectangle(new Vector2(1, 1), EntityID.EntityCage);
+            Add(new Vector2(1, 1), EntityID.ShooterProjectile);
+            Add(new Vector2(0.5, 0.5), EntityID.ParticlePurple);
+            Add(new Vector2(0.5, 0.5), EntityID.ParticleRed);
+            Add(new Vector2(0.5, 0.5), EntityID.ParticleGreen);
+            Add(new Vector2(0.5, 0.5), EntityID.ParticleBlue);
+            Add(new Vector2(0.5, 0.5), EntityID.ParticleYellow);
+            Add(new Vector2(1, 1), EntityID.Squisher);
+            Add(new Vector2(1, 2), EntityID.Shooter);
+            Add(new Vector2(1, 2), EntityID.Player);
+            Add(new Vector2(1, 2), EntityID.PlayerSimple);
+            Add(new Vector2(1, 2), EntityID.EntityCage);
+            Add(new Vector2(1, 1), EntityID.AutoDart);
+                 
+        }
+
+        private static void Add(Vector2 size, EntityID id) {
+            EntityModels[(int)id] = EntityModel.CreateRectangle(size, id);
         }
 
         public static EntityModel GetModel(EntityID id) {

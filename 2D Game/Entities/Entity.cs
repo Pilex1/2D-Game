@@ -39,18 +39,12 @@ namespace Game.Entities {
             data.vel.x += data.speed * GameTime.DeltaTime;
         }
         public void Jump() {
-            if (data.useGravity) {
-                if (!data.InAir) {
-                    data.vel.y = data.jumppower;
-                }
-            } else {
+            if (!data.InAir) {
                 data.vel.y = data.jumppower;
             }
         }
         public void Fall() {
-            if (!data.useGravity) {
-                data.vel.y = -data.jumppower;
-            }
+            data.vel.y = -data.jumppower;
         }
 
         private void UpdateX(float x) {
@@ -61,12 +55,12 @@ namespace Game.Entities {
             if (Terrain.WillCollide(this, offset, out col, out colx, out coly)) {
                 if (x >= 0) {
                     if (data.calcTerrainCollisions)
-                        col.tileattribs.OnTerrainIntersect(colx, coly, Direction.Right, this);
+                        col.tileattribs.OnEntityCollision(colx, coly, Direction.Right, this);
 
                     OnTerrainCollision(colx, coly, Direction.Right, col);
                 } else {
                     if (data.calcTerrainCollisions)
-                        col.tileattribs.OnTerrainIntersect(colx, coly, Direction.Left, this);
+                        col.tileattribs.OnEntityCollision(colx, coly, Direction.Left, this);
 
                     OnTerrainCollision(colx, coly, Direction.Left, col);
                 }
@@ -83,12 +77,12 @@ namespace Game.Entities {
             if (Terrain.WillCollide(this, offset, out col, out colx, out coly)) {
                 if (y >= 0) {
                     if (data.calcTerrainCollisions)
-                        col.tileattribs.OnTerrainIntersect(colx, coly, Direction.Up, this);
+                        col.tileattribs.OnEntityCollision(colx, coly, Direction.Up, this);
 
                     OnTerrainCollision(colx, coly, Direction.Up, col);
                 } else {
                     if (data.calcTerrainCollisions)
-                        col.tileattribs.OnTerrainIntersect(colx, coly, Direction.Down, this);
+                        col.tileattribs.OnEntityCollision(colx, coly, Direction.Down, this);
 
                     OnTerrainCollision(colx, coly, Direction.Down, col);
                 }
@@ -102,8 +96,7 @@ namespace Game.Entities {
         public void UpdatePosition() {
 
             Vector2i gridPrev = EntityManager.GetGridArray(this);
-            if (data.useGravity)
-                data.vel.y -= data.grav * GameTime.DeltaTime;
+            data.vel.y -= data.grav * GameTime.DeltaTime;
             data.vel.x *= (float)Math.Pow(data.airResis, GameTime.DeltaTime);
 
             UpdateX(data.vel.x * GameTime.DeltaTime);
@@ -122,6 +115,11 @@ namespace Game.Entities {
         #endregion
 
         #region Collisions
+
+        public bool IsCollidingWithTerrain() {
+            return Terrain.IsColliding(this);
+        }
+
         public void CorrectTerrainCollision() {
             Vector2i gridPrev = EntityManager.GetGridArray(this);
             data.pos.val = Terrain.CorrectTerrainCollision(this);
@@ -166,12 +164,26 @@ namespace Game.Entities {
         #endregion
 
         #region Health
+        public bool IsDead() {
+            return data.life.IsEmpty();
+        }
+
+        public bool IsFullyHealed() {
+            return data.life.IsFull();
+        }
+
         public void HealFull() {
             data.life.Fill();
         }
 
-        public void Damage(float dmg) {
+        public void DamageNatural(float dmg) {
+            if (data.invulnerable) return;
             data.life.val -= dmg;
+        }
+
+        public void Damage(float dmg) {
+            DamageNatural(dmg);
+            if (data.invulnerable) return;
             data.recentDmg = EntityData.maxRecentDmgTime;
         }
 
@@ -192,7 +204,7 @@ namespace Game.Entities {
         #endregion
 
         public virtual Matrix4 ModelMatrix() { return MathUtil.ModelMatrix(Assets.Models.GetModel(entityId).size, data.rot, data.pos); }
-        public abstract void InitTimers();
+        public virtual void InitTimers() { }
         public abstract void Update();
         public virtual void UpdateHitbox() { hitbox.Position = data.pos; }
         public virtual void OnTerrainCollision(int x, int y, Direction d, Tile t) { }

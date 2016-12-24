@@ -5,7 +5,6 @@ using Game.TitleScreen;
 using Game.Core;
 using Game.Fonts;
 using Game.Guis;
-using System.Drawing;
 using Game.Assets;
 using Game.Util;
 using Game.Items;

@@ -69,20 +69,24 @@ namespace Game.Entities {
         #region Entity Grid Array
 
         public static Entity[] GetEntitiesAt(Vector2 pos, Vector2 size) {
+            return GetEntitiesAt(pos, size, x => true);
+        }
+
+        public static Entity[] GetEntitiesAt(Vector2 pos, Vector2 size, Predicate<Entity> predicate) {
             var g = GetGridArray(pos);
-            var search = new List<Entity>();
-            search.AddRange(EntityGrid[g.x - 1, g.y - 1]);
-            search.AddRange(EntityGrid[g.x, g.y - 1]);
-            search.AddRange(EntityGrid[g.x + 1, g.y - 1]);
-            search.AddRange(EntityGrid[g.x - 1, g.y]);
-            search.AddRange(EntityGrid[g.x, g.y]);
-            search.AddRange(EntityGrid[g.x + 1, g.y]);
-            search.AddRange(EntityGrid[g.x - 1, g.y + 1]);
-            search.AddRange(EntityGrid[g.x, g.y + 1]);
-            search.AddRange(EntityGrid[g.x + 1, g.y + 1]);
+            var search = new HashSet<Entity>();
+            for (int i = 0; i < Math.Ceiling(size.x / GridX) + 1; i++) {
+                for (float j = 0; j < Math.Ceiling(size.y / GridY) + 1; j++) {
+                    var grid = GetGridArray(pos + new Vector2(i, j) * new Vector2(GridX, GridY));
+                    var entities = EntityGrid[grid.x, grid.y];
+                    foreach (var e in entities) {
+                        search.Add(e);
+                    }
+                }
+            }
             var r = new List<Entity>();
             foreach (var e in search) {
-                if (e.hitbox.Intersecting(new RectangularHitbox(pos, size)))
+                if (e.hitbox.Intersecting(new RectangularHitbox(pos, size)) && predicate(e))
                     r.Add(e);
             }
             return r.ToArray();
@@ -163,7 +167,7 @@ namespace Game.Entities {
                         e.UpdateHitbox();
                         e.Update();
 
-                        if (e.data.life.IsEmpty()) {
+                        if (e.data.life.IsEmpty() && !e.data.invulnerable) {
                             e.OnDeath();
                         }
                     }

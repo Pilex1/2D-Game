@@ -11,6 +11,7 @@ namespace Game.Items {
             this.rawitem = rawitem;
             this.amt = amt;
         }
+        public Item(RawItem rawitem) : this(rawitem, 1) { }
 
         public override string ToString() {
             return rawitem.ToString() + ": " + amt;

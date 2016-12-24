@@ -1,22 +1,25 @@
 ﻿using Game.Entities;
+using Game.Items;
 using Game.Util;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Terrains {
 
     [Serializable]
     class TileAttribs {
+
+        public Func<RawItem> dropItem;
         public bool solid = true;
         public bool movable = true;
         public bool transparent = false;
         public Direction rotation = Direction.Up;
 
-        public virtual void Interact(int x, int y) { }
-        public virtual void OnTerrainIntersect(int x, int y, Direction side, Entity e) {
+        public TileAttribs(Func<RawItem> dropItem) {
+            this.dropItem = dropItem;
+        }
+
+        public virtual void OnInteract(int x, int y) { }
+        public virtual void OnEntityCollision(int x, int y, Direction side, Entity e) {
             switch (side) {
                 case Direction.Up:
                     e.data.pos.y = y - e.hitbox.Size.y - MathUtil.Epsilon;
@@ -36,6 +39,16 @@ namespace Game.Terrains {
                     e.data.vel.x = 0;
                     break;
             }
+        }
+
+        public void Destroy(int x, int y, Inventory inv) {
+            Terrain.BreakTile(x, y);
+            if (inv != null) {
+                OnDestroy(x, y, inv);
+            }
+        }
+        public virtual void OnDestroy(int x, int y, Inventory inv) {
+            inv.AddItem(new Item(dropItem()));
         }
 
         public override string ToString() {

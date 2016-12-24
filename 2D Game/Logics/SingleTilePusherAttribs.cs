@@ -1,4 +1,5 @@
-﻿using Game.Terrains;
+﻿using Game.Items;
+using Game.Terrains;
 using Game.Util;
 using System;
 using System.Collections.Generic;
@@ -16,9 +17,8 @@ namespace Game.Logics {
 
         public bool state { get; private set; }
 
-        public SingleTilePusherAttribs() {
+        public SingleTilePusherAttribs() : base(delegate () { return RawItem.SingleTilePusher; }) {
             powerinL.max = powerinR.max = powerinU.max = powerinD.max = 64;
-            cooldown = new CooldownTimer(40);
             cost = 8;
         }
 
@@ -28,10 +28,7 @@ namespace Game.Logics {
 
             BoundedFloat buffer = new BoundedFloat(0, 0, cost);
 
-            powerInLCache = powerinL.val;
-            powerInRCache = powerinR.val;
-            powerInUCache = powerinU.val;
-            powerInDCache = powerinD.val;
+            CachePowerLevels();
 
             if (powerinL + powerinR + powerinU + powerinD >= buffer.max) {
                 BoundedFloat.MoveVals(ref powerinL, ref buffer, powerinL);
@@ -40,7 +37,7 @@ namespace Game.Logics {
                 BoundedFloat.MoveVals(ref powerinD, ref buffer, powerinD);
             }
 
-            base.EmptyInputs();
+            EmptyInputs();
 
             if (buffer.IsFull()) {
                 state = true;
@@ -60,19 +57,8 @@ namespace Game.Logics {
                 state = false;
             }
 
+            Terrain.TileAt(x, y).enumId = state ? TileID.SingleTilePusherOn : TileID.SingleTilePusherOff;
 
-            
-        }
-
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine(string.Format("Required: {0}", cost));
-            sb.AppendLine(string.Format("Left: In {0}", powerInLCache));
-            sb.AppendLine(string.Format("Right: In {0}", powerInRCache));
-            sb.AppendLine(string.Format("Up: In {0}", powerInUCache));
-            sb.AppendLine(string.Format("Down: In {0}", powerInDCache));
-            return sb.ToString();
         }
 
         private bool PushTilesHelper(int x, int y, Direction d, out HashSet<Vector2i> processed) {

@@ -1,5 +1,4 @@
-﻿using Game.Guis;
-using Game.Items;
+﻿using Game.Items;
 using System;
 
 namespace Game.Terrains {
@@ -9,9 +8,10 @@ namespace Game.Terrains {
 
         public float radius, error;
 
-        public object HotbarExplosion { get; private set; }
+        public ExplosionAttribs(Func<RawItem> dropItem) : base(dropItem) {
+        }
 
-        public override void Interact(int x, int y) {
+        public override void OnInteract(int x, int y) {
             if (PlayerInventory.Instance.CurrentlySelectedItem().rawitem.id == ItemID.Igniter)
                 Terrain.Explode(x, y, radius, error);
         }

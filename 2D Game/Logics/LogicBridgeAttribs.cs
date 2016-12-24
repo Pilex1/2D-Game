@@ -1,4 +1,6 @@
-﻿using Game.Util;
+﻿using Game.Items;
+using Game.Terrains;
+using Game.Util;
 using System;
 using System.Text;
 
@@ -10,7 +12,7 @@ namespace Game.Logics {
         public bool stateHorz { get; private set; }
         public bool stateVert { get; private set; }
 
-        public LogicBridgeAttribs() {
+        public LogicBridgeAttribs():base(delegate() { return RawItem.WireBridge; }) {
             poweroutL.max = poweroutR.max = poweroutU.max = poweroutD.max = 64;
             powerinL.max = powerinR.max = powerinU.max = powerinD.max = 64;
             stateHorz = stateVert = false;
@@ -31,7 +33,7 @@ namespace Game.Logics {
             BoundedFloat.MoveVals(ref powerinU, ref bufferVert, powerinU.val);
             BoundedFloat.MoveVals(ref powerinD, ref bufferVert, powerinD.val);
 
-            base.EmptyInputs();
+            EmptyInputs();
 
             bufferHorz -= dissipate;
             bufferVert -= dissipate;
@@ -69,6 +71,8 @@ namespace Game.Logics {
             stateVert = poweroutU > 0 || poweroutD > 0;
 
             base.UpdateAll(x, y);
+
+            Terrain.TileAt(x, y).enumId = stateHorz ? (stateVert ? TileID.WireBridgeHorzVertOn : TileID.WireBridgeHorzOn) : (stateVert ? TileID.WireBridgeVertOn : TileID.WireBridgeOff);
         }
 
         public override string ToString() {

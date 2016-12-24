@@ -1,6 +1,7 @@
 ﻿using Game.Util;
 using System;
 using System.Text;
+using Game.Items;
 
 namespace Game.Logics {
 
@@ -10,7 +11,7 @@ namespace Game.Logics {
     class AndGateAttribs : PowerTransmitterData {
 
 
-        public AndGateAttribs() {
+        public AndGateAttribs() : base(delegate () { return RawItem.GateAnd; }) {
 
             poweroutL.max = poweroutU.max = poweroutD.max = 0;
             poweroutR.max = 64;
@@ -28,10 +29,11 @@ namespace Game.Logics {
 
             bool cond = powerinU > 0 && powerinD > 0;
 
+          
             BoundedFloat.MoveVals(ref powerinU, ref bufferPower, powerinU);
             BoundedFloat.MoveVals(ref powerinD, ref bufferPower, powerinD);
 
-            base.EmptyInputs();
+            EmptyInputs();
 
             base.EmptyOutputs();
 
