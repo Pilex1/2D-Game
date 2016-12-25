@@ -25,7 +25,7 @@ namespace Game.Logics {
             state = false;
         }
 
-        public override void OnDestroy(int x, int y, Inventory inv) {
+        protected override void OnDestroy(int x, int y, Inventory inv) {
             base.OnDestroy(x, y, inv);
             if (entityCage != null) {
                 entityCage.Release();

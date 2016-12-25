@@ -9,15 +9,7 @@ namespace Game.Terrains {
     class Tile {
 
         #region Init
-        private TileID _enumId;
-        public TileID enumId {
-            get { return _enumId; }
-            set {
-                TileID original = _enumId;
-                _enumId = value;
-                if (_enumId != original) Terrain.UpdateMesh = true;
-            }
-        }
+        public TileID enumId;
         public TileAttribs tileattribs;
 
         private Tile(TileID enumId, Func<RawItem> dropItem) : this(enumId, new TileAttribs(dropItem)) { }

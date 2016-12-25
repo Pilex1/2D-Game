@@ -14,7 +14,7 @@ namespace Game.Terrains {
         internal static float[,] Lightings;
         internal static Dictionary<Vector2i, int> ArtificialLight = new Dictionary<Vector2i, int>();
 
-        private const int MaxUpdatesPerFrame = 8;
+        private const int MaxUpdatesPerFrame = 3;
         private static HashSet<Vector2i> QueuedUpdates = new HashSet<Vector2i>();
 
         internal static void Init() {

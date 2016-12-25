@@ -14,7 +14,7 @@ namespace Game.Entities {
         public float speed = 0;
         public float rot = 0;
         public float grav = 0.02f;
-        public float airResis = 0.9f;
+        public float airResis = 0.85f;
         public float jumppower = 0;
         public bool InAir = false;
         public bool calcTerrainCollisions = true;

@@ -2,9 +2,11 @@
 using Game.Util;
 using Game.Items;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Game.Fluids {
     static class FluidManager {
+
         private static CooldownTimer cooldown = new CooldownTimer(1000f / 60);
 
         public static void Update() {
@@ -16,12 +18,11 @@ namespace Game.Fluids {
             foreach (var f in list) {
                 FluidAttribs fluid;
                 fluidDict.TryGetValue(f, out fluid);
-                if (fluid == null) continue;
-                fluid.Update(f.x, f.y);
-
-                if (fluid.height <= 0.0001f) {
-                    fluid.Destroy(f.x, f.y, PlayerInventory.Instance);
+                if (fluid == null) {
+                    Debug.WriteLine("Warning: fluid null at " + f);
+                    continue;
                 }
+                fluid.Update(f.x, f.y);
             }
         }
     }

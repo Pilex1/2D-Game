@@ -1,3 +1,1 @@
-﻿rewrite lighting engine so that it actually updates properly
-
-rewrite fluid engine to use fixed point arithmetic in calculating fluid spreading
+﻿

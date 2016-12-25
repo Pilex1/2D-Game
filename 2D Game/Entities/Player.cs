@@ -18,7 +18,7 @@ namespace Game.Core {
         private Player(Vector2 position) : base(EntityID.PlayerSimple, position) {
             data = new EntityData { };
             data.pos.val = position;
-            data.speed = 0.08f;
+            data.speed = 0.10f;
             data.jumppower = 0.5f;
             data.life = new BoundedFloat(20, 0, 20);
         }
@@ -36,8 +36,6 @@ namespace Game.Core {
 
             Heal(0.002f * GameTime.DeltaTime);
 
-            Vector2 prevpos = Instance.data.pos;
-            int MouseX = Input.MouseX, MouseY = Input.MouseY;
             if (!PlayerInventory.Instance.InventoryOpen) {
                 Vector2 v = Input.TerrainIntersect();
                 Vector2i vi = new Vector2i((int)v.x, (int)v.y);
@@ -62,9 +60,6 @@ namespace Game.Core {
             if (Input.Keys['s']) Instance.Fall();
 
             Instance.UpdatePosition();
-            if (Instance.data.pos != prevpos) {
-                Terrain.UpdateMesh = true;
-            }
 
             if (Input.Keys['1']) PlayerInventory.Instance.CurSelectedSlot = 0;
             if (Input.Keys['2']) PlayerInventory.Instance.CurSelectedSlot = 1;

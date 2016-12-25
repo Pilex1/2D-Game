@@ -20,7 +20,7 @@ namespace Game.Items {
         }
 
         public abstract void Use(Inventory inv, Vector2i invslot, Vector2 position, Vector2 direction);
-        
+
     }
 
     [Serializable]
