@@ -90,7 +90,7 @@ namespace Game.Terrains.Gen {
             int biomeSizeMin = 10, biomeSizeMax = 20;
             while (ptr < size / widthfactor) {
                 int biomeSize = MathUtil.RandInt(rand, biomeSizeMin, biomeSizeMax);
-                Biome b = (Biome)MathUtil.RandInt(rand, (int)Biome.Mountain, (int)Biome.Ocean);
+                Biome b = (Biome)MathUtil.RandInt(rand, (int)Biome.Plains, (int)Biome.Ocean);
                 h = GenBiome(ptr * widthfactor, h, biomeSize, b);
                 for (int i = ptr; i < ptr + biomeSize; i++) {
                     Terrain.TerrainBiomes[i] = b;
