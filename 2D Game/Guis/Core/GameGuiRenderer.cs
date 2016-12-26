@@ -19,6 +19,7 @@ namespace Game.Interaction {
         private static GuiModel Healthbar;
         private static GuiModel HealthbarTexture;
         private static Button btn_BackToTitle;
+        internal static InGameTextbox TxtInput;
 
         private static HashSet<Button> Buttons;
 
@@ -27,11 +28,12 @@ namespace Game.Interaction {
 
             TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.5f, 2f, int.MaxValue, 1.5f, new Vector3(1, 1, 1));
             DebugText = new Text("", style, new Vector2(-0.99, 0.97));
-            Healthbar = GuiModel.CreateRectangle(new Vector2(0.52, 0.04), ColourUtil.ColourFromVec4(new Vector4(0.88, 0.3, 0.1, 0.8)));
+            Healthbar = GuiModel.CreateRectangle(new Vector2(0.52, 0.04), TextureUtil.ColourFromVec4(new Vector4(0.88, 0.3, 0.1, 0.8)));
             HealthbarTexture = GuiModel.CreateRectangle(new Vector2(0.55, 0.065), Textures.HealthbarTexture);
             Background = GuiModel.CreateRectangle(new Vector2(1, 1), Textures.GameBackgroundTex);
-            PausedOverlay = GuiModel.CreateRectangle(new Vector2(1, 1), ColourUtil.ColourFromVec4(new Vector4(0.2, 0.2, 0.2, 0.9)));
+            PausedOverlay = GuiModel.CreateRectangle(new Vector2(1, 1), TextureUtil.ColourFromVec4(new Vector4(0.2, 0.2, 0.2, 0.9)));
             PausedText = new Text("Paused", new TextStyle(TextAlignment.Top, TextFont.Chiller, 1.3f, 2f, 1, 1f, new Vector3(1, 1, 1)), new Vector2(0, 1));
+            TxtInput = new InGameTextbox(new Vector2(0, -0.8), new Vector2(1, 0.03), TextFont.LucidaConsole, 0.5f);
 
             Buttons = new HashSet<Button>();
             btn_BackToTitle = new Button(new Vector2(0, -0.2), new Vector2(0.4, 0.04), "Save and Quit", TextStyle.Chiller_SingleLine_Large, delegate () {
@@ -42,10 +44,13 @@ namespace Game.Interaction {
         }
 
         public static void Update() {
-            if (!GameLogic.Paused) return;
+            if (GameLogic.State == GameLogic.GameState.Paused) {
+                foreach (var b in Buttons) {
+                    b.Update();
+                }
+            } else {
+                TxtInput.Update();
 
-            foreach (var b in Buttons) {
-                b.Update();
             }
         }
 
@@ -122,8 +127,10 @@ namespace Game.Interaction {
             if (GameLogic.RenderDebugText)
                 RenderText(DebugText);
 
+            RenderInstance(TxtInput.model, TxtInput.pos, TxtInput.colour);
+            RenderText(TxtInput.text);
 
-            if (GameLogic.Paused) {
+            if (GameLogic.State == GameLogic.GameState.Paused) {
                 RenderInstance(PausedOverlay, new Vector2(0, 0), new Vector4(0.5, 0.5, 0.5, 0.8));
 
                 RenderInstance(PausedText.model, PausedText.pos, PausedText.style.colour);

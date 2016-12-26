@@ -15,7 +15,7 @@ using Game.Items;
 namespace Game {
 
     enum ProgramMode {
-        TitleScreen, Game
+        None, TitleScreen, Game
     }
     static class Program {
 
@@ -54,7 +54,7 @@ namespace Game {
 
             //Console.SetWindowSize(Console.LargestWindowWidth / 4, Console.LargestWindowHeight / 4);
             //Console.SetWindowPosition(0, 0);
-            Mode = ProgramMode.TitleScreen;
+            Mode = ProgramMode.None;
 
             AssetsManager.Init();
             Input.Init();
@@ -69,23 +69,23 @@ namespace Game {
         }
 
         public static void SwitchToTitleScreen() {
+            GameLogic.Reset();
             Mode = ProgramMode.TitleScreen;
-            TitleScreenRenderer.Reset();
         }
 
 
         public static void SwitchToGame(string worldname, int seed) {
+            TitleScreenRenderer.Reset();
             Mode = ProgramMode.Game;
             Program.worldname = worldname;
-
             GameRenderer.Init();
             GameLogic.InitNew(seed);
             GameTime.Update();
         }
 
         public static void SwitchToGame(string worldname, WorldData world) {
+            TitleScreenRenderer.Reset();
             Mode = ProgramMode.Game;
-
             Program.worldname = worldname;
             GameRenderer.Init();
             GameLogic.InitLoad(world.terrain, world.entities);
@@ -122,7 +122,7 @@ namespace Game {
         }
 
         private static void Dispose() {
-            GameRenderer.CleanUp();
+            GameLogic.CleanUp();
             Gui.Dispose();
 
 

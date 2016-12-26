@@ -112,7 +112,7 @@ namespace Game.TitleScreen {
             #endregion
 
             #region Background
-            txt_Main_Title = new Text("TITLE HERE", new TextStyle(TextAlignment.Center, TextFont.Chiller, 3f, 2f, 1, 1f, new Vector3(1,1,1)), new Vector2(0, 1));
+            txt_Main_Title = new Text("TITLE HERE", new TextStyle(TextAlignment.Center, TextFont.Chiller, 3f, 2f, 1, 1f, new Vector3(1, 1, 1)), new Vector2(0, 1));
             backgroundpos = Vector2.Zero;
             float s = 1f / Program.AspectRatio;
             float imageAspectRatio = (float)Textures.TitleBackgroundTex.Size.Width / Textures.TitleBackgroundTex.Size.Height;
@@ -126,7 +126,7 @@ namespace Game.TitleScreen {
             #endregion
 
             #region Credits
-            TextStyle tstyle = new TextStyle(TextAlignment.Center, TextFont.Chiller, 0.8f, 1.8f, 1 << 30, 0.5f, new Vector3(1,1,1));
+            TextStyle tstyle = new TextStyle(TextAlignment.Center, TextFont.Chiller, 0.8f, 1.8f, 1 << 30, 0.5f, new Vector3(1, 1, 1));
             txt_CreditsInfo = new Text("Copyright Alex Tan (2016). Apache License. https://github.com/Pilex1/2D-Game/blob/master/LICENSE" + Environment.NewLine + Environment.NewLine + "- code, bugs, game design, bugs, graphics, bugs, everything you see here, bugs. Did I mention bugs?" + Environment.NewLine + Environment.NewLine + "Help me continue making these projects:" + Environment.NewLine + Environment.NewLine + "Visit my github repositories to view and download the full source code plus my other projects" + Environment.NewLine + " - https://github.com/Pilex1" + Environment.NewLine + " - https://github.com/Pilex1/2D-Game" + Environment.NewLine + Environment.NewLine + "Subscribe to my youtube channel where I post videos of Mandelbrot renders and game development" + Environment.NewLine + " - Pilex", tstyle, new Vector2(0, 0.9));
             #endregion
 
@@ -147,8 +147,8 @@ namespace Game.TitleScreen {
             txt_NewWorld_Seed = new Text("Seed", tstyle, new Vector2(0, 0.2 + offset));
             btn_NewWorld_CreateWorld = new Button(new Vector2(0, -0.3), new Vector2(0.3, 0.08), "Create", TextStyle.Chiller_SingleLine_Large, delegate () {
                 string worldname = txtbx_NewWorld_Name.GetText();
-                Program.SwitchToGame(worldname, int.Parse(txtbx_NewWorld_Seed.GetText()));
                 worlds.Add(worldname);
+                Program.SwitchToGame(worldname, int.Parse(txtbx_NewWorld_Seed.GetText()));
             });
             btn_NewWorld_RandSeed = new Button(new Vector2(0.5, 0.2), new Vector2(0.15, 0.03), "Random seed", TextStyle.Chiller_SingleLine_Small, delegate () {
                 int irand = MathUtil.RandInt(Program.Rand, 1 << 24, 1 << 30);
@@ -174,8 +174,11 @@ namespace Game.TitleScreen {
         #endregion
 
         public static void Reset() {
+            if (Program.Mode != ProgramMode.TitleScreen) return;
             SwitchTo(State.Main);
             ResetWorldPickers();
+            txtbx_NewWorld_Name.ClearText();
+            txtbx_NewWorld_Seed.ClearText();
         }
 
         private static void ResetWorldPickers() {
@@ -303,14 +306,14 @@ namespace Game.TitleScreen {
 
             shader["aspectRatio"].SetValue(Program.AspectRatio);
 
-            RenderInstance(background, backgroundpos, ColourUtil.HSVToRGB_Vec3(backgroundhue, 0.5f, 1f));
+            RenderInstance(background, backgroundpos, new Vector4(TextureUtil.HSVToRGB_Vec3(backgroundhue, 0.5f, 1f), 1));
             // Debug.WriteLine(backgroundhue);
 
             foreach (var b in CurButtons)
                 RenderInstance(b.model, b.pos, b.colour);
 
             foreach (Label l in CurLabels)
-                RenderInstance(l.model, l.pos, new Vector3(1, 1, 1));
+                RenderInstance(l.model, l.pos, new Vector4(1, 1, 1, 1));
 
 
             foreach (Textbox t in CurTextboxes)
@@ -332,7 +335,7 @@ namespace Game.TitleScreen {
             return true;
         }
 
-        private static void RenderInstance(GuiModel model, Vector2 pos, Vector3 colour) {
+        private static void RenderInstance(GuiModel model, Vector2 pos, Vector4 colour) {
             ShaderProgram shader = Gui.shader;
 
             Gl.Enable(EnableCap.Blend);
@@ -340,7 +343,7 @@ namespace Game.TitleScreen {
 
             shader["position"].SetValue(pos);
             shader["size"].SetValue(model.size);
-            shader["colour"].SetValue(new Vector4(colour.x, colour.y, colour.z, 1));
+            shader["colour"].SetValue(colour);
             Gl.BindVertexArray(model.vao.ID);
             Gl.BindTexture(model.texture.TextureTarget, model.texture.TextureID);
             Gl.DrawElements(model.drawmode, model.vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
@@ -349,7 +352,10 @@ namespace Game.TitleScreen {
 
             Gl.Disable(EnableCap.Blend);
         }
+
         public static void Dispose() {
+            if (Program.Mode != ProgramMode.TitleScreen) return;
+
 
             foreach (var t in CurTexts) t.Dispose();
             foreach (var b in CurButtons) b.Dispose();
@@ -361,32 +367,17 @@ namespace Game.TitleScreen {
             CurTextboxes.Clear();
             CurLabels.Clear();
 
-            //btnPlay?.Dispose();
-            //btnCredits?.Dispose();
-            //btnOptions?.Dispose();
-            if (btn_Main_Play != null)
-                btn_Main_Play.Dispose();
-            if (btn_Main_Credits != null)
-                btn_Main_Credits.Dispose();
-            if (btn_Main_Help != null)
-                btn_Main_Help.Dispose();
+            btn_Main_Play.Dispose();
+            btn_Main_Credits.Dispose();
+            btn_Main_Help.Dispose();
 
-            if (btnWorldPickers != null)
-                foreach (var b in btnWorldPickers) {
-                    b.Dispose();
-                }
-            //btnBack?.Dispose();
-            //txtTitle?.Dispose();
-            //txtCreditsInfo?.Dispose();
-            if (btn_Back_Title != null)
-                btn_Back_Title.Dispose();
-            if (txt_Main_Title != null)
-                txt_Main_Title.Dispose();
-            if (txt_CreditsInfo != null)
-                txt_CreditsInfo.Dispose();
+            foreach (var b in btnWorldPickers) {
+                b.Dispose();
+            }
+            btn_Back_Title.Dispose();
+            txt_Main_Title.Dispose();
+            txt_CreditsInfo.Dispose();
 
-            btn_Main_Play = btn_Main_Credits = btn_Main_Help = btn_Back_Title = null;
-            txt_Main_Title = txt_CreditsInfo = null;
         }
         #endregion  
     }

@@ -88,13 +88,13 @@ namespace Game.Items {
 
             }
             SelectedDisplay = GuiModel.CreateWireRectangleTopLeft(new Vector2(SizeX, SizeY), Color.Blue);
-            Background = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, (y - 1) * SizeY), ColourUtil.TexFromColour(new Vector4(0.3, 0.3, 0.3, 0.8)));
-            HotbarBackground = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, SizeY), ColourUtil.TexFromColour(new Vector4(0.3, 0.3, 0.3, 0.8)));
+            Background = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, (y - 1) * SizeY), TextureUtil.CreateTexture(new Vector4(0.3, 0.3, 0.3, 0.8)));
+            HotbarBackground = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, SizeY), TextureUtil.CreateTexture(new Vector4(0.3, 0.3, 0.3, 0.8)));
 
             TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.8f, 1f, 1, 1f, new Vector3(1, 1, 1));
             InvText = new Text("Inventory", style, new Vector2(0.015 + Pos.x, Pos.y + 2 * (y - 0.5) * SizeY));
-            InvTextBackground = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, SizeY), ColourUtil.TexFromColour(new Vector4(0.3, 0.3, 0.3, 0.8)));
-            InvTextLine = GuiModel.CreateLine(new Vector2(x * SizeX, 0), ColourUtil.TexFromColour(new Vector4(0.05, 0.05, 0.1, 0.9)));
+            InvTextBackground = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, SizeY), TextureUtil.CreateTexture(new Vector4(0.3, 0.3, 0.3, 0.8)));
+            InvTextLine = GuiModel.CreateLine(new Vector2(x * SizeX, 0), TextureUtil.CreateTexture(new Vector4(0.05, 0.05, 0.1, 0.9)));
             var itemnamestyle = TextStyle.LucidaConsole_SingleLine_Small;
             itemnamestyle.alignment = TextAlignment.Bottom;
             ItemNameText = new Text("", itemnamestyle, HotbarPos + new Vector2(0, SizeY));
@@ -266,7 +266,7 @@ namespace Game.Items {
 
         private void Update_HotbarItemNameText() {
             ItemNameText.SetText(CurrentlySelectedItem().rawitem.attribs.name);
-            ItemNameText.SetPos(HotbarPos + new Vector2((CurSelectedSlot+0.5) * SizeX + ItemTextureOffset, 2*SizeY));
+            ItemNameText.SetPos(HotbarPos + new Vector2((CurSelectedSlot + 0.5) * SizeX + ItemTextureOffset, 2 * SizeY));
         }
 
         private void Update_ItemDisplayData() {
@@ -345,17 +345,33 @@ namespace Game.Items {
 
         #endregion
 
+        private void HandleKeys() {
+            if (Input.Keys['1']) Instance.CurSelectedSlot = 0;
+            if (Input.Keys['2']) Instance.CurSelectedSlot = 1;
+            if (Input.Keys['3']) Instance.CurSelectedSlot = 2;
+            if (Input.Keys['4']) Instance.CurSelectedSlot = 3;
+            if (Input.Keys['5']) Instance.CurSelectedSlot = 4;
+            if (Input.Keys['6']) Instance.CurSelectedSlot = 5;
+            if (Input.Keys['7']) Instance.CurSelectedSlot = 6;
+            if (Input.Keys['8']) Instance.CurSelectedSlot = 7;
+            if (Input.Keys['9']) Instance.CurSelectedSlot = 8;
 
+            if (Input.MouseScroll < 0)
+                Instance.IncreaseHotbarSelection();
+            if (Input.MouseScroll > 0)
+                Instance.DecreaseHotbarSelection();
+        }
 
-        public void Update() {
-
+        public void UpdateHotbar() {
+            HandleKeys();
             HotbarItemDisplay.vao.UpdateUVs(Generate_HotbarTexturedItemsUV());
-            Update_ItemCountText();
-            Update_ItemDisplayData();
             Update_HotbarItemNameText();
+            Update_ItemCountText();
+        }
 
-            if (Input.Keys['e']) InventoryOpen.Toggle();
-            if (Input.Keys[27]) InventoryOpen.val = false;
+        public void UpdateInventory() {
+
+            Update_ItemDisplayData();
 
             float x = Input.NDCMouseX, y = Input.NDCMouseY;
             y -= 24f / Program.Height;

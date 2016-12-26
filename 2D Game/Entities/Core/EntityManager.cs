@@ -145,6 +145,7 @@ namespace Game.Entities {
         }
 
         public static void UpdateAll() {
+            if (Player.Instance == null) return;
             int minx, maxx, miny, maxy;
             Terrain.Range(out minx, out maxx, out miny, out maxy);
 
@@ -176,6 +177,7 @@ namespace Game.Entities {
         }
 
         public static void Render() {
+            if (Player.Instance == null) return;
             Gl.UseProgram(shader.ProgramID);
 
             int minx, maxx, miny, maxy;

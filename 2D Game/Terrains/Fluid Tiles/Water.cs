@@ -12,8 +12,8 @@ namespace Game.Fluids {
         protected override void FallAir(int x, int y) {
             Tile t = Tile.Water();
             t.tileattribs = (WaterAttribs)MemberwiseClone();
-            Terrain.SetTile(x, y - 1, t);
             Terrain.BreakTile(x, y);
+            Terrain.SetTile(x, y - 1, t);
         }
 
         protected override void FallFluid(int x, int y) {
@@ -28,6 +28,7 @@ namespace Game.Fluids {
                 increments = attribs.increments - attribs.maxIncrements;
                 attribs.increments = attribs.maxIncrements;
             }
+            FluidManager.AddUpdate(x, y - 1, attribs);
         }
 
         protected override void SpreadLeft(int x, int y) {
@@ -50,6 +51,7 @@ namespace Game.Fluids {
             } else if (attribs != null) {
                 if (attribs.increments < increments) {
                     attribs.increments++;
+                    FluidManager.AddUpdateAround(x, y);
                     increments--;
                 }
             }

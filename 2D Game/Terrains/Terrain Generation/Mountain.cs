@@ -26,9 +26,9 @@ namespace Game.Terrains.Gen {
                     int x = posX + i * TerrainGen.widthfactor + j;
 
                     for (int k = 0; k <= y; k++) {
-                        if (k <= y - 3 + MathUtil.RandDouble(TerrainGen.rand, 0, 2)) Terrain.SetTileTerrainGen(x, k, Tile.Stone, true);
-                        else if (k <= y - 2 + MathUtil.RandDouble(TerrainGen.rand, 0, 2)) Terrain.SetTileTerrainGen(x, k, Tile.Dirt, true);
-                        else Terrain.SetTileTerrainGen(x, k, Tile.Grass, true);
+                        if (k <= y - 3 + MathUtil.RandDouble(TerrainGen.rand, 0, 2)) Terrain.SetTile(x, k, Tile.Stone, true);
+                        else if (k <= y - 2 + MathUtil.RandDouble(TerrainGen.rand, 0, 2)) Terrain.SetTile(x, k, Tile.Dirt, true);
+                        else Terrain.SetTile(x, k, Tile.Grass, true);
                     }
 
                     mountainCounter++;

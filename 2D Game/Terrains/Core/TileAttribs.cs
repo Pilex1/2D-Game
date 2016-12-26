@@ -20,6 +20,8 @@ namespace Game.Terrains {
 
         public virtual void OnInteract(int x, int y) { }
         public virtual void OnEntityCollision(int x, int y, Direction side, Entity e) {
+            if (!solid) return;
+
             switch (side) {
                 case Direction.Up:
                     e.data.pos.y = y - e.hitbox.Size.y - MathUtil.Epsilon;

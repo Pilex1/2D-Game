@@ -1,23 +1,52 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Game.Util {
     class StringUtil {
+
+        public static bool IsStdKeySymbol(string s) {
+            string select = "!@#$%^&*()_+-=[]{}\\|;:\'\"<>,.?/~`";
+            foreach (char c in s) {
+                if (!select.Contains(c)) return false;
+            }
+            return true;
+        }
+        public static bool IsStdKeySymbol(char c) { return IsStdKeySymbol(c.ToString()); }
+
+        public static bool IsSymbol(string s) {
+            foreach (char c in s) {
+                if (!char.IsSymbol(c)) return false;
+            }
+            return true;
+        }
+        public static bool IsSymbol(char c) { return IsSymbol(c.ToString()); }
+
+        public static bool IsLetter(string s) {
+            foreach (char c in s) {
+                if (!char.IsLetter(c)) return false;
+            }
+            return true;
+        }
+        public static bool IsLetter(char c) { return IsLetter(c.ToString()); }
+
+        public static bool IsDigit(string s) {
+            foreach (char c in s) {
+                if (!char.IsDigit(c)) return false;
+            }
+            return true;
+        }
+        public static bool IsDigit(char c) { return IsDigit(c.ToString()); }
+
+
+
+
         public static bool StartsWithLetter(string s) {
             if (s == "") return false;
             char c = s[0];
             if (char.IsLetter(c)) return true;
             return false;
-        }
-        public static bool IsAlphaNumericSpace(char c) {
-            return char.IsLetterOrDigit(c) || c == ' ';
-        }
-        public static bool IsNumeric(string s) {
-            foreach (char c in s) {
-                if (!char.IsDigit(c)) return false;
-            }
-            return true;
         }
         public static bool StartsWithNumber(string s) {
             return Regex.IsMatch(s, @"^\d");

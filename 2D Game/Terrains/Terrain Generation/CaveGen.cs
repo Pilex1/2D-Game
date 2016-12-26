@@ -39,7 +39,7 @@ namespace Game.Terrains.Gen {
                 for (int x = -initCaveRadius; x <= initCaveRadius; x++) {
                     for (int y = -initCaveRadius; y <= initCaveRadius; y++) {
                         if (MathUtil.RandFloat(rand, 0, 1) < initCaveFillFactor) {
-                            Terrain.SetTileTerrainGen(caveloc.x + x, caveloc.y + y, Tile.Air, true);
+                            Terrain.SetTile(caveloc.x + x, caveloc.y + y, Tile.Air, true);
                         }
                     }
                 }

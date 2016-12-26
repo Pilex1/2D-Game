@@ -4,12 +4,15 @@ using System;
 namespace Game.Terrains.Gen {
     static class Ocean {
         internal static int Generate(int posX, int posY, int size) {
+            float heightVar = 2;
             int lastHeight = 0;
 
-            Func<float, float> heightsGen = new Func<float, float>(delegate (float f) {
-                float height = (float)Math.Pow(2 * f - 1, 8);
-                height += MathUtil.RandFloat(TerrainGen.rand, -5, 5);
-                return height;
+            var heightsGen = new Func<float, float>(delegate (float f) {
+                float x = f * (f - 1);
+                x += 1 / 4;
+                x *= 4;
+                MathUtil.ClampMin(ref x, 0.25f);
+                return (1 - x) * 64 + MathUtil.RandFloat(TerrainGen.rand, -heightVar, heightVar);
             });
 
             float v1 = posY, v2 = v1, v3 = TerrainGen.minlandheight, v4 = heightsGen(0);
@@ -21,9 +24,9 @@ namespace Game.Terrains.Gen {
                     int x = posX + i * TerrainGen.widthfactor + j;
 
                     for (int k = 0; k <= y; k++) {
-                        if (k <= y - 10 + MathUtil.RandDouble(TerrainGen.rand, 0, 3)) Terrain.SetTileTerrainGen(x, k, Tile.Stone, true);
-                        else if (k <= y - 3 + MathUtil.RandDouble(TerrainGen.rand, 0, 2)) Terrain.SetTileTerrainGen(x, k, Tile.Dirt, true);
-                        else Terrain.SetTileTerrainGen(x, k, Tile.Sand, true);
+                        if (k <= y - 10 + MathUtil.RandDouble(TerrainGen.rand, 0, 3)) Terrain.SetTile(x, k, Tile.Stone, true);
+                        else if (k <= y - 3 + MathUtil.RandDouble(TerrainGen.rand, 0, 2)) Terrain.SetTile(x, k, Tile.Dirt, true);
+                        else Terrain.SetTile(x, k, Tile.Sand, true);
                     }
                 }
                 v1 = v2;
@@ -33,8 +36,8 @@ namespace Game.Terrains.Gen {
             }
 
             for (int x = posX; x < posX + size * TerrainGen.widthfactor; x++) {
-                for (int y = Terrain.HighestPoint(x) + 1; y < TerrainGen.minlandheight; y++) {
-                    Terrain.SetTileTerrainGen(x, y, Tile.Water(), false);
+                for (int y = Terrain.HighestPoint(x) + 1; y < 64; y++) {
+                    Terrain.SetTile(x, y, Tile.Water(), false);
                 }
             }
 

@@ -14,7 +14,7 @@ namespace Game.TitleScreen {
         internal Text text;
         internal Action OnPress;
         internal CooldownTimer cooldown;
-        internal Vector3 colour;
+        internal Vector4 colour;
 
         private bool hoveredover = false;
 
@@ -26,7 +26,7 @@ namespace Game.TitleScreen {
             this.OnPress = OnPress;
             this.text = new Text(textstring, style, new Vector2(pos.x, pos.y + 0.05));
 
-            colour = new Vector3(1, 1, 1);
+            colour = new Vector4(1, 1, 1, 1);
             model = GuiModel.CreateRectangle(size, Assets.Textures.ButtonTex);
             cooldown = new CooldownTimer(20);
         }
@@ -51,15 +51,15 @@ namespace Game.TitleScreen {
             } else
                 hoveredover = false;
 
-            text.style.colour = colour = 
+            text.style.colour = colour =
                 //disabled
-                disabled ? new Vector3(0.25, 0.25, 0.25) : 
+                disabled ? new Vector4(0.25, 0.25, 0.25, 1) :
 
                 //hovered over
-                hoveredover ? new Vector3(0.75, 0.75, 0.75) : 
+                hoveredover ? new Vector4(0.75, 0.75, 0.75, 1) :
 
                 //active
-                new Vector3(1, 1, 1);
+                new Vector4(1, 1, 1, 1);
         }
 
         public void Dispose() {

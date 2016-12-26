@@ -1,13 +1,17 @@
 ﻿using System;
 using Game.Util;
+using Game.Fluids;
+using System.Diagnostics;
 
 namespace Game.Terrains.Gen {
 
     enum Biome {
-        None, Plains, Desert, Mountain, SnowForest, Jungle
+        None, Plains, Desert, SnowForest, Mountain, Ocean
     }
 
     internal static class TerrainGen {
+
+        private const int FluidSettlingCount = 2000;
 
         public const int size = 4000;
         internal const int widthfactor = 10;
@@ -16,9 +20,15 @@ namespace Game.Terrains.Gen {
         internal const int minlandheight = 128;
 
         internal static Random rand;
+        internal static int seed;
 
         internal static void Generate(int seed) {
+            TerrainGen.seed = seed;
             rand = new Random(seed);
+            Stopwatch watch = new Stopwatch();
+
+            watch.Start();
+            Console.WriteLine("Generating terrain...");
 
             Terrain.Tiles = new Tile[size, 512];
             for (int i = 0; i < Terrain.Tiles.GetLength(0); i++) {
@@ -31,9 +41,6 @@ namespace Game.Terrains.Gen {
             for (int i = 0; i < Terrain.TerrainBiomes.GetLength(0); i++) {
                 Terrain.TerrainBiomes[i] = Biome.None;
             }
-
-
-
             GenTerrain();
 
             // CaveGen.GenCaves();
@@ -41,6 +48,22 @@ namespace Game.Terrains.Gen {
             GenBedrock();
 
             GenDeco();
+
+            watch.Stop();
+            Console.WriteLine("Terrain generation finished in " + watch.ElapsedMilliseconds + " ms");
+
+            watch.Reset();
+            watch.Start();
+            Console.WriteLine("Settling " + FluidManager.UpdateCount() + " fluids");
+
+            for (int i = 0; i < FluidSettlingCount; i++) {
+                FluidManager.Update();
+            }
+            FluidManager.ClearUpdates();
+
+            watch.Stop();
+            Console.WriteLine("Settled fluids in " + watch.ElapsedMilliseconds + " ms");
+
         }
 
         private static void GenDeco() {
@@ -54,7 +77,7 @@ namespace Game.Terrains.Gen {
             for (int i = 0; i < Terrain.Tiles.GetLength(0); i++) {
                 int y = MathUtil.RandInt(rand, 1, 6);
                 for (int j = 0; j < y; j++) {
-                    Terrain.SetTileTerrainGen(i, j, Tile.Bedrock, true);
+                    Terrain.SetTile(i, j, Tile.Bedrock, true);
                 }
             }
         }
@@ -67,8 +90,7 @@ namespace Game.Terrains.Gen {
             int biomeSizeMin = 10, biomeSizeMax = 20;
             while (ptr < size / widthfactor) {
                 int biomeSize = MathUtil.RandInt(rand, biomeSizeMin, biomeSizeMax);
-                Biome b = (Biome)MathUtil.RandInt(rand, (int)Biome.Plains, (int)Biome.SnowForest);
-                // b = Biome.Ocean;
+                Biome b = (Biome)MathUtil.RandInt(rand, (int)Biome.Mountain, (int)Biome.Ocean);
                 h = GenBiome(ptr * widthfactor, h, biomeSize, b);
                 for (int i = ptr; i < ptr + biomeSize; i++) {
                     Terrain.TerrainBiomes[i] = b;
@@ -97,9 +119,9 @@ namespace Game.Terrains.Gen {
                 case Biome.SnowForest:
                     lastHeight = SnowForest.Generate(posX, posY, size);
                     break;
-                    //case Biome.Ocean:
-                    //    lastHeight = Ocean.Generate(posX, posY, size);
-                    //    break;
+                case Biome.Ocean:
+                    lastHeight = Ocean.Generate(posX, posY, size);
+                    break;
             }
 
             return lastHeight;

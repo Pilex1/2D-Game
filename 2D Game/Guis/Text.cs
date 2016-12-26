@@ -19,9 +19,10 @@ namespace Game.Fonts {
         public float maxwidth;
         public int maxlines;
         public float linespacing;
-        public Vector3 colour;
+        public Vector4 colour;
 
-        public TextStyle(TextAlignment alignment, TextFont font, float size, float maxwidth, int maxlines, float linespacing, Vector3 colour) {
+        public TextStyle(TextAlignment alignment, TextFont font, float size, float maxwidth, int maxlines, float linespacing, Vector3 colour) : this(alignment, font, size, maxwidth, maxlines, linespacing, new Vector4(colour, 1)) { }
+        public TextStyle(TextAlignment alignment, TextFont font, float size, float maxwidth, int maxlines, float linespacing, Vector4 colour) {
             this.alignment = alignment;
             this.font = font;
             this.maxwidth = maxwidth * font.fontTexture.Size.Width / size;

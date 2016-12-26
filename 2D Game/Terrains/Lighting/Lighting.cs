@@ -118,14 +118,8 @@ namespace Game.Terrains {
             }
             QueuedUpdates.Clear();
 
-            float posX, posY;
-            if (Player.Instance != null) {
-                posX = (int)Player.Instance.data.pos.x;
-                posY = (int)Player.Instance.data.pos.y;
-            } else {
-                posX = Player.StartX;
-                posY = Player.StartY;
-            }
+            float posX = (int)Player.Instance.data.pos.x;
+            float posY = (int)Player.Instance.data.pos.y;
 
             int startX = (int)(posX + GameRenderer.zoom / 2), endX = (int)(posX - GameRenderer.zoom / 2);
             int startY = (int)(posY + GameRenderer.zoom / 2 / Program.AspectRatio), endY = (int)(posY - GameRenderer.zoom / 2 / Program.AspectRatio);

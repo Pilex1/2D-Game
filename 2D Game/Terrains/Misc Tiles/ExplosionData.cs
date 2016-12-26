@@ -17,7 +17,7 @@ namespace Game.Terrains {
                 Explode(x, y);
         }
 
-        public void Explode(float x, float y) {
+        private void Explode(float x, float y) {
             for (float i = -radius + MathUtil.RandFloat(Program.Rand, -error, error); i <= radius + MathUtil.RandFloat(Program.Rand, -error, error); i++) {
                 for (float j = -radius + MathUtil.RandFloat(Program.Rand, -error, error); j <= radius + MathUtil.RandFloat(Program.Rand, -error, error); j++) {
                     if (i * i + j * j <= radius * radius) {

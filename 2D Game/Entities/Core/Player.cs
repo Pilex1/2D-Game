@@ -11,8 +11,6 @@ namespace Game.Core {
 
     class Player : Entity {
 
-        public const float StartX = TerrainGen.size / 2, StartY = 200;
-
         public static Player Instance { get; private set; }
 
         private Player(Vector2 position) : base(EntityID.PlayerSimple, position) {
@@ -24,7 +22,7 @@ namespace Game.Core {
         }
 
         public static void CreateNew() {
-            Instance = new Player(new Vector2(StartX, StartY));
+            Instance = new Player(new Vector2(TerrainGen.size / 2, 0));
         }
 
         public static void LoadPlayer(EntityData data) {
@@ -61,20 +59,6 @@ namespace Game.Core {
 
             Instance.UpdatePosition();
 
-            if (Input.Keys['1']) PlayerInventory.Instance.CurSelectedSlot = 0;
-            if (Input.Keys['2']) PlayerInventory.Instance.CurSelectedSlot = 1;
-            if (Input.Keys['3']) PlayerInventory.Instance.CurSelectedSlot = 2;
-            if (Input.Keys['4']) PlayerInventory.Instance.CurSelectedSlot = 3;
-            if (Input.Keys['5']) PlayerInventory.Instance.CurSelectedSlot = 4;
-            if (Input.Keys['6']) PlayerInventory.Instance.CurSelectedSlot = 5;
-            if (Input.Keys['7']) PlayerInventory.Instance.CurSelectedSlot = 6;
-            if (Input.Keys['8']) PlayerInventory.Instance.CurSelectedSlot = 7;
-            if (Input.Keys['9']) PlayerInventory.Instance.CurSelectedSlot = 8;
-
-            if (Input.MouseScroll < 0)
-                PlayerInventory.Instance.IncreaseHotbarSelection();
-            if (Input.MouseScroll > 0)
-                PlayerInventory.Instance.DecreaseHotbarSelection();
 
 
 

@@ -8,7 +8,7 @@ namespace Game.Terrains.Gen {
             //generate wood
             int trunkHeight = (int)(5 + 3 * TerrainGen.rand.NextDouble());
             for (int i = y; i < y + trunkHeight; i++) {
-                Terrain.SetTileTerrainGen(x, i, Tile.Wood, false);
+                Terrain.SetTile(x, i, Tile.Wood, false);
             }
 
             //generate leaves
@@ -17,8 +17,8 @@ namespace Game.Terrains.Gen {
 
             for (int i = 0; i < 2 + 2 * TerrainGen.rand.NextDouble(); i++) {
                 for (int j = 0; j < r; j++) {
-                    Terrain.SetTileTerrainGen(x - j, yPointer, Tile.Leaf, false);
-                    Terrain.SetTileTerrainGen(x + j, yPointer, Tile.Leaf, false);
+                    Terrain.SetTile(x - j, yPointer, Tile.Leaf, false);
+                    Terrain.SetTile(x + j, yPointer, Tile.Leaf, false);
                 }
                 yPointer++;
             }
@@ -26,8 +26,8 @@ namespace Game.Terrains.Gen {
             r /= 2;
             for (int i = 0; i < 1 + 2 * TerrainGen.rand.NextDouble(); i++) {
                 for (int j = 0; j < r; j++) {
-                    Terrain.SetTileTerrainGen(x - j, yPointer, Tile.Leaf, false);
-                    Terrain.SetTileTerrainGen(x + j, yPointer, Tile.Leaf, false);
+                    Terrain.SetTile(x - j, yPointer, Tile.Leaf, false);
+                    Terrain.SetTile(x + j, yPointer, Tile.Leaf, false);
                 }
                 yPointer++;
             }
@@ -36,8 +36,8 @@ namespace Game.Terrains.Gen {
             if (r < 2) r = 2;
             for (int i = 0; i < 1 + 2 * TerrainGen.rand.NextDouble(); i++) {
                 for (int j = 0; j < r; j++) {
-                    Terrain.SetTileTerrainGen(x - j, yPointer, Tile.Leaf, false);
-                    Terrain.SetTileTerrainGen(x + j, yPointer, Tile.Leaf, false);
+                    Terrain.SetTile(x - j, yPointer, Tile.Leaf, false);
+                    Terrain.SetTile(x + j, yPointer, Tile.Leaf, false);
                 }
                 yPointer++;
             }
@@ -49,7 +49,7 @@ namespace Game.Terrains.Gen {
             int height = MathUtil.RandInt(TerrainGen.rand, 5, 8);
             //stem
             for (int i = 0; i < height; i++) {
-                Terrain.SetTileTerrainGen(x, y + i, Tile.Cactus, false);
+                Terrain.SetTile(x, y + i, Tile.Cactus, false);
             }
 
             if (MathUtil.RandDouble(TerrainGen.rand, 0, 1) < 0.8) {
@@ -62,16 +62,16 @@ namespace Game.Terrains.Gen {
             int l = MathUtil.RandInt(TerrainGen.rand, 1, 2);
             int r = MathUtil.RandInt(TerrainGen.rand, 1, 2);
             for (int i = x - l; i <= x + r; i++) {
-                Terrain.SetTileTerrainGen(i, y, Tile.Cactus, false);
+                Terrain.SetTile(i, y, Tile.Cactus, false);
             }
 
             int hl = MathUtil.RandInt(TerrainGen.rand, 3, 5);
             int hr = MathUtil.RandInt(TerrainGen.rand, 3, 5);
             for (int i = y + 1; i <= y + hl; i++) {
-                Terrain.SetTileTerrainGen(x - l, i, Tile.Cactus, false);
+                Terrain.SetTile(x - l, i, Tile.Cactus, false);
             }
             for (int i = y + 1; i <= y + hr; i++) {
-                Terrain.SetTileTerrainGen(x + r, i, Tile.Cactus, false);
+                Terrain.SetTile(x + r, i, Tile.Cactus, false);
             }
 
             if (MathUtil.RandDouble(TerrainGen.rand, 0, 1) < recFactor) {
@@ -87,7 +87,7 @@ namespace Game.Terrains.Gen {
             int treeheight = MathUtil.RandInt(TerrainGen.rand, 13, 18);
             int branchesStartingHeight = MathUtil.RandInt(TerrainGen.rand, treeheight / 3, 2 * treeheight / 3);
             for (int i = 0; i < treeheight; i++) {
-                Terrain.SetTileTerrainGen(x, y + i, Tile.SnowWood, false);
+                Terrain.SetTile(x, y + i, Tile.SnowWood, false);
             }
             for (int i = branchesStartingHeight, c = 0; i <= treeheight + MathUtil.RandInt(TerrainGen.rand, 2, 5); i++, c++) {
                 double ratio = 1 - (double)c / (treeheight - branchesStartingHeight);
@@ -95,10 +95,10 @@ namespace Game.Terrains.Gen {
                 double branchLength = MathUtil.RandDouble(TerrainGen.rand, 10, 11);
                 int l = (int)(branchLength * ratio), r = (int)(branchLength * ratio);
                 for (int j = 0; j < l; j++) {
-                    Terrain.SetTileTerrainGen(x - j, y + i, Tile.SnowLeaf, false);
+                    Terrain.SetTile(x - j, y + i, Tile.SnowLeaf, false);
                 }
                 for (int j = 0; j < r; j++) {
-                    Terrain.SetTileTerrainGen(x + j, y + i, Tile.SnowLeaf, false);
+                    Terrain.SetTile(x + j, y + i, Tile.SnowLeaf, false);
                 }
             }
 

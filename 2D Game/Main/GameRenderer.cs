@@ -48,10 +48,6 @@ namespace Game {
         }
 
 
-        public static void CleanUp() {
-            if (Program.Mode != ProgramMode.Game) return;
-            Terrain.CleanUp();
-            EntityManager.CleanUp();
-        }
+
     }
 }

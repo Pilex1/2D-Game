@@ -25,11 +25,11 @@ namespace Game.Terrains.Gen {
 
                     for (int k = 0; k <= y; k++) {
                         if (k >= y - (6 + MathUtil.RandInt(TerrainGen.rand, 0, 3))) {
-                            Terrain.SetTileTerrainGen(x, k, Tile.Snow, true);
+                            Terrain.SetTile(x, k, Tile.Snow, true);
                         } else if (k >= 12 + MathUtil.RandInt(TerrainGen.rand, 0, 3)) {
-                            Terrain.SetTileTerrainGen(x, k, Tile.Dirt, true);
+                            Terrain.SetTile(x, k, Tile.Dirt, true);
                         } else {
-                            Terrain.SetTileTerrainGen(x, k, Tile.Stone, true);
+                            Terrain.SetTile(x, k, Tile.Stone, true);
                         }
                     }
 

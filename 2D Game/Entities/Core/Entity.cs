@@ -32,6 +32,17 @@ namespace Game.Entities {
 
         #region Movement
 
+        public void Teleport(Vector2 v) {
+            Vector2i gridPrev = EntityManager.GetGridArray(this);
+            data.pos.val = v;
+            Vector2i gridNow = EntityManager.GetGridArray(this);
+            if (gridPrev != gridNow) {
+                //recalc grid array
+                EntityManager.EntityGrid[gridPrev.x, gridPrev.y].Remove(this);
+                EntityManager.EntityGrid[gridNow.x, gridNow.y].Add(this);
+            }
+        }
+
         public void MoveLeft() {
             data.vel.x -= data.speed * GameTime.DeltaTime;
         }

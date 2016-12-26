@@ -23,9 +23,9 @@ namespace Game.Terrains.Gen {
                     int x = posX + i * TerrainGen.widthfactor + j;
 
                     for (int k = 0; k <= y; k++) {
-                        if (k <= y - 25 + MathUtil.RandDouble(TerrainGen.rand, 0, 3)) Terrain.SetTileTerrainGen(x, k, Tile.Stone, true);
-                        else if (k <= y - 10 + MathUtil.RandDouble(TerrainGen.rand, 0, 4)) Terrain.SetTileTerrainGen(x, k, Tile.Sandstone, true);
-                        else Terrain.SetTileTerrainGen(x, k, Tile.Sand, true);
+                        if (k <= y - 25 + MathUtil.RandDouble(TerrainGen.rand, 0, 3)) Terrain.SetTile(x, k, Tile.Stone, true);
+                        else if (k <= y - 10 + MathUtil.RandDouble(TerrainGen.rand, 0, 4)) Terrain.SetTile(x, k, Tile.Sandstone, true);
+                        else Terrain.SetTile(x, k, Tile.Sand, true);
                     }
 
                     cactusCounter++;
