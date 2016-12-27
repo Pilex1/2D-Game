@@ -70,6 +70,7 @@ namespace Game.Items {
 
         #region Fluids
         public static readonly RawItem Water = new RawItem(ItemID.Water, new Item_Fluid_Attribs("Water", Tile.Water));
+        public static readonly RawItem Lava = new RawItem(ItemID.Lava, new Item_Fluid_Attribs("Lava", Tile.Lava));
         #endregion
 
         #region Weapons

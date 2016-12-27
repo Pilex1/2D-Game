@@ -1,22 +1,25 @@
-﻿using Game.Terrains;
+﻿using Game.Terrains.Core;
 using Game.Util;
 using System.Collections.Generic;
 
 namespace Game.Logics {
 
-    static class LogicManager {
+    class LogicManager : UpdateTileManager<LogicAttribs> {
 
-        private static CooldownTimer cooldown = new CooldownTimer(1000f / 60);
+        public static LogicManager Instance { get; private set; }
+        public LogicManager() : base(1000f / 60) { }
+        public static void Init() {
+            Instance = new LogicManager();
+        }
 
-        public static void Update() {
+        public override void Update() {
             if (!cooldown.Ready()) return;
             cooldown.Reset();
 
-            var logicDict = Terrain.LogicDict;
-            var list = new List<Vector2i>(logicDict.Keys);
+            var list = new List<Vector2i>(dict.Keys);
             foreach (Vector2i v in list) {
                 LogicAttribs logic;
-                logicDict.TryGetValue(v, out logic);
+                dict.TryGetValue(v, out logic);
                 if (logic == null) continue;
                 logic.Update(v.x, v.y);
             }

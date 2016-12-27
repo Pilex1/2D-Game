@@ -54,12 +54,12 @@ namespace Game.Terrains.Gen {
 
             watch.Reset();
             watch.Start();
-            Console.WriteLine("Settling " + FluidManager.UpdateCount() + " fluids");
+            Console.WriteLine("Settling " + FluidManager.Instance.GetCount() + " fluids");
 
             for (int i = 0; i < FluidSettlingCount; i++) {
-                FluidManager.Update();
+                FluidManager.Instance.Update();
             }
-            FluidManager.ClearUpdates();
+            FluidManager.Instance.Clear();
 
             watch.Stop();
             Console.WriteLine("Settled fluids in " + watch.ElapsedMilliseconds + " ms");

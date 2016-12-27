@@ -11,6 +11,8 @@ using Game.Terrains;
 using Game.Core.World_Serialization;
 using Game.Entities;
 using Game.Items;
+using Game.Fluids;
+using Game.Logics;
 
 namespace Game {
 
@@ -71,11 +73,11 @@ namespace Game {
         public static void SwitchToTitleScreen() {
             GameLogic.Reset();
             Mode = ProgramMode.TitleScreen;
+            TitleScreenRenderer.Reset();
         }
 
 
         public static void SwitchToGame(string worldname, int seed) {
-            TitleScreenRenderer.Reset();
             Mode = ProgramMode.Game;
             Program.worldname = worldname;
             GameRenderer.Init();
@@ -84,7 +86,6 @@ namespace Game {
         }
 
         public static void SwitchToGame(string worldname, WorldData world) {
-            TitleScreenRenderer.Reset();
             Mode = ProgramMode.Game;
             Program.worldname = worldname;
             GameRenderer.Init();
@@ -115,7 +116,7 @@ namespace Game {
         }
 
         public static void SaveWorld() {
-            TerrainData worlddata = new TerrainData(Terrain.Tiles, Terrain.TerrainBiomes);
+            TerrainData worlddata = new TerrainData { terrain = Terrain.Tiles, terrainbiomes = Terrain.TerrainBiomes, fluidDict = FluidManager.Instance.GetDict(), logicDict = LogicManager.Instance.GetDict() };
             EntitiesData entitydata = new EntitiesData(Player.Instance.data, PlayerInventory.Instance.Items, EntityManager.GetAllEntities());
 
             Serialization.SaveWorld(worldname, worlddata, entitydata);

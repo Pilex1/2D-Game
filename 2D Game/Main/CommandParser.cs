@@ -3,11 +3,7 @@ using Game.Fluids;
 using Game.Terrains.Gen;
 using OpenGL;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 
 namespace Game.Main {
     static class CommandParser {
@@ -15,8 +11,8 @@ namespace Game.Main {
             if (s == "") return;
             var arr = s.Split(new char[] { ' ' }, 2);
             switch (arr[0]) {
-                case "clear_fluids":
-                    FluidManager.ClearUpdates();
+                case "fluids":
+                    ParseFluids(arr[1]);
                     break;
                 case "teleport":
                     Vector2 pos = ParseVec2(arr[1]);
@@ -28,6 +24,13 @@ namespace Game.Main {
                 default:
                     throw new ArgumentException("Unknown command: \"" + arr[0] + "\"");
             }
+            Console.WriteLine("Executed: " + s);
+        }
+
+        private static void ParseFluids(string s) {
+            Type type = typeof(FluidManager);
+            MethodInfo method = type.GetMethod(s);
+            method.Invoke(FluidManager.Instance, null);
         }
 
         private static Vector2 ParseVec2(string s) {

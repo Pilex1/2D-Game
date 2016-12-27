@@ -9,7 +9,7 @@ using Game.Logics;
 using Game.Core;
 using Game.Fluids;
 using Game.Terrains.Gen;
-using Game.Items;
+using Game.Core.World_Serialization;
 
 namespace Game.Terrains {
 
@@ -23,8 +23,6 @@ namespace Game.Terrains {
         public static bool generating { get; private set; }
 
         public static TerrainVAO vao;
-
-        public static Dictionary<Vector2i, LogicAttribs> LogicDict = new Dictionary<Vector2i, LogicAttribs>();
 
 
         private const int TerrainTextureSize = 16;
@@ -47,22 +45,12 @@ namespace Game.Terrains {
             CreateNew(sum);
         }
 
-        public static void Load(Tile[,] Tiles) {
-            Terrain.Tiles = Tiles;
-            for (int i = 0; i < Terrain.Tiles.GetLength(0); i++) {
-                for (int j = 0; j < Terrain.Tiles.GetLength(1); j++) {
-                    LogicAttribs logic = Terrain.Tiles[i, j].tileattribs as LogicAttribs;
-                    if (logic != null) {
-                        LogicDict.Add(new Vector2i(i, j), logic);
-                    }
+        public static void Load(TerrainData data) {
+            Tiles = data.terrain;
 
-                    FluidAttribs fluid = Terrain.Tiles[i, j].tileattribs as FluidAttribs;
-                    if (fluid != null) {
-                        //to do 
-                        FluidManager.AddUpdate(new Vector2i(i, j), fluid);
-                    }
-                }
-            }
+            FluidManager.Instance.LoadDict(data.fluidDict);
+            LogicManager.Instance.LoadDict(data.logicDict);
+
         }
 
         public static void LoadShaders() {
@@ -324,14 +312,14 @@ namespace Game.Terrains {
             Tiles[x, y] = tile;
 
             LogicAttribs logic = tile.tileattribs as LogicAttribs;
-            if (logic != null) LogicDict[new Vector2i(x, y)] = logic;
+            if (logic != null) LogicManager.Instance.AddUpdate(x, y, logic);
 
             LightAttribs light = tile.tileattribs as LightAttribs;
             if (light != null) Lighting.AddLight(x, y, light.intensity);
 
             FluidAttribs fluid = tile.tileattribs as FluidAttribs;
-            if (fluid != null) FluidManager.AddUpdate(x, y, fluid);
-            FluidManager.AddUpdateAround(x, y);
+            if (fluid != null) FluidManager.Instance.AddUpdate(x, y, fluid);
+            FluidManager.Instance.UpdateAround(x, y);
 
             if (generating) return;
 
@@ -348,13 +336,9 @@ namespace Game.Terrains {
             Tiles[x, y] = Tile.Air;
 
             Lighting.RemoveLight(x, y);
-            LogicDict.Remove(new Vector2i(x, y));
-
-            FluidAttribs fluid = tile.tileattribs as FluidAttribs;
-            if (fluid != null) {
-                FluidManager.RemoveUpdate(x, y);
-            }
-            FluidManager.AddUpdateAround(x, y);
+            LogicManager.Instance.RemoveUpdate(x, y);
+            FluidManager.Instance.RemoveUpdate(x, y);
+            FluidManager.Instance.UpdateAround(x, y);
 
             if (generating) return tile;
 
@@ -378,8 +362,6 @@ namespace Game.Terrains {
             switch (dir) {
                 case Direction.Left:
                     if (TileAt(x - 1, y).enumId == TileID.Air) {
-                        LogicAttribs logic;
-                        if (LogicDict.TryGetValue(v, out logic)) LogicDict.Remove(v);
                         SetTile(x - 1, y, TileAt(x, y));
                         BreakTile(x, y);
                         Lighting.QueueUpdate(x - 1, y);
@@ -387,8 +369,6 @@ namespace Game.Terrains {
                     break;
                 case Direction.Right:
                     if (TileAt(x + 1, y).enumId == TileID.Air) {
-                        LogicAttribs logic;
-                        if (LogicDict.TryGetValue(v, out logic)) LogicDict.Remove(v);
                         SetTile(x + 1, y, TileAt(x, y));
                         BreakTile(x, y);
                         Lighting.QueueUpdate(x + 1, y);
@@ -396,8 +376,6 @@ namespace Game.Terrains {
                     break;
                 case Direction.Up:
                     if (TileAt(x, y + 1).enumId == TileID.Air) {
-                        LogicAttribs logic;
-                        if (LogicDict.TryGetValue(v, out logic)) LogicDict.Remove(v);
                         SetTile(x, y + 1, TileAt(x, y));
                         BreakTile(x, y);
                         Lighting.QueueUpdate(x, y + 1);
@@ -405,8 +383,6 @@ namespace Game.Terrains {
                     break;
                 case Direction.Down:
                     if (TileAt(x, y - 1).enumId == TileID.Air) {
-                        LogicAttribs logic;
-                        if (LogicDict.TryGetValue(v, out logic)) LogicDict.Remove(v);
                         SetTile(x, y - 1, TileAt(x, y));
                         BreakTile(x, y);
                         Lighting.QueueUpdate(x, y - 1);
@@ -430,8 +406,8 @@ namespace Game.Terrains {
         }
 
         public static void Update() {
-            FluidManager.Update();
-            LogicManager.Update();
+            FluidManager.Instance.Update();
+            LogicManager.Instance.Update();
 
             Vector2[] vertices;
             int[] elements;

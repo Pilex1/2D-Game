@@ -9,7 +9,7 @@ using Game.Core.World_Serialization;
 using Game.Items;
 using Tao.FreeGlut;
 using Game.Fluids;
-using System;
+using Game.Logics;
 
 namespace Game {
 
@@ -32,6 +32,7 @@ namespace Game {
 
 
         public static void InitNew(int seed) {
+            InitBefore();
 
             Terrain.CreateNew(seed);
             Terrain.Init();
@@ -57,15 +58,16 @@ namespace Game {
 
 
 
-            Init();
         }
 
 
 
         public static void InitLoad(TerrainData worlddata, EntitiesData entitiesdata) {
 
+            InitBefore();
+
             #region Terrain
-            Terrain.Load(worlddata.terrain);
+            Terrain.Load(worlddata);
             Terrain.Init();
             #endregion
 
@@ -90,12 +92,14 @@ namespace Game {
             #endregion
 
 
-            Init();
         }
 
-        private static void Init() {
+        private static void InitBefore() {
             RenderDebugText = new BoolSwitch(false, 30);
             RenderHitboxes = new BoolSwitch(false, 30);
+
+            FluidManager.Init();
+            LogicManager.Init();
         }
 
         public static void Update() {
@@ -182,8 +186,8 @@ namespace Game {
             sb.AppendLine(brk);
             sb.AppendLine(GameTime.FPS + " FPS / " + string.Format("{0:0.0000}", 1000f / GameTime.FPS) + " ms");
             sb.AppendLine("Loaded Entities: " + EntityManager.LoadedEntities);
-            sb.AppendLine("Logic tiles: " + Terrain.LogicDict.Keys.Count);
-            sb.AppendLine("Fluid tiles: " + FluidManager.GetFluidCount());
+            sb.AppendLine("Logic tiles: " + LogicManager.Instance.GetCount());
+            sb.AppendLine("Fluid tiles: " + FluidManager.Instance.GetCount());
             sb.AppendLine(brk);
             Vector2 playerpos = Player.Instance.data.pos.val;
             Vector2 playervel = Player.Instance.data.vel.val;
@@ -198,7 +202,8 @@ namespace Game {
             if (Program.Mode != ProgramMode.Game) return;
             Terrain.CleanUp();
             EntityManager.CleanUp();
-            FluidManager.CleanUp();
+            FluidManager.Instance.CleanUp();
+            LogicManager.Instance.CleanUp();
         }
 
 

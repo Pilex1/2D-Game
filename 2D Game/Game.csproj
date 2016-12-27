@@ -72,6 +72,8 @@
     <Compile Include="Main\World Serialization\Serialization.cs" />
     <Compile Include="Entities\Core\EntityManager.cs" />
     <Compile Include="Entities\Squisher.cs" />
+    <Compile Include="Terrains\Core\UpdateTileManager.cs" />
+    <Compile Include="Terrains\Fluid Tiles\FlowFluid.cs" />
     <Compile Include="Terrains\Fluid Tiles\Lava.cs" />
     <Compile Include="Terrains\Fluid Tiles\Water.cs" />
     <Compile Include="Guis\Button.cs" />

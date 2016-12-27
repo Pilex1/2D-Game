@@ -1,16 +1,14 @@
 ﻿using Game.Items;
 using Game.Terrains;
-using Game.Util;
 using System;
 using System.Text;
-using Game.Entities;
 
 namespace Game.Fluids {
 
     [Serializable]
     abstract class FluidAttribs : TileAttribs {
 
-        protected int maxIncrements;
+        internal int maxIncrements;
         private int _increments;
         public int increments {
             get { return _increments; }
@@ -49,7 +47,7 @@ namespace Game.Fluids {
                 SpreadRight(x, y);
             }
 
-            if (!updateNext) FluidManager.RemoveUpdate(x, y);
+            if (!updateNext) FluidManager.Instance.RemoveUpdate(x, y);
         }
 
         protected abstract void FallAir(int x, int y);
@@ -68,5 +66,7 @@ namespace Game.Fluids {
         }
 
     }
+
+
 
 }

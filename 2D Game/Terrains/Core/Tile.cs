@@ -75,7 +75,7 @@ namespace Game.Terrains {
 
         #region Fluids
         public static Tile Water() { return new Tile(TileID.Water, new WaterAttribs()); }
-        //public static Tile Lava { get { return new Tile(TileEnum.Lava, new LavaAttribs()); } }
+        public static Tile Lava() { return new Tile(TileID.Lava, new LavaAttribs()); }
         #endregion
 
         public static Tile Accelerator = new Tile(TileID.Accelerator, delegate () { return RawItem.Accelerator; });
