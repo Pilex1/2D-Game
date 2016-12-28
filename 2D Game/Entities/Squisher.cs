@@ -34,7 +34,7 @@ namespace Game.Entities {
                 dmgTimer.Reset();
             }
 
-            if (data.InAir) {
+            if (data.mvtState == MovementState.Air) {
                 if (Math.Abs(data.vel.x) == 0) {
                     data.vel.x = initialVel.x;
                 } else {

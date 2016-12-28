@@ -63,7 +63,7 @@
     <Compile Include="Guis\Inventory\Item.cs" />
     <Compile Include="Guis\Inventory\ItemAttribs.cs" />
     <Compile Include="Guis\Inventory\ItemID.cs" />
-    <Compile Include="Main\CommandParser.cs" />
+    <Compile Include="Main\Commands\CommandParser.cs" />
     <Compile Include="Main\GameTime.cs" />
     <Compile Include="Main\Input.cs" />
     <Compile Include="Main\Vao.cs" />
@@ -250,6 +250,7 @@
     <Content Include="freeglut.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Main\Commands\Command templates.txt" />
     <Content Include="OpenGL.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

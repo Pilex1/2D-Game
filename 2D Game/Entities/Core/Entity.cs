@@ -4,6 +4,8 @@ using Game.Terrains;
 using System.Collections.Generic;
 using Game.Core;
 using Game.Util;
+using Game.Fluids;
+using System.Diagnostics;
 
 namespace Game.Entities {
 
@@ -50,8 +52,16 @@ namespace Game.Entities {
             data.vel.x += data.speed * GameTime.DeltaTime;
         }
         public void Jump() {
-            if (!data.InAir) {
-                data.vel.y = data.jumppower;
+            switch (data.mvtState) {
+                case MovementState.Ground:
+                    data.vel.y = data.jumppower;
+                    data.mvtState = MovementState.Air;
+                    break;
+                case MovementState.Air:
+                    break;
+                case MovementState.Fluid:
+                    data.vel.y = data.jumppower;
+                    break;
             }
         }
         public void Fall() {
@@ -60,10 +70,13 @@ namespace Game.Entities {
 
         private void UpdateX(float x) {
             MathUtil.Clamp(ref x, -1, 1);
-            Tile col;
             int colx, coly;
             Vector2 offset = new Vector2(x, 0);
-            if (Terrain.WillCollide(this, offset, out col, out colx, out coly)) {
+            Tile col = Terrain.CalcFutureCollision(this, offset, out colx, out coly);
+            if (col.tileattribs is FluidAttribs) {
+                data.mvtState = MovementState.Fluid;
+                data.pos.val += offset;
+            } else if (col.enumId != TileID.Air) {
                 if (x >= 0) {
                     if (data.calcTerrainCollisions)
                         col.tileattribs.OnEntityCollision(colx, coly, Direction.Right, this);
@@ -82,26 +95,35 @@ namespace Game.Entities {
 
         private void UpdateY(float y) {
             MathUtil.Clamp(ref y, -1, 1);
-            Tile col;
             int colx, coly;
             Vector2 offset = new Vector2(0, y);
-            if (Terrain.WillCollide(this, offset, out col, out colx, out coly)) {
+            Tile col = Terrain.CalcFutureCollision(this, offset, out colx, out coly);
+
+            if (col.tileattribs is FluidAttribs) {
+                //collision with fluid
+                data.mvtState = MovementState.Fluid;
+                data.pos.val += offset;
+            } else if (col.enumId != TileID.Air) {
+                //collision with solid block
                 if (y >= 0) {
                     if (data.calcTerrainCollisions)
                         col.tileattribs.OnEntityCollision(colx, coly, Direction.Up, this);
 
                     OnTerrainCollision(colx, coly, Direction.Up, col);
+                    data.mvtState = MovementState.Air;
                 } else {
                     if (data.calcTerrainCollisions)
                         col.tileattribs.OnEntityCollision(colx, coly, Direction.Down, this);
 
                     OnTerrainCollision(colx, coly, Direction.Down, col);
+                    data.mvtState = MovementState.Ground;
                 }
             } else {
+                //no collision
                 data.pos.val += offset;
-                if (y != 0)
-                    data.InAir = true;
+                data.mvtState = MovementState.Air;
             }
+
         }
 
         public void UpdatePosition() {
@@ -127,8 +149,16 @@ namespace Game.Entities {
 
         #region Collisions
 
-        public bool IsCollidingWithTerrain() {
-            return Terrain.IsColliding(this);
+        /// <summary>
+        /// Returns true if the current entity is colliding with a non-air tile.
+        /// </summary>
+        /// <returns></returns>
+        public bool Colliding() {
+            return Terrain.CalcCollision(this).enumId != TileID.Air;
+        }
+
+        public Tile CalcTerrainCollision() {
+            return Terrain.CalcCollision(this);
         }
 
         public void CorrectTerrainCollision() {

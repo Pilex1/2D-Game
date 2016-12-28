@@ -40,7 +40,7 @@ namespace Game.Particles {
         }
 
         protected void RemoveIfColliding() {
-            if (Terrain.IsColliding(this)) EntityManager.RemoveEntity(this);
+            if (Colliding()) EntityManager.RemoveEntity(this);
         }
     }
 }

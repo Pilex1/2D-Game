@@ -138,7 +138,11 @@ namespace Game.Guis {
         public void Execute() {
             var s = ToString();
             try {
-                CommandParser.Execute(s);
+                object obj = CommandParser.Execute(s);
+                if (obj != null) {
+                    Console.WriteLine(CommandParser.Execute(s).ToString());
+                }
+                Console.WriteLine("Succesfully executed command: \"" + s + "\"");
             } catch (Exception e) {
                 Console.WriteLine("Error while parsing: \"" + s + "\"");
                 Console.WriteLine(e);

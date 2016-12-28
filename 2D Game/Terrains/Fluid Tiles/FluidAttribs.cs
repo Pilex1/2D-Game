@@ -2,6 +2,8 @@
 using Game.Terrains;
 using System;
 using System.Text;
+using Game.Entities;
+using Game.Util;
 
 namespace Game.Fluids {
 
@@ -28,6 +30,9 @@ namespace Game.Fluids {
         }
         protected FluidAttribs(int maxIncrements) : this(maxIncrements, maxIncrements) { }
 
+        public override void OnEntityCollision(int x, int y, Direction side, Entity e) {
+
+        }
 
         //flow downwrds, flowing outwards
         public virtual void Update(int x, int y) {

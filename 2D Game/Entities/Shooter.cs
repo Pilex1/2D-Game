@@ -39,7 +39,7 @@ namespace Game {
             vel /= 5;
             Projectile proj = new Projectile(data.pos.val, vel, projlife);
 
-            if (!Terrain.IsColliding(proj)) EntityManager.AddEntity(proj);
+            if (!proj.Colliding()) EntityManager.AddEntity(proj);
         }
     }
 }

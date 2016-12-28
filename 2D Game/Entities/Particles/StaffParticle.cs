@@ -101,7 +101,7 @@ namespace Game.Particles {
 
         public override void Update() {
             base.Update();
-            if (Terrain.IsColliding(hitbox) || ((ParticleData)data).life <= 0) {
+            if (Colliding() || ((ParticleData)data).life <= 0) {
                 int x = (int)data.pos.x;
                 int y = (int)data.pos.y;
 

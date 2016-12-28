@@ -17,7 +17,7 @@ namespace Game.Logics {
         private const int range = 16;
         public bool state;
 
-        public AutoShooterAttribs():base(delegate() { return RawItem.AutoShooter; }) {
+        public AutoShooterAttribs() : base(delegate () { return RawItem.AutoShooter; }) {
             powerinL.max = powerinR.max = powerinU.max = powerinD.max = 16;
             cost = 8;
             state = false;
@@ -46,10 +46,10 @@ namespace Game.Logics {
 
                 var pos = new Vector2(x - range, y - range);
                 var size = new Vector2(2 * range, 2 * range);
-                var entities = EntityManager.GetEntitiesAt(pos, size, e => !(e is AutoDart ||e is Player || e.data.invulnerable));
+                var entities = EntityManager.GetEntitiesAt(pos, size, e => !(e is AutoDart || e is Player || e.data.invulnerable));
 
                 if (cooldown.Ready()) {
-                    if (entities.Length>0) {
+                    if (entities.Length > 0) {
                         cooldown.Reset();
 
                         var e = entities[MathUtil.RandInt(Program.Rand, 0, entities.Length - 1)];
@@ -59,7 +59,7 @@ namespace Game.Logics {
                         dartpos += 1.5f * darvel;
                         darvel /= 10;
                         var ad = new AutoDart(dartpos, darvel);
-                        if (!ad.IsCollidingWithTerrain())
+                        if (!ad.Colliding())
                             EntityManager.AddEntity(ad);
                     } else {
                         cooldown.SetTime(-100);

@@ -30,7 +30,7 @@ namespace Game.Terrains {
                 case Direction.Down:
                     e.data.pos.y = y + 1;
                     e.data.vel.y = 0;
-                    e.data.InAir = false;
+                    e.data.mvtState = MovementState.Ground;
                     break;
                 case Direction.Left:
                     e.data.pos.x = x + 1;

@@ -213,8 +213,8 @@ namespace Game.Terrains {
         #endregion Mesh
 
         #region Collision
-        public static bool WillCollide(Entity entity, Vector2 offset, out Tile collidedTile, out int collision_x, out int collision_y) { return WillCollide(entity.hitbox, offset, out collidedTile, out collision_x, out collision_y); }
-        public static bool WillCollide(Hitbox hitbox, Vector2 offset, out Tile collidedTile, out int collision_x, out int collision_y) {
+        public static Tile CalcFutureCollision(Entity entity, Vector2 offset, out int collision_x, out int collision_y) { return CalcFutureCollision(entity.hitbox, offset, out collision_x, out collision_y); }
+        public static Tile CalcFutureCollision(Hitbox hitbox, Vector2 offset, out int collision_x, out int collision_y) {
             int x1 = (int)Math.Floor(hitbox.Position.x + offset.x);
             int x2 = (int)Math.Floor(hitbox.Position.x + hitbox.Size.x + offset.x);
 
@@ -223,37 +223,24 @@ namespace Game.Terrains {
 
             for (int i = x1; i <= x2; i++) {
                 for (int j = y1; j <= y2; j++) {
-                    if (TileAt(i, j).tileattribs.solid) {
-                        collidedTile = TileAt(i, j);
+                    if (TileAt(i, j).enumId != TileID.Air) {
                         collision_x = i;
                         collision_y = j;
-                        return true;
+                        return TileAt(i, j);
                     }
                 }
             }
-            collidedTile = Tile.Air;
             collision_x = -1;
             collision_y = -1;
-            return false;
+            return Tile.Air;
         }
 
-        public static bool IsColliding(Entity entity) {
-            Tile col;
-            return IsColliding(entity, out col);
+        public static Tile CalcCollision(Entity entity) {
+            return CalcCollision(entity.hitbox);
         }
-
-        public static bool IsColliding(Hitbox h) {
-            Tile col;
-            return IsColliding(h, out col);
-        }
-
-        public static bool IsColliding(Hitbox h, out Tile col) {
+        public static Tile CalcCollision(Hitbox h) {
             int colx, coly;
-            return WillCollide(h, Vector2.Zero, out col, out colx, out coly);
-        }
-
-        public static bool IsColliding(Entity entity, out Tile col) {
-            return IsColliding(entity.hitbox, out col);
+            return CalcFutureCollision(h, Vector2.Zero, out colx, out coly);
         }
 
         public static Vector2 CorrectTerrainCollision(Entity entity) {

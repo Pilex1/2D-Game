@@ -5,6 +5,10 @@ using System;
 
 namespace Game.Entities {
 
+    enum MovementState {
+        Ground, Air, Fluid
+    }
+
     [Serializable]
     class EntityData {
 
@@ -16,7 +20,7 @@ namespace Game.Entities {
         public float grav = 0.02f;
         public float airResis = 0.85f;
         public float jumppower = 0;
-        public bool InAir = false;
+        public MovementState mvtState = MovementState.Ground;
         public bool calcTerrainCollisions = true;
         public BoundedFloat life = new BoundedFloat(1, 0, 1);
         public BoundedVector2 vel = new BoundedVector2(new BoundedFloat(0, -EntityManager.maxHorzSpeed, EntityManager.maxHorzSpeed), new BoundedFloat(0, -EntityManager.maxVertSpeed, EntityManager.maxVertSpeed));
