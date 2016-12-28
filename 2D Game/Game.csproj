@@ -23,7 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IntermediateOutputPath>C:\Users\Brain\AppData\Local\Temp\vs1D0C.tmp\Debug\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\MYCOMP~1\AppData\Local\Temp\vs8F72.tmp\Debug\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,7 +33,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IntermediateOutputPath>C:\Users\Brain\AppData\Local\Temp\vs1D0C.tmp\Release\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\MYCOMP~1\AppData\Local\Temp\vs8F72.tmp\Release\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -72,6 +72,7 @@
     <Compile Include="Main\World Serialization\Serialization.cs" />
     <Compile Include="Entities\Core\EntityManager.cs" />
     <Compile Include="Entities\Squisher.cs" />
+    <Compile Include="Terrains\Core\ez.cs" />
     <Compile Include="Terrains\Core\UpdateTileManager.cs" />
     <Compile Include="Terrains\Fluid Tiles\FlowFluid.cs" />
     <Compile Include="Terrains\Fluid Tiles\Lava.cs" />
