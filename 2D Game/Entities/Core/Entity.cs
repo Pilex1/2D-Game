@@ -6,6 +6,7 @@ using Game.Core;
 using Game.Util;
 using Game.Fluids;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Game.Entities {
 
@@ -60,7 +61,7 @@ namespace Game.Entities {
                 case MovementState.Air:
                     break;
                 case MovementState.Fluid:
-                    data.vel.y = data.jumppower;
+                    data.vel.y += data.jumppower/60;
                     break;
             }
         }
@@ -70,67 +71,89 @@ namespace Game.Entities {
 
         private void UpdateX(float x) {
             MathUtil.Clamp(ref x, -1, 1);
-            int colx, coly;
             Vector2 offset = new Vector2(x, 0);
-            Tile col = Terrain.CalcFutureCollision(this, offset, out colx, out coly);
-            if (col.tileattribs is FluidAttribs) {
-                data.mvtState = MovementState.Fluid;
+            Tuple<Vector2i, Tile>[] futureCollision = Terrain.CalcFutureCollision(this, offset);
+
+            if (futureCollision.Length == 0) {
+                //in air
                 data.pos.val += offset;
-            } else if (col.enumId != TileID.Air) {
-                if (x >= 0) {
-                    if (data.calcTerrainCollisions)
-                        col.tileattribs.OnEntityCollision(colx, coly, Direction.Right, this);
+                data.mvtState = MovementState.Air;
 
-                    OnTerrainCollision(colx, coly, Direction.Right, col);
-                } else {
-                    if (data.calcTerrainCollisions)
-                        col.tileattribs.OnEntityCollision(colx, coly, Direction.Left, this);
+            } else if (Array.Exists(futureCollision, t => !(t.Item2.tileattribs is FluidAttribs))) {
+                //collision with solid (non-fluid) tiles
 
-                    OnTerrainCollision(colx, coly, Direction.Left, col);
+                foreach (var tuple in futureCollision) {
+                    Vector2i pos = tuple.Item1;
+                    Tile tile = tuple.Item2;
+                    if (x >= 0) {
+                        if (data.calcTerrainCollisions)
+                            tile.tileattribs.OnEntityCollision(pos.x, pos.y, Direction.Right, this);
+
+                        OnTerrainCollision(pos.x, pos.y, Direction.Right, tile);
+                    } else {
+                        if (data.calcTerrainCollisions)
+                            tile.tileattribs.OnEntityCollision(pos.x, pos.y, Direction.Left, this);
+
+                        OnTerrainCollision(pos.x, pos.y, Direction.Left, tile);
+                    }
                 }
+               
             } else {
+                //collision with fluid
+
                 data.pos.val += offset;
+                data.mvtState = MovementState.Fluid;
             }
         }
 
         private void UpdateY(float y) {
             MathUtil.Clamp(ref y, -1, 1);
-            int colx, coly;
             Vector2 offset = new Vector2(0, y);
-            Tile col = Terrain.CalcFutureCollision(this, offset, out colx, out coly);
+            Tuple<Vector2i, Tile>[] futureCollision = Terrain.CalcFutureCollision(this, offset);
 
-            if (col.tileattribs is FluidAttribs) {
-                //collision with fluid
-                data.mvtState = MovementState.Fluid;
-                data.pos.val += offset;
-            } else if (col.enumId != TileID.Air) {
-                //collision with solid block
-                if (y >= 0) {
-                    if (data.calcTerrainCollisions)
-                        col.tileattribs.OnEntityCollision(colx, coly, Direction.Up, this);
-
-                    OnTerrainCollision(colx, coly, Direction.Up, col);
-                    data.mvtState = MovementState.Air;
-                } else {
-                    if (data.calcTerrainCollisions)
-                        col.tileattribs.OnEntityCollision(colx, coly, Direction.Down, this);
-
-                    OnTerrainCollision(colx, coly, Direction.Down, col);
-                    data.mvtState = MovementState.Ground;
-                }
-            } else {
-                //no collision
+            if (futureCollision.Length == 0) {
+                //in air
                 data.pos.val += offset;
                 data.mvtState = MovementState.Air;
-            }
 
+            } else if (Array.Exists(futureCollision, t => !(t.Item2.tileattribs is FluidAttribs))) {
+                //collision with solid (non-fluid) tiles
+
+                foreach (var tuple in futureCollision) {
+                    Vector2i pos = tuple.Item1;
+                    Tile tile = tuple.Item2;
+                    if (y >= 0) {
+                        if (data.calcTerrainCollisions)
+                            tile.tileattribs.OnEntityCollision(pos.x, pos.y, Direction.Up, this);
+
+                        OnTerrainCollision(pos.x, pos.y, Direction.Right, tile);
+                    } else {
+                        if (data.calcTerrainCollisions)
+                            tile.tileattribs.OnEntityCollision(pos.x, pos.y, Direction.Down, this);
+
+                        OnTerrainCollision(pos.x, pos.y, Direction.Left, tile);
+                        data.mvtState = MovementState.Ground;
+                    }
+                }
+                
+            } else {
+                //collision with fluid
+
+                data.pos.val += offset;
+                data.mvtState = MovementState.Fluid;
+            }
         }
 
         public void UpdatePosition() {
 
             Vector2i gridPrev = EntityManager.GetGridArray(this);
+
             data.vel.y -= data.grav * GameTime.DeltaTime;
             data.vel.x *= (float)Math.Pow(data.airResis, GameTime.DeltaTime);
+
+            if (Array.Exists(CalcTerrainCollision(), t => t.Item2.tileattribs is FluidAttribs)) {
+                data.mvtState = MovementState.Fluid;
+            }
 
             UpdateX(data.vel.x * GameTime.DeltaTime);
             UpdateY(data.vel.y * GameTime.DeltaTime);
@@ -154,10 +177,10 @@ namespace Game.Entities {
         /// </summary>
         /// <returns></returns>
         public bool Colliding() {
-            return Terrain.CalcCollision(this).enumId != TileID.Air;
+            return Terrain.CalcCollision(this).Length != 0;
         }
 
-        public Tile CalcTerrainCollision() {
+        public Tuple<Vector2i, Tile>[] CalcTerrainCollision() {
             return Terrain.CalcCollision(this);
         }
 

@@ -213,34 +213,46 @@ namespace Game.Terrains {
         #endregion Mesh
 
         #region Collision
-        public static Tile CalcFutureCollision(Entity entity, Vector2 offset, out int collision_x, out int collision_y) { return CalcFutureCollision(entity.hitbox, offset, out collision_x, out collision_y); }
-        public static Tile CalcFutureCollision(Hitbox hitbox, Vector2 offset, out int collision_x, out int collision_y) {
+
+        private class TileComparer : IComparer<Tuple<Vector2i, Tile>> {
+            public int Compare(Tuple<Vector2i, Tile> a, Tuple<Vector2i, Tile> b) {
+                Vector2i pos1 = a.Item1;
+                Vector2i pos2 = b.Item1;
+                if (pos1.x > pos2.x) return 1;
+                else if (pos1.x == pos2.x) return 0;
+                else return -1;
+            }
+        }
+
+        public static Tuple<Vector2i, Tile>[] CalcFutureCollision(Entity entity, Vector2 offset) {
+            return CalcFutureCollision(entity.hitbox, offset);
+        }
+        public static Tuple<Vector2i, Tile>[] CalcFutureCollision(Hitbox hitbox, Vector2 offset) {
             int x1 = (int)Math.Floor(hitbox.Position.x + offset.x);
             int x2 = (int)Math.Floor(hitbox.Position.x + hitbox.Size.x + offset.x);
 
             int y1 = (int)Math.Floor(hitbox.Position.y + offset.y);
             int y2 = (int)Math.Floor(hitbox.Position.y + hitbox.Size.y + offset.y);
 
+            var cols = new List<Tuple<Vector2i, Tile>>();
+
             for (int i = x1; i <= x2; i++) {
                 for (int j = y1; j <= y2; j++) {
                     if (TileAt(i, j).enumId != TileID.Air) {
-                        collision_x = i;
-                        collision_y = j;
-                        return TileAt(i, j);
+                        cols.Add(new Tuple<Vector2i, Tile>(new Vector2i(i, j), TileAt(i, j)));
                     }
                 }
             }
-            collision_x = -1;
-            collision_y = -1;
-            return Tile.Air;
+
+            var array = cols.ToArray();
+            return cols.ToArray();
         }
 
-        public static Tile CalcCollision(Entity entity) {
+        public static Tuple<Vector2i, Tile>[] CalcCollision(Entity entity) {
             return CalcCollision(entity.hitbox);
         }
-        public static Tile CalcCollision(Hitbox h) {
-            int colx, coly;
-            return CalcFutureCollision(h, Vector2.Zero, out colx, out coly);
+        public static Tuple<Vector2i, Tile>[] CalcCollision(Hitbox h) {
+            return CalcFutureCollision(h, Vector2.Zero);
         }
 
         public static Vector2 CorrectTerrainCollision(Entity entity) {

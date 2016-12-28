@@ -64,7 +64,6 @@ namespace Game.Core {
 
             if (IsStuck()) {
                 Debug.WriteLine("Player stuck! Position: " + data.pos + " Velocity: " + data.vel);
-                CorrectTerrainCollision();
             }
 
         }
