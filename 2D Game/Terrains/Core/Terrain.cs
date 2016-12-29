@@ -11,7 +11,6 @@ using Game.Terrains.Terrain_Generation;
 using Game.Core.World_Serialization;
 using Game.Terrains.Fluids;
 using Game.Terrains.Lighting;
-using Game.Terrains.Lightings;
 
 namespace Game.Terrains {
 
@@ -28,7 +27,7 @@ namespace Game.Terrains {
 
         private const int TerrainTextureSize = 16;
 
-        public static ShaderProgram TerrainShader { get; private set; }
+        public static ShaderProgram Shader { get; private set; }
         #endregion
 
         #region Init
@@ -48,40 +47,35 @@ namespace Game.Terrains {
         }
 
         public static void LoadShaders() {
-            TerrainShader = new ShaderProgram(Shaders.TerrainVert, Shaders.TerrainFrag);
+            Shader = new ShaderProgram(Shaders.TerrainVert, Shaders.TerrainFrag);
             Console.WriteLine("Terrain Shader Log: ");
-            Console.WriteLine(TerrainShader.ProgramLog);
+            Console.WriteLine(Shader.ProgramLog);
         }
 
         public static void Init() {
             LightingManager.Init();
-            InitMesh();
+            vao = new TerrainVAO(new Vector2[] { }, new int[] { }, new Vector2[] { }, new Vector4[] { });
         }
 
         #endregion
 
         #region Matrices
         public static void UpdateViewMatrix(Matrix4 mat) {
-            Debug.Assert(TerrainShader != null);
-            Gl.UseProgram(TerrainShader.ProgramID);
-            TerrainShader["viewMatrix"].SetValue(mat);
+            Debug.Assert(Shader != null);
+            Gl.UseProgram(Shader.ProgramID);
+            Shader["viewMatrix"].SetValue(mat);
             Gl.UseProgram(0);
         }
 
         public static void SetProjectionMatrix(Matrix4 mat) {
-            Debug.Assert(TerrainShader != null);
-            Gl.UseProgram(TerrainShader.ProgramID);
-            TerrainShader["projectionMatrix"].SetValue(mat);
+            Debug.Assert(Shader != null);
+            Gl.UseProgram(Shader.ProgramID);
+            Shader["projectionMatrix"].SetValue(mat);
             Gl.UseProgram(0);
         }
         #endregion
 
         #region Mesh
-
-        private static void InitMesh() {
-            vao = new TerrainVAO(new Vector2[] { }, new int[] { }, new Vector2[] { }, new float[] { });
-        }
-
         internal static void Range(out int minx, out int maxx, out int miny, out int maxy) {
             float posX = (int)Player.Instance.data.pos.x;
             float posY = (int)Player.Instance.data.pos.y;
@@ -290,7 +284,7 @@ namespace Game.Terrains {
 
             if (!generating) {
                 ILight light = tile.tileattribs as ILight;
-                if (light != null) LightingManager.AddLight(x, y, light.intensity());
+                if (light != null) LightingManager.AddLight(x, y, light.Radius(), light.Colour());
 
                 LightingManager.AddTile(x, y);
             }
@@ -311,7 +305,7 @@ namespace Game.Terrains {
             if (!generating) {
                 ILight light = tile.tileattribs as ILight;
                 if (light != null) {
-                    LightingManager.RemoveLight(x, y, light.intensity());
+                    LightingManager.RemoveLight(x, y, light.Radius(), light.Colour());
                 }
                 LightingManager.RemoveTile(x, y);
             }
@@ -355,7 +349,7 @@ namespace Game.Terrains {
 
         #region Update & Render
         public static void Render() {
-            Gl.UseProgram(TerrainShader.ProgramID);
+            Gl.UseProgram(Shader.ProgramID);
             Gl.BindVertexArray(vao.ID);
             Gl.BindTexture(Textures.TerrainTexture.TextureTarget, Textures.TerrainTexture.TextureID);
             Gl.DrawElements(BeginMode.Triangles, vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
@@ -372,7 +366,7 @@ namespace Game.Terrains {
             int[] elements;
             Vector2[] uvs;
             CalculateMesh(out vertices, out elements, out uvs);
-            float[] lightings = LightingManager.CalcMesh();
+            Vector4[] lightings = LightingManager.CalcMesh();
 
             vao.UpdateData(vertices, elements, uvs, lightings);
 
@@ -380,8 +374,8 @@ namespace Game.Terrains {
 
 
         public static void CleanUp() {
-            TerrainShader.DisposeChildren = true;
-            TerrainShader.Dispose();
+            Shader.DisposeChildren = true;
+            Shader.Dispose();
         }
 
         #endregion

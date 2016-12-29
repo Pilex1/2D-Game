@@ -8,7 +8,7 @@ using Game.Entities;
 
 namespace Game.Core {
 
-    class EntityVAO  {
+    class EntityVAO {
         public uint ID { get; private set; }
 
         public uint verticesID { get; private set; }
@@ -16,7 +16,7 @@ namespace Game.Core {
         public uint elementsID { get; private set; }
 
         public int count { get; private set; }
-            
+
         public EntityVAO(Vector2[] vertices, int[] elements, Vector2[] uvs) {
 
             ShaderProgram program = EntityManager.shader;
@@ -61,7 +61,7 @@ namespace Game.Core {
         }
     }
 
-    class TerrainVAO  {
+    class TerrainVAO {
 
         public uint ID { get; private set; }
 
@@ -72,61 +72,21 @@ namespace Game.Core {
 
         public int count { get; private set; }
 
-        public TerrainVAO(Vector2[] vertices, int[] elements, Vector2[] uvs, float[] lightings) {
-
-            ShaderProgram shader = Terrain.TerrainShader;
-            Debug.Assert(shader != null);
-
+        public TerrainVAO(Vector2[] vertices, int[] elements, Vector2[] uvs, Vector4[] lightings) {
             count = elements.Length;
-
             this.ID = Gl.GenVertexArray();
-            Gl.BindVertexArray(ID);
-
-            {
-                this.verticesID = Gl.GenBuffer();
-                Gl.BindBuffer(BufferTarget.ArrayBuffer, verticesID);
-                Gl.BufferData(BufferTarget.ArrayBuffer, 2 * sizeof(float) * vertices.Length, vertices, BufferUsageHint.StreamDraw);
-                uint vertexAttribLocation = (uint)Gl.GetAttribLocation(shader.ProgramID, "vertexPosition");
-                Gl.VertexAttribPointer(vertexAttribLocation, 2, VertexAttribPointerType.Float, true, 2 * sizeof(float), IntPtr.Zero);
-                Gl.EnableVertexAttribArray(vertexAttribLocation);
-                Gl.BindBuffer(BufferTarget.ArrayBuffer, 0);
-
-                this.uvsID = Gl.GenBuffer();
-                Gl.BindBuffer(BufferTarget.ArrayBuffer, uvsID);
-                Gl.BufferData(BufferTarget.ArrayBuffer, 2 * sizeof(float) * uvs.Length, uvs, BufferUsageHint.StreamDraw);
-                uint uvAttribLocation = (uint)Gl.GetAttribLocation(shader.ProgramID, "vertexUV");
-                Gl.VertexAttribPointer(uvAttribLocation, 2, VertexAttribPointerType.Float, true, 2 * sizeof(float), IntPtr.Zero);
-                Gl.EnableVertexAttribArray(uvAttribLocation);
-                Gl.BindBuffer(BufferTarget.ArrayBuffer, 0);
-
-                this.lightingsID = Gl.GenBuffer();
-                Gl.BindBuffer(BufferTarget.ArrayBuffer, lightingsID);
-                Gl.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * lightings.Length, lightings, BufferUsageHint.StreamDraw);
-                uint lightingsAttribLocation = (uint)Gl.GetAttribLocation(shader.ProgramID, "vertexLighting");
-                Gl.VertexAttribPointer(lightingsAttribLocation, 1, VertexAttribPointerType.Float, true, sizeof(float), IntPtr.Zero);
-                Gl.EnableVertexAttribArray(lightingsAttribLocation);
-                Gl.BindBuffer(BufferTarget.ArrayBuffer, 0);
-
-                this.elementsID = Gl.GenBuffer();
-                Gl.BindBuffer(BufferTarget.ElementArrayBuffer, elementsID);
-                Gl.BufferData(BufferTarget.ElementArrayBuffer, sizeof(int) * elements.Length, elements, BufferUsageHint.StreamDraw);
-                //don't unbind the element buffer object!
-            }
-
-            Gl.BindVertexArray(0);
+            UpdateData(vertices, elements, uvs, lightings);
         }
 
-        public void UpdateData(Vector2[] vertices, int[] elements, Vector2[] uvs, float[] lightings) {
+        public void UpdateData(Vector2[] vertices, int[] elements, Vector2[] uvs, Vector4[] lightings) {
             Gl.BindVertexArray(ID);
-
-            ShaderProgram shader = Terrain.TerrainShader;
-            Debug.Assert(shader != null);
+            ShaderProgram shader = Terrain.Shader;
 
             Gl.DeleteBuffer(verticesID);
             this.verticesID = Gl.GenBuffer();
             Gl.BindBuffer(BufferTarget.ArrayBuffer, verticesID);
             Gl.BufferData(BufferTarget.ArrayBuffer, 2 * sizeof(float) * vertices.Length, vertices, BufferUsageHint.StreamDraw);
-            uint vertexAttribLocation = (uint)Gl.GetAttribLocation(shader.ProgramID, "vertexPosition");
+            uint vertexAttribLocation = (uint)Gl.GetAttribLocation(shader.ProgramID, "vert_pos");
             Gl.VertexAttribPointer(vertexAttribLocation, 2, VertexAttribPointerType.Float, true, 2 * sizeof(float), IntPtr.Zero);
             Gl.EnableVertexAttribArray(vertexAttribLocation);
             Gl.BindBuffer(BufferTarget.ArrayBuffer, 0);
@@ -135,7 +95,7 @@ namespace Game.Core {
             this.uvsID = Gl.GenBuffer();
             Gl.BindBuffer(BufferTarget.ArrayBuffer, uvsID);
             Gl.BufferData(BufferTarget.ArrayBuffer, 2 * sizeof(float) * uvs.Length, uvs, BufferUsageHint.StreamDraw);
-            uint uvAttribLocation = (uint)Gl.GetAttribLocation(shader.ProgramID, "vertexUV");
+            uint uvAttribLocation = (uint)Gl.GetAttribLocation(shader.ProgramID, "vert_uv");
             Gl.VertexAttribPointer(uvAttribLocation, 2, VertexAttribPointerType.Float, true, 2 * sizeof(float), IntPtr.Zero);
             Gl.EnableVertexAttribArray(uvAttribLocation);
             Gl.BindBuffer(BufferTarget.ArrayBuffer, 0);
@@ -143,9 +103,9 @@ namespace Game.Core {
             Gl.DeleteBuffer(lightingsID);
             this.lightingsID = Gl.GenBuffer();
             Gl.BindBuffer(BufferTarget.ArrayBuffer, lightingsID);
-            Gl.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * lightings.Length, lightings, BufferUsageHint.StreamDraw);
-            uint lightingsAttribLocation = (uint)Gl.GetAttribLocation(shader.ProgramID, "vertexLighting");
-            Gl.VertexAttribPointer(lightingsAttribLocation, 1, VertexAttribPointerType.Float, true, sizeof(float), IntPtr.Zero);
+            Gl.BufferData(BufferTarget.ArrayBuffer, 4 * sizeof(float) * lightings.Length, lightings, BufferUsageHint.StreamDraw);
+            uint lightingsAttribLocation = (uint)Gl.GetAttribLocation(shader.ProgramID, "vert_lighting");
+            Gl.VertexAttribPointer(lightingsAttribLocation, 4, VertexAttribPointerType.Float, true, 4 * sizeof(float), IntPtr.Zero);
             Gl.EnableVertexAttribArray(lightingsAttribLocation);
             Gl.BindBuffer(BufferTarget.ArrayBuffer, 0);
 

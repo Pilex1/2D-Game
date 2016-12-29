@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenGL;
+using System;
 
 namespace Game.Terrains.Fluids {
     [Serializable]
@@ -6,8 +7,6 @@ namespace Game.Terrains.Fluids {
         public LavaAttribs(int increments = 8) : base(increments, 8, Tile.Lava) {
             mvtFactor = 0.015f;
         }
-
-        int ILight.intensity() => 16;
 
         protected override void UpdateFinal(int x, int y) {
             MorphStone(x, y, x, y + 1);
@@ -22,5 +21,9 @@ namespace Game.Terrains.Fluids {
                 Terrain.SetTile(srcx, srcy, Tile.Obsidian);
             }
         }
+
+        int ILight.Radius() => 16;
+
+        Vector4 ILight.Colour() => new Vector4(1, 0.4, 0.2, 1);
     }
 }

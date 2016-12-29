@@ -1,5 +1,4 @@
 ﻿Bugs:
- - severe lag when breaking (and placing?) tiles near the edge of the world
  - residue fluids in FluidManager when fluids seem to have stabilised (infinite loop of fluids being transferred?)
 
 

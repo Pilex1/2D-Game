@@ -1,6 +1,7 @@
 ﻿using System;
 using Game.Entities;
 using Game.Util;
+using OpenGL;
 
 namespace Game.Terrains.Fluids {
 
@@ -14,6 +15,8 @@ namespace Game.Terrains.Fluids {
             e.data.vel.val *= 1.01f;
         }
 
-        int ILight.intensity() => 4;
+        int ILight.Radius() => 4;
+
+        Vector4 ILight.Colour() => new Vector4(0.1, 0.5, 0.3, 1);
     }
 }

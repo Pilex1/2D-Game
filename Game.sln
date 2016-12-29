@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "2D Game\Game.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Terrain Gen Tester", "OpenGL Template\Terrain Gen Tester.csproj", "{D84B0AA8-FC44-4EC3-8523-FB7AD2AE4D48}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test Program", "Test Program\Test Program.csproj", "{3B97B732-A002-431D-B259-198CB6062DE8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{D84B0AA8-FC44-4EC3-8523-FB7AD2AE4D48}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D84B0AA8-FC44-4EC3-8523-FB7AD2AE4D48}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D84B0AA8-FC44-4EC3-8523-FB7AD2AE4D48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B97B732-A002-431D-B259-198CB6062DE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B97B732-A002-431D-B259-198CB6062DE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B97B732-A002-431D-B259-198CB6062DE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B97B732-A002-431D-B259-198CB6062DE8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,6 +1,9 @@
-﻿namespace Game.Terrains {
+﻿using OpenGL;
+
+namespace Game.Terrains {
 
     interface ILight {
-        int intensity();
+        int Radius();
+        Vector4 Colour();
     }
 }

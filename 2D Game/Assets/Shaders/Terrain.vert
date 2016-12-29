@@ -1,19 +1,18 @@
 ﻿#version 400 core
 
-in vec2 vertexPosition;
-in vec2 vertexUV;
+in vec2 vert_pos;
+in vec2 vert_uv;
 
-in float vertexLighting;
+in vec4 vert_lighting;
 
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
-uniform mat4 rotation;
 
-out vec2 uv;
-out float lighting;
+out vec2 frag_uv;
+out vec4 frag_lighting;
 
 void main(void) {
-	gl_Position = projectionMatrix * viewMatrix * vec4(vertexPosition, 0.0, 1.0);
-	uv = vertexUV;
-	lighting = vertexLighting;
+	gl_Position = projectionMatrix * viewMatrix * vec4(vert_pos, 0.0, 1.0);
+	frag_uv = vert_uv;
+	frag_lighting = vert_lighting;
 }

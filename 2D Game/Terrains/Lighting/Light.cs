@@ -1,5 +1,6 @@
 ﻿using System;
 using Game.Items;
+using OpenGL;
 
 namespace Game.Terrains.Lightings {
 
@@ -9,6 +10,8 @@ namespace Game.Terrains.Lightings {
         public LightAttribs() : base(() => RawItem.Light) {
         }
 
-        int ILight.intensity() => 8;
+        int ILight.Radius() => 8;
+
+        Vector4 ILight.Colour() => new Vector4(1, 1, 1, 1);
     }
 }
