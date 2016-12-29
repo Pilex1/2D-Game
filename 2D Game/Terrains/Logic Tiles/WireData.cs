@@ -1,10 +1,9 @@
 ﻿using System;
 using Game.Util;
 using System.Text;
-using Game.Terrains;
 using Game.Items;
 
-namespace Game.Logics {
+namespace Game.Terrains.Logics {
 
     [Serializable]
     class WireAttribs : PowerTransmitterData {

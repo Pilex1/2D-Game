@@ -2,7 +2,7 @@
 using Game.Util;
 using System.Collections.Generic;
 
-namespace Game.Logics {
+namespace Game.Terrains.Logics {
 
     class LogicManager : UpdateTileManager<LogicAttribs> {
 

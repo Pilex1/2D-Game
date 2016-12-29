@@ -1,6 +1,5 @@
 ﻿using System;
 using OpenGL;
-using Game.Terrains;
 using Game.Core;
 using Game.Entities;
 using Game.Util;

@@ -1,7 +1,7 @@
 ﻿using System;
 using Game.Items;
 
-namespace Game.Logics {
+namespace Game.Terrains.Logics {
     [Serializable]
     class TileBreakerAttribs : PowerDrainData {
 

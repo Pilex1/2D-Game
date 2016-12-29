@@ -1,12 +1,11 @@
 ﻿using Game.Core;
 using Game.Entities;
 using Game.Items;
-using Game.Terrains;
 using Game.Util;
 using OpenGL;
 using System;
 
-namespace Game.Logics {
+namespace Game.Terrains.Logics {
 
     [Serializable]
     class AutoShooterAttribs : PowerDrainData {

@@ -1,9 +1,8 @@
 ﻿using System;
 using Game.Util;
-using Game.Terrains;
 using Game.Items;
 
-namespace Game.Logics {
+namespace Game.Terrains.Logics {
 
     [Serializable]
     class LogicLampAttribs : PowerDrainData {

@@ -3,7 +3,7 @@ using Game.Util;
 using System;
 using System.Text;
 
-namespace Game.Logics {
+namespace Game.Terrains.Logics {
 
     //inputs from the left
     //output from right iff left == 0

@@ -8,8 +8,9 @@ using System.Text;
 using Game.Core.World_Serialization;
 using Game.Items;
 using Tao.FreeGlut;
-using Game.Fluids;
-using Game.Logics;
+
+using Game.Terrains.Logics;
+using Game.Terrains.Fluids;
 
 namespace Game {
 

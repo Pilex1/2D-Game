@@ -2,7 +2,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Game.Terrains.Gen {
+namespace Game.Terrains.Terrain_Generation {
     static class CaveGen {
 
         private const float caveFrequency = 0.001f;

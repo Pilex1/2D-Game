@@ -1,7 +1,7 @@
 ﻿using Game.Util;
 using System;
 
-namespace Game.Terrains.Gen {
+namespace Game.Terrains.Terrain_Generation {
     static class Mountain {
         internal static int Generate(int posX, int posY, int size) {
             float maxHeightVar = 20, minHeightVar = -3;

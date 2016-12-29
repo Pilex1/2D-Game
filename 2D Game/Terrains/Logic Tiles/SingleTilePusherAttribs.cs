@@ -1,11 +1,10 @@
 ﻿using Game.Items;
-using Game.Terrains;
 using Game.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Game.Logics {
+namespace Game.Terrains.Logics {
     [Serializable]
     class SingleTilePusherAttribs : PowerDrainData {
 

@@ -11,10 +11,12 @@ namespace Game.Entities {
 
     [Serializable]
     class EntityData {
-
-        public const float maxRecentDmgTime = 10;
         [NonSerialized]
         public float recentDmg = 0;
+        public bool reboundedX;
+        public bool reboundedY;
+
+        public const float maxRecentDmgTime = 10;
         public float speed = 0;
         public float rot = 0;
         public float grav = 0.02f;

@@ -5,11 +5,13 @@ using Game.Entities;
 using Game.Assets;
 using Game.Util;
 using System.Diagnostics;
-using Game.Logics;
+using Game.Terrains.Logics;
 using Game.Core;
-using Game.Fluids;
-using Game.Terrains.Gen;
+using Game.Terrains.Terrain_Generation;
 using Game.Core.World_Serialization;
+using Game.Terrains.Fluids;
+using Game.Terrains.Lighting;
+using Game.Terrains.Lightings;
 
 namespace Game.Terrains {
 
@@ -18,7 +20,6 @@ namespace Game.Terrains {
         #region Fields
         internal static Tile[,] Tiles;
         internal static Biome[] TerrainBiomes;
-        internal static int[] Heights;
 
         public static bool generating { get; private set; }
 
@@ -37,19 +38,12 @@ namespace Game.Terrains {
             generating = false;
         }
 
-        public static void CreateNew(string seed) {
-            int sum = 0;
-            for (int i = 0; i < seed.Length; i++) {
-                sum += (int)Math.Pow(2, i) * seed[i];
-            }
-            CreateNew(sum);
-        }
-
         public static void Load(TerrainData data) {
             Tiles = data.terrain;
 
             FluidManager.Instance.LoadDict(data.fluidDict);
             LogicManager.Instance.LoadDict(data.logicDict);
+            LightingManager.Lightings = data.lightings;
 
         }
 
@@ -60,21 +54,8 @@ namespace Game.Terrains {
         }
 
         public static void Init() {
-            InitHeights();
-            Lighting.Init();
+            LightingManager.Init();
             InitMesh();
-        }
-
-        private static void InitHeights() {
-            Heights = new int[Tiles.GetLength(0)];
-            for (int i = 0; i < Tiles.GetLength(0); i++) {
-                for (int j = Tiles.GetLength(1) - 1; j > 0; j--) {
-                    if (!Tiles[i, j].tileattribs.transparent) {
-                        Heights[i] = j;
-                        break;
-                    }
-                }
-            }
         }
 
         #endregion
@@ -101,7 +82,7 @@ namespace Game.Terrains {
             vao = new TerrainVAO(new Vector2[] { }, new int[] { }, new Vector2[] { }, new float[] { });
         }
 
-        public static void Range(out int minx, out int maxx, out int miny, out int maxy) {
+        internal static void Range(out int minx, out int maxx, out int miny, out int maxy) {
             float posX = (int)Player.Instance.data.pos.x;
             float posY = (int)Player.Instance.data.pos.y;
 
@@ -118,8 +99,8 @@ namespace Game.Terrains {
         public static void CalculateMesh(out Vector2[] vertices, out int[] elements, out Vector2[] uvs) {
             int startX, endX, startY, endY;
             Range(out startX, out endX, out startY, out endY);
-            List<Vector2> verticesList = new List<Vector2>((endX - startX) * (endY - startY));
-            List<Vector2> uvList = new List<Vector2>((endX - startX) * (endY - startY));
+            List<Vector2> verticesList = new List<Vector2>((endX - startX + 1) * (endY - startY + 1));
+            List<Vector2> uvList = new List<Vector2>((endX - startX + 1) * (endY - startY + 1));
             for (int i = startX; i <= endX; i++) {
                 for (int j = startY; j <= endY; j++) {
                     if (Tiles[i, j].enumId != TileID.Air) {
@@ -214,16 +195,6 @@ namespace Game.Terrains {
 
         #region Collision
 
-        private class TileComparer : IComparer<Tuple<Vector2i, Tile>> {
-            public int Compare(Tuple<Vector2i, Tile> a, Tuple<Vector2i, Tile> b) {
-                Vector2i pos1 = a.Item1;
-                Vector2i pos2 = b.Item1;
-                if (pos1.x > pos2.x) return 1;
-                else if (pos1.x == pos2.x) return 0;
-                else return -1;
-            }
-        }
-
         public static Tuple<Vector2i, Tile>[] CalcFutureCollision(Entity entity, Vector2 offset) {
             return CalcFutureCollision(entity.hitbox, offset);
         }
@@ -313,17 +284,16 @@ namespace Game.Terrains {
             LogicAttribs logic = tile.tileattribs as LogicAttribs;
             if (logic != null) LogicManager.Instance.AddUpdate(x, y, logic);
 
-            LightAttribs light = tile.tileattribs as LightAttribs;
-            if (light != null) Lighting.AddLight(x, y, light.intensity);
-
             FluidAttribs fluid = tile.tileattribs as FluidAttribs;
             if (fluid != null) FluidManager.Instance.AddUpdate(x, y, fluid);
             FluidManager.Instance.UpdateAround(x, y);
 
-            if (generating) return;
+            if (!generating) {
+                ILight light = tile.tileattribs as ILight;
+                if (light != null) LightingManager.AddLight(x, y, light.intensity());
 
-            if (y > Heights[x]) Heights[x] = y;
-            Lighting.QueueUpdate(x, y);
+                LightingManager.AddTile(x, y);
+            }
         }
 
         public static Tile BreakTile(int x, int y) {
@@ -334,22 +304,17 @@ namespace Game.Terrains {
 
             Tiles[x, y] = Tile.Air;
 
-            Lighting.RemoveLight(x, y);
             LogicManager.Instance.RemoveUpdate(x, y);
             FluidManager.Instance.RemoveUpdate(x, y);
             FluidManager.Instance.UpdateAround(x, y);
 
-            if (generating) return tile;
-
-            if (Heights[x] == y) {
-                for (int j = y - 1; j > 0; j--) {
-                    if (!Tiles[x, j].tileattribs.transparent) {
-                        Heights[x] = j;
-                        break;
-                    }
+            if (!generating) {
+                ILight light = tile.tileattribs as ILight;
+                if (light != null) {
+                    LightingManager.RemoveLight(x, y, light.intensity());
                 }
+                LightingManager.RemoveTile(x, y);
             }
-            Lighting.QueueUpdate(x, y);
             return tile;
         }
         public static Tile BreakTile(Vector2i v) {
@@ -363,32 +328,27 @@ namespace Game.Terrains {
                     if (TileAt(x - 1, y).enumId == TileID.Air) {
                         SetTile(x - 1, y, TileAt(x, y));
                         BreakTile(x, y);
-                        Lighting.QueueUpdate(x - 1, y);
                     }
                     break;
                 case Direction.Right:
                     if (TileAt(x + 1, y).enumId == TileID.Air) {
                         SetTile(x + 1, y, TileAt(x, y));
                         BreakTile(x, y);
-                        Lighting.QueueUpdate(x + 1, y);
                     }
                     break;
                 case Direction.Up:
                     if (TileAt(x, y + 1).enumId == TileID.Air) {
                         SetTile(x, y + 1, TileAt(x, y));
                         BreakTile(x, y);
-                        Lighting.QueueUpdate(x, y + 1);
                     }
                     break;
                 case Direction.Down:
                     if (TileAt(x, y - 1).enumId == TileID.Air) {
                         SetTile(x, y - 1, TileAt(x, y));
                         BreakTile(x, y);
-                        Lighting.QueueUpdate(x, y - 1);
                     }
                     break;
             }
-            Lighting.QueueUpdate(x, y);
 
         }
         #endregion
@@ -412,7 +372,7 @@ namespace Game.Terrains {
             int[] elements;
             Vector2[] uvs;
             CalculateMesh(out vertices, out elements, out uvs);
-            float[] lightings = Lighting.CalcMesh();
+            float[] lightings = LightingManager.CalcMesh();
 
             vao.UpdateData(vertices, elements, uvs, lightings);
 

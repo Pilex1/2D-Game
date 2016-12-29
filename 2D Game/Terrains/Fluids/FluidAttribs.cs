@@ -1,15 +1,15 @@
 ﻿using Game.Items;
-using Game.Terrains;
 using System;
 using System.Text;
 using Game.Entities;
 using Game.Util;
 
-namespace Game.Fluids {
+namespace Game.Terrains.Fluids {
 
     [Serializable]
     abstract class FluidAttribs : TileAttribs {
 
+        public float mvtFactor;
         internal int maxIncrements;
         private int _increments;
         public int increments {
@@ -24,11 +24,12 @@ namespace Game.Fluids {
         protected FluidAttribs(int increments, int maxIncrements) : base(delegate () { return RawItem.None; }) {
             this.increments = increments;
             this.maxIncrements = maxIncrements;
+            mvtFactor = 0.02f;
 
             transparent = true;
             solid = false;
         }
-        protected FluidAttribs(int maxIncrements) : this(maxIncrements, maxIncrements) { }
+        protected FluidAttribs(int maxIncrements, float mvtFactor) : this(maxIncrements, maxIncrements) { }
 
         public override void OnEntityCollision(int x, int y, Direction side, Entity e) {
 
@@ -51,6 +52,7 @@ namespace Game.Fluids {
                 SpreadLeft(x, y);
                 SpreadRight(x, y);
             }
+            UpdateFinal(x, y);
 
             if (!updateNext) FluidManager.Instance.RemoveUpdate(x, y);
         }
@@ -59,6 +61,7 @@ namespace Game.Fluids {
         protected abstract void FallFluid(int x, int y);
         protected abstract void SpreadLeft(int x, int y);
         protected abstract void SpreadRight(int x, int y);
+        protected abstract void UpdateFinal(int x, int y);
 
         public float GetHeight() {
             return (float)increments / maxIncrements;

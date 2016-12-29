@@ -1,9 +1,10 @@
 ﻿using System;
 using Game.Util;
-using Game.Fluids;
-using System.Diagnostics;
 
-namespace Game.Terrains.Gen {
+using System.Diagnostics;
+using Game.Terrains.Fluids;
+
+namespace Game.Terrains.Terrain_Generation {
 
     enum Biome {
         None, Plains, Desert, SnowForest, Mountain, Ocean

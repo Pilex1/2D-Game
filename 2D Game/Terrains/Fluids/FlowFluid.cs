@@ -1,12 +1,12 @@
-﻿using Game.Fluids;
-using System;
+﻿using System;
 
-namespace Game.Terrains.Fluid_Tiles {
+namespace Game.Terrains.Fluids {
     [Serializable]
     abstract class FlowFluidAttribs : FluidAttribs {
 
         protected Func<Tile> fluid;
 
+        protected FlowFluidAttribs(int maxIncrements, Func<Tile> fluid) : this(maxIncrements, maxIncrements, fluid) { }
         protected FlowFluidAttribs(int increments, int maxIncrements, Func<Tile> fluid) : base(increments, maxIncrements) {
             this.fluid = fluid;
         }
@@ -58,5 +58,7 @@ namespace Game.Terrains.Fluid_Tiles {
                 }
             }
         }
+
+        protected override void UpdateFinal(int x, int y) { }
     }
 }

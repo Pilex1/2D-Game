@@ -52,7 +52,7 @@ namespace Game.Particles {
             if (slot >= PlayerInventory.Instance.Items.GetLength(0)) slot = 0;
             var item = PlayerInventory.Instance.Items[slot, 0];
             var attribs = item.rawitem.attribs;
-            if (!(attribs is Item_Tile_Attribs)) return;
+            if (!(attribs is ItemAttribs_Tile)) return;
             Vector2 v = Input.RayCast();
             switch (d) {
                 case Direction.Up:

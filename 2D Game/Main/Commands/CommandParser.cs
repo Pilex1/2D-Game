@@ -1,7 +1,9 @@
 ﻿using Game.Core;
 using Game.Entities;
-using Game.Fluids;
-using Game.Terrains.Gen;
+
+using Game.Items;
+using Game.Terrains.Fluids;
+using Game.Terrains.Terrain_Generation;
 using OpenGL;
 using System;
 using System.Reflection;
@@ -44,6 +46,40 @@ namespace Game.Main {
             }
         }
 
+        private static class InventoryParser {
+            internal static object Parse(string s) {
+                var arr = s.Split(new char[] { ' ' }, 2);
+                switch (arr[0]) {
+                    case "Player":
+                        return ParseWithInventory(PlayerInventory.Instance, arr[1]);
+                }
+                throw new UnknownCommandException(arr[0]);
+            }
+
+            private static object ParseWithInventory(Inventory inv, string s) {
+                var arr = s.Split(new char[] { ' ' }, 3);
+                switch (arr[0]) {
+                    case "give": {
+                            RawItem rawitem = (RawItem)GetField(null, typeof(RawItem), arr[1]);
+                            Item item = new Item(rawitem, int.Parse(arr[2]));
+                            inv.AddItem(item);
+                            return null;
+                        }
+
+                    case "take": {
+                            RawItem rawitem = (RawItem)GetField(null, typeof(RawItem), arr[1]);
+                            Item item = new Item(rawitem, int.Parse(arr[2]));
+                            inv.RemoveItem(item);
+                            return null;
+                        }
+                    case "clear":
+                        inv.Clear();
+                        return null;
+                }
+                throw new UnknownCommandException(arr[0]);
+            }
+        }
+
         public static object Execute(string s) {
             if (s == "") throw new ArgumentException("Empty command");
             var arr = s.Split(new char[] { ' ' }, 2);
@@ -52,6 +88,8 @@ namespace Game.Main {
                     return FluidParser.Parse(arr[1]);
                 case "entity":
                     return EntityParser.Parse(arr[1]);
+                case "inventory":
+                    return InventoryParser.Parse(arr[1]);
                 case "seed":
                     return TerrainGen.seed;
             }

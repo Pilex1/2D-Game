@@ -1,10 +1,10 @@
-﻿using Game.Terrains.Gen;
+﻿using Game.Terrains.Terrain_Generation;
 using System;
 using Game.Terrains;
 using System.Collections.Generic;
 using Game.Util;
-using Game.Fluids;
-using Game.Logics;
+using Game.Terrains.Logics;
+using Game.Terrains.Fluids;
 
 namespace Game.Core.World_Serialization {
 
@@ -14,5 +14,6 @@ namespace Game.Core.World_Serialization {
         internal Biome[] terrainbiomes;
         internal Dictionary<Vector2i, FluidAttribs> fluidDict;
         internal Dictionary<Vector2i, LogicAttribs> logicDict;
+        internal float[,] lightings;
     }
 }

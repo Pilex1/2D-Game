@@ -1,9 +1,8 @@
-﻿using Game.Terrains;
-using Game.Util;
+﻿using Game.Util;
 using System.Collections.Generic;
 using Game.Terrains.Core;
 
-namespace Game.Fluids {
+namespace Game.Terrains.Fluids {
     class FluidManager : UpdateTileManager<FluidAttribs> {
 
         public static FluidManager Instance { get; private set; }

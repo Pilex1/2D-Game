@@ -1,10 +1,9 @@
 ﻿using Game.Items;
-using Game.Terrains;
 using Game.Util;
 using System;
 using System.Text;
 
-namespace Game.Logics {
+namespace Game.Terrains.Logics {
 
     [Serializable]
     abstract class LogicAttribs : TileAttribs {

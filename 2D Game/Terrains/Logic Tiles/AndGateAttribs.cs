@@ -3,7 +3,7 @@ using System;
 using System.Text;
 using Game.Items;
 
-namespace Game.Logics {
+namespace Game.Terrains.Logics {
 
     //inputs from top and bottom
     //output from right iff top > 0 && bottom > 0

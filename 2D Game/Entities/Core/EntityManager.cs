@@ -12,7 +12,7 @@ namespace Game.Entities {
     static class EntityManager {
 
         #region Fields
-        internal const float maxHorzSpeed = 0.8f;
+        internal const float maxHorzSpeed = 1f;
         internal const float maxVertSpeed = 1f;
 
         private const int GridX = 4;

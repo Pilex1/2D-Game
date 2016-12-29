@@ -4,7 +4,7 @@ using OpenGL;
 using Game.Entities;
 using Game.Terrains;
 using Game.Util;
-using Game.Terrains.Gen;
+using Game.Terrains.Terrain_Generation;
 using Game.Items;
 
 namespace Game.Core {

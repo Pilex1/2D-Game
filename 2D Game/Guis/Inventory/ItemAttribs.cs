@@ -1,8 +1,9 @@
 ﻿using Game.Core;
 using Game.Entities;
-using Game.Fluids;
+
 using Game.Particles;
 using Game.Terrains;
+using Game.Terrains.Fluids;
 using Game.Util;
 using OpenGL;
 using System;
@@ -24,52 +25,35 @@ namespace Game.Items {
     }
 
     [Serializable]
-    class Item_No_Attribs : ItemAttribs {
+    class ItemAttribs_Empty : ItemAttribs {
 
-        public Item_No_Attribs(string name, int stackSize) : base(stackSize, name) { }
+        public ItemAttribs_Empty(string name, int stackSize) : base(stackSize, name) { }
 
         public override void Use(Inventory inv, Vector2i invslot, Vector2 position, Vector2 direction) { }
     }
 
     [Serializable]
-    class Item_Tile_Attribs : ItemAttribs {
-
-        protected Tile tile;
-
-        public Item_Tile_Attribs(string name, Tile tile) : base(999, name) {
-            this.tile = tile;
-        }
-
-        public override void Use(Inventory inv, Vector2i invslot, Vector2 position, Vector2 direction) {
-            int x = (int)position.x;
-            int y = (int)position.y;
-            if (!Terrain.TileAt(x, y).tileattribs.solid && EntityManager.GetEntitiesAt(position).Length == 0 && inv.RemoveItem(invslot.x, invslot.y))
-                Terrain.SetTile(x, y, tile);
-        }
-    }
-
-    [Serializable]
-    class Item_DataTile_Attribs : ItemAttribs {
+    class ItemAttribs_Tile : ItemAttribs {
 
         protected Func<Tile> tile;
 
-        public Item_DataTile_Attribs(string name, Func<Tile> tile) : base(999, name) {
+        public ItemAttribs_Tile(string name, Func<Tile> tile) : base(999, name) {
             this.tile = tile;
         }
 
         public override void Use(Inventory inv, Vector2i invslot, Vector2 position, Vector2 direction) {
             int x = (int)position.x;
             int y = (int)position.y;
-            if (!Terrain.TileAt(x, y).tileattribs.solid && EntityManager.GetEntitiesAt(position).Length == 0 && inv.RemoveItem(invslot.x, invslot.y))
+            if (!Terrain.TileAt(x, y).tileattribs.solid && !(Terrain.TileAt(x, y).tileattribs is FluidAttribs) && EntityManager.GetEntitiesAt(position).Length == 0 && inv.RemoveItem(invslot.x, invslot.y))
                 Terrain.SetTile(x, y, tile());
         }
     }
 
     [Serializable]
-    class Item_DirectionalTile_Attribs : Item_DataTile_Attribs {
+    class ItemAttribs_DirectionalTile : ItemAttribs_Tile {
 
 
-        public Item_DirectionalTile_Attribs(string name, Func<Tile> tile) : base(name, tile) {
+        public ItemAttribs_DirectionalTile(string name, Func<Tile> tile) : base(name, tile) {
         }
 
         public override void Use(Inventory inv, Vector2i invslot, Vector2 position, Vector2 direction) {
@@ -81,9 +65,9 @@ namespace Game.Items {
     }
 
     [Serializable]
-    class Item_Fluid_Attribs : Item_DataTile_Attribs {
+    class ItemAttribs_Fluids : ItemAttribs_Tile {
 
-        public Item_Fluid_Attribs(string name, Func<Tile> tile) : base(name, tile) {
+        public ItemAttribs_Fluids(string name, Func<Tile> tile) : base(name, tile) {
         }
 
         public override void Use(Inventory inv, Vector2i invslot, Vector2 position, Vector2 direction) {

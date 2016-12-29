@@ -37,7 +37,7 @@ namespace Game.Items {
             var l = new List<Vector2i>();
             for (int j = 0; j < Items.GetLength(1); j++) {
                 for (int i = 0; i < Items.GetLength(0); i++) {
-                    if (Items[i, j].rawitem.id == item.id && Items[i, j].amt < Items[i,j].rawitem.attribs.stackSize)
+                    if (Items[i, j].rawitem.id == item.id && Items[i, j].amt < Items[i, j].rawitem.attribs.stackSize)
                         l.Add(new Vector2i(i, j));
                 }
             }
@@ -68,6 +68,11 @@ namespace Game.Items {
 
         public bool AddItem(Item i) {
             if (i.rawitem.id == ItemID.None) return false;
+            if (i.amt > i.rawitem.attribs.stackSize) {
+                bool b1 = AddItem(new Item(i.rawitem, i.rawitem.attribs.stackSize));
+                bool b2 = AddItem(new Item(i.rawitem, i.amt - i.rawitem.attribs.stackSize));
+                return b1 && b2;
+            }
             var l = GetFirstNonFullItemLocations(i.rawitem);
             if (l == null) {
                 var e = GetFirstEmptyItemLocation();
@@ -84,15 +89,15 @@ namespace Game.Items {
 
         private bool AddAmount(int x, int y, int amt) {
             Items[x, y].amt += amt;
-            if (Items[x, y].amt > Items[x,y].rawitem.attribs.stackSize) {
+            if (Items[x, y].amt > Items[x, y].rawitem.attribs.stackSize) {
                 var l = GetFirstEmptyItemLocation();
                 if (l == null) {
                     Items[x, y].amt -= amt;
                     return false;
                 }
                 var l2 = (Vector2i)l;
-                Items[l2.x, l2.y] = new Item(Items[x, y].rawitem, Items[x, y].amt - Items[x,y].rawitem.attribs.stackSize);
-                Items[x, y].amt = Items[x,y].rawitem.attribs.stackSize;
+                Items[l2.x, l2.y] = new Item(Items[x, y].rawitem, Items[x, y].amt - Items[x, y].rawitem.attribs.stackSize);
+                Items[x, y].amt = Items[x, y].rawitem.attribs.stackSize;
             }
             return true;
         }

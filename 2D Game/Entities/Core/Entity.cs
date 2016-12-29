@@ -4,9 +4,8 @@ using Game.Terrains;
 using System.Collections.Generic;
 using Game.Core;
 using Game.Util;
-using Game.Fluids;
-using System.Diagnostics;
 using System.Linq;
+using Game.Terrains.Fluids;
 
 namespace Game.Entities {
 
@@ -53,6 +52,13 @@ namespace Game.Entities {
             data.vel.x += data.speed * GameTime.DeltaTime;
         }
         public void Jump() {
+            var col = Array.FindAll(CalcTerrainCollision(), t => t.Item2.tileattribs is FluidAttribs);
+            float mvt = 0;
+            if (col.Length > 0) {
+                mvt = col.Average(t => ((FluidAttribs)t.Item2.tileattribs).mvtFactor);
+                data.mvtState = MovementState.Fluid;
+            }
+
             switch (data.mvtState) {
                 case MovementState.Ground:
                     data.vel.y = data.jumppower;
@@ -61,12 +67,24 @@ namespace Game.Entities {
                 case MovementState.Air:
                     break;
                 case MovementState.Fluid:
-                    data.vel.y += data.jumppower/60;
+                    data.vel.y += data.jumppower * mvt;
                     break;
             }
         }
         public void Fall() {
             data.vel.y = -data.jumppower;
+        }
+
+        public void ReboundX() {
+            if (data.reboundedX) return;
+            data.reboundedX = true;
+            data.vel.x *= -1;
+        }
+
+        public void ReboundY() {
+            if (data.reboundedY) return;
+            data.reboundedY = true;
+            data.vel.y *= -1;
         }
 
         private void UpdateX(float x) {
@@ -80,7 +98,7 @@ namespace Game.Entities {
                 data.mvtState = MovementState.Air;
 
             } else if (Array.Exists(futureCollision, t => !(t.Item2.tileattribs is FluidAttribs))) {
-                //collision with solid (non-fluid) tiles
+                //collision with non-fluid tiles
 
                 foreach (var tuple in futureCollision) {
                     Vector2i pos = tuple.Item1;
@@ -97,7 +115,7 @@ namespace Game.Entities {
                         OnTerrainCollision(pos.x, pos.y, Direction.Left, tile);
                     }
                 }
-               
+
             } else {
                 //collision with fluid
 
@@ -117,7 +135,7 @@ namespace Game.Entities {
                 data.mvtState = MovementState.Air;
 
             } else if (Array.Exists(futureCollision, t => !(t.Item2.tileattribs is FluidAttribs))) {
-                //collision with solid (non-fluid) tiles
+                //collision with non-fluid tiles
 
                 foreach (var tuple in futureCollision) {
                     Vector2i pos = tuple.Item1;
@@ -135,7 +153,7 @@ namespace Game.Entities {
                         data.mvtState = MovementState.Ground;
                     }
                 }
-                
+
             } else {
                 //collision with fluid
 
@@ -165,6 +183,7 @@ namespace Game.Entities {
                 EntityManager.EntityGrid[gridNow.x, gridNow.y].Add(this);
             }
 
+            data.reboundedX = data.reboundedY = false;
         }
 
 

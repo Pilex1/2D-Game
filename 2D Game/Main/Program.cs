@@ -11,8 +11,10 @@ using Game.Terrains;
 using Game.Core.World_Serialization;
 using Game.Entities;
 using Game.Items;
-using Game.Fluids;
-using Game.Logics;
+
+using Game.Terrains.Logics;
+using Game.Terrains.Fluids;
+using Game.Terrains.Lighting;
 
 namespace Game {
 
@@ -116,7 +118,7 @@ namespace Game {
         }
 
         public static void SaveWorld() {
-            TerrainData worlddata = new TerrainData { terrain = Terrain.Tiles, terrainbiomes = Terrain.TerrainBiomes, fluidDict = FluidManager.Instance.GetDict(), logicDict = LogicManager.Instance.GetDict() };
+            TerrainData worlddata = new TerrainData { terrain = Terrain.Tiles, terrainbiomes = Terrain.TerrainBiomes, fluidDict = FluidManager.Instance.GetDict(), logicDict = LogicManager.Instance.GetDict() , lightings = LightingManager.Lightings};
             EntitiesData entitydata = new EntitiesData(Player.Instance.data, PlayerInventory.Instance.Items, EntityManager.GetAllEntities());
 
             Serialization.SaveWorld(worldname, worlddata, entitydata);

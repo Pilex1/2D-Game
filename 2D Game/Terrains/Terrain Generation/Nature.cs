@@ -1,6 +1,6 @@
 ﻿using Game.Util;
 
-namespace Game.Terrains.Gen {
+namespace Game.Terrains.Terrain_Generation {
     static class Nature {
 
         #region Tree
