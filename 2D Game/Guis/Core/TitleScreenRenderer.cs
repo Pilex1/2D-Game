@@ -8,6 +8,8 @@ using Tao.FreeGlut;
 using Game.Guis;
 using Game.Assets;
 using Game.Core.World_Serialization;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Game.TitleScreen {
     static class TitleScreenRenderer {
@@ -63,32 +65,28 @@ namespace Game.TitleScreen {
                 Vector2 buttonSize = new Vector2(0.15, 0.03);
                 Vector2 worldButtonSize = new Vector2(0.3, 0.03);
 
-                btnNewWorld = new Button(new Vector2(0.2, 0.85 - i * 0.3), buttonSize, "New World", TextStyle.Chiller_SingleLine_Small, delegate () {
-                    SwitchTo(State.NewWorld);
-                });
-                btnLaunchWorld = new Button(new Vector2(-0.45, 0.85 - i * 0.3), worldButtonSize, worldname, TextStyle.Chiller_SingleLine_Small, delegate () {
-                    try {
-                        WorldData worlddata = Serialization.LoadWorld(btnLaunchWorld.ToString());
-                        Program.SwitchToGame(btnLaunchWorld.ToString(), worlddata);
-                    } catch (Exception e) {
-                        //if world file failed to load (usually because it's corrupted), then delete the world
-                        Console.WriteLine(e.Message);
-                        btnDeleteWorld.OnPress();
-                    }
-                });
+                btnNewWorld = new Button(new Vector2(0.2, 0.85 - i * 0.3), buttonSize, "New World", TextStyle.Chiller_SingleLine_Small, () =>
+                    SwitchTo(State.NewWorld));
+                btnLaunchWorld = new Button(new Vector2(-0.45, 0.85 - i * 0.3), worldButtonSize, worldname, TextStyle.Chiller_SingleLine_Small, () => Program.LoadGame_FromSave(btnLaunchWorld.ToString()));
 
-                btnDeleteWorld = new Button(new Vector2(0.2, 0.85 - i * 0.3 - 0.12), buttonSize, "Delete World", TextStyle.Chiller_SingleLine_Small, delegate () {
+                btnDeleteWorld = new Button(new Vector2(0.2, 0.85 - i * 0.3 - 0.12), buttonSize, "Delete World", TextStyle.Chiller_SingleLine_Small, () => {
                     if (!emptyworld)
                         try {
                             string w = btnLaunchWorld.ToString();
-                            Serialization.DeleteWorld(w);
+
+                            Action deleteWorldAsync = async() => {
+                                await Task.Factory.StartNew(() => Serialization.DeleteWorld(w));
+                            };
+                            deleteWorldAsync();
+                            
                             worlds.Remove(w);
                             btnLaunchWorld.SetText("");
                             btnLaunchWorld.disabled = true;
                             btnDeleteWorld.disabled = true;
                             btnNewWorld.disabled = false;
                         } catch (Exception) { }
-                });
+                }
+                );
 
                 emptyworld = worldname == null;
                 btnNewWorld.disabled = !emptyworld;
@@ -101,7 +99,7 @@ namespace Game.TitleScreen {
         public static void Init() {
 
             Vector2 buttonSize = new Vector2(0.3, 0.08);
-            btn_Back_Title = new Button(new Vector2(0, -0.7), buttonSize, "Back", TextStyle.Chiller_SingleLine_Large, delegate () { SwitchTo(State.Main); });
+            btn_Back_Title = new Button(new Vector2(0, -0.7), buttonSize, "Back", TextStyle.Chiller_SingleLine_Large, () => SwitchTo(State.Main));
             backgroundhue = 180;
 
             #region Home Screen
@@ -135,7 +133,10 @@ namespace Game.TitleScreen {
 
             txtboxWorldPickers = new List<Textbox>();
             worlds = new HashSet<string>();
-            ResetWorldPickers();
+            foreach (var w in Serialization.GetWorlds()) {
+                worlds.Add(w);
+            }
+            LoadWorldPickers();
             #endregion
 
             #region New World
@@ -145,16 +146,16 @@ namespace Game.TitleScreen {
             float offset = 0.15f;
             txt_NewWorld_Name = new Text("World Name", tstyle, new Vector2(0, 0.5 + offset));
             txt_NewWorld_Seed = new Text("Seed", tstyle, new Vector2(0, 0.2 + offset));
-            btn_NewWorld_CreateWorld = new Button(new Vector2(0, -0.3), new Vector2(0.3, 0.08), "Create", TextStyle.Chiller_SingleLine_Large, delegate () {
+            btn_NewWorld_CreateWorld = new Button(new Vector2(0, -0.3), new Vector2(0.3, 0.08), "Create", TextStyle.Chiller_SingleLine_Large, () => {
                 string worldname = txtbx_NewWorld_Name.GetText();
                 worlds.Add(worldname);
-                Program.SwitchToGame(worldname, int.Parse(txtbx_NewWorld_Seed.GetText()));
+                Program.LoadGame_New(worldname, int.Parse(txtbx_NewWorld_Seed.GetText()));
             });
-            btn_NewWorld_RandSeed = new Button(new Vector2(0.5, 0.2), new Vector2(0.15, 0.03), "Random seed", TextStyle.Chiller_SingleLine_Small, delegate () {
+            btn_NewWorld_RandSeed = new Button(new Vector2(0.5, 0.2), new Vector2(0.15, 0.03), "Random seed", TextStyle.Chiller_SingleLine_Small, () => {
                 int irand = MathUtil.RandInt(Program.Rand, 1 << 24, 1 << 30);
                 txtbx_NewWorld_Seed.SetText(irand.ToString());
             });
-            btn_NewWorld_Back = new Button(new Vector2(0, -0.7), buttonSize, "Back", TextStyle.Chiller_SingleLine_Large, delegate () {
+            btn_NewWorld_Back = new Button(new Vector2(0, -0.7), buttonSize, "Back", TextStyle.Chiller_SingleLine_Large, () => {
                 txtbx_NewWorld_Name.ClearText();
                 txtbx_NewWorld_Name.disabled = true;
 
@@ -174,25 +175,24 @@ namespace Game.TitleScreen {
         #endregion
 
         public static void Reset() {
-            if (Program.Mode != ProgramMode.TitleScreen) return;
             SwitchTo(State.Main);
-            ResetWorldPickers();
+            LoadWorldPickers();
             txtbx_NewWorld_Name.ClearText();
             txtbx_NewWorld_Seed.ClearText();
         }
 
-        private static void ResetWorldPickers() {
-            string[] worldsarr = Serialization.GetWorlds();
-            worlds.Clear();
-            foreach (var w in worldsarr) {
-                worlds.Add(w);
-            }
+        private static void AddWorldPicker(string world, int i) {
+            WorldPicker w = new WorldPicker(world, i);
+            btnWorldPickers.Add(w.btnNewWorld);
+            btnWorldPickers.Add(w.btnLaunchWorld);
+            btnWorldPickers.Add(w.btnDeleteWorld);
+        }
+
+        private static void LoadWorldPickers() {
+            string[] worldsarr = worlds.ToArray();
             btnWorldPickers.Clear();
             for (int i = 0; i < 5; i++) {
-                WorldPicker w = new WorldPicker(i < worldsarr.Length ? worldsarr[i] : null, i);
-                btnWorldPickers.Add(w.btnNewWorld);
-                btnWorldPickers.Add(w.btnLaunchWorld);
-                btnWorldPickers.Add(w.btnDeleteWorld);
+                AddWorldPicker(i < worldsarr.Length ? worldsarr[i] : null, i);
             }
         }
 

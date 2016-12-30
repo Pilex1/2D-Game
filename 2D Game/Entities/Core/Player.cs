@@ -22,7 +22,7 @@ namespace Game.Core {
         }
 
         public static void CreateNew() {
-            Instance = new Player(new Vector2(TerrainGen.size / 2, 0));
+            Instance = new Player(new Vector2(TerrainGen.SizeX / 2, 0));
         }
 
         public static void LoadPlayer(EntityData data) {

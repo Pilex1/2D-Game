@@ -19,6 +19,7 @@ namespace Game.Terrains {
         #region Fields
         internal static Tile[,] Tiles;
         internal static Biome[] TerrainBiomes;
+        private static bool[] LoadedChunks;
 
         public static bool generating { get; private set; }
 
@@ -31,20 +32,31 @@ namespace Game.Terrains {
         #endregion
 
         #region Init
+
+
+        public static void Init() {
+            vao = new TerrainVAO(new Vector2[] { }, new int[] { }, new Vector2[] { }, new Vector4[] { });
+            LoadedChunks = new bool[TerrainGen.ChunksPerWorld];
+            LightingManager.Init();
+
+            if (Tiles == null) {
+                Tiles = new Tile[TerrainGen.SizeX, TerrainGen.SizeY];
+            }
+            if (TerrainBiomes == null) {
+                TerrainBiomes = new Biome[TerrainGen.SizeX];
+            }
+        }
+
+        /// <summary>
+        /// Generates new terrain using the given seed
+        /// </summary>
+        /// <param name="seed"></param>
         public static void CreateNew(int seed) {
             generating = true;
             TerrainGen.Generate(seed);
             generating = false;
         }
 
-        public static void Load(TerrainData data) {
-            Tiles = data.terrain;
-
-            FluidManager.Instance.LoadDict(data.fluidDict);
-            LogicManager.Instance.LoadDict(data.logicDict);
-            LightingManager.Lightings = data.lightings;
-
-        }
 
         public static void LoadShaders() {
             Shader = new ShaderProgram(Shaders.TerrainVert, Shaders.TerrainFrag);
@@ -52,11 +64,58 @@ namespace Game.Terrains {
             Console.WriteLine(Shader.ProgramLog);
         }
 
-        public static void Init() {
-            LightingManager.Init();
-            vao = new TerrainVAO(new Vector2[] { }, new int[] { }, new Vector2[] { }, new Vector4[] { });
+
+        #endregion
+
+        #region Load
+        public static void LoadChunk(ChunkData data) {
+            for (int i = 0; i < TerrainGen.ChunkSize; i++) {
+                int x = data.location * TerrainGen.ChunkSize + i;
+                for (int y = 0; y < Tiles.GetLength(1); y++) {
+                    Tiles[x, y] = data.tiles[i, y];
+                }
+                TerrainBiomes[x] = data.biomes[i];
+            }
+            LightingManager.LoadLightings(data.location, data.lightings);
+            LoadedChunks[data.location] = true;
         }
 
+
+        public static int GetChunkAt(float x) {
+            return (int)(x / TerrainGen.ChunkSize);
+        }
+
+        #endregion
+
+        #region Save
+
+        public static ChunkData[] GetChunkData() {
+            ChunkData[] chunks = new ChunkData[TerrainGen.ChunksPerWorld];
+            for (int i = 0; i < chunks.Length; i++) {
+                chunks[i] = CopyRegion(i);
+            }
+            return chunks;
+        }
+
+        private static ChunkData CopyRegion(int region) {
+            Tile[,] tiles = new Tile[TerrainGen.ChunkSize, Tiles.GetLength(1)];
+            Biome[] biomes = new Biome[TerrainGen.ChunkSize];
+            Vector4[,] lightings = new Vector4[TerrainGen.ChunkSize, Tiles.GetLength(1)];
+
+            for (int i = 0; i < TerrainGen.ChunkSize; i++) {
+                int x = region * TerrainGen.ChunkSize + i;
+
+                biomes[i] = TerrainBiomes[x];
+
+                for (int j = 0; j < Tiles.GetLength(1); j++) {
+                    tiles[i, j] = Tiles[x, j];
+
+                    //TODO: may cause NullReferenceException if attempting to save terrain before terrain has been fully loaded
+                    lightings[i, j] = (Vector4)LightingManager.GetLighting(x, j);
+                }
+            }
+            return new ChunkData(region, tiles, biomes, lightings);
+        }
         #endregion
 
         #region Matrices
@@ -97,11 +156,13 @@ namespace Game.Terrains {
             List<Vector2> uvList = new List<Vector2>((endX - startX + 1) * (endY - startY + 1));
             for (int i = startX; i <= endX; i++) {
                 for (int j = startY; j <= endY; j++) {
+                    Tile t = Tiles[i, j];
+                    if (t == null) continue;
                     if (Tiles[i, j].enumId != TileID.Air) {
-                        TileID t = Tiles[i, j].enumId;
+                        TileID tileid = Tiles[i, j].enumId;
 
-                        float x = ((float)((int)t % TerrainTextureSize)) / TerrainTextureSize;
-                        float y = ((float)((int)t / TerrainTextureSize)) / TerrainTextureSize;
+                        float x = ((float)((int)tileid % TerrainTextureSize)) / TerrainTextureSize;
+                        float y = ((float)((int)tileid / TerrainTextureSize)) / TerrainTextureSize;
                         float s = 1f / TerrainTextureSize;
                         //half pixel correction
                         float h = 1f / (TerrainTextureSize * TerrainTextureSize * 2);
@@ -371,7 +432,6 @@ namespace Game.Terrains {
             vao.UpdateData(vertices, elements, uvs, lightings);
 
         }
-
 
         public static void CleanUp() {
             Shader.DisposeChildren = true;

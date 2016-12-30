@@ -11,6 +11,9 @@ using Tao.FreeGlut;
 
 using Game.Terrains.Logics;
 using Game.Terrains.Fluids;
+using Game.Terrains.Lighting;
+using Game.Terrains.Terrain_Generation;
+using System.Threading.Tasks;
 
 namespace Game {
 
@@ -31,12 +34,30 @@ namespace Game {
         public static BoolSwitch RenderHitboxes { get; private set; }
 
 
+        private static void InitBefore() {
+            RenderDebugText = new BoolSwitch(false, 30);
+            RenderHitboxes = new BoolSwitch(false, 30);
+
+            FluidManager.Init();
+            LogicManager.Init();
+        }
+
 
         public static void InitNew(int seed) {
             InitBefore();
 
-            Terrain.CreateNew(seed);
+
+            #region Terrain
+
             Terrain.Init();
+
+            Terrain.CreateNew(seed);
+
+            LightingManager.CalcFromNew();
+
+            #endregion
+
+            #region Entities
 
             EntityManager.Init();
             Player.CreateNew();
@@ -44,7 +65,6 @@ namespace Game {
             Player.Instance.CorrectTerrainCollision();
             PlayerInventory.Init();
             PlayerInventory.Instance.LoadDefaultItems();
-
 
             //for (int i = 1; i <= 300; i++) {
             //    Shooter s = new Shooter(new Vector2(i * 20 * MathUtil.RandFloat(Program.Rand, 0.8f, 1.2f), 0), 100, 250);
@@ -56,23 +76,26 @@ namespace Game {
             //    sq.CorrectTerrainCollision();
             //}
 
-
+            #endregion
 
 
         }
 
 
 
-        public static void InitLoad(TerrainData worlddata, EntitiesData entitiesdata) {
-
+        public static void InitLoad(string world) {
             InitBefore();
 
             #region Terrain
-            Terrain.Load(worlddata);
+
             Terrain.Init();
+
+
             #endregion
 
             #region Entities
+            var entitiesdata = Serialization.LoadEntities(world);
+
             EntityManager.Init();
 
             //load other entities
@@ -80,9 +103,7 @@ namespace Game {
                 EntityManager.AddEntity(e);
                 e.InitTimers();
             }
-            #endregion
 
-            #region Player
             //load player data
             Player.LoadPlayer(entitiesdata.player);
             EntityManager.AddEntity(Player.Instance);
@@ -93,15 +114,35 @@ namespace Game {
             #endregion
 
 
+            //load chunk where the player is in and adjacent chunks
+            float playerx = Player.Instance.data.pos.x;
+            int playerchunk = Terrain.GetChunkAt(playerx);
+            Terrain.LoadChunk(Serialization.LoadChunk(world, playerchunk));
+            if (playerchunk - 1 >= 0)
+                Terrain.LoadChunk(Serialization.LoadChunk(world, playerchunk - 1));
+            if (playerchunk + 1 < TerrainGen.ChunksPerWorld)
+                Terrain.LoadChunk(Serialization.LoadChunk(world, playerchunk + 1));
+
+            LoadChunks(world);
         }
 
-        private static void InitBefore() {
-            RenderDebugText = new BoolSwitch(false, 30);
-            RenderHitboxes = new BoolSwitch(false, 30);
-
-            FluidManager.Init();
-            LogicManager.Init();
+        private static async void LoadChunks(string world) {
+            await Task.Factory.StartNew(() => {
+                float playerx = Player.Instance.data.pos.x;
+                int playerchunk = Terrain.GetChunkAt(playerx);
+                int ptr1 = playerchunk - 2;
+                int ptr2 = playerchunk + 2;
+                while (ptr1 >= 0 || ptr2 < TerrainGen.ChunksPerWorld) {
+                    if (ptr1 >= 0)
+                        Terrain.LoadChunk(Serialization.LoadChunk(world, ptr1));
+                    if (ptr2 < TerrainGen.ChunksPerWorld)
+                        Terrain.LoadChunk(Serialization.LoadChunk(world, ptr2));
+                    ptr1--;
+                    ptr2++;
+                }
+            });
         }
+
 
         public static void Update() {
 

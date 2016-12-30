@@ -1,6 +1,7 @@
 ﻿using Game.Core;
 using Game.Particles;
 using Game.Terrains;
+using Game.Terrains.Terrain_Generation;
 using Game.Util;
 using OpenGL;
 using System;
@@ -38,7 +39,7 @@ namespace Game.Entities {
 
         public static void Init() {
             Particle.Init();
-            EntityGrid = new HashSet<Entity>[(int)Math.Ceiling((float)Terrain.Tiles.GetLength(0) / GridX), (int)Math.Ceiling((float)Terrain.Tiles.GetLength(1) / GridY)];
+            EntityGrid = new HashSet<Entity>[(int)Math.Ceiling((float)TerrainGen.SizeX / GridX), (int)Math.Ceiling((float)TerrainGen.SizeY / GridY)];
             for (int i = 0; i < EntityGrid.GetLength(0); i++) {
                 for (int j = 0; j < EntityGrid.GetLength(1); j++) {
                     EntityGrid[i, j] = new HashSet<Entity>();
@@ -98,10 +99,8 @@ namespace Game.Entities {
         internal static Vector2i GetGridArray(Vector2 pos) {
             int gx = (int)Math.Floor(pos.x / GridX);
             int gy = (int)Math.Floor(pos.y / GridY);
-            if (gx < 0) gx = 0;
-            if (gx >= EntityGrid.GetLength(0)) gx = EntityGrid.GetLength(0) - 1;
-            if (gy < 0) gy = 0;
-            if (gy >= EntityGrid.GetLength(1)) gy = EntityGrid.GetLength(1) - 1;
+            MathUtil.Clamp(ref gx, 0, EntityGrid.GetLength(0) - 1);
+            MathUtil.Clamp(ref gy, 0, EntityGrid.GetLength(1) - 1);
             return new Vector2i(gx, gy);
         }
 

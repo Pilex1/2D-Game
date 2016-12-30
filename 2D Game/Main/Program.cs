@@ -15,6 +15,7 @@ using Game.Items;
 using Game.Terrains.Logics;
 using Game.Terrains.Fluids;
 using Game.Terrains.Lighting;
+using System.Threading.Tasks;
 
 namespace Game {
 
@@ -79,19 +80,25 @@ namespace Game {
         }
 
 
-        public static void SwitchToGame(string worldname, int seed) {
+        public static void LoadGame_New(string worldname, int seed) {
             Mode = ProgramMode.Game;
             Program.worldname = worldname;
+
             GameRenderer.Init();
+
             GameLogic.InitNew(seed);
+
             GameTime.Update();
         }
 
-        public static void SwitchToGame(string worldname, WorldData world) {
+        public static void LoadGame_FromSave(string worldname) {
             Mode = ProgramMode.Game;
             Program.worldname = worldname;
+
             GameRenderer.Init();
-            GameLogic.InitLoad(world.terrain, world.entities);
+
+            GameLogic.InitLoad(worldname);
+
             GameTime.Update();
         }
 
@@ -117,11 +124,12 @@ namespace Game {
             Glut.glutSwapBuffers();
         }
 
-        public static void SaveWorld() {
-            TerrainData worlddata = new TerrainData { terrain = Terrain.Tiles, terrainbiomes = Terrain.TerrainBiomes, fluidDict = FluidManager.Instance.GetDict(), logicDict = LogicManager.Instance.GetDict() , lightings = LightingManager.Lightings};
-            EntitiesData entitydata = new EntitiesData(Player.Instance.data, PlayerInventory.Instance.Items, EntityManager.GetAllEntities());
-
-            Serialization.SaveWorld(worldname, worlddata, entitydata);
+        public static async void SaveWorld() {
+            await Task.Factory.StartNew(() => {
+                ChunkData[] chunks = Terrain.GetChunkData();
+                EntitiesData entitydata = new EntitiesData(Player.Instance.data, PlayerInventory.Instance.Items, EntityManager.GetAllEntities());
+                Serialization.SaveWorld(worldname, chunks, entitydata, FluidManager.Instance.GetDict(), LogicManager.Instance.GetDict());
+            });
         }
 
         private static void Dispose() {

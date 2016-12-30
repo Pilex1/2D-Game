@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Game.Core;
 using System;
 using OpenGL;
+using Game.Terrains.Terrain_Generation;
 
 namespace Game.Terrains.Lighting {
 
@@ -11,19 +12,50 @@ namespace Game.Terrains.Lighting {
         #region Fields
         internal const int MaxLightRadius = 16;
         internal const int SunRadius = 12;
-        internal static readonly Vector4 SunColour = new Vector4(1, 0.8, 0.9, 1);
+        internal static readonly Vector4 SunColour = new Vector4(1, 0.9, 0.95, 1);
 
         private static int[] Heights;
-        internal static Vector4[,] Lightings;
+        private static Vector4?[,] Lightings;
 
         #endregion
 
         #region Initialisation
+
         internal static void Init() {
             LightingRegion.Init();
-            Lightings = new Vector4[Terrain.Tiles.GetLength(0), Terrain.Tiles.GetLength(1)];
+            Lightings = new Vector4?[TerrainGen.SizeX, TerrainGen.SizeY];
+            Heights = new int[TerrainGen.SizeX];
+        }
 
-            Heights = new int[Terrain.Tiles.GetLength(0)];
+        internal static void LoadLightings(int region, Vector4[,] lightings) {
+            LightingRegion.Init();
+
+            for (int i = 0; i < TerrainGen.ChunkSize; i++) {
+                int x = region * TerrainGen.ChunkSize + i;
+                for (int y = 0; y < lightings.GetLength(1); y++) {
+                    Lightings[x, y] = lightings[i, y];
+                }
+                for (int y = Lightings.GetLength(1) - 1; y >= 0; y--) {
+                    if (Terrain.TileAt(x, y).enumId != TileID.Air) {
+                        Heights[x] = y;
+                        break;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Calculates lighting levels for newly generated terrain by calculating only sun lighting
+        /// </summary>
+        internal static void CalcFromNew() {
+
+
+            for (int i = 0; i < Lightings.GetLength(0); i++) {
+                for (int j = 0; j < Lightings.GetLength(1); j++) {
+                    Lightings[i, j] = Vector4.Zero;
+                }
+            }
+
             for (int i = 0; i < Terrain.Tiles.GetLength(0); i++) {
                 for (int j = Terrain.Tiles.GetLength(1) - 1; j > 0; j--) {
                     if (Terrain.TileAt(i, j).enumId != TileID.Air) {
@@ -40,6 +72,10 @@ namespace Game.Terrains.Lighting {
         #endregion
 
         #region Calculations
+
+        public static Vector4? GetLighting(int x, int y) {
+            return Lightings[x, y];
+        }
 
         public static void AddTile(int x, int y) {
             if (y > Heights[x]) {
@@ -89,19 +125,20 @@ namespace Game.Terrains.Lighting {
 
         #region Updates
 
-
-
         internal static Vector4[] CalcMesh() {
             int startX, endX, startY, endY;
             Terrain.Range(out startX, out endX, out startY, out endY);
             List<Vector4> lightingsList = new List<Vector4>();
             for (int i = startX; i <= endX; i++) {
                 for (int j = startY; j <= endY; j++) {
-                    if (Terrain.Tiles[i, j].enumId != TileID.Air) {
-                        float r = Math.Min(Lightings[i, j].x / MaxLightRadius, 1);
-                        float g = Math.Min(Lightings[i, j].y / MaxLightRadius, 1);
-                        float b = Math.Min(Lightings[i, j].z / MaxLightRadius, 1);
-                        float a = Math.Min(Lightings[i, j].w / MaxLightRadius, 1);
+                    Tile t = Terrain.Tiles[i, j];
+                    if (t == null) continue;
+                    if (t.enumId != TileID.Air) {
+                        Vector4 light = Lightings[i, j] != null ? (Vector4)Lightings[i, j] : Vector4.Zero;
+                        float r = Math.Min(light.x / MaxLightRadius, 1);
+                        float g = Math.Min(light.y / MaxLightRadius, 1);
+                        float b = Math.Min(light.z / MaxLightRadius, 1);
+                        float a = Math.Min(light.w / MaxLightRadius, 1);
                         Vector4 colour = new Vector4(r, g, b, a);
                         lightingsList.AddRange(new Vector4[] {
                            colour,colour,colour,colour
@@ -111,6 +148,11 @@ namespace Game.Terrains.Lighting {
             }
             return lightingsList.ToArray();
         }
+
+        internal static Vector4?[,] GetLightings() {
+            return Lightings;
+        }
+
         #endregion
     }
 }

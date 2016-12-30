@@ -10,11 +10,18 @@ using OpenGL;
 namespace Game.Core.World_Serialization {
 
     [Serializable]
-    public class TerrainData {
-        internal Tile[,] terrain;
-        internal Biome[] terrainbiomes;
-        internal Dictionary<Vector2i, FluidAttribs> fluidDict;
-        internal Dictionary<Vector2i, LogicAttribs> logicDict;
+    internal class ChunkData {
+
+        internal int location;
+        internal Tile[,] tiles;
+        internal Biome[] biomes;
         internal Vector4[,] lightings;
+
+        internal ChunkData(int location, Tile[,] tiles, Biome[] biomes, Vector4[,] lightings) {
+            this.location = location;
+            this.tiles = tiles;
+            this.biomes = biomes;
+            this.lightings = lightings;
+        }
     }
 }

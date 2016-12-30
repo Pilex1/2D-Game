@@ -14,9 +14,12 @@ namespace Game.Terrains.Terrain_Generation {
 
         private const int FluidSettlingCount = 2000;
 
-        public const int size = 4000;
+        public const int ChunksPerWorld = 128;
+        public const int SizeX = ChunkSize * ChunksPerWorld;
+        public const int SizeY = 512;
+        internal const int ChunkSize = 8;
         internal const int widthfactor = 10;
-        internal const int freq = size / widthfactor;
+        internal const int freq = SizeX / widthfactor;
 
         internal const int minlandheight = 128;
 
@@ -31,14 +34,14 @@ namespace Game.Terrains.Terrain_Generation {
             watch.Start();
             Console.WriteLine("Generating terrain...");
 
-            Terrain.Tiles = new Tile[size, 512];
+            Terrain.Tiles = new Tile[SizeX, SizeY];
             for (int i = 0; i < Terrain.Tiles.GetLength(0); i++) {
                 for (int j = 0; j < Terrain.Tiles.GetLength(1); j++) {
                     Terrain.Tiles[i, j] = Tile.Air;
                 }
             }
 
-            Terrain.TerrainBiomes = new Biome[size];
+            Terrain.TerrainBiomes = new Biome[SizeX];
             for (int i = 0; i < Terrain.TerrainBiomes.GetLength(0); i++) {
                 Terrain.TerrainBiomes[i] = Biome.None;
             }
@@ -89,7 +92,7 @@ namespace Game.Terrains.Terrain_Generation {
             int ptr = 0;
             int h = MathUtil.RandInt(rand, minlandheight, minlandheight + 20);
             int biomeSizeMin = 10, biomeSizeMax = 20;
-            while (ptr < size / widthfactor) {
+            while (ptr < SizeX / widthfactor) {
                 int biomeSize = MathUtil.RandInt(rand, biomeSizeMin, biomeSizeMax);
                 Biome b = (Biome)MathUtil.RandInt(rand, (int)Biome.Plains, (int)Biome.Ocean);
                 h = GenBiome(ptr * widthfactor, h, biomeSize, b);

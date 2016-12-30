@@ -111,7 +111,7 @@
     <Compile Include="Entities\Particles\Particle.cs" />
     <Compile Include="Entities\Particles\StaffParticle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Main\GameRenderer.cs" />
+    <Compile Include="Main\Renderer.cs" />
     <Compile Include="Entities\Shooter.cs" />
     <Compile Include="Terrains\Misc Tiles\BounceAttribs.cs" />
     <Compile Include="Terrains\Logic Tiles\EntitySpawnerAttribs.cs" />

@@ -10,7 +10,6 @@ namespace Test_Program {
         static void Main(string[] args) {
             Program p = new Program();
 
-
             p.DoWork();
 
             for (int i = 0; i < 1000; i++) {
@@ -33,6 +32,6 @@ namespace Test_Program {
             });
 
         }
-        
+
     }
 }

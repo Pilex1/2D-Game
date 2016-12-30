@@ -25,8 +25,8 @@ namespace Game.Entities {
             this.hitbox.Size.x -= MathUtil.Epsilon;
             this.hitbox.Size.y -= MathUtil.Epsilon;
         }
-        protected Entity(EntityID entityId, Hitbox hitbox, Vector2 position)
-            : this(entityId, hitbox, new EntityData() { pos = new BoundedVector2(new BoundedFloat(position.x, 0, Terrain.Tiles.GetLength(0) - 1), new BoundedFloat(position.y, 0, Terrain.Tiles.GetLength(1) - 1)) }) {
+        protected Entity(EntityID entityId, Hitbox hitbox, Vector2 position) : this(entityId, hitbox, new EntityData()) {
+            data.pos.val = position;
         }
         protected Entity(EntityID entityId, Vector2 position) : this(entityId, new RectangularHitbox(position, Assets.Models.GetModel(entityId).size), position) { }
 
