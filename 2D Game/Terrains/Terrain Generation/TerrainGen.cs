@@ -12,16 +12,15 @@ namespace Game.Terrains.Terrain_Generation {
 
     internal static class TerrainGen {
 
-        private const int FluidSettlingCount = 2000;
-
-        public const int ChunksPerWorld = 128;
+        internal const int ChunkSize = 8;
+        public const int ChunksPerWorld = 512;
         public const int SizeX = ChunkSize * ChunksPerWorld;
         public const int SizeY = 512;
-        internal const int ChunkSize = 8;
+
         internal const int widthfactor = 10;
         internal const int freq = SizeX / widthfactor;
-
         internal const int minlandheight = 128;
+        private const int FluidSettlingCount = 2000;
 
         internal static Random rand;
         internal static int seed;

@@ -45,10 +45,10 @@ namespace Game.Items {
 
         private TextStyle textStyle;
 
-        internal const float SizeX = 0.1f;
-        internal const float SizeY = 0.1f;
-        internal const float ItemTextureOffset = 0.01f;
-        internal const float ItemTextureSize = 16;
+        internal float SizeX = 0.1f;
+        internal float SizeY = 0.1f;
+        internal float ItemTextureOffset = 0.01f;
+        internal float ItemTextureSize = 16;
 
         #endregion
 
@@ -57,7 +57,7 @@ namespace Game.Items {
         private PlayerInventory(int x, int y) : base(x, y) {
             //inventory
             Pos = new Vector2(((2 - x * SizeX) / 2) - 1, -0.5);
-            HotbarPos = new Vector2(Pos.x, -1);
+            HotbarPos = new Vector2(Pos.x, -0.98);
             TextPosOffset = new Vector2(0.115, 0.03);
 
             textStyle = TextStyle.LucidaConsole_SingleLine_Small;
@@ -91,9 +91,9 @@ namespace Game.Items {
             Background = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, (y - 1) * SizeY), TextureUtil.CreateTexture(new Vector4(0.3, 0.3, 0.3, 0.8)));
             HotbarBackground = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, SizeY), TextureUtil.CreateTexture(new Vector4(0.3, 0.3, 0.3, 0.8)));
 
-            TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.8f, 1f, 1, 1f, new Vector3(1, 1, 1));
-            InvText = new Text("Inventory", style, new Vector2(0.015 + Pos.x, Pos.y + 2 * (y - 0.5) * SizeY));
-            InvTextBackground = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, SizeY), TextureUtil.CreateTexture(new Vector4(0.3, 0.3, 0.3, 0.8)));
+            TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.6f, 1f, 1, 1f, new Vector3(1, 1, 1));
+            InvText = new Text("Inventory", style, new Vector2(0.015 + Pos.x, Pos.y + 0.1 + 2 * y * (SizeY - 2 * ItemTextureOffset)));
+            InvTextBackground = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, SizeY / 2), TextureUtil.CreateTexture(new Vector4(0.3, 0.3, 0.3, 0.7)));
             InvTextLine = GuiModel.CreateLine(new Vector2(x * SizeX, 0), TextureUtil.CreateTexture(new Vector4(0.05, 0.05, 0.1, 0.9)));
             var itemnamestyle = TextStyle.LucidaConsole_SingleLine_Small;
             itemnamestyle.alignment = TextAlignment.Bottom;

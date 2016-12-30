@@ -16,6 +16,7 @@ using Game.Terrains.Logics;
 using Game.Terrains.Fluids;
 using Game.Terrains.Lighting;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Game {
 
@@ -31,7 +32,7 @@ namespace Game {
         public static float AspectRatio = (float)Width / Height;
         public static ProgramMode Mode { get; private set; }
 
-        private static string worldname;
+        internal static string worldname { get; private set; }
 
         static void Main() {
             Init();
@@ -124,21 +125,12 @@ namespace Game {
             Glut.glutSwapBuffers();
         }
 
-        public static async void SaveWorld() {
-            await Task.Factory.StartNew(() => {
-                ChunkData[] chunks = Terrain.GetChunkData();
-                EntitiesData entitydata = new EntitiesData(Player.Instance.data, PlayerInventory.Instance.Items, EntityManager.GetAllEntities());
-                Serialization.SaveWorld(worldname, chunks, entitydata, FluidManager.Instance.GetDict(), LogicManager.Instance.GetDict());
-            });
-        }
 
         private static void Dispose() {
             GameLogic.CleanUp();
             Gui.Dispose();
 
 
-            if (Mode == ProgramMode.Game)
-                SaveWorld();
         }
     }
 }

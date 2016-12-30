@@ -24,7 +24,7 @@ namespace Game.TitleScreen {
             Debug.Assert(style.font.fontTexture.TextureID != 0);
             this.pos = pos;
             this.OnPress = OnPress;
-            this.text = new Text(textstring, style, new Vector2(pos.x, pos.y + 0.05));
+            this.text = new Text(textstring, style, new Vector2(pos.x, pos.y + 0.02));
 
             colour = new Vector4(1, 1, 1, 1);
             model = GuiModel.CreateRectangle(size, Assets.Textures.ButtonTex);

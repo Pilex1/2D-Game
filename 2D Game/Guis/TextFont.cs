@@ -22,7 +22,6 @@ namespace Game.Guis {
 
         internal Dictionary<char, CharacterInfo> charSet = new Dictionary<char, CharacterInfo>(255);
         internal int lineHeight;
-        internal string fontName;
         internal Texture fontTexture;
 
         internal static HashSet<TextFont> Fonts = new HashSet<TextFont>();
@@ -40,20 +39,12 @@ namespace Game.Guis {
         }
 
         private TextFont(string font, Texture texture) {
-            this.fontName = font;
             StringReader reader = new StringReader(font);
             fontTexture = texture;
             Regex regex = new Regex(@"^char id=(-?\d+)\D+x=(-?\d+)\D+y=(-?\d+)\D+width=(-?\d+)\D+height=(-?\d+)\D+xoffset=(-?\d+)\D+yoffset=(-?\d+)\D+xadvance=(-?\d+)");
             string s;
             s = reader.ReadLine();
             s = reader.ReadLine();
-            Regex reglineheight = new Regex(@"common lineHeight=(\d+)");
-            Match matchlineheight = reglineheight.Match(s);
-            if (matchlineheight.Success) {
-                lineHeight = int.Parse(matchlineheight.Groups[1].Value);
-            } else {
-                throw new ArgumentException("Could not find common line height");
-            }
             while ((s = reader.ReadLine()) != null) {
                 Match match = regex.Match(s);
                 if (match.Success) {
@@ -67,6 +58,11 @@ namespace Game.Guis {
                         int.Parse(match.Groups[8].Value)
                     ));
                 }
+            }
+
+            foreach (char c in charSet.Keys) {
+                int h = charSet[c].height;
+                if (h > lineHeight) lineHeight = h;
             }
 
             Fonts.Add(this);

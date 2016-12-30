@@ -121,7 +121,6 @@ namespace Game.Core.World_Serialization {
         #region Save
         public static void SaveWorld(string file, ChunkData[] chunks, EntitiesData entities, Dictionary<Vector2i, FluidAttribs> fluids, Dictionary<Vector2i, LogicAttribs> logics) {
             Directory.CreateDirectory(dir + worlddir + file);
-            FileUtil.EmptyDirectory(dir + worlddir + file);
 
             foreach (ChunkData c in chunks) {
                 Save(dir + worlddir + file + "\\" + chunkFile + c.location + fileExt, c);

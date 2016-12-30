@@ -14,6 +14,9 @@ using Game.Terrains.Fluids;
 using Game.Terrains.Lighting;
 using Game.Terrains.Terrain_Generation;
 using System.Threading.Tasks;
+using System.Threading;
+using System;
+using System.Diagnostics;
 
 namespace Game {
 
@@ -27,6 +30,10 @@ namespace Game {
         public static BoolSwitch RenderDebugText { get; private set; }
         public static string AdditionalDebugText = "";
 
+        public static CancellationTokenSource cancelWorldLoading;
+        public static Task taskWorldLoading;
+        public static bool saving = false;
+
         public static GameState State = GameState.Normal;
         private static bool StateChanged_Escape;
         private static bool StateChanged_Enter;
@@ -37,6 +44,7 @@ namespace Game {
         private static void InitBefore() {
             RenderDebugText = new BoolSwitch(false, 30);
             RenderHitboxes = new BoolSwitch(false, 30);
+            cancelWorldLoading = new CancellationTokenSource();
 
             FluidManager.Init();
             LogicManager.Init();
@@ -45,7 +53,6 @@ namespace Game {
 
         public static void InitNew(int seed) {
             InitBefore();
-
 
             #region Terrain
 
@@ -127,12 +134,17 @@ namespace Game {
         }
 
         private static async void LoadChunks(string world) {
-            await Task.Factory.StartNew(() => {
+            taskWorldLoading = Task.Factory.StartNew(() => {
                 float playerx = Player.Instance.data.pos.x;
                 int playerchunk = Terrain.GetChunkAt(playerx);
                 int ptr1 = playerchunk - 2;
                 int ptr2 = playerchunk + 2;
                 while (ptr1 >= 0 || ptr2 < TerrainGen.ChunksPerWorld) {
+                    if (cancelWorldLoading.Token.IsCancellationRequested) {
+                        Debug.WriteLine("World loading cancelled");
+                        return;
+                    }
+
                     if (ptr1 >= 0)
                         Terrain.LoadChunk(Serialization.LoadChunk(world, ptr1));
                     if (ptr2 < TerrainGen.ChunksPerWorld)
@@ -140,9 +152,9 @@ namespace Game {
                     ptr1--;
                     ptr2++;
                 }
-            });
+            }, cancelWorldLoading.Token);
+            await taskWorldLoading;
         }
-
 
         public static void Update() {
 
@@ -240,12 +252,34 @@ namespace Game {
             return sb.ToString();
         }
 
+
+
+
+        public static async void SaveWorld() {
+            saving = true;
+
+            //cancel world loading and wait until it finishes before saving world
+            cancelWorldLoading.Cancel();
+            try {
+                taskWorldLoading.Wait();
+            } catch (Exception) { } finally {
+                cancelWorldLoading.Dispose();
+            }
+            await Task.Factory.StartNew(() => {
+                ChunkData[] chunks = Terrain.GetChunkData();
+                EntitiesData entitydata = new EntitiesData(Player.Instance.data, PlayerInventory.Instance.Items, EntityManager.GetAllEntities());
+                Serialization.SaveWorld(Program.worldname, chunks, entitydata, FluidManager.Instance.GetDict(), LogicManager.Instance.GetDict());
+                saving = false;
+            });
+        }
+
         public static void CleanUp() {
             if (Program.Mode != ProgramMode.Game) return;
             Terrain.CleanUp();
             EntityManager.CleanUp();
             FluidManager.Instance.CleanUp();
             LogicManager.Instance.CleanUp();
+            SaveWorld();
         }
 
 

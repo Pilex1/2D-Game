@@ -33,25 +33,15 @@ namespace Game.Fonts {
         }
 
         #region Constants
-        public static readonly TextStyle Chiller_SingleLine_Large = new TextStyle(TextAlignment.Center, TextFont.Chiller, 1f, 2f, 1, 0.5f, new Vector3(1, 1, 1));
-        public static readonly TextStyle Chiller_SingleLine_Small = new TextStyle(TextAlignment.Center, TextFont.Chiller, 0.6f, 2f, 1, 0.5f, new Vector3(1, 1, 1));
-        public static readonly TextStyle Chiller_MultiLine_Large = new TextStyle(TextAlignment.Center, TextFont.Chiller, 1f, 2f, 1 << 30, 0.5f, new Vector3(1, 1, 1));
-        public static readonly TextStyle Chiller_MultiLine_Small = new TextStyle(TextAlignment.Center, TextFont.Chiller, 0.6f, 2f, 1 << 30, 0.5f, new Vector3(1, 1, 1));
+        public static readonly TextStyle Chiller_SingleLine_Large = new TextStyle(TextAlignment.Center, TextFont.Chiller, 1f, 2f, 1, 1f, new Vector3(1, 1, 1));
+        public static readonly TextStyle Chiller_SingleLine_Small = new TextStyle(TextAlignment.Center, TextFont.Chiller, 0.6f, 2f, 1, 1f, new Vector3(1, 1, 1));
+        public static readonly TextStyle Chiller_MultiLine_Large = new TextStyle(TextAlignment.Center, TextFont.Chiller, 1f, 2f, 1 << 30, 1f, new Vector3(1, 1, 1));
+        public static readonly TextStyle Chiller_MultiLine_Small = new TextStyle(TextAlignment.Center, TextFont.Chiller, 0.6f, 2f, 1 << 30, 1f, new Vector3(1, 1, 1));
 
         public static readonly TextStyle LucidaConsole_SingleLine_Large = new TextStyle(TextAlignment.Center, TextFont.LucidaConsole, 1f, 2f, 1, 1f, new Vector3(1, 1, 1));
-        public static readonly TextStyle LucidaConsole_SingleLine_Small = new TextStyle(TextAlignment.Center, TextFont.LucidaConsole, 0.6f, 2f, 1, 1f, new Vector3(1, 1, 1));
+        public static readonly TextStyle LucidaConsole_SingleLine_Small = new TextStyle(TextAlignment.Center, TextFont.LucidaConsole, 0.5f, 2f, 1, 1f, new Vector3(1, 1, 1));
         public static readonly TextStyle LucidaConsole_MultiLine_Large = new TextStyle(TextAlignment.Center, TextFont.LucidaConsole, 1f, 2f, 1 << 30, 1f, new Vector3(1, 1, 1));
-        public static readonly TextStyle LucidaConsole_MultiLine_Small = new TextStyle(TextAlignment.Center, TextFont.LucidaConsole, 0.6f, 2f, 1 << 30, 1f, new Vector3(1, 1, 1));
-
-        public static readonly TextStyle DialogInput_SingleLine_Large = new TextStyle(TextAlignment.Center, TextFont.DialogInput, 1f, 2f, 1, 1f, new Vector3(1, 1, 1));
-        public static readonly TextStyle DialogInput_SingleLine_Small = new TextStyle(TextAlignment.Center, TextFont.DialogInput, 0.6f, 2f, 1, 1f, new Vector3(1, 1, 1));
-        public static readonly TextStyle DialogInput_MultiLine_Large = new TextStyle(TextAlignment.Center, TextFont.DialogInput, 1f, 2f, 1 << 30, 1f, new Vector3(1, 1, 1));
-        public static readonly TextStyle DialogInput_MultiLine_Small = new TextStyle(TextAlignment.Center, TextFont.DialogInput, 0.6f, 2f, 1 << 30, 1f, new Vector3(1, 1, 1));
-
-        public static readonly TextStyle CenturyGothic_SingleLine_Large = new TextStyle(TextAlignment.Center, TextFont.CenturyGothic, 1f, 2f, 1, 1f, new Vector3(1, 1, 1));
-        public static readonly TextStyle CenturyGothic_SingleLine_Small = new TextStyle(TextAlignment.Center, TextFont.CenturyGothic, 0.6f, 2f, 1, 1f, new Vector3(1, 1, 1));
-        public static readonly TextStyle CenturyGothic_MultiLine_Large = new TextStyle(TextAlignment.Center, TextFont.CenturyGothic, 1f, 2f, 1 << 30, 1f, new Vector3(1, 1, 1));
-        public static readonly TextStyle CenturyGothic_MultiLine_Small = new TextStyle(TextAlignment.Center, TextFont.CenturyGothic, 0.6f, 2f, 1 << 30, 1f, new Vector3(1, 1, 1));
+        public static readonly TextStyle LucidaConsole_MultiLine_Small = new TextStyle(TextAlignment.Center, TextFont.LucidaConsole, 0.5f, 2f, 1 << 30, 1f, new Vector3(1, 1, 1));
         #endregion
 
     }
@@ -123,7 +113,12 @@ namespace Game.Fonts {
                     for (int j = 0; j < word.Length; j++) {
 
                         char c = word[j];
-                        CharacterInfo info = style.font.charSet[c];
+                        CharacterInfo info = null;
+                        if (style.font.charSet.ContainsKey(c)) {
+                            info = style.font.charSet[c];
+                        }else {
+                            info = style.font.charSet[' '];
+                        }
 
                         //topleft, bottomleft, bottomright, topright
                         vertices[vptr] = new Vector2(xptr + info.xoffset, info.yoffset - line * lineheight);
@@ -248,7 +243,12 @@ namespace Game.Fonts {
             Debug.Assert(!s.Contains(' '));
             int xptr = 0;
             foreach (char c in s) {
-                CharacterInfo info = style.font.charSet[c];
+                CharacterInfo info = null;
+                if (style.font.charSet.ContainsKey(c)) {
+                    info = style.font.charSet[c];
+                } else {
+                    info = style.font.charSet[' '];
+                }
                 xptr += info.xadvance;
             }
             return xptr;

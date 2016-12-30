@@ -28,16 +28,16 @@ namespace Game.Interaction {
 
             TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.5f, 2f, int.MaxValue, 1.5f, new Vector3(1, 1, 1));
             DebugText = new Text("", style, new Vector2(-0.99, 0.97));
-            Healthbar = GuiModel.CreateRectangle(new Vector2(0.52, 0.04), TextureUtil.ColourFromVec4(new Vector4(0.88, 0.3, 0.1, 0.8)));
-            HealthbarTexture = GuiModel.CreateRectangle(new Vector2(0.55, 0.065), Textures.HealthbarTexture);
+            Healthbar = GuiModel.CreateRectangle(new Vector2(0.52, 0.03), TextureUtil.ColourFromVec4(new Vector4(0.88, 0.3, 0.1, 0.8)));
+            HealthbarTexture = GuiModel.CreateRectangle(new Vector2(0.55, 0.04875), Textures.HealthbarTexture);
             Background = GuiModel.CreateRectangle(new Vector2(1, 1), Textures.GameBackgroundTex);
             PausedOverlay = GuiModel.CreateRectangle(new Vector2(1, 1), TextureUtil.ColourFromVec4(new Vector4(0.2, 0.2, 0.2, 0.9)));
-            PausedText = new Text("Paused", new TextStyle(TextAlignment.Top, TextFont.Chiller, 1.3f, 2f, 1, 1f, new Vector3(1, 1, 1)), new Vector2(0, 1));
-            TxtInput = new InGameTextbox(new Vector2(0, -0.8), new Vector2(1, 0.03), TextFont.LucidaConsole, 0.5f);
+            PausedText = new Text("Paused", new TextStyle(TextAlignment.Top, TextFont.LucidaConsole, 1.3f, 2f, 1, 1f, new Vector3(1, 1, 1)), new Vector2(0, 1));
+            TxtInput = new InGameTextbox(new Vector2(-0.3, -0.5), new Vector2(0.7f, 0.03), TextFont.LucidaConsole, 0.5f);
 
             Buttons = new HashSet<Button>();
-            btn_BackToTitle = new Button(new Vector2(0, -0.2), new Vector2(0.4, 0.04), "Save and Quit", TextStyle.Chiller_SingleLine_Large, delegate () {
-                Program.SaveWorld();
+            btn_BackToTitle = new Button(new Vector2(0, -0.2), new Vector2(0.4, 0.04), "Save and Quit", TextStyle.LucidaConsole_SingleLine_Small, () => {
+                GameLogic.SaveWorld();
                 Program.SwitchToTitleScreen();
             });
             Buttons.Add(btn_BackToTitle);
@@ -88,39 +88,40 @@ namespace Game.Interaction {
             Healthbar.size.x = Player.Instance.data.life.val / Player.Instance.data.life.max * 0.52f;
 
             //inventory
-            if (PlayerInventory.Instance.InventoryOpen) {
-                RenderInstance(PlayerInventory.Instance.Background, PlayerInventory.Instance.Pos);
-                RenderInstance(PlayerInventory.Instance.Frame, PlayerInventory.Instance.Pos);
-                RenderInstance(PlayerInventory.Instance.ItemDisplay, PlayerInventory.Instance.Pos);
-                for (int i = 0; i < PlayerInventory.Instance.ItemCountText.GetLength(0); i++) {
-                    for (int j = 0; j < PlayerInventory.Instance.ItemCountText.GetLength(1); j++) {
-                        Text t = PlayerInventory.Instance.ItemCountText[i, j];
-                        RenderInstance(t.model, PlayerInventory.Instance.Pos + PlayerInventory.Instance.TextPosOffset + t.pos);
+            var inv = PlayerInventory.Instance;
+            if (inv.InventoryOpen) {
+                RenderInstance(inv.Background, inv.Pos);
+                RenderInstance(inv.Frame, inv.Pos);
+                RenderInstance(inv.ItemDisplay, inv.Pos);
+                for (int i = 0; i < inv.ItemCountText.GetLength(0); i++) {
+                    for (int j = 0; j < inv.ItemCountText.GetLength(1); j++) {
+                        Text t = inv.ItemCountText[i, j];
+                        RenderInstance(t.model, inv.Pos + inv.TextPosOffset + t.pos);
                     }
                 }
 
 
-                if (PlayerInventory.Instance.Selected.HasValue) {
-                    int cx = PlayerInventory.Instance.Selected.Value.x, cy = PlayerInventory.Instance.Selected.Value.y;
-                    RenderInstance(PlayerInventory.Instance.SelectedDisplay, PlayerInventory.Instance.Pos + new Vector2(cx * PlayerInventory.SizeX, cy * PlayerInventory.SizeY * Program.AspectRatio));
+                if (inv.Selected.HasValue) {
+                    int cx = inv.Selected.Value.x, cy = inv.Selected.Value.y;
+                    RenderInstance(inv.SelectedDisplay, inv.Pos + new Vector2(cx * inv.SizeX, cy * inv.SizeY * Program.AspectRatio));
                 }
 
-                var textpos = new Vector2(PlayerInventory.Instance.Pos.x, PlayerInventory.Instance.Pos.y + 2 * (PlayerInventory.Instance.Items.GetLength(1) - 0.5) * PlayerInventory.SizeY) - new Vector2(0, 2 * PlayerInventory.SizeY - 0.01);
-                RenderInstance(PlayerInventory.Instance.InvTextBackground, textpos);
-                RenderText(PlayerInventory.Instance.InvText);
-                RenderInstance(PlayerInventory.Instance.InvTextLine, textpos);
+                var textpos = new Vector2(inv.Pos.x, inv.Pos.y + 2 * (inv.Items.GetLength(1) - 0.5) * inv.SizeY) - new Vector2(0, 2 * inv.SizeY - 0.01);
+                RenderInstance(inv.InvTextBackground, textpos);
+                RenderInstance(inv.InvTextLine, textpos);
+                RenderText(inv.InvText);
             }
 
             //hotbar
-            RenderInstance(PlayerInventory.Instance.HotbarBackground, PlayerInventory.Instance.HotbarPos);
-            RenderInstance(PlayerInventory.Instance.HotbarFrame, PlayerInventory.Instance.HotbarPos);
-            RenderInstance(PlayerInventory.Instance.HotbarItemDisplay, PlayerInventory.Instance.HotbarPos);
-            RenderInstance(PlayerInventory.Instance.HotbarSelectedDisplay, new Vector2(((2 - PlayerInventory.Instance.Items.GetLength(0) * PlayerInventory.SizeX) / 2 + PlayerInventory.Instance.CurSelectedSlot * PlayerInventory.SizeX) - 1, -1));
-            RenderText(PlayerInventory.Instance.ItemNameText);
+            RenderInstance(inv.HotbarBackground, inv.HotbarPos);
+            RenderInstance(inv.HotbarFrame, inv.HotbarPos);
+            RenderInstance(inv.HotbarItemDisplay, inv.HotbarPos);
+            RenderInstance(inv.HotbarSelectedDisplay, new Vector2(((2 - inv.Items.GetLength(0) * inv.SizeX) / 2 + inv.CurSelectedSlot * inv.SizeX) - 1, inv.HotbarPos.y));
+            RenderText(inv.ItemNameText);
 
-            for (int i = 0; i < PlayerInventory.Instance.HotbarItemCountText.GetLength(0); i++) {
-                Text t = PlayerInventory.Instance.HotbarItemCountText[i];
-                Vector2 pos = PlayerInventory.Instance.HotbarPos + PlayerInventory.Instance.TextPosOffset + t.pos;
+            for (int i = 0; i < inv.HotbarItemCountText.GetLength(0); i++) {
+                Text t = inv.HotbarItemCountText[i];
+                Vector2 pos = inv.HotbarPos + inv.TextPosOffset + t.pos;
                 RenderInstance(t.model, pos);
             }
 

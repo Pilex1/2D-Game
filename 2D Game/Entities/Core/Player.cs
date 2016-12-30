@@ -39,18 +39,21 @@ namespace Game.Core {
                 Vector2i vi = new Vector2i((int)v.x, (int)v.y);
 
                 Tile tile = Terrain.TileAt(vi);
-                GameLogic.AdditionalDebugText = tile.ToString() + Environment.NewLine + tile.tileattribs.ToString();
+                if (tile != null) {
+                    GameLogic.AdditionalDebugText = tile.ToString() + Environment.NewLine + tile.tileattribs.ToString();
 
-                if (Input.Mouse[Input.MouseLeft]) {
-                    tile.tileattribs.Destroy(vi.x, vi.y, PlayerInventory.Instance);
-                }
-                if (Input.Mouse[Input.MouseRight]) {
-                    PlayerInventory.Instance.CurrentlySelectedItem().rawitem.attribs.Use(PlayerInventory.Instance, new Vector2i(PlayerInventory.Instance.CurSelectedSlot, 0), new Vector2(vi.x, vi.y), Input.RayCast());
-                    Terrain.TileAt(vi.x, vi.y).tileattribs.OnInteract(vi.x, vi.y);
-                }
-                if (Input.Mouse[Input.MouseMiddle]) {
+                    if (Input.Mouse[Input.MouseLeft]) {
+                        tile.tileattribs.Destroy(vi.x, vi.y, PlayerInventory.Instance);
+                    }
+                    if (Input.Mouse[Input.MouseRight]) {
+                        PlayerInventory.Instance.CurrentlySelectedItem().rawitem.attribs.Use(PlayerInventory.Instance, new Vector2i(PlayerInventory.Instance.CurSelectedSlot, 0), new Vector2(vi.x, vi.y), Input.RayCast());
+                        Terrain.TileAt(vi.x, vi.y).tileattribs.OnInteract(vi.x, vi.y);
+                    }
+                    if (Input.Mouse[Input.MouseMiddle]) {
 
+                    }
                 }
+
             }
             if (Input.Keys['a']) Instance.MoveLeft();
             if (Input.Keys['d']) Instance.MoveRight();

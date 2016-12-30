@@ -20,6 +20,7 @@ namespace Game.Terrains {
         internal static Tile[,] Tiles;
         internal static Biome[] TerrainBiomes;
         private static bool[] LoadedChunks;
+        private static bool[] ChunksUpdated;
 
         public static bool generating { get; private set; }
 
@@ -37,6 +38,7 @@ namespace Game.Terrains {
         public static void Init() {
             vao = new TerrainVAO(new Vector2[] { }, new int[] { }, new Vector2[] { }, new Vector4[] { });
             LoadedChunks = new bool[TerrainGen.ChunksPerWorld];
+            ChunksUpdated = new bool[TerrainGen.ChunksPerWorld];
             LightingManager.Init();
 
             if (Tiles == null) {
@@ -90,11 +92,12 @@ namespace Game.Terrains {
         #region Save
 
         public static ChunkData[] GetChunkData() {
-            ChunkData[] chunks = new ChunkData[TerrainGen.ChunksPerWorld];
-            for (int i = 0; i < chunks.Length; i++) {
-                chunks[i] = CopyRegion(i);
+            List<ChunkData> chunks = new List<ChunkData>();
+            for (int i = 0; i < TerrainGen.ChunksPerWorld; i++) {
+                if (ChunksUpdated[i])
+                    chunks.Add(CopyRegion(i));
             }
-            return chunks;
+            return chunks.ToArray();
         }
 
         private static ChunkData CopyRegion(int region) {
@@ -109,8 +112,6 @@ namespace Game.Terrains {
 
                 for (int j = 0; j < Tiles.GetLength(1); j++) {
                     tiles[i, j] = Tiles[x, j];
-
-                    //TODO: may cause NullReferenceException if attempting to save terrain before terrain has been fully loaded
                     lightings[i, j] = (Vector4)LightingManager.GetLighting(x, j);
                 }
             }
@@ -343,10 +344,12 @@ namespace Game.Terrains {
             if (fluid != null) FluidManager.Instance.AddUpdate(x, y, fluid);
             FluidManager.Instance.UpdateAround(x, y);
 
-            if (!generating) {
-                ILight light = tile.tileattribs as ILight;
-                if (light != null) LightingManager.AddLight(x, y, light.Radius(), light.Colour());
+            ILight light = tile.tileattribs as ILight;
+            if (light != null) LightingManager.AddLight(x, y, light.Radius(), light.Colour());
 
+            ChunksUpdated[GetChunkAt(x)] = true;
+
+            if (!generating) {
                 LightingManager.AddTile(x, y);
             }
         }
@@ -362,6 +365,8 @@ namespace Game.Terrains {
             LogicManager.Instance.RemoveUpdate(x, y);
             FluidManager.Instance.RemoveUpdate(x, y);
             FluidManager.Instance.UpdateAround(x, y);
+
+            ChunksUpdated[GetChunkAt(x)] = true;
 
             if (!generating) {
                 ILight light = tile.tileattribs as ILight;

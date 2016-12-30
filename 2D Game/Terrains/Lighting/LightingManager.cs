@@ -28,8 +28,6 @@ namespace Game.Terrains.Lighting {
         }
 
         internal static void LoadLightings(int region, Vector4[,] lightings) {
-            LightingRegion.Init();
-
             for (int i = 0; i < TerrainGen.ChunkSize; i++) {
                 int x = region * TerrainGen.ChunkSize + i;
                 for (int y = 0; y < lightings.GetLength(1); y++) {
