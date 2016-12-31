@@ -164,6 +164,7 @@ namespace Game.Terrains.Lighting {
         }
         //origin at bottom left
         private static Vector3 AverageAroundSquare(int i, int j) {
+            if (i < 0 || i >= Lightings.GetLength(0) || j < 0 || j >= Lightings.GetLength(1)) return Vector3.Zero;
             if (AveragedAroundSquare_Cache[i,j] != null) {
                 return (Vector3)AveragedAroundSquare_Cache[i, j];
             }

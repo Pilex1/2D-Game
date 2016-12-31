@@ -209,6 +209,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\Fonts\runnable-hiero.jar" />
+    <Content Include="Assets\Screenshots\Untitled %28Time 0_02_53%3b15%29.png" />
+    <Content Include="Assets\Screenshots\Untitled %28Time 0_04_09%3b22%29.png" />
+    <Content Include="Assets\Screenshots\Untitled %28Time 0_04_12%3b10%29.png" />
     <Content Include="Assets\Textures\DesertBackground.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
