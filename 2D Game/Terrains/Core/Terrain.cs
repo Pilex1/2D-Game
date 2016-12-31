@@ -36,7 +36,7 @@ namespace Game.Terrains {
 
 
         public static void Init() {
-            vao = new TerrainVAO(new Vector2[] { }, new int[] { }, new Vector2[] { }, new Vector4[] { });
+            vao = new TerrainVAO(new Vector2[] { }, new int[] { }, new Vector2[] { }, new Vector3[] { });
             LoadedChunks = new bool[TerrainGen.ChunksPerWorld];
             ChunksUpdated = new bool[TerrainGen.ChunksPerWorld];
             LightingManager.Init();
@@ -103,7 +103,7 @@ namespace Game.Terrains {
         private static ChunkData CopyRegion(int region) {
             Tile[,] tiles = new Tile[TerrainGen.ChunkSize, Tiles.GetLength(1)];
             Biome[] biomes = new Biome[TerrainGen.ChunkSize];
-            Vector4[,] lightings = new Vector4[TerrainGen.ChunkSize, Tiles.GetLength(1)];
+            Vector3[,] lightings = new Vector3[TerrainGen.ChunkSize, Tiles.GetLength(1)];
 
             for (int i = 0; i < TerrainGen.ChunkSize; i++) {
                 int x = region * TerrainGen.ChunkSize + i;
@@ -112,7 +112,7 @@ namespace Game.Terrains {
 
                 for (int j = 0; j < Tiles.GetLength(1); j++) {
                     tiles[i, j] = Tiles[x, j];
-                    lightings[i, j] = (Vector4)LightingManager.GetLighting(x, j);
+                    lightings[i, j] = (Vector3)LightingManager.GetLighting(x, j);
                 }
             }
             return new ChunkData(region, tiles, biomes, lightings);
@@ -144,10 +144,10 @@ namespace Game.Terrains {
             maxx = (int)(posX - GameRenderer.zoom / 2);
             miny = (int)(posY + GameRenderer.zoom / 2 / Program.AspectRatio);
             maxy = (int)(posY - GameRenderer.zoom / 2 / Program.AspectRatio);
-            MathUtil.Clamp(ref minx, 0, Tiles.GetLength(0) - 1);
-            MathUtil.Clamp(ref miny, 0, Tiles.GetLength(1) - 1);
-            MathUtil.Clamp(ref maxx, 0, Tiles.GetLength(0) - 1);
-            MathUtil.Clamp(ref maxy, 0, Tiles.GetLength(1) - 1);
+            minx = MathUtil.Clamp(minx, 0, Tiles.GetLength(0) - 1);
+            maxx = MathUtil.Clamp(maxx, 0, Tiles.GetLength(0) - 1);
+            miny = MathUtil.Clamp(miny, 0, Tiles.GetLength(1) - 1);
+            maxy = MathUtil.Clamp(maxy, 0, Tiles.GetLength(1) - 1);
         }
 
         public static void CalculateMesh(out Vector2[] vertices, out int[] elements, out Vector2[] uvs) {
@@ -265,7 +265,7 @@ namespace Game.Terrains {
 
             for (int i = x1; i <= x2; i++) {
                 for (int j = y1; j <= y2; j++) {
-                    if (TileAt(i, j).enumId != TileID.Air) {
+                    if (TileAt(i, j) != null && TileAt(i, j).enumId != TileID.Air) {
                         cols.Add(new Tuple<Vector2i, Tile>(new Vector2i(i, j), TileAt(i, j)));
                     }
                 }
@@ -345,7 +345,7 @@ namespace Game.Terrains {
             FluidManager.Instance.UpdateAround(x, y);
 
             ILight light = tile.tileattribs as ILight;
-            if (light != null) LightingManager.AddLight(x, y, light.Radius(), light.Colour());
+            if (light != null) LightingManager.AddLight(x, y, light.Radius(), light.Strength(), light.Colour());
 
             ChunksUpdated[GetChunkAt(x)] = true;
 
@@ -371,7 +371,7 @@ namespace Game.Terrains {
             if (!generating) {
                 ILight light = tile.tileattribs as ILight;
                 if (light != null) {
-                    LightingManager.RemoveLight(x, y, light.Radius(), light.Colour());
+                    LightingManager.RemoveLight(x, y, light.Radius(), light.Strength(), light.Colour());
                 }
                 LightingManager.RemoveTile(x, y);
             }
@@ -415,6 +415,7 @@ namespace Game.Terrains {
 
         #region Update & Render
         public static void Render() {
+            GameTime.TerrainTimer.Start();
             Gl.UseProgram(Shader.ProgramID);
             Gl.BindVertexArray(vao.ID);
             Gl.BindTexture(Textures.TerrainTexture.TextureTarget, Textures.TerrainTexture.TextureID);
@@ -422,20 +423,34 @@ namespace Game.Terrains {
             Gl.BindTexture(Textures.TerrainTexture.TextureTarget, 0);
             Gl.BindVertexArray(0);
             Gl.UseProgram(0);
+            GameTime.TerrainTimer.Pause();
         }
 
         public static void Update() {
+            GameTime.FluidsTimer.Start();
             FluidManager.Instance.Update();
+            GameTime.FluidsTimer.Pause();
+
+            GameTime.LogicTimer.Start();
             LogicManager.Instance.Update();
+            GameTime.LogicTimer.Pause();
 
             Vector2[] vertices;
             int[] elements;
             Vector2[] uvs;
+            GameTime.TerrainTimer.Start();
             CalculateMesh(out vertices, out elements, out uvs);
-            Vector4[] lightings = LightingManager.CalcMesh();
+            GameTime.TerrainTimer.Pause();
 
+            GameTime.LightingsTimer.Start();
+            EntityManager.UpdateLightEmittingBefore();
+            Vector3[] lightings = LightingManager.CalcMesh();
+            EntityManager.UpdateLightEmittingAfter();
+            GameTime.LightingsTimer.Pause();
+
+            GameTime.TerrainTimer.Start();
             vao.UpdateData(vertices, elements, uvs, lightings);
-
+            GameTime.TerrainTimer.Pause();
         }
 
         public static void CleanUp() {

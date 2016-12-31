@@ -213,7 +213,12 @@ namespace Game.Fonts {
             SetText("");
         }
 
+        /// <summary>
+        /// Expensive method - use with caution
+        /// </summary>
+        /// <param name="s"></param>
         public void SetText(string s) {
+            if (ToString() == s) return;
             sb_text.Clear();
             sb_text.Append(s);
             UpdateModel();

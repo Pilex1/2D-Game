@@ -6,7 +6,7 @@ namespace Game.Terrains.Fluids {
     class WaterAttribs : FlowFluidAttribs {
 
         public WaterAttribs(int increments = 8) : base(increments, 8, Tile.Water) {
-            mvtFactor = 0.02f;
+            mvtFactor = 0.03f;
         }
 
 

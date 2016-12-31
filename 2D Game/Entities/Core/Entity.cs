@@ -88,7 +88,7 @@ namespace Game.Entities {
         }
 
         private void UpdateX(float x) {
-            MathUtil.Clamp(ref x, -1, 1);
+            x = MathUtil.Clamp(x, -1, 1);
             Vector2 offset = new Vector2(x, 0);
             Tuple<Vector2i, Tile>[] futureCollision = Terrain.CalcFutureCollision(this, offset);
 
@@ -125,7 +125,7 @@ namespace Game.Entities {
         }
 
         private void UpdateY(float y) {
-            MathUtil.Clamp(ref y, -1, 1);
+            y = MathUtil.Clamp(y, -1, 1);
             Vector2 offset = new Vector2(0, y);
             Tuple<Vector2i, Tile>[] futureCollision = Terrain.CalcFutureCollision(this, offset);
 

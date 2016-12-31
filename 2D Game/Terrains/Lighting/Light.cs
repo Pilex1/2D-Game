@@ -11,7 +11,7 @@ namespace Game.Terrains.Lightings {
         }
 
         int ILight.Radius() => 8;
-
-        Vector4 ILight.Colour() => new Vector4(1, 1, 1, 1);
+        Vector3 ILight.Colour() => new Vector3(1, 1, 1);
+        float ILight.Strength() => 1f;
     }
 }

@@ -17,12 +17,10 @@ namespace Game {
             Terrain.LoadShaders();
 
             AssetsManager.InitInGame();
-
-            projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(FOV, Program.AspectRatio, Near, Far);
-            LoadProjectionMatrix();
         }
 
-        private static void LoadProjectionMatrix() {
+        private static void UpdateProjectionMatrix() {
+            projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(FOV, Program.AspectRatio, Near, Far);
             Terrain.SetProjectionMatrix(projectionMatrix);
             EntityManager.SetProjectionMatrix(projectionMatrix);
         }
@@ -42,8 +40,10 @@ namespace Game {
             Gl.CullFace(CullFaceMode.Back);
 
             UpdateViewMatrix();
+            UpdateProjectionMatrix();
 
             Terrain.Render();
+
             EntityManager.Render();
         }
 

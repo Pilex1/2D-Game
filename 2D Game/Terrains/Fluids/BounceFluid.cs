@@ -8,7 +8,7 @@ namespace Game.Terrains.Fluids {
     [Serializable]
     class BounceFluidAttribs : FlowFluidAttribs, ILight {
         public BounceFluidAttribs(int increments = 4) : base(increments, 4, Tile.BounceFluid) {
-            mvtFactor = 0.1f;
+            mvtFactor = 0.2f;
         }
 
         public override void OnEntityCollision(int x, int y, Direction side, Entity e) {
@@ -16,7 +16,7 @@ namespace Game.Terrains.Fluids {
         }
 
         int ILight.Radius() => 4;
-
-        Vector4 ILight.Colour() => new Vector4(0.1, 0.5, 0.3, 1);
+        Vector3 ILight.Colour() => new Vector3(0.2, 1, 0.6);
+        float ILight.Strength() => 0.04f;
     }
 }

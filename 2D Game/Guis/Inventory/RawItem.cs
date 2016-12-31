@@ -1,4 +1,8 @@
-﻿using Game.Terrains;
+﻿using Game.Entities;
+using Game.Entities.Particles;
+using Game.Terrains;
+using Game.Util;
+using OpenGL;
 using System;
 
 namespace Game.Items {
@@ -85,6 +89,13 @@ namespace Game.Items {
         public static readonly RawItem StaffRed = new RawItem(ItemID.StaffRed, new Item_RedStaff_Attribs());
         public static readonly RawItem StaffBlue = new RawItem(ItemID.StaffBlue, new Item_BlueStaff_Attribs());
         public static readonly RawItem StaffYellow = new RawItem(ItemID.StaffYellow, new Item_YellowStaff_Attribs());
+        public static readonly RawItem Firework = new RawItem(ItemID.Firework, new ItemAttribs_OverideableUse(999, "Fireworks", (Inventory inv, Vector2i invslot, Vector2 position, Vector2 direction) => {
+            if (Array.Exists(EntityManager.GetEntitiesAt(position), e => e is FireworkLauncher || e is FireworkParticle)) return;
+            Vector4 colour = new Vector4(MathUtil.RandVector3(Program.Rand, 0, 1), 0.3f);
+            FireworkLauncher f = new FireworkLauncher(position, colour, 50);
+            EntityManager.AddEntity(f);
+            inv.RemoveItem(invslot.x, invslot.y);
+        }));
         #endregion
 
     }

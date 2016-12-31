@@ -3,13 +3,13 @@
 in vec2 vert_pos;
 in vec2 vert_uv;
 
-in vec4 vert_lighting;
+in vec3 vert_lighting;
 
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 
 out vec2 frag_uv;
-out vec4 frag_lighting;
+out vec3 frag_lighting;
 
 void main(void) {
 	gl_Position = projectionMatrix * viewMatrix * vec4(vert_pos, 0.0, 1.0);

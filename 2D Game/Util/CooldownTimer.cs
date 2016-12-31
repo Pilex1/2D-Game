@@ -35,6 +35,9 @@ namespace Game.Util {
         public float GetCooldown() {
             return cooldown;
         }
+        public void SetCooldown(float f) {
+            cooldown = f;
+        }
 
         public override string ToString() {
             return string.Format("{0} / {1}", time, cooldown);

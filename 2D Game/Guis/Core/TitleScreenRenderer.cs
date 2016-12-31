@@ -41,8 +41,7 @@ namespace Game.TitleScreen {
         private static Button btn_NewWorld_CreateWorld;
         private static Button btn_NewWorld_RandSeed;
 
-        private static List<Button> btnWorldPickers;
-        private static List<Textbox> txtboxWorldPickers;
+        private static List<WorldPicker> worldPickers;
 
         private static Text txt_CreditsInfo;
 
@@ -69,22 +68,17 @@ namespace Game.TitleScreen {
                     SwitchTo(State.NewWorld));
                 btnLaunchWorld = new Button(new Vector2(-0.45, 0.85 - i * 0.3), worldButtonSize, worldname, TextStyle.LucidaConsole_SingleLine_Small, () => Program.LoadGame_FromSave(btnLaunchWorld.ToString()));
 
-                btnDeleteWorld = new Button(new Vector2(0.2, 0.85 - i * 0.3 - 0.12), buttonSize, "Delete World", TextStyle.LucidaConsole_SingleLine_Small, () => {
-                    if (!emptyworld)
-                        try {
-                            string w = btnLaunchWorld.ToString();
+                btnDeleteWorld = new Button(new Vector2(0.2, 0.85 - i * 0.3 - 0.12), buttonSize, "Delete World", TextStyle.LucidaConsole_SingleLine_Small, async () => {
+                    if (emptyworld) return;
+                    string w = btnLaunchWorld.ToString();
+                    btnLaunchWorld.disabled = true;
+                    btnDeleteWorld.disabled = true;
 
-                            Action deleteWorldAsync = async () => {
-                                await Task.Factory.StartNew(() => Serialization.DeleteWorld(w));
-                            };
-                            deleteWorldAsync();
+                    await Task.Factory.StartNew(() => Serialization.DeleteWorld(w));
 
-                            worlds.Remove(w);
-                            btnLaunchWorld.SetText("");
-                            btnLaunchWorld.disabled = true;
-                            btnDeleteWorld.disabled = true;
-                            btnNewWorld.disabled = false;
-                        } catch (Exception) { }
+                    worlds.Remove(w);
+                    btnLaunchWorld.SetText("");
+                    btnNewWorld.disabled = false;
                 }
                 );
 
@@ -129,9 +123,8 @@ namespace Game.TitleScreen {
             #endregion
 
             #region World Pickers
-            btnWorldPickers = new List<Button>();
+            worldPickers = new List<WorldPicker>();
 
-            txtboxWorldPickers = new List<Textbox>();
             worlds = new HashSet<string>();
             foreach (var w in Serialization.GetWorlds()) {
                 worlds.Add(w);
@@ -167,7 +160,7 @@ namespace Game.TitleScreen {
             #endregion
 
             #region Help
-            txt_Help = new Text("How to play:" + Environment.NewLine + "W A S D - movement" + Environment.NewLine + "Left click - destroy tile" + Environment.NewLine + "Right click - interact / place tile" + Environment.NewLine + "E - open / close inventory" + Environment.NewLine + "Mousewheel and keys 1 to 9 - hotbar selection" + Environment.NewLine + "Escape - pause game" + Environment.NewLine + Environment.NewLine + "Debugging controls:" + Environment.NewLine + "F1 - debug view" + Environment.NewLine + "F2 - render hitboxes" + Environment.NewLine + "Enter - open command prompt", tstyle, new Vector2(0, 0.9));
+            txt_Help = new Text("How to play:" + Environment.NewLine + "W A S D - movement" + Environment.NewLine + "Left click - destroy tile" + Environment.NewLine + "Right click - interact / place tile" + Environment.NewLine + "E - open / close inventory" + Environment.NewLine + "Mousewheel and keys 1 to 9 - hotbar selection" + Environment.NewLine + "Escape - pause game" + Environment.NewLine + Environment.NewLine + "Debugging controls:" + Environment.NewLine + "F1 - debug view" + Environment.NewLine + "F2 - render hitboxes" + Environment.NewLine + "F3 - smooth lighting" + Environment.NewLine + "Enter - open command prompt", tstyle, new Vector2(0, 0.9));
             #endregion
 
             SwitchTo(State.Main);
@@ -182,22 +175,23 @@ namespace Game.TitleScreen {
         }
 
         private static void SetWorldPickerDisabledState(string world, bool val) {
-            foreach (Button b in btnWorldPickers) {
-                if (b.text.ToString() == world)
-                    b.disabled = val;
+            if (world == "") return;
+            foreach (WorldPicker w in worldPickers) {
+                if (w.btnLaunchWorld.text.ToString() == world) {
+                    w.btnLaunchWorld.disabled = val;
+                    w.btnDeleteWorld.disabled = val;
+                }
             }
         }
 
         private static void AddWorldPicker(string world, int i) {
             WorldPicker w = new WorldPicker(world, i);
-            btnWorldPickers.Add(w.btnNewWorld);
-            btnWorldPickers.Add(w.btnLaunchWorld);
-            btnWorldPickers.Add(w.btnDeleteWorld);
+            worldPickers.Add(w);
         }
 
         private static void LoadWorldPickers() {
             string[] worldsarr = worlds.ToArray();
-            btnWorldPickers.Clear();
+            worldPickers.Clear();
             for (int i = 0; i < 5; i++) {
                 AddWorldPicker(i < worldsarr.Length ? worldsarr[i] : null, i);
             }
@@ -242,11 +236,10 @@ namespace Game.TitleScreen {
                     break;
 
                 case State.WorldSelect:
-                    foreach (var b in btnWorldPickers) {
-                        AddButton(b);
-                    }
-                    foreach (var t in txtboxWorldPickers) {
-                        AddTextbox(t);
+                    foreach (var w in worldPickers) {
+                        AddButton(w.btnDeleteWorld);
+                        AddButton(w.btnLaunchWorld);
+                        AddButton(w.btnNewWorld);
                     }
                     AddButton(btn_Back_Title);
                     break;
@@ -380,8 +373,10 @@ namespace Game.TitleScreen {
             btn_Main_Credits.Dispose();
             btn_Main_Help.Dispose();
 
-            foreach (var b in btnWorldPickers) {
-                b.Dispose();
+            foreach (var b in worldPickers) {
+                b.btnNewWorld.Dispose();
+                b.btnLaunchWorld.Dispose();
+                b.btnDeleteWorld.Dispose();
             }
             btn_Back_Title.Dispose();
             txt_Main_Title.Dispose();

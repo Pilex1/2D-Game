@@ -1,7 +1,7 @@
 ﻿using Game.Core;
 using Game.Entities;
 
-using Game.Particles;
+using Game.Entities.Particles;
 using Game.Terrains;
 using Game.Terrains.Fluids;
 using Game.Util;
@@ -143,6 +143,20 @@ namespace Game.Items {
         }
         public override void Use(Inventory inv, Vector2i invslot, Vector2 position, Vector2 direction) {
             SParc_Place.Create(CalculatePos(), CalculateVel());
+        }
+    }
+
+    [Serializable]
+    class ItemAttribs_OverideableUse : ItemAttribs {
+
+        private Action<Inventory, Vector2i, Vector2, Vector2> onUse;
+
+        public ItemAttribs_OverideableUse(int stackSize, string name, Action<Inventory, Vector2i, Vector2, Vector2> onUse) : base(stackSize, name) {
+            this.onUse = onUse;
+        }
+
+        public override void Use(Inventory inv, Vector2i invslot, Vector2 position, Vector2 direction) {
+            onUse(inv, invslot, position, direction);
         }
     }
 }

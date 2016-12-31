@@ -155,6 +155,7 @@ namespace Game.Items {
             Items[5, row] = new Item(RawItem.StaffRed, RawItem.StaffRed.attribs.stackSize);
             Items[6, row] = new Item(RawItem.StaffPurple, RawItem.StaffPurple.attribs.stackSize);
             Items[7, row] = new Item(RawItem.StaffYellow, RawItem.StaffYellow.attribs.stackSize);
+            Items[8, row] = new Item(RawItem.Firework, RawItem.Firework.attribs.stackSize);
 
             row++;
             Items[0, row] = new Item(RawItem.Switch, RawItem.Switch.attribs.stackSize);
@@ -255,20 +256,26 @@ namespace Game.Items {
         }
 
         private void Update_ItemCountText() {
+            GameTime.GuiTimer.Start();
             for (int i = 0; i < ItemCountText.GetLength(0); i++) {
                 for (int j = 0; j < ItemCountText.GetLength(1); j++) {
                     var s = Items[i, j + 1].amt.ToString();
-                    ItemCountText[i, j].SetText(s == "0" ? "" : s);
+                    s = s == "0" ? "" : s;
+                    ItemCountText[i, j].SetText(s);
                 }
             }
             for (int i = 0; i < ItemCountText.GetLength(0); i++) {
                 var s = Items[i, 0].amt.ToString();
-                HotbarItemCountText[i].SetText(s == "0" ? "" : s);
+                s = s == "0" ? "" : s;
+                HotbarItemCountText[i].SetText(s);
             }
+            GameTime.GuiTimer.Pause();
         }
 
         private void Update_HotbarItemNameText() {
-            ItemNameText.SetText(CurrentlySelectedItem().rawitem.attribs.name);
+            var name = CurrentlySelectedItem().rawitem.attribs.name;
+            name = name == "None" ? "" : name;
+            ItemNameText.SetText(name);
             ItemNameText.SetPos(HotbarPos + new Vector2((CurSelectedSlot + 0.5) * SizeX + ItemTextureOffset, 2 * SizeY));
         }
 
@@ -366,10 +373,14 @@ namespace Game.Items {
         }
 
         public void UpdateHotbar() {
+            //   GameTime.GuiTimer.Start();
             HandleKeys();
             HotbarItemDisplay.vao.UpdateUVs(Generate_HotbarTexturedItemsUV());
+
             Update_HotbarItemNameText();
+
             Update_ItemCountText();
+            //  GameTime.GuiTimer.Pause();
         }
 
         public void UpdateInventory() {

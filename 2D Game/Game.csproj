@@ -59,6 +59,7 @@
     <Compile Include="Entities\EntityCage.cs" />
     <Compile Include="Entities\Core\EntityData.cs" />
     <Compile Include="Entities\Core\EntityID.cs" />
+    <Compile Include="Entities\Particles\Firework.cs" />
     <Compile Include="Entities\Warder.cs" />
     <Compile Include="Guis\Inventory\Item.cs" />
     <Compile Include="Guis\Inventory\ItemAttribs.cs" />

@@ -5,7 +5,7 @@ namespace Game.Terrains.Fluids {
     [Serializable]
     class LavaAttribs : FlowFluidAttribs, ILight {
         public LavaAttribs(int increments = 8) : base(increments, 8, Tile.Lava) {
-            mvtFactor = 0.015f;
+            mvtFactor = 0.02f;
         }
 
         protected override void UpdateFinal(int x, int y) {
@@ -22,8 +22,8 @@ namespace Game.Terrains.Fluids {
             }
         }
 
-        int ILight.Radius() => 16;
-
-        Vector4 ILight.Colour() => new Vector4(1, 0.4, 0.2, 1);
+        int ILight.Radius() => 12;
+        Vector3 ILight.Colour() => new Vector3(1, 0.4, 0.2);
+        float ILight.Strength() => 0.1f;
     }
 }

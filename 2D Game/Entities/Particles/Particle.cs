@@ -3,16 +3,7 @@ using Game.Entities;
 using OpenGL;
 using System;
 
-namespace Game.Particles {
-
-    [Serializable]
-    class ParticleData : EntityData {
-        public float rotfactor = 0;
-        public void Update() {
-            life.val -= GameTime.DeltaTime;
-            rot += rotfactor * GameTime.DeltaTime;
-        }
-    }
+namespace Game.Entities.Particles {
 
     [Serializable]
     abstract class Particle : Entity {
@@ -25,17 +16,19 @@ namespace Game.Particles {
             SParc_Place.Init();
         }
 
+        public float deltaRot;
+
         public Particle(EntityID model, Vector2 pos) : base(model, pos) {
             Vector2 size = Assets.Models.GetModel(model).size;
-            data = new ParticleData();
+            data.calcTerrainCollisions = false;
             data.pos.val = pos;
             EntityManager.AddEntity(this);
         }
 
         public override void Update() {
             UpdatePosition();
-            ((ParticleData)data).Update();
-            data.colour.w = data.life.val / data.life.max;
+            DamageNatural(GameTime.DeltaTime);
+            data.rot += deltaRot;
         }
 
         protected void RemoveIfColliding() {

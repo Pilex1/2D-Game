@@ -1,5 +1,4 @@
-﻿using Game.Terrains;
-using Game.Terrains.Terrain_Generation;
+﻿using Game.Terrains.Terrain_Generation;
 using Game.Util;
 using OpenGL;
 using System;

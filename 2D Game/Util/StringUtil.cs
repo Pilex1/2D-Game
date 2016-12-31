@@ -61,5 +61,13 @@ namespace Game.Util {
             }
             return sb.ToString();
         }
+
+        public static string TruncateTo(float x, int decimals) {
+            StringBuilder sb = new StringBuilder("{0:0.");
+            for (int i = 0; i < decimals; i++)
+                sb.Append("0");
+            sb.Append("}");
+            return string.Format(sb.ToString(), x);
+        }
     }
 }

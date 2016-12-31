@@ -24,7 +24,7 @@ namespace Game.Guis {
 
         public Textbox(Vector2 pos, Vector2 size, TextFont font, float textsize) {
             Vector2 textpos = pos * new Vector2(1, 1);
-            textpos.y += 2 * size.y;
+            textpos.y += 2 * size.y + 0.01f;
             textpos.x += 0.035f;
             textpos.x -= size.x;
             TextStyle style = new TextStyle(TextAlignment.TopLeft, font, textsize, size.x * 2 - 0.07f, 1, 1f, new Vector3(0.5f, 0f, 1f));

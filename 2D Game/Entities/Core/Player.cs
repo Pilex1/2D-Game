@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Diagnostics;
 using OpenGL;
 using Game.Entities;
 using Game.Terrains;
 using Game.Util;
 using Game.Terrains.Terrain_Generation;
 using Game.Items;
+using Game.Terrains.Lighting;
 
 namespace Game.Core {
 
@@ -13,16 +13,14 @@ namespace Game.Core {
 
         public static Player Instance { get; private set; }
 
-        private Player(Vector2 position) : base(EntityID.PlayerSimple, position) {
-            data = new EntityData { };
-            data.pos.val = position;
+        private Player() : base(EntityID.PlayerSimple, new Vector2(TerrainGen.SizeX / 2, 0)) {
             data.speed = 0.10f;
             data.jumppower = 0.5f;
             data.life = new BoundedFloat(20, 0, 20);
         }
 
         public static void CreateNew() {
-            Instance = new Player(new Vector2(TerrainGen.SizeX / 2, 0));
+            Instance = new Player();
         }
 
         public static void LoadPlayer(EntityData data) {
@@ -40,7 +38,8 @@ namespace Game.Core {
 
                 Tile tile = Terrain.TileAt(vi);
                 if (tile != null) {
-                    GameLogic.AdditionalDebugText = tile.ToString() + Environment.NewLine + tile.tileattribs.ToString();
+                    var lighting = LightingManager.GetLighting(vi.x, vi.y);
+                    GameLogic.AdditionalDebugText = tile.ToString() + Environment.NewLine + tile.tileattribs.ToString() + "Position: "+ vi.x+", "+vi.y+Environment.NewLine + "Lighting: Red " + StringUtil.TruncateTo(lighting.x, 4)+" Blue " + StringUtil.TruncateTo(lighting.y, 4) + " Green " + StringUtil.TruncateTo(lighting.z, 4);
 
                     if (Input.Mouse[Input.MouseLeft]) {
                         tile.tileattribs.Destroy(vi.x, vi.y, PlayerInventory.Instance);
@@ -61,14 +60,6 @@ namespace Game.Core {
             if (Input.Keys['s']) Instance.Fall();
 
             Instance.UpdatePosition();
-
-
-
-
-            if (IsStuck()) {
-                Debug.WriteLine("Player stuck! Position: " + data.pos + " Velocity: " + data.vel);
-            }
-
         }
 
         public static float DistToPlayer(Vector2 pos) {

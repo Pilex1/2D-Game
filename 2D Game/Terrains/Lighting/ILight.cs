@@ -4,6 +4,7 @@ namespace Game.Terrains {
 
     interface ILight {
         int Radius();
-        Vector4 Colour();
+        float Strength();
+        Vector3 Colour();
     }
 }

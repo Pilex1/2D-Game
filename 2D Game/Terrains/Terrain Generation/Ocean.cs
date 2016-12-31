@@ -11,7 +11,7 @@ namespace Game.Terrains.Terrain_Generation {
                 float x = f * (f - 1);
                 x += 1 / 4;
                 x *= 4;
-                MathUtil.ClampMin(ref x, 0.25f);
+                x = Math.Max(x, 0.25f);
                 return (1 - x) * 64 + MathUtil.RandFloat(TerrainGen.rand, -heightVar, heightVar);
             });
 

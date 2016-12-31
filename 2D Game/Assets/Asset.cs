@@ -86,7 +86,7 @@ namespace Game.Assets {
         internal static void Init() {
             EntityModels = new EntityModel[255];
 
-            EntityModels[(int)EntityID.HitboxOutline] = EntityModel.CreateHitboxRectangle();
+            EntityModels[(int)EntityID.BlackOutline] = EntityModel.CreateHitboxRectangle();
             Add(new Vector2(1, 1), EntityID.ShooterProjectile);
             Add(new Vector2(0.5, 0.5), EntityID.ParticlePurple);
             Add(new Vector2(0.5, 0.5), EntityID.ParticleRed);
@@ -99,7 +99,9 @@ namespace Game.Assets {
             Add(new Vector2(1, 2), EntityID.PlayerSimple);
             Add(new Vector2(1, 2), EntityID.EntityCage);
             Add(new Vector2(1, 1), EntityID.AutoDart);
-                 
+            Add(new Vector2(1, 2), EntityID.Warder);
+            Add(new Vector2(0.4, 0.4), EntityID.WhiteFill);
+
         }
 
         private static void Add(Vector2 size, EntityID id) {

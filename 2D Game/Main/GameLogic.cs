@@ -27,6 +27,7 @@ namespace Game {
             Normal, Paused, Inventory, Text
         }
 
+        public static Switch<LightingManager.LightingOption> LightingOption { get; private set; }
         public static BoolSwitch RenderDebugText { get; private set; }
         public static string AdditionalDebugText = "";
 
@@ -44,6 +45,7 @@ namespace Game {
         private static void InitBefore() {
             RenderDebugText = new BoolSwitch(false, 30);
             RenderHitboxes = new BoolSwitch(false, 30);
+            LightingOption = new Switch<LightingManager.LightingOption>(LightingManager.LightingOption.Smooth, 30);
             cancelWorldLoading = new CancellationTokenSource();
 
             FluidManager.Init();
@@ -73,15 +75,15 @@ namespace Game {
             PlayerInventory.Init();
             PlayerInventory.Instance.LoadDefaultItems();
 
-            //for (int i = 1; i <= 300; i++) {
-            //    Shooter s = new Shooter(new Vector2(i * 20 * MathUtil.RandFloat(Program.Rand, 0.8f, 1.2f), 0), 100, 250);
-            //    EntityManager.AddEntity(s);
-            //    s.CorrectTerrainCollision();
+            for (int i = 0; i <= 300; i++) {
+                Shooter s = new Shooter(new Vector2(MathUtil.RandFloat(Program.Rand, 0, TerrainGen.SizeX - 1), 0), 100, 250);
+                EntityManager.AddEntity(s);
+                s.CorrectTerrainCollision();
 
-            //    Squisher sq = new Squisher(new Vector2(i * 20 * MathUtil.RandFloat(Program.Rand, 0.8f, 1.2f), 0));
-            //    EntityManager.AddEntity(sq);
-            //    sq.CorrectTerrainCollision();
-            //}
+                Squisher sq = new Squisher(new Vector2(MathUtil.RandFloat(Program.Rand, 0, TerrainGen.SizeX - 1), 0));
+                EntityManager.AddEntity(sq);
+                sq.CorrectTerrainCollision();
+            }
 
             #endregion
 
@@ -157,7 +159,7 @@ namespace Game {
         }
 
         public static void Update() {
-
+            #region Debug
             if (Input.SpecialKeys[Glut.GLUT_KEY_F1]) {
                 RenderDebugText.Toggle();
             }
@@ -166,9 +168,28 @@ namespace Game {
                 RenderHitboxes.Toggle();
             }
 
+            if (Input.SpecialKeys[Glut.GLUT_KEY_F3]) {
+                switch (LightingOption.Get()) {
+                    case LightingManager.LightingOption.None:
+                        LightingOption.Set(LightingManager.LightingOption.Jagged);
+                        break;
+                    case LightingManager.LightingOption.Jagged:
+                        LightingOption.Set(LightingManager.LightingOption.Averaged);
+                        break;
+                    case LightingManager.LightingOption.Averaged:
+                        LightingOption.Set(LightingManager.LightingOption.Smooth);
+                        break;
+                    case LightingManager.LightingOption.Smooth:
+                        LightingOption.Set(LightingManager.LightingOption.None);
+                        break;
+                }
+            }
+            GameGuiRenderer.SetDebugText(DebugText());
+            #endregion
+
             if (Input.Keys['e']) {
                 if (State == GameState.Normal) {
-                    PlayerInventory.Instance.InventoryOpen.val = true;
+                    PlayerInventory.Instance.InventoryOpen.ForceSet(true);
                     State = GameState.Inventory;
                 }
             }
@@ -198,7 +219,7 @@ namespace Game {
                             State = GameState.Normal;
                             break;
                         case GameState.Inventory:
-                            PlayerInventory.Instance.InventoryOpen.val = false;
+                            PlayerInventory.Instance.InventoryOpen.ForceSet(false);
                             State = GameState.Normal;
                             break;
                         case GameState.Text:
@@ -212,20 +233,22 @@ namespace Game {
                 StateChanged_Escape = false;
             }
 
-            GameGuiRenderer.SetDebugText(DebugText());
 
             switch (State) {
                 case GameState.Inventory:
                     EntityManager.UpdateAll();
                     Terrain.Update();
+                    GameTime.GuiTimer.Start();
                     PlayerInventory.Instance.UpdateHotbar();
                     PlayerInventory.Instance.UpdateInventory();
+                   GameTime.GuiTimer.Pause();
                     break;
                 case GameState.Normal:
                     EntityManager.UpdateAll();
                     Terrain.Update();
+                   // GameTime.GuiTimer.Start();
                     PlayerInventory.Instance.UpdateHotbar();
-                    PlayerInventory.Instance.UpdateInventory();
+                  //  GameTime.GuiTimer.Pause();
                     break;
                 case GameState.Paused:
                 case GameState.Text:
@@ -236,18 +259,31 @@ namespace Game {
         private static string DebugText() {
             string brk = "--------------";
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Debug");
+
+            sb.AppendLine("Terrain Rendering: " + StringUtil.TruncateTo(GameTime.TerrainTimer.ElaspedTime, 4) + " ms");
+            sb.AppendLine("Lighting Calculations: " + StringUtil.TruncateTo(GameTime.LightingsTimer.ElaspedTime, 4) + " ms");
+            sb.AppendLine("Entity Updates: " + StringUtil.TruncateTo(GameTime.EntityUpdatesTimer.ElaspedTime, 4) + " ms");
+            sb.AppendLine("Entity Rendering: " + StringUtil.TruncateTo(GameTime.EntityUpdatesTimer.ElaspedTime, 4) + " ms");
+            sb.AppendLine("Fluid Updates: " + StringUtil.TruncateTo(GameTime.FluidsTimer.ElaspedTime, 4) + " ms");
+            sb.AppendLine("Logic Updates: " + StringUtil.TruncateTo(GameTime.LogicTimer.ElaspedTime, 4) + " ms");
+            sb.AppendLine("GUI Updates & Rendering: " + StringUtil.TruncateTo(GameTime.GuiTimer.ElaspedTime, 4) + " ms");
+            sb.AppendLine("Total: " + StringUtil.TruncateTo(1000f / GameTime.FPS, 4) + " ms / " + GameTime.FPS + " FPS");
             sb.AppendLine(brk);
-            sb.AppendLine(GameTime.FPS + " FPS / " + string.Format("{0:0.0000}", 1000f / GameTime.FPS) + " ms");
+
+            sb.AppendLine("Lighting: " + LightingOption.Get());
             sb.AppendLine("Loaded Entities: " + EntityManager.LoadedEntities);
             sb.AppendLine("Logic tiles: " + LogicManager.Instance.GetCount());
             sb.AppendLine("Fluid tiles: " + FluidManager.Instance.GetCount());
             sb.AppendLine(brk);
+
             Vector2 playerpos = Player.Instance.data.pos.val;
             Vector2 playervel = Player.Instance.data.vel.val;
-            sb.AppendLine("Position: " + string.Format("{0:0.0000}, {1:0.0000}", playerpos.x, playerpos.y));
-            sb.AppendLine("Velocity: " + string.Format("{0:0.0000}, {1:0.0000}", playervel.x, playervel.y));
+            MovementState playermvt = Player.Instance.data.mvtState;
+            sb.AppendLine("Position: " + StringUtil.TruncateTo(playerpos.x, 4) + ", " + StringUtil.TruncateTo(playerpos.y, 4));
+            sb.AppendLine("Velocity: " + StringUtil.TruncateTo(playervel.x, 4) + ", " + StringUtil.TruncateTo(playervel.y, 4));
+            sb.AppendLine("Movement state: " + playermvt.ToString());
             sb.AppendLine(brk);
+
             sb.AppendLine(AdditionalDebugText);
             return sb.ToString();
         }
@@ -275,11 +311,11 @@ namespace Game {
 
         public static void CleanUp() {
             if (Program.Mode != ProgramMode.Game) return;
+            SaveWorld();
             Terrain.CleanUp();
             EntityManager.CleanUp();
             FluidManager.Instance.CleanUp();
             LogicManager.Instance.CleanUp();
-            SaveWorld();
         }
 
 
@@ -287,8 +323,8 @@ namespace Game {
             if (Program.Mode != ProgramMode.Game) return;
             StateChanged_Enter = StateChanged_Escape = false;
             State = GameState.Normal;
-            RenderHitboxes.val = false;
-            RenderDebugText.val = false;
+            RenderHitboxes.ForceSet(false);
+            RenderDebugText.ForceSet(false);
             AdditionalDebugText = "";
         }
 

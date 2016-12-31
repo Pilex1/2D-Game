@@ -7,15 +7,6 @@ using Game.Core;
 using Game.TitleScreen;
 using Game.Interaction;
 using Game.Assets;
-using Game.Terrains;
-using Game.Core.World_Serialization;
-using Game.Entities;
-using Game.Items;
-
-using Game.Terrains.Logics;
-using Game.Terrains.Fluids;
-using Game.Terrains.Lighting;
-using System.Threading.Tasks;
 using System.Threading;
 
 namespace Game {
@@ -29,7 +20,7 @@ namespace Game {
 
         public static int ScreenWidth, ScreenHeight;
         public static int Width = 1280, Height = 720;
-        public static float AspectRatio = (float)Width / Height;
+        public static float AspectRatio => (float)Width / Height;
         public static ProgramMode Mode { get; private set; }
 
         internal static string worldname { get; private set; }
@@ -38,6 +29,7 @@ namespace Game {
             Init();
             Glut.glutMainLoop();
             Dispose();
+            while (GameLogic.saving) Thread.Sleep(1);
         }
 
         private static void Init() {
@@ -55,7 +47,7 @@ namespace Game {
             Glut.glutSetOption(Glut.GLUT_ACTION_ON_WINDOW_CLOSE, Glut.GLUT_ACTION_CONTINUE_EXECUTION);
             Gl.Viewport(0, 0, Width, Height);
             Glut.glutReshapeFunc(OnReshape);
-            Glut.glutDisplayFunc(delegate () { });
+            Glut.glutDisplayFunc(() => { });
             Glut.glutIdleFunc(MainGameLoop);
 
             //Console.SetWindowSize(Console.LargestWindowWidth / 4, Console.LargestWindowHeight / 4);
@@ -65,13 +57,13 @@ namespace Game {
             AssetsManager.Init();
             Input.Init();
             Gui.Init();
+            GameTime.Init();
             SwitchToTitleScreen();
         }
 
         private static void OnReshape(int width, int height) {
             Width = width;
             Height = height;
-            AspectRatio = (float)Width / height;
         }
 
         public static void SwitchToTitleScreen() {
@@ -116,10 +108,22 @@ namespace Game {
             if (Mode == ProgramMode.Game) {
                 GameGuiRenderer.RenderBackground();
                 GameRenderer.Render();
+
                 GameLogic.Update();
             }
+
+            GameTime.GuiTimer.Start();
             Gui.Render();
             Gui.Update();
+            GameTime.GuiTimer.Pause();
+
+            GameTime.TerrainTimer.Stop();
+            GameTime.LightingsTimer.Stop();
+            GameTime.EntityUpdatesTimer.Stop();
+            GameTime.EntityRenderTimer.Stop();
+            GameTime.LogicTimer.Stop();
+            GameTime.FluidsTimer.Stop();
+            GameTime.GuiTimer.Stop();
 
             Input.Update();
             Glut.glutSwapBuffers();

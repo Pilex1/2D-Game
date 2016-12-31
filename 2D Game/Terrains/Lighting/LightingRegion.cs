@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Game.Terrains.Lighting {
     class LightingRegion {
@@ -8,7 +7,7 @@ namespace Game.Terrains.Lighting {
 
         public static void Init() {
             Regions = new LightingRegion[LightingManager.MaxLightRadius + 1];
-            for (int i = 0; i < Regions.Length; i++) {
+            for (int i = 1; i < Regions.Length; i++) {
                 Regions[i] = new LightingRegion(i);
             }
         }
@@ -18,17 +17,16 @@ namespace Game.Terrains.Lighting {
         private float[,] lighting;
 
         private LightingRegion(int radius) {
-            this.radius = radius+1;
+            this.radius = radius;
             lighting = new float[this.radius, this.radius];
             CalcLighting();
         }
 
         private void CalcLighting() {
-            float radius_sq = radius * radius;
+            if (radius == 0) return;
             for (int i = 0; i < radius; i++) {
                 for (int j = 0; j < radius; j++) {
-                    float quadrance = i * i + j * j;
-                    lighting[i, j] = 1 - quadrance / radius_sq;
+                    lighting[i, j] = Math.Max(0, 1 - (float)Math.Sqrt(i * i + j * j) / radius);
                 }
             }
         }

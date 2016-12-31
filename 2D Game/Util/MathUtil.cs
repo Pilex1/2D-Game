@@ -115,44 +115,32 @@ namespace Game.Util {
     static class MathUtil {
 
         public static readonly float Sqrt2 = (float)Math.Sqrt(2);
-        public static readonly float Sqrt2_Offset = (1 - Sqrt2) / 2;
 
         public const float Epsilon = 0.001f;
 
         #region Clamp
-        public static void Clamp(ref int x, int min, int max) {
-            if (x < min) x = min;
-            if (x > max) x = max;
+        public static int Clamp(int x, int min, int max) => Math.Min(Math.Max(x, min), max);
+        public static float Clamp(float x, float min, float max) => Math.Min(Math.Max(x, min), max);
+        public static Vector2 ClampElementWise(Vector2 v, Vector2 min, Vector2 max) => new Vector2(Clamp(v.x, min.x, max.x), Clamp(v.y, min.y, max.y));
+        public static Vector2 ClampElementWise(Vector2 v, float min, float max) => ClampElementWise(v, new Vector2(min, min), new Vector2(max, max));
+        public static Vector3 ClampElementWise(Vector3 v, Vector3 min, Vector3 max) => new Vector3(Clamp(v.x, min.x, max.x), Clamp(v.y, min.y, max.y), Clamp(v.z, min.z, max.z));
+        public static Vector3 ClampElementWise(Vector3 v, float min, float max) => ClampElementWise(v, new Vector3(min, min, min), new Vector3(max, max, max));
+        public static Vector4 ClampElementWise(Vector4 v, Vector4 min, Vector4 max) => new Vector4(Clamp(v.x, min.x, max.x), Clamp(v.y, min.y, max.y), Clamp(v.z, min.z, max.z), Clamp(v.w, min.w, max.w));
+        public static Vector4 ClampElementWise(Vector4 v, float min, float max) => ClampElementWise(v, new Vector4(min, min, min, min), new Vector4(max, max, max, max));
+        public static Vector2 ClampMagnitude(Vector2 v, float min, float max) {
+            if (v.Length < min) v *= min / v.Length;
+            if (v.Length > max) v *= max / v.Length;
+            return v;
         }
-        public static void ClampMin(ref int x, int min) {
-            Clamp(ref x, min, int.MaxValue);
+        public static Vector3 ClampMagnitude(Vector3 v, float min, float max) {
+            if (v.Length < min) v *= min / v.Length;
+            if (v.Length > max) v *= max / v.Length;
+            return v;
         }
-        public static void ClampMax(ref int x, int max) {
-            Clamp(ref x, int.MinValue, max);
-        }
-        public static void Clamp(ref float x, float min, float max) {
-            if (x < min) x = min;
-            if (x > max) x = max;
-        }
-        public static void ClampMin(ref float x, float min) {
-            Clamp(ref x, min, int.MaxValue);
-        }
-        public static void ClampMax(ref float x, float max) {
-            Clamp(ref x, int.MinValue, max);
-        }
-        public static void Clamp(ref Vector2 v, Vector2 min, Vector2 max) {
-            if (v.x < min.x) v.x = min.x;
-            if (v.x > max.x) v.x = max.x;
-            if (v.y < min.y) v.y = min.y;
-            if (v.y > max.y) v.y = max.y;
-        }
-        public static void Clamp(ref Vector3 v, Vector3 min, Vector3 max) {
-            if (v.x < min.x) v.x = min.x;
-            if (v.x > max.x) v.x = max.x;
-            if (v.y < min.y) v.y = min.y;
-            if (v.y > max.y) v.y = max.y;
-            if (v.z < min.z) v.z = min.z;
-            if (v.z > max.z) v.z = max.z;
+        public static Vector4 ClampMagnitude(Vector4 v, float min, float max) {
+            if (v.Length < min) v *= min / v.Length;
+            if (v.Length > max) v *= max / v.Length;
+            return v;
         }
         #endregion Clamp
 

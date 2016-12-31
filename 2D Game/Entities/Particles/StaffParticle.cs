@@ -7,15 +7,19 @@ using Game.Entities;
 using Game.Terrains;
 using Game.Items;
 
-namespace Game.Particles {
+namespace Game.Entities.Particles {
 
     [Serializable]
     abstract class StaffParticle : Particle {
         public StaffParticle(EntityID model, Vector2 pos, Vector2 vel)
             : base(model, pos) {
             data.vel.val = vel;
-            data.calcTerrainCollisions = false;
-            ((ParticleData)data).rotfactor = 0.01f;
+            deltaRot = 0.01f;
+        }
+
+        public override void Update() {
+            base.Update();
+            data.colour.w = data.life.val / data.life.max;
         }
 
         public override void OnTerrainCollision(int x, int y, Direction d, Tile t) {
@@ -99,22 +103,25 @@ namespace Game.Particles {
             new SParc_Water(pos, vel);
         }
 
-        public override void Update() {
-            base.Update();
-            if (Colliding() || ((ParticleData)data).life <= 0) {
-                int x = (int)data.pos.x;
-                int y = (int)data.pos.y;
+        private void PlaceWater() {
+            int x = (int)data.pos.x;
+            int y = (int)data.pos.y;
 
-                Terrain.SetTile(x - 1, y, Tile.Water());
-                Terrain.SetTile(x + 1, y, Tile.Water());
-                Terrain.SetTile(x, y + 1, Tile.Water());
-                Terrain.SetTile(x, y - 1, Tile.Water());
+            Terrain.SetTile(x - 1, y, Tile.Water());
+            Terrain.SetTile(x + 1, y, Tile.Water());
+            Terrain.SetTile(x, y + 1, Tile.Water());
+            Terrain.SetTile(x, y - 1, Tile.Water());
 
-                EntityManager.RemoveEntity(this);
-
-            }
+            EntityManager.RemoveEntity(this);
         }
 
+        public override void OnTerrainCollision(int x, int y, Direction d, Tile t) {
+            PlaceWater();
+        }
+
+        public override void OnDeath() {
+            PlaceWater();
+        }
     }
 
     [Serializable]

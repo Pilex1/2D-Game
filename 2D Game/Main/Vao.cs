@@ -72,13 +72,13 @@ namespace Game.Core {
 
         public int count { get; private set; }
 
-        public TerrainVAO(Vector2[] vertices, int[] elements, Vector2[] uvs, Vector4[] lightings) {
+        public TerrainVAO(Vector2[] vertices, int[] elements, Vector2[] uvs, Vector3[] lightings) {
             count = elements.Length;
             this.ID = Gl.GenVertexArray();
             UpdateData(vertices, elements, uvs, lightings);
         }
 
-        public void UpdateData(Vector2[] vertices, int[] elements, Vector2[] uvs, Vector4[] lightings) {
+        public void UpdateData(Vector2[] vertices, int[] elements, Vector2[] uvs, Vector3[] lightings) {
             Gl.BindVertexArray(ID);
             ShaderProgram shader = Terrain.Shader;
 
@@ -103,9 +103,9 @@ namespace Game.Core {
             Gl.DeleteBuffer(lightingsID);
             this.lightingsID = Gl.GenBuffer();
             Gl.BindBuffer(BufferTarget.ArrayBuffer, lightingsID);
-            Gl.BufferData(BufferTarget.ArrayBuffer, 4 * sizeof(float) * lightings.Length, lightings, BufferUsageHint.StreamDraw);
+            Gl.BufferData(BufferTarget.ArrayBuffer, 3 * sizeof(float) * lightings.Length, lightings, BufferUsageHint.StreamDraw);
             uint lightingsAttribLocation = (uint)Gl.GetAttribLocation(shader.ProgramID, "vert_lighting");
-            Gl.VertexAttribPointer(lightingsAttribLocation, 4, VertexAttribPointerType.Float, true, 4 * sizeof(float), IntPtr.Zero);
+            Gl.VertexAttribPointer(lightingsAttribLocation, 3, VertexAttribPointerType.Float, true, 3 * sizeof(float), IntPtr.Zero);
             Gl.EnableVertexAttribArray(lightingsAttribLocation);
             Gl.BindBuffer(BufferTarget.ArrayBuffer, 0);
 

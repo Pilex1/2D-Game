@@ -1,11 +1,12 @@
 ﻿using System;
 using Game.Util;
 using Game.Items;
+using OpenGL;
 
 namespace Game.Terrains.Logics {
 
     [Serializable]
-    class LogicLampAttribs : PowerDrainData {
+    class LogicLampAttribs : PowerDrainData, ILight {
 
         public bool state { get; protected set; }
 
@@ -32,5 +33,11 @@ namespace Game.Terrains.Logics {
 
             Terrain.TileAt(x, y).enumId = state ? TileID.LogicLampOn : TileID.LogicLampOff;
         }
+
+        int ILight.Radius() => 6;
+
+        float ILight.Strength() => 1f;
+
+        Vector3 ILight.Colour() => state ? new Vector3(1, 0.9, 0.9) : Vector3.Zero;
     }
 }

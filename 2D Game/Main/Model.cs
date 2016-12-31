@@ -26,7 +26,7 @@ namespace Game.Core {
         public static EntityModel CreateHitboxRectangle() {
             Vector2[] vertices = new Vector2[] { new Vector2(0, 0), new Vector2(0, 1), new Vector2(1, 1), new Vector2(1, 0) };
             int[] elements = new int[] { 0, 1, 2, 3, 0 };
-            int t = (int)EntityID.HitboxOutline;
+            int t = (int)EntityID.BlackOutline;
             float x = ((float)(t % EntityTextureSize)) / EntityTextureSize;
             float y = ((float)(t / EntityTextureSize)) / EntityTextureSize;
             float s = 1f / EntityTextureSize;

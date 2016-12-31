@@ -26,7 +26,7 @@ namespace Game.Interaction {
         public static void Init() {
             TextFont.Init();
 
-            TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.5f, 2f, int.MaxValue, 1.5f, new Vector3(1, 1, 1));
+            TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.45f, 2f, int.MaxValue, 1f, new Vector3(1, 1, 1));
             DebugText = new Text("", style, new Vector2(-0.99, 0.97));
             Healthbar = GuiModel.CreateRectangle(new Vector2(0.52, 0.03), TextureUtil.ColourFromVec4(new Vector4(0.88, 0.3, 0.1, 0.8)));
             HealthbarTexture = GuiModel.CreateRectangle(new Vector2(0.55, 0.04875), Textures.HealthbarTexture);
