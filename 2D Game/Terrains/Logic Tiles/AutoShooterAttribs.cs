@@ -2,7 +2,7 @@
 using Game.Entities;
 using Game.Items;
 using Game.Util;
-using OpenGL;
+using Pencil.Gaming.MathUtils;
 using System;
 
 namespace Game.Terrains.Logics {
@@ -53,7 +53,7 @@ namespace Game.Terrains.Logics {
 
                         var e = entities[MathUtil.RandInt(Program.Rand, 0, entities.Length - 1)];
                         var darvel = e.data.pos - new Vector2(x, y);
-                        darvel = darvel.Normalize();
+                        darvel.Normalize();
                         var dartpos = new Vector2(x, y);
                         dartpos += 1.5f * darvel;
                         darvel /= 10;

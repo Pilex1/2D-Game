@@ -1,15 +1,17 @@
 ﻿using Game.Fonts;
 using System;
 using System.Collections.Generic;
-using OpenGL;
+using Pencil.Gaming.Graphics;
+using Pencil.Gaming.MathUtils;
 using Game.Core;
 using Game.Util;
-using Tao.FreeGlut;
 using Game.Guis;
 using Game.Assets;
-using Game.Core.World_Serialization;
+using Game.Core.world_Serialization;
 using System.Linq;
 using System.Threading.Tasks;
+using Game.Main.GLConstructs;
+using Pencil.Gaming;
 
 namespace Game.TitleScreen {
     static class TitleScreenRenderer {
@@ -61,14 +63,14 @@ namespace Game.TitleScreen {
 
             internal WorldPicker(string worldname, int i) {
 
-                Vector2 buttonSize = new Vector2(0.15, 0.03);
-                Vector2 worldButtonSize = new Vector2(0.3, 0.03);
+                Vector2 buttonSize = new Vector2(0.15f, 0.03f);
+                Vector2 worldButtonSize = new Vector2(0.3f, 0.03f);
 
-                btnNewWorld = new Button(new Vector2(0.2, 0.85 - i * 0.3), buttonSize, "New World", TextStyle.LucidaConsole_SingleLine_Small, () =>
+                btnNewWorld = new Button(new Vector2(0.2f, 0.85f - i * 0.3f), buttonSize, "New World", TextStyle.LucidaConsole_SingleLine_Small, () =>
                     SwitchTo(State.NewWorld));
-                btnLaunchWorld = new Button(new Vector2(-0.45, 0.85 - i * 0.3), worldButtonSize, worldname, TextStyle.LucidaConsole_SingleLine_Small, () => Program.LoadGame_FromSave(btnLaunchWorld.ToString()));
+                btnLaunchWorld = new Button(new Vector2(-0.45f, 0.85f - i * 0.3f), worldButtonSize, worldname, TextStyle.LucidaConsole_SingleLine_Small, () => Program.LoadGame_FromSave(btnLaunchWorld.ToString()));
 
-                btnDeleteWorld = new Button(new Vector2(0.2, 0.85 - i * 0.3 - 0.12), buttonSize, "Delete World", TextStyle.LucidaConsole_SingleLine_Small, async () => {
+                btnDeleteWorld = new Button(new Vector2(0.2f, 0.85f - i * 0.3f - 0.12f), buttonSize, "Delete World", TextStyle.LucidaConsole_SingleLine_Small, async () => {
                     if (emptyworld) return;
                     string w = btnLaunchWorld.ToString();
                     btnLaunchWorld.disabled = true;
@@ -92,15 +94,15 @@ namespace Game.TitleScreen {
 
         public static void Init() {
 
-            Vector2 buttonSize = new Vector2(0.3, 0.08);
-            btn_Back_Title = new Button(new Vector2(0, -0.7), buttonSize, "Back", TextStyle.LucidaConsole_SingleLine_Large, () => SwitchTo(State.Main));
+            Vector2 buttonSize = new Vector2(0.3f, 0.08f);
+            btn_Back_Title = new Button(new Vector2(0f, -0.7f), buttonSize, "Back", TextStyle.LucidaConsole_SingleLine_Large, () => SwitchTo(State.Main));
             backgroundhue = 180;
 
             #region Home Screen
-            btn_Main_Play = new Button(new Vector2(0, 0.3), buttonSize, "Play", TextStyle.LucidaConsole_SingleLine_Large, delegate () { SwitchTo(State.WorldSelect); });
-            btn_Main_Credits = new Button(new Vector2(0, -0.05), buttonSize, "Credits", TextStyle.LucidaConsole_SingleLine_Large, delegate () { SwitchTo(State.Credits); });
-            btn_Main_Help = new Button(new Vector2(0, -0.4), buttonSize, "Help", TextStyle.LucidaConsole_SingleLine_Large, delegate () { SwitchTo(State.Help); });
-            btn_Main_Exit = new Button(new Vector2(0, -0.75), buttonSize, "Exit", TextStyle.LucidaConsole_SingleLine_Large, delegate () { Glut.glutLeaveMainLoop(); });
+            btn_Main_Play = new Button(new Vector2(0, 0.3f), buttonSize, "Play", TextStyle.LucidaConsole_SingleLine_Large, () => SwitchTo(State.WorldSelect));
+            btn_Main_Credits = new Button(new Vector2(0, -0.05f), buttonSize, "Credits", TextStyle.LucidaConsole_SingleLine_Large, () => SwitchTo(State.Credits));
+            btn_Main_Help = new Button(new Vector2(0, -0.4f), buttonSize, "Help", TextStyle.LucidaConsole_SingleLine_Large, () => SwitchTo(State.Help));
+            btn_Main_Exit = new Button(new Vector2(0, -0.75f), buttonSize, "Exit", TextStyle.LucidaConsole_SingleLine_Large, () => Glfw.SetWindowShouldClose(Program.window, true));
             #endregion
 
             #region Background
@@ -119,7 +121,7 @@ namespace Game.TitleScreen {
 
             #region Credits
             TextStyle tstyle = new TextStyle(TextAlignment.Center, TextFont.LucidaConsole, 0.6f, 1.8f, 1 << 30, 1f, new Vector3(1, 1, 1));
-            txt_CreditsInfo = new Text("Copyright Alex Tan (2016). Apache License. https://github.com/Pilex1/2D-Game/blob/master/LICENSE" + Environment.NewLine + Environment.NewLine + "- code, bugs, game design, bugs, graphics, bugs, everything you see here, bugs. Did I mention bugs?" + Environment.NewLine + Environment.NewLine + "Help me continue making these projects:" + Environment.NewLine + Environment.NewLine + "Visit my github repositories to view and download the full source code plus my other projects" + Environment.NewLine + " - https://github.com/Pilex1" + Environment.NewLine + " - https://github.com/Pilex1/2D-Game" + Environment.NewLine + Environment.NewLine + "Subscribe to my youtube channel where I post videos of Mandelbrot renders and game development" + Environment.NewLine + " - https://www.youtube.com/channel/UCroZnM6MzqyREXszaksefBw", tstyle, new Vector2(0, 0.9));
+            txt_CreditsInfo = new Text("Copyright Alex Tan (2016). Apache License. https://github.com/Pilex1/2D-Game/blob/master/LICENSE" + Environment.NewLine + Environment.NewLine + "- code, bugs, game design, bugs, graphics, bugs, everything you see here, bugs. Did I mention bugs?" + Environment.NewLine + Environment.NewLine + "Help me continue making these projects:" + Environment.NewLine + Environment.NewLine + "Visit my github repositories to view and download the full source code plus my other projects" + Environment.NewLine + " - https://github.com/Pilex1" + Environment.NewLine + " - https://github.com/Pilex1/2D-Game" + Environment.NewLine + Environment.NewLine + "Subscribe to my youtube channel where I post videos of Mandelbrot renders and game development" + Environment.NewLine + " - https://www.youtube.com/channel/UCroZnM6MzqyREXszaksefBw", tstyle, new Vector2(0, 0.9f));
             #endregion
 
             #region World Pickers
@@ -134,21 +136,21 @@ namespace Game.TitleScreen {
 
             #region New World
             //creating new world
-            txtbx_NewWorld_Name = new Textbox(new Vector2(0, 0.5), new Vector2(0.3, 0.03), TextFont.LucidaConsole, 0.6f);
-            txtbx_NewWorld_Seed = new Textbox(new Vector2(0, 0.2), new Vector2(0.3, 0.03), TextFont.LucidaConsole, 0.6f);
+            txtbx_NewWorld_Name = new Textbox(new Vector2(0, 0.5f), new Vector2(0.3f, 0.03f), TextFont.LucidaConsole, 0.6f);
+            txtbx_NewWorld_Seed = new Textbox(new Vector2(0, 0.2f), new Vector2(0.3f, 0.03f), TextFont.LucidaConsole, 0.6f);
             float offset = 0.15f;
-            txt_NewWorld_Name = new Text("World Name", tstyle, new Vector2(0, 0.5 + offset));
-            txt_NewWorld_Seed = new Text("Seed", tstyle, new Vector2(0, 0.2 + offset));
-            btn_NewWorld_CreateWorld = new Button(new Vector2(0, -0.3), new Vector2(0.3, 0.08), "Create", TextStyle.LucidaConsole_SingleLine_Large, () => {
+            txt_NewWorld_Name = new Text("World Name", tstyle, new Vector2(0, 0.5f + offset));
+            txt_NewWorld_Seed = new Text("Seed", tstyle, new Vector2(0, 0.2f + offset));
+            btn_NewWorld_CreateWorld = new Button(new Vector2(0, -0.3f), new Vector2(0.3f, 0.08f), "Create", TextStyle.LucidaConsole_SingleLine_Large, () => {
                 string worldname = txtbx_NewWorld_Name.GetText();
                 worlds.Add(worldname);
                 Program.LoadGame_New(worldname, int.Parse(txtbx_NewWorld_Seed.GetText()));
             });
-            btn_NewWorld_RandSeed = new Button(new Vector2(0.5, 0.2), new Vector2(0.15, 0.03), "Random seed", TextStyle.LucidaConsole_SingleLine_Small, () => {
+            btn_NewWorld_RandSeed = new Button(new Vector2(0.5f, 0.2f), new Vector2(0.15f, 0.03f), "Random seed", TextStyle.LucidaConsole_SingleLine_Small, () => {
                 int irand = MathUtil.RandInt(Program.Rand, 1 << 24, 1 << 30);
                 txtbx_NewWorld_Seed.SetText(irand.ToString());
             });
-            btn_NewWorld_Back = new Button(new Vector2(0, -0.7), buttonSize, "Back", TextStyle.LucidaConsole_SingleLine_Large, () => {
+            btn_NewWorld_Back = new Button(new Vector2(0, -0.7f), buttonSize, "Back", TextStyle.LucidaConsole_SingleLine_Large, () => {
                 txtbx_NewWorld_Name.ClearText();
                 txtbx_NewWorld_Name.disabled = true;
 
@@ -160,7 +162,7 @@ namespace Game.TitleScreen {
             #endregion
 
             #region Help
-            txt_Help = new Text("How to play:" + Environment.NewLine + "W A S D - movement" + Environment.NewLine + "Left click - destroy tile" + Environment.NewLine + "Right click - interact / place tile" + Environment.NewLine + "E - open / close inventory" + Environment.NewLine + "Mousewheel and keys 1 to 9 - hotbar selection" + Environment.NewLine + "Escape - pause game" + Environment.NewLine + Environment.NewLine + "Debugging controls:" + Environment.NewLine + "F1 - debug view" + Environment.NewLine + "F2 - render hitboxes" + Environment.NewLine + "F3 - smooth lighting" + Environment.NewLine + "Enter - open command prompt", tstyle, new Vector2(0, 0.9));
+            txt_Help = new Text("How to play:" + Environment.NewLine + "W A S D - movement" + Environment.NewLine + "Left click - destroy tile" + Environment.NewLine + "Right click - interact / place tile" + Environment.NewLine + "E - open / close inventory" + Environment.NewLine + "Mousewheel and keys 1 to 9 - hotbar selection" + Environment.NewLine + "Escape - pause game" + Environment.NewLine + Environment.NewLine + "Debugging controls:" + Environment.NewLine + "F1 - debug view" + Environment.NewLine + "F2 - render hitboxes" + Environment.NewLine + "F3 - smooth lighting" + Environment.NewLine + "Enter - open command prompt", tstyle, new Vector2(0, 0.9f));
             #endregion
 
             SwitchTo(State.Main);
@@ -304,9 +306,9 @@ namespace Game.TitleScreen {
 
         public static void Render() {
             ShaderProgram shader = Gui.shader;
-            Gl.UseProgram(shader.ProgramID);
+            GL.UseProgram(shader.ID);
 
-            shader["aspectRatio"].SetValue(Program.AspectRatio);
+            shader.SetUniform1f("aspectRatio", Program.AspectRatio);
 
             RenderInstance(background, backgroundpos, new Vector4(TextureUtil.HSVToRGB_Vec3(backgroundhue, 0.5f, 1f), 1));
             // Debug.WriteLine(backgroundhue);
@@ -324,12 +326,13 @@ namespace Game.TitleScreen {
             foreach (Text t in CurTexts)
                 RenderInstance(t.model, t.pos, t.style.colour);
 
-            Gl.UseProgram(0);
+            GL.UseProgram(0);
         }
 
 
         private static bool IsValidNewWorld(string name, string seed) {
             if (!StringUtil.StartsWithLetter(name)) return false;
+            if (StringUtil.ContainsStdSymbolU(name)) return false;
             int i_seed;
             if (!int.TryParse(seed, out i_seed)) return false;
             if (worlds.Contains(name)) return false;
@@ -340,48 +343,19 @@ namespace Game.TitleScreen {
         private static void RenderInstance(GuiModel model, Vector2 pos, Vector4 colour) {
             ShaderProgram shader = Gui.shader;
 
-            Gl.Enable(EnableCap.Blend);
-            Gl.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
-            shader["position"].SetValue(pos);
-            shader["size"].SetValue(model.size);
-            shader["colour"].SetValue(colour);
-            Gl.BindVertexArray(model.vao.ID);
-            Gl.BindTexture(model.texture.TextureTarget, model.texture.TextureID);
-            Gl.DrawElements(model.drawmode, model.vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
-            Gl.BindTexture(model.texture.TextureTarget, 0);
-            Gl.BindVertexArray(0);
+            shader.SetUniform2f("position", pos);
+            shader.SetUniform2f("size", model.size);
+            shader.SetUniform4f("colour", colour);
+            GL.BindVertexArray(model.vao.ID);
+            GL.BindTexture(model.texture.TextureTarget, model.texture.TextureID);
+            GL.DrawElements(model.drawmode, model.vao.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+            GL.BindTexture(model.texture.TextureTarget, 0);
+            GL.BindVertexArray(0);
 
-            Gl.Disable(EnableCap.Blend);
-        }
-
-        public static void Dispose() {
-            if (Program.Mode != ProgramMode.TitleScreen) return;
-
-
-            foreach (var t in CurTexts) t.Dispose();
-            foreach (var b in CurButtons) b.Dispose();
-            foreach (var t in CurTextboxes) t.Dispose();
-            foreach (var l in CurLabels) l.Dispose();
-
-            CurTexts.Clear();
-            CurButtons.Clear();
-            CurTextboxes.Clear();
-            CurLabels.Clear();
-
-            btn_Main_Play.Dispose();
-            btn_Main_Credits.Dispose();
-            btn_Main_Help.Dispose();
-
-            foreach (var b in worldPickers) {
-                b.btnNewWorld.Dispose();
-                b.btnLaunchWorld.Dispose();
-                b.btnDeleteWorld.Dispose();
-            }
-            btn_Back_Title.Dispose();
-            txt_Main_Title.Dispose();
-            txt_CreditsInfo.Dispose();
-
+            GL.Disable(EnableCap.Blend);
         }
         #endregion  
     }

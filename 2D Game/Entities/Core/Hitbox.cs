@@ -1,5 +1,5 @@
 ﻿using System;
-using OpenGL;
+using Pencil.Gaming.MathUtils;
 
 namespace Game.Entities {
 
@@ -20,13 +20,13 @@ namespace Game.Entities {
         //    float distanceX = Math.Abs(h2.Position.x - h1.Position.x);
         //    float distanceY = Math.Abs(h2.Position.y - h1.Position.y);
 
-        //    if (distanceX > (h1.Width / 2 + h2.Size.x)) { return false; }
+        //    if (distanceX > (h1.width / 2 + h2.Size.x)) { return false; }
         //    if (distanceY > (h1.Height / 2 + h2.Size.x)) { return false; }
 
-        //    if (distanceX <= (h1.Width / 2)) { return true; }
+        //    if (distanceX <= (h1.width / 2)) { return true; }
         //    if (distanceY <= (h1.Height / 2)) { return true; }
 
-        //    float cornerDistance_sq = (distanceX - h1.Width / 2) * (distanceX - h1.Width / 2) + (distanceY - h1.Height / 2) * (distanceY - h1.Height / 2);
+        //    float cornerDistance_sq = (distanceX - h1.width / 2) * (distanceX - h1.width / 2) + (distanceY - h1.Height / 2) * (distanceY - h1.Height / 2);
 
         //    return (cornerDistance_sq <= (h2.Size.x * h2.Size.x));
         //}

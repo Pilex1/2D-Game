@@ -1,6 +1,6 @@
 ﻿using System;
 using Game.Items;
-using OpenGL;
+using Pencil.Gaming.MathUtils;
 
 namespace Game.Terrains.Lightings {
 

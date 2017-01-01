@@ -1,5 +1,5 @@
 ﻿using System;
-using OpenGL;
+using Pencil.Gaming.MathUtils;
 using Game.Terrains;
 using System.Collections.Generic;
 using Game.Core;
@@ -28,7 +28,7 @@ namespace Game.Entities {
         protected Entity(EntityID entityId, Hitbox hitbox, Vector2 position) : this(entityId, hitbox, new EntityData()) {
             data.pos.val = position;
         }
-        protected Entity(EntityID entityId, Vector2 position) : this(entityId, new RectangularHitbox(position, Assets.Models.GetModel(entityId).size), position) { }
+        protected Entity(EntityID entityId, Vector2 position) : this(entityId, new RectangularHitbox(position, Assets.Models.GetModel(entityId).Size), position) { }
 
         #endregion
 
@@ -78,7 +78,7 @@ namespace Game.Entities {
         public void ReboundX() {
             if (data.reboundedX) return;
             data.reboundedX = true;
-            data.vel.x *= -1;
+            data.vel.y *= -1;
         }
 
         public void ReboundY() {
@@ -286,7 +286,7 @@ namespace Game.Entities {
 
         #endregion
 
-        public virtual Matrix4 ModelMatrix() { return MathUtil.ModelMatrix(Assets.Models.GetModel(entityId).size, data.rot, data.pos); }
+        public virtual Matrix ModelMatrix() { return MathUtil.ModelMatrix(Assets.Models.GetModel(entityId).Size, data.rot, data.pos); }
         public virtual void InitTimers() { }
         public abstract void Update();
         public virtual void UpdateHitbox() { hitbox.Position = data.pos; }

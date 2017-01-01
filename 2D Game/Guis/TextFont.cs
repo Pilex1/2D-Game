@@ -1,4 +1,4 @@
-﻿using OpenGL;
+﻿using Game.Main.GLConstructs;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;

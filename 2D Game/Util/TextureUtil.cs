@@ -1,4 +1,6 @@
-﻿using OpenGL;
+﻿using Game.Main.GLConstructs;
+using Pencil.Gaming.Graphics;
+using Pencil.Gaming.MathUtils;
 using System;
 using System.Drawing;
 
@@ -33,21 +35,21 @@ namespace Game.Util {
         }
 
         private static void SetTextureParamsLinear(Texture tex) {
-            Gl.BindTexture(tex.TextureTarget, tex.TextureID);
-            Gl.TexParameteri(tex.TextureTarget, TextureParameterName.TextureMagFilter, TextureParameter.Linear);
-            Gl.TexParameteri(tex.TextureTarget, TextureParameterName.TextureMinFilter, TextureParameter.Linear);
-            Gl.TexParameteri(tex.TextureTarget, TextureParameterName.TextureWrapS, TextureParameter.ClampToEdge);
-            Gl.TexParameteri(tex.TextureTarget, TextureParameterName.TextureWrapT, TextureParameter.ClampToEdge);
-            Gl.BindTexture(tex.TextureTarget, 0);
+            GL.BindTexture(tex.TextureTarget, tex.TextureID);
+            GL.TexParameterI(tex.TextureTarget, TextureParameterName.TextureMagFilter, new int[] { (int)TextureMagFilter.Linear });
+            GL.TexParameterI(tex.TextureTarget, TextureParameterName.TextureMinFilter, new int[] { (int)TextureMinFilter.Linear });
+            GL.TexParameterI(tex.TextureTarget, TextureParameterName.TextureWrapS, new int[] { (int)TextureParameterName.ClampToEdge });
+            GL.TexParameterI(tex.TextureTarget, TextureParameterName.TextureWrapT, new int[] { (int)TextureParameterName.ClampToEdge });
+            GL.BindTexture(tex.TextureTarget, 0);
         }
 
         private static void SetTextureParamsNearest(Texture tex) {
-            Gl.BindTexture(tex.TextureTarget, tex.TextureID);
-            Gl.TexParameteri(tex.TextureTarget, TextureParameterName.TextureMagFilter, TextureParameter.Nearest);
-            Gl.TexParameteri(tex.TextureTarget, TextureParameterName.TextureMinFilter, TextureParameter.Nearest);
-            Gl.TexParameteri(tex.TextureTarget, TextureParameterName.TextureWrapS, TextureParameter.ClampToEdge);
-            Gl.TexParameteri(tex.TextureTarget, TextureParameterName.TextureWrapT, TextureParameter.ClampToEdge);
-            Gl.BindTexture(tex.TextureTarget, 0);
+            GL.BindTexture(tex.TextureTarget, tex.TextureID);
+            GL.TexParameterI(tex.TextureTarget, TextureParameterName.TextureMagFilter, new int[] { (int)TextureMagFilter.Nearest });
+            GL.TexParameterI(tex.TextureTarget, TextureParameterName.TextureMinFilter, new int[] { (int)TextureMinFilter.Nearest });
+            GL.TexParameterI(tex.TextureTarget, TextureParameterName.TextureWrapS, new int[] { (int)TextureParameterName.ClampToEdge });
+            GL.TexParameterI(tex.TextureTarget, TextureParameterName.TextureWrapT, new int[] { (int)TextureParameterName.ClampToEdge });
+            GL.BindTexture(tex.TextureTarget, 0);
         }
 
         public static Texture CreateTexture(Color[,] colours, TextureInterp interp) {

@@ -1,6 +1,6 @@
-﻿using Game.Util;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Game.Terrains.Core;
+using Pencil.Gaming.MathUtils;
 
 namespace Game.Terrains.Fluids {
     class FluidManager : UpdateTileManager<FluidAttribs> {

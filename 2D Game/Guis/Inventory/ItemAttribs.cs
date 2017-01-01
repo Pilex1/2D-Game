@@ -5,7 +5,7 @@ using Game.Entities.Particles;
 using Game.Terrains;
 using Game.Terrains.Fluids;
 using Game.Util;
-using OpenGL;
+using Pencil.Gaming.MathUtils;
 using System;
 
 namespace Game.Items {
@@ -92,7 +92,8 @@ namespace Game.Items {
         }
 
         protected Vector2 CalculateVel() {
-            Vector2 vel = Input.RayCast().Normalize();
+            Vector2 vel = Input.RayCast();
+            vel.Normalize();
             Vector2 playervel = new Vector2(Player.Instance.data.vel.x, Player.Instance.data.vel.y);
             vel += playervel;
             return vel;
@@ -130,7 +131,7 @@ namespace Game.Items {
 
     [Serializable]
     class Item_BlueStaff_Attribs : ItemStaffParticleAttribs {
-        public Item_BlueStaff_Attribs() : base("Staff of Water") {
+        public Item_BlueStaff_Attribs() : base("Staff of .Water") {
         }
         public override void Use(Inventory inv, Vector2i invslot, Vector2 position, Vector2 direction) {
             SParc_Water.Create(CalculatePos(), CalculateVel());

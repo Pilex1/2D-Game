@@ -1,7 +1,8 @@
 ﻿using Game.Core;
 using Game.Util;
-using OpenGL;
+using Pencil.Gaming.MathUtils;
 using Game.Entities;
+using Game.Main.GLConstructs;
 
 namespace Game.Assets {
 
@@ -21,7 +22,7 @@ namespace Game.Assets {
             DesertBackgroundTex = TextureUtil.CreateTexture("Assets/Textures/DesertBackground.png", TextureUtil.TextureInterp.Linear);
             NightBackgroundTex = TextureUtil.CreateTexture("Assets/Textures/NightBackground.png", TextureUtil.TextureInterp.Linear);
 
-            TitleBackgroundTex = TextureUtil.CreateTexture("Assets/Textures/TitleScreenBackground2.png", TextureUtil.TextureInterp.Linear);
+            TitleBackgroundTex = TextureUtil.CreateTexture("Assets/Screenshots/Bridge.png", TextureUtil.TextureInterp.Linear);
 
             FontCenturyGothicTex = TextureUtil.CreateTexture("Assets/Fonts/CenturyGothic.png", TextureUtil.TextureInterp.Nearest);
             FontChillerTex = TextureUtil.CreateTexture("Assets/Fonts/Chiller.png", TextureUtil.TextureInterp.Nearest);
@@ -52,6 +53,8 @@ namespace Game.Assets {
             FontChillerTex.Dispose();
             FontDialogInputTex.Dispose();
             FontLucidaConsoleTex.Dispose();
+
+            HealthbarTexture.Dispose();
         }
     }
 
@@ -88,11 +91,11 @@ namespace Game.Assets {
 
             EntityModels[(int)EntityID.BlackOutline] = EntityModel.CreateHitboxRectangle();
             Add(new Vector2(1, 1), EntityID.ShooterProjectile);
-            Add(new Vector2(0.5, 0.5), EntityID.ParticlePurple);
-            Add(new Vector2(0.5, 0.5), EntityID.ParticleRed);
-            Add(new Vector2(0.5, 0.5), EntityID.ParticleGreen);
-            Add(new Vector2(0.5, 0.5), EntityID.ParticleBlue);
-            Add(new Vector2(0.5, 0.5), EntityID.ParticleYellow);
+            Add(new Vector2(0.5f, 0.5f), EntityID.ParticlePurple);
+            Add(new Vector2(0.5f, 0.5f), EntityID.ParticleRed);
+            Add(new Vector2(0.5f, 0.5f), EntityID.ParticleGreen);
+            Add(new Vector2(0.5f, 0.5f), EntityID.ParticleBlue);
+            Add(new Vector2(0.5f, 0.5f), EntityID.ParticleYellow);
             Add(new Vector2(1, 1), EntityID.Squisher);
             Add(new Vector2(1, 2), EntityID.Shooter);
             Add(new Vector2(1, 2), EntityID.Player);
@@ -100,7 +103,7 @@ namespace Game.Assets {
             Add(new Vector2(1, 2), EntityID.EntityCage);
             Add(new Vector2(1, 1), EntityID.AutoDart);
             Add(new Vector2(1, 2), EntityID.Warder);
-            Add(new Vector2(0.4, 0.4), EntityID.WhiteFill);
+            Add(new Vector2(0.4f, 0.4f), EntityID.WhiteFill);
 
         }
 
@@ -123,10 +126,6 @@ namespace Game.Assets {
 
         public static void InitInGame() {
             Models.Init();
-        }
-
-        public static void Dispose() {
-            Textures.Dispose();
         }
     }
 }

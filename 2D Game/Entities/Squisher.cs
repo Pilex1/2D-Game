@@ -1,5 +1,5 @@
 ﻿using Game.Util;
-using OpenGL;
+using Pencil.Gaming.MathUtils;
 using System;
 using Game.Core;
 
@@ -55,7 +55,7 @@ namespace Game.Entities {
             float x = Player.ToPlayer(data.pos).x;
             x += MathUtil.RandFloat(Program.Rand, -0.5, 0.5);
             x /= 7;
-            Vector2 vel = new Vector2(x, 0.5);
+            Vector2 vel = new Vector2(x, 0.5f);
             initialVel = vel;
             data.vel.val = vel;
 

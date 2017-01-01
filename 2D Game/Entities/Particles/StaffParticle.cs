@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using OpenGL;
+using Pencil.Gaming.MathUtils;
 using Game.Util;
 using Game.Core;
-using Game.Entities;
 using Game.Terrains;
 using Game.Items;
 
@@ -153,7 +152,7 @@ namespace Game.Entities.Particles {
 
         public override void Update() {
             base.Update();
-            List<Entity> colliding = this.GetEntityCollisions();
+            List<Entity> colliding = GetEntityCollisions();
             foreach (Entity e in colliding) {
                 // if (e is Player) continue;
                 e.data.vel.x += data.vel.val.x / 20;

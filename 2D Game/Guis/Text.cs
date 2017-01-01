@@ -1,6 +1,8 @@
 ﻿using Game.Core;
 using Game.Guis;
-using OpenGL;
+using Game.Main.GLConstructs;
+using Pencil.Gaming.Graphics;
+using Pencil.Gaming.MathUtils;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -61,7 +63,7 @@ namespace Game.Fonts {
             sb_text.Append(text);
 
             this.style = style;
-            this.relpos = pos;
+            relpos = pos;
             InitModel();
         }
 
@@ -265,11 +267,6 @@ namespace Game.Fonts {
 
         public override string ToString() {
             return sb_text.ToString();
-        }
-
-        internal void Dispose() {
-            if (model != null)
-                model.DisposeVao();
         }
     }
 }

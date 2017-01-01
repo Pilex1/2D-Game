@@ -2,8 +2,11 @@
 using Game.Core;
 using Game.Fonts;
 using Game.Guis;
+using Game.Main.GLConstructs;
 using Game.Util;
-using OpenGL;
+using Pencil.Gaming;
+using Pencil.Gaming.Graphics;
+using Pencil.Gaming.MathUtils;
 using System.Drawing;
 
 namespace Game.Items {
@@ -56,9 +59,9 @@ namespace Game.Items {
 
         private PlayerInventory(int x, int y) : base(x, y) {
             //inventory
-            Pos = new Vector2(((2 - x * SizeX) / 2) - 1, -0.5);
-            HotbarPos = new Vector2(Pos.x, -0.98);
-            TextPosOffset = new Vector2(0.115, 0.03);
+            Pos = new Vector2(((2 - x * SizeX) / 2) - 1, -0.5f);
+            HotbarPos = new Vector2(Pos.x, -0.98f);
+            TextPosOffset = new Vector2(0.115f, 0.03f);
 
             textStyle = TextStyle.LucidaConsole_SingleLine_Small;
             textStyle.alignment = TextAlignment.BottomRight;
@@ -77,7 +80,7 @@ namespace Game.Items {
 
 
 
-            Frame = new GuiModel(Generate_FrameVao(), TextureUtil.CreateTexture(new Vector3(0, 0, 0.1)), BeginMode.Lines, new Vector2(1, 1));
+            Frame = new GuiModel(Generate_FrameVao(), TextureUtil.CreateTexture(new Vector3(0, 0, 0.1f)), BeginMode.Lines, new Vector2(1, 1));
             {
                 Vector2[] vertices;
                 int[] elements;
@@ -88,13 +91,13 @@ namespace Game.Items {
 
             }
             SelectedDisplay = GuiModel.CreateWireRectangleTopLeft(new Vector2(SizeX, SizeY), Color.Blue);
-            Background = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, (y - 1) * SizeY), TextureUtil.CreateTexture(new Vector4(0.3, 0.3, 0.3, 0.8)));
-            HotbarBackground = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, SizeY), TextureUtil.CreateTexture(new Vector4(0.3, 0.3, 0.3, 0.8)));
+            Background = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, (y - 1) * SizeY), TextureUtil.CreateTexture(new Vector4(0.3f, 0.3f, 0.3f, 0.8f)));
+            HotbarBackground = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, SizeY), TextureUtil.CreateTexture(new Vector4(0.3f, 0.3f, 0.3f, 0.8f)));
 
             TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.6f, 1f, 1, 1f, new Vector3(1, 1, 1));
-            InvText = new Text("Inventory", style, new Vector2(0.015 + Pos.x, Pos.y + 0.1 + 2 * y * (SizeY - 2 * ItemTextureOffset)));
-            InvTextBackground = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, SizeY / 2), TextureUtil.CreateTexture(new Vector4(0.3, 0.3, 0.3, 0.7)));
-            InvTextLine = GuiModel.CreateLine(new Vector2(x * SizeX, 0), TextureUtil.CreateTexture(new Vector4(0.05, 0.05, 0.1, 0.9)));
+            InvText = new Text("Inventory", style, new Vector2(0.015f + Pos.x, Pos.y + 0.1f + 2 * y * (SizeY - 2 * ItemTextureOffset)));
+            InvTextBackground = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, SizeY / 2), TextureUtil.CreateTexture(new Vector4(0.3f, 0.3f, 0.3f, 0.7f)));
+            InvTextLine = GuiModel.CreateLine(new Vector2(x * SizeX, 0), TextureUtil.CreateTexture(new Vector4(0.05f, 0.05f, 0.1f, 0.9f)));
             var itemnamestyle = TextStyle.LucidaConsole_SingleLine_Small;
             itemnamestyle.alignment = TextAlignment.Bottom;
             ItemNameText = new Text("", itemnamestyle, HotbarPos + new Vector2(0, SizeY));
@@ -102,7 +105,7 @@ namespace Game.Items {
             //hotbar
             CurSelectedSlot = 0;
 
-            HotbarFrame = new GuiModel(Generate_HotbarFrameVao(), TextureUtil.CreateTexture(new Vector3(0, 0, 0.1)), BeginMode.Lines, new Vector2(1, 1));
+            HotbarFrame = new GuiModel(Generate_HotbarFrameVao(), TextureUtil.CreateTexture(new Vector3(0, 0, 0.1f)), BeginMode.Lines, new Vector2(1, 1));
             HotbarItemDisplay = new GuiModel(Generate_HotbarItemDisplayVao(), Textures.ItemTexture, BeginMode.Triangles, new Vector2(1, 1));
             HotbarSelectedDisplay = GuiModel.CreateWireRectangleTopLeft(new Vector2(SizeX, SizeY), Color.Blue);
 
@@ -276,7 +279,7 @@ namespace Game.Items {
             var name = CurrentlySelectedItem().rawitem.attribs.name;
             name = name == "None" ? "" : name;
             ItemNameText.SetText(name);
-            ItemNameText.SetPos(HotbarPos + new Vector2((CurSelectedSlot + 0.5) * SizeX + ItemTextureOffset, 2 * SizeY));
+            ItemNameText.SetPos(HotbarPos + new Vector2((CurSelectedSlot + 0.5f) * SizeX + ItemTextureOffset, 2 * SizeY));
         }
 
         private void Update_ItemDisplayData() {
@@ -334,7 +337,7 @@ namespace Game.Items {
 
             Vector2[] uvs = Generate_HotbarTexturedItemsUV();
 
-            return new GuiVAO(vertices, elements, uvs, verticeshint: BufferUsageHint.DynamicDraw, uvhint: BufferUsageHint.DynamicDraw);
+            return new GuiVAO(vertices, elements, uvs);
         }
 
         private Vector2[] Generate_HotbarTexturedItemsUV() {
@@ -356,15 +359,15 @@ namespace Game.Items {
         #endregion
 
         private void HandleKeys() {
-            if (Input.Keys['1']) Instance.CurSelectedSlot = 0;
-            if (Input.Keys['2']) Instance.CurSelectedSlot = 1;
-            if (Input.Keys['3']) Instance.CurSelectedSlot = 2;
-            if (Input.Keys['4']) Instance.CurSelectedSlot = 3;
-            if (Input.Keys['5']) Instance.CurSelectedSlot = 4;
-            if (Input.Keys['6']) Instance.CurSelectedSlot = 5;
-            if (Input.Keys['7']) Instance.CurSelectedSlot = 6;
-            if (Input.Keys['8']) Instance.CurSelectedSlot = 7;
-            if (Input.Keys['9']) Instance.CurSelectedSlot = 8;
+            if (Input.KeyDown(Key.One)) Instance.CurSelectedSlot = 0;
+            if (Input.KeyDown(Key.Two)) Instance.CurSelectedSlot = 1;
+            if (Input.KeyDown(Key.Three)) Instance.CurSelectedSlot = 2;
+            if (Input.KeyDown(Key.Four)) Instance.CurSelectedSlot = 3;
+            if (Input.KeyDown(Key.Five)) Instance.CurSelectedSlot = 4;
+            if (Input.KeyDown(Key.Six)) Instance.CurSelectedSlot = 5;
+            if (Input.KeyDown(Key.Seven)) Instance.CurSelectedSlot = 6;
+            if (Input.KeyDown(Key.Eight)) Instance.CurSelectedSlot = 7;
+            if (Input.KeyDown(Key.Nine)) Instance.CurSelectedSlot = 8;
 
             if (Input.MouseScroll < 0)
                 Instance.IncreaseHotbarSelection();
@@ -397,31 +400,13 @@ namespace Game.Items {
                 return;
             }
             Selected = new Vector2i(cx, cy);
-            if (Input.Mouse[Input.MouseLeft]) {
+            if (Input.MouseDown(MouseButton.LeftButton)) {
                 if (!MouseFlag)
                     SwapItems(new Vector2i(cx, cy + 1), new Vector2i(CurSelectedSlot, 0));
                 MouseFlag = true;
             } else {
                 MouseFlag = false;
             }
-
-
-        }
-
-        public void Dispose() {
-            if (Frame != null)
-                Frame.DisposeAll();
-            if (ItemDisplay != null)
-                ItemDisplay.DisposeVao();
-            if (SelectedDisplay != null)
-                SelectedDisplay.DisposeAll();
-
-            if (HotbarFrame != null)
-                HotbarFrame.DisposeAll();
-            if (HotbarItemDisplay != null)
-                HotbarItemDisplay.DisposeAll();
-            if (HotbarSelectedDisplay != null)
-                HotbarSelectedDisplay.DisposeAll();
         }
 
 

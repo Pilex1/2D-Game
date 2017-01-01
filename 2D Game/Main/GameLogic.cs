@@ -1,13 +1,12 @@
-﻿using OpenGL;
+﻿using Pencil.Gaming.MathUtils;
 using Game.Entities;
 using Game.Terrains;
 using Game.Core;
 using Game.Util;
 using Game.Interaction;
 using System.Text;
-using Game.Core.World_Serialization;
+using Game.Core.world_Serialization;
 using Game.Items;
-using Tao.FreeGlut;
 
 using Game.Terrains.Logics;
 using Game.Terrains.Fluids;
@@ -17,6 +16,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System;
 using System.Diagnostics;
+using Pencil.Gaming;
 
 namespace Game {
 
@@ -160,15 +160,15 @@ namespace Game {
 
         public static void Update() {
             #region Debug
-            if (Input.SpecialKeys[Glut.GLUT_KEY_F1]) {
+            if (Input.KeyDown(Key.F1)) {
                 RenderDebugText.Toggle();
             }
 
-            if (Input.SpecialKeys[Glut.GLUT_KEY_F2]) {
+            if (Input.KeyDown(Key.F2)) {
                 RenderHitboxes.Toggle();
             }
 
-            if (Input.SpecialKeys[Glut.GLUT_KEY_F3]) {
+            if (Input.KeyDown(Key.F3)) {
                 switch (LightingOption.Get()) {
                     case LightingManager.LightingOption.None:
                         LightingOption.Set(LightingManager.LightingOption.Jagged);
@@ -187,13 +187,13 @@ namespace Game {
             GameGuiRenderer.SetDebugText(DebugText());
             #endregion
 
-            if (Input.Keys['e']) {
+            if (Input.KeyDown(Key.E)) {
                 if (State == GameState.Normal) {
                     PlayerInventory.Instance.InventoryOpen.ForceSet(true);
                     State = GameState.Inventory;
                 }
             }
-            if (Input.Keys[13]) {
+            if (Input.KeyDown(Key.Enter)) {
                 if (!StateChanged_Enter) {
                     if (State == GameState.Normal) {
                         GameGuiRenderer.TxtInput.disabled = false;
@@ -209,7 +209,7 @@ namespace Game {
                 StateChanged_Enter = false;
             }
 
-            if (Input.Keys[27]) {
+            if (Input.KeyDown(Key.Escape)) {
                 if (!StateChanged_Escape) {
                     switch (State) {
                         case GameState.Normal:
@@ -241,14 +241,14 @@ namespace Game {
                     GameTime.GuiTimer.Start();
                     PlayerInventory.Instance.UpdateHotbar();
                     PlayerInventory.Instance.UpdateInventory();
-                   GameTime.GuiTimer.Pause();
+                    GameTime.GuiTimer.Pause();
                     break;
                 case GameState.Normal:
                     EntityManager.UpdateAll();
                     Terrain.Update();
-                   // GameTime.GuiTimer.Start();
+                    // GameTime.GuiTimer.Start();
                     PlayerInventory.Instance.UpdateHotbar();
-                  //  GameTime.GuiTimer.Pause();
+                    //  GameTime.GuiTimer.Pause();
                     break;
                 case GameState.Paused:
                 case GameState.Text:
@@ -291,7 +291,7 @@ namespace Game {
 
 
 
-        public static async void SaveWorld() {
+        public static async void SaveWorldAsync() {
             saving = true;
 
             //cancel world loading and wait until it finishes before saving world
@@ -309,18 +309,16 @@ namespace Game {
             });
         }
 
-        public static void CleanUp() {
+        public static void SaveWorld() {
             if (Program.Mode != ProgramMode.Game) return;
-            SaveWorld();
-            Terrain.CleanUp();
-            EntityManager.CleanUp();
-            FluidManager.Instance.CleanUp();
-            LogicManager.Instance.CleanUp();
+            SaveWorldAsync();
         }
 
 
         internal static void Reset() {
             if (Program.Mode != ProgramMode.Game) return;
+            FluidManager.Instance.CleanUp();
+            LogicManager.Instance.CleanUp();
             StateChanged_Enter = StateChanged_Escape = false;
             State = GameState.Normal;
             RenderHitboxes.ForceSet(false);

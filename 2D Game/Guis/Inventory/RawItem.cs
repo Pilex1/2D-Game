@@ -2,7 +2,7 @@
 using Game.Entities.Particles;
 using Game.Terrains;
 using Game.Util;
-using OpenGL;
+using Pencil.Gaming.MathUtils;
 using System;
 
 namespace Game.Items {
@@ -14,7 +14,7 @@ namespace Game.Items {
 
         public RawItem(ItemID id, ItemAttribs itemattribs) {
             this.id = id;
-            this.attribs = itemattribs;
+            attribs = itemattribs;
         }
 
         public override string ToString() {

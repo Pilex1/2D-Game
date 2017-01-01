@@ -3,9 +3,11 @@ using Game.Core;
 using Game.Fonts;
 using Game.Main;
 using Game.Util;
-using OpenGL;
+using Pencil.Gaming;
+using Pencil.Gaming.MathUtils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Game.Guis {
     class Textbox {
@@ -23,7 +25,7 @@ namespace Game.Guis {
         internal CooldownTimer textcooldown;
 
         public Textbox(Vector2 pos, Vector2 size, TextFont font, float textsize) {
-            Vector2 textpos = pos * new Vector2(1, 1);
+            Vector2 textpos = pos;
             textpos.y += 2 * size.y + 0.01f;
             textpos.x += 0.035f;
             textpos.x -= size.x;
@@ -61,12 +63,12 @@ namespace Game.Guis {
             float y = Input.NDCMouseY;
             if (x >= pos.x - model.size.x && x <= pos.x + model.size.x && y >= pos.y - model.size.y * Program.AspectRatio && y <= pos.y + model.size.y * Program.AspectRatio) {
                 hoveredover = true;
-                if (Input.Mouse[Input.MouseLeft] && cooldown.Ready()) {
+                if (Input.MouseDown(MouseButton.LeftButton) && cooldown.Ready()) {
                     disabled = !disabled;
                     cooldown.Reset();
                 }
             } else {
-                if (Input.Mouse[Input.MouseLeft] && cooldown.Ready()) {
+                if (Input.MouseDown(MouseButton.LeftButton) && cooldown.Ready()) {
                     disabled = true;
                     cooldown.Reset();
                 }
@@ -76,7 +78,7 @@ namespace Game.Guis {
 
             text.style.colour = colour =
             !disabled ? new Vector4(1, 1, 1, 1) :
-            hoveredover ? new Vector4(0.75, 0.75, 0.75, 1) : new Vector4(0.5, 0.5, 0.5, 1);
+            hoveredover ? new Vector4(0.75f, 0.75f, 0.75f, 1) : new Vector4(0.5f, 0.5f, 0.5f, 1);
 
             if (disabled) {
                 if (text.ToString().EndsWith("_")) {
@@ -92,23 +94,22 @@ namespace Game.Guis {
                 return;
             textcooldown.Reset();
 
-            bool[] keys = Input.KeysTyped;
-            List<char> keysPressed = new List<char>();
+           // Console.WriteLine(Input.CharsTyped.Count);
 
-            if (keys['\b'])
-                if (text.Length() <= 1)
-                    text.SetText("_");
-                else
-                    text.SetText(text.ToString().Substring(0, text.Length() - 2) + "_");
-            for (int i = 0; i < keys.Length; i++) {
-                char c = (char)i;
-                if (keys[i] && (StringUtil.IsDigit(c) || StringUtil.IsLetter(c) || StringUtil.IsStdKeySymbol(c) || c == ' ')) {
-                    text.InsertCharacter(text.Length() - 1, c);
+            while (Input.CharsTyped.Count>0) {
+                char c = Input.CharsTyped.Dequeue();
+                if (c == 8) {
+                    if (text.Length() <= 1) {
+                        text.SetText("_");
+                    } else {
+                        text.SetText(text.ToString().Substring(0, text.Length() - 2) + "_");
+                    }
+                }else {
+                    if (StringUtil.IsDigit(c) || StringUtil.IsLetter(c) || StringUtil.ContainsStdSymbol(c) || c == ' ') {
+                        text.InsertCharacter(text.Length() - 1, c);
+                    }
                 }
             }
-
-
-
         }
 
         public override string ToString() {
@@ -117,11 +118,6 @@ namespace Game.Guis {
 
         public void ResetCooldown() {
             cooldown.Reset();
-        }
-
-        internal void Dispose() {
-            model.DisposeAll();
-            text.Dispose();
         }
     }
 
@@ -158,24 +154,20 @@ namespace Game.Guis {
                 return;
             textcooldown.Reset();
 
-            bool[] keys = Input.KeysTyped;
-            List<char> keysPressed = new List<char>();
-
             text.style.colour = disabled ? new Vector4(0, 0, 0, 0) : new Vector4(1, 1, 1, 1);
-            colour = disabled ? new Vector4(0, 0, 0, 0) : new Vector4(0.2, 0.2, 0.2, 0.8);
+            colour = disabled ? new Vector4(0, 0, 0, 0) : new Vector4(0.2f, 0.2f, 0.2f, 0.8f);
             if (disabled) return;
 
-            if (keys['\b'])
+            if (Input.KeyTyped('\b'))
                 if (text.Length() <= 1)
                     text.SetText("_");
                 else
                     text.SetText(text.ToString().Substring(0, text.Length() - 2) + "_");
-            for (int i = 0; i < keys.Length; i++) {
+            for (int i = 0; i < Input.MaxKey; i++) {
                 char c = (char)i;
-                if (keys[i]) {
-                    if ((StringUtil.IsDigit(c) || StringUtil.IsLetter(c) || StringUtil.IsStdKeySymbol(c) || c == ' ')) {
-                        text.InsertCharacter(text.Length() - 1, c);
-                    }
+                if (Input.KeyTyped(c))
+                    if ((StringUtil.IsDigit(c) || StringUtil.IsLetter(c) || StringUtil.ContainsStdSymbol(c) || c == ' ')) {
+                    text.InsertCharacter(text.Length() - 1, c);
                 }
             }
         }

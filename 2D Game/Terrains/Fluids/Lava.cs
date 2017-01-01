@@ -1,4 +1,4 @@
-﻿using OpenGL;
+﻿using Pencil.Gaming.MathUtils;
 using System;
 
 namespace Game.Terrains.Fluids {
@@ -23,7 +23,7 @@ namespace Game.Terrains.Fluids {
         }
 
         int ILight.Radius() => 12;
-        Vector3 ILight.Colour() => new Vector3(1, 0.4, 0.2);
+        Vector3 ILight.Colour() => new Vector3(1, 0.4f, 0.2f);
         float ILight.Strength() => 0.1f;
     }
 }

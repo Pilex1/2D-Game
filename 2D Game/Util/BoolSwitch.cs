@@ -8,7 +8,7 @@ namespace Game.Util {
         protected T val;
 
         public Switch(T t, float cooldown) {
-            this.val = t;
+            val = t;
             timer = new CooldownTimer(cooldown);
         }
         public Switch(T t) : this(t, 0) { }

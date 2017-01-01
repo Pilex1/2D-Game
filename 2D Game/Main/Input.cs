@@ -1,68 +1,162 @@
-﻿using Game.Util;
-using OpenGL;
-using Tao.FreeGlut;
+﻿using System;
+using Game.Util;
+using Pencil.Gaming;
+using Pencil.Gaming.MathUtils;
+using System.Collections.Generic;
 
 namespace Game.Core {
     static class Input {
 
-        public static bool[] Keys { get; private set; }
-        public static bool[] SpecialKeys { get; private set; }
+        #region Fields
+        public const int MaxKey = 511;
+        private static bool[] Keys;
         public static bool[] KeysTyped { get; private set; }
         private static CooldownTimer[] KeysTypedCooldown;
-        public static bool[] Mouse { get; private set; }
+        public static Queue<char> CharsTyped;
+        private static bool[] Mouse;
         public static int MouseX { get; private set; }
         public static int MouseY { get; private set; }
         public static Vector2i MouseCoords { get { return new Vector2i(MouseX, MouseY); } }
         public static float NDCMouseX { get { return (2.0f * MouseX) / Program.Width - 1.0f; } }
-        public static float NDCMouseY { get { return 1.0f - (2.0f * MouseY + 28) / Program.Height; } }
+        public static float NDCMouseY { get { return 1.0f - (2.0f * MouseY) / Program.Height; } }
         public static Vector2 NDCMouse { get { return new Vector2(NDCMouseX, NDCMouseY); } }
-        public static int MouseScroll { get; private set; }
-        public const int MouseLeft = 0, MouseMiddle = 1, MouseRight = 2;
+        public static float MouseScroll { get; private set; }
+        public static bool Mod_Shift, Mod_Ctrl, Mod_Alt, Mod_Super;
+        #endregion
 
+        #region Init
         public static void Init() {
-            Keys = new bool[255];
-            KeysTyped = new bool[255];
-            SpecialKeys = new bool[255];
-            Mouse = new bool[3];
-            KeysTypedCooldown = new CooldownTimer[255];
+            Keys = new bool[MaxKey];
+            KeysTyped = new bool[MaxKey];
+            KeysTypedCooldown = new CooldownTimer[MaxKey];
+            CharsTyped = new Queue<char>();
             for (int i = 0; i < KeysTypedCooldown.Length; i++) {
                 KeysTypedCooldown[i] = new CooldownTimer(3);
             }
+            Mouse = new bool[8];
 
-            Glut.glutKeyboardFunc(OnKeyboardDown);
-            Glut.glutKeyboardUpFunc(OnKeyboardUp);
-            Glut.glutSpecialFunc(OnSpecialDown);
-            Glut.glutSpecialUpFunc(OnSpecialUp);
-            Glut.glutMouseFunc(OnMousePress);
-            Glut.glutMotionFunc(OnMouseMove);
-            Glut.glutPassiveMotionFunc(OnMouseMove);
-            Glut.glutMouseWheelFunc(OnMouseScroll);
+            Glfw.SetKeyCallback(Program.window, KeyCallback);
+            Glfw.SetCursorPosCallback(Program.window, CursorPosCallback);
+            Glfw.SetMouseButtonCallback(Program.window, MouseButtonCallback);
+            Glfw.SetScrollCallback(Program.window, ScrollCallback);
+            Glfw.SetCharCallback(Program.window, CharCallback);
         }
 
-        private static void OnSpecialUp(int key, int x, int y) {
-            SpecialKeys[key] = false;
+        #endregion
+
+        #region Callbacks
+
+        private static void CharCallback(GlfwWindowPtr wnd, char ch) {
+            CharsTyped.Enqueue(ch);
         }
 
-        private static void OnSpecialDown(int key, int x, int y) {
-            SpecialKeys[key] = true;
+        private static void ScrollCallback(GlfwWindowPtr wnd, double xoffset, double yoffset) {
+            MouseScroll = (float)yoffset;
         }
 
+        private static void CursorPosCallback(GlfwWindowPtr wnd, double x, double y) {
+            MouseX = (int)x;
+            MouseY = (int)y;
+        }
+
+        private static void KeyCallback(GlfwWindowPtr wnd, Key key, int scanCode, KeyAction action, KeyModifiers mods) {
+            if (action == KeyAction.Press) {
+                Keys[(int)key] = true;
+                KeysTyped[(int)key] = true;
+                KeysTypedCooldown[(int)key].Reset();
+                int i = (int)mods;
+                if (i >= 8) {
+                    Mod_Super = true;
+                    i -= 8;
+                }
+                if (i >= 4) {
+                    Mod_Alt = true;
+                    i -= 4;
+                }
+                if (i >= 2) {
+                    Mod_Ctrl = true;
+                    i -= 2;
+                }
+                if (i >= 1) {
+                    Mod_Shift = true;
+                    i -= 1;
+                }
+            } else if (action == KeyAction.Release) {
+                Keys[(int)key] = false;
+                int i = (int)mods;
+                if (i >= 8) {
+                    Mod_Super = false;
+                    i -= 8;
+                }
+                if (i >= 4) {
+                    Mod_Alt = false;
+                    i -= 4;
+                }
+                if (i >= 2) {
+                    Mod_Ctrl = false;
+                    i -= 2;
+                }
+                if (i >= 1) {
+                    Mod_Shift = false;
+                    i -= 1;
+                }
+            }
+        }
+
+        private static void MouseButtonCallback(GlfwWindowPtr wnd, MouseButton btn, KeyAction action) {
+            if (action == KeyAction.Press) {
+                Mouse[(int)btn] = true;
+            } else if (action == KeyAction.Release) {
+                Mouse[(int)btn] = false;
+            }
+        }
+
+        #endregion
+
+        #region Update
         public static void Update() {
             MouseScroll = 0;
             for (int i = 0; i < KeysTyped.Length; i++) {
                 if (KeysTypedCooldown[i].Ready())
                     KeysTyped[i] = false;
             }
+            Mod_Shift = Mod_Ctrl = Mod_Alt = Mod_Super = false;
+        }
+        #endregion
+
+        #region Util
+        public static bool MouseDown(MouseButton btn) {
+            return Mouse[(int)btn];
+        }
+
+        public static bool KeyDown(Key k) {
+            return Keys[(int)k];
+        }
+
+        public static bool KeyTyped(char c) {
+            if (char.IsUpper(c)) {
+                char lower = char.ToLower(c);
+                if (lower >= KeysTyped.Length) return false;
+                return Mod_Shift && KeysTyped[lower];
+            } else {
+                if (c >= KeysTyped.Length) return false;
+                return !Mod_Shift && KeysTyped[c];
+            }
         }
 
         public static Vector2 RayCast() {
             Vector2 normalizedCoords = new Vector2(NDCMouseX, NDCMouseY);
             Vector4 clipCoords = new Vector4(normalizedCoords.x, normalizedCoords.y, -1, 1);
-            Vector4 eyeCoords = GameRenderer.projectionMatrix.Inverse() * clipCoords;
+            Matrix inverseProjectionMatrix = Matrix.Identity;
+            Matrix projectionMatrix = GameRenderer.projectionMatrix;
+            Matrix.Invert(ref projectionMatrix, out inverseProjectionMatrix);
+            Vector4 eyeCoords = Matrix.Mult(clipCoords, inverseProjectionMatrix);
             eyeCoords.z = -1;
             eyeCoords.w = 0;
-            Matrix4 inverseViewMatrix = GameRenderer.viewMatrix.Inverse();
-            Vector4 rayWorldTemp = inverseViewMatrix * eyeCoords;
+            Matrix inverseViewMatrix = Matrix.Identity;
+            Matrix viewMatrix = GameRenderer.viewMatrix;
+            Matrix.Invert(ref viewMatrix, out inverseViewMatrix);
+            Vector4 rayWorldTemp = Matrix.Mult(eyeCoords, inverseViewMatrix);
             Vector2 rayWorld = new Vector2(rayWorldTemp.x, rayWorldTemp.y);
             return rayWorld;
         }
@@ -78,41 +172,6 @@ namespace Game.Core {
             Vector2 raycast = TerrainIntersect();
             return MathUtil.GetAngleFrom(playerpos, raycast);
         }
-
-        #region Glut Callbacks
-        private static void OnMouseScroll(int button, int dir, int x, int y) {
-            MouseScroll = dir;
-        }
-
-        private static void OnMouseMove(int x, int y) {
-            MouseX = x;
-            MouseY = y;
-        }
-
-        private static void OnMousePress(int button, int state, int mx, int my) {
-            if (button == Glut.GLUT_LEFT_BUTTON) {
-                Mouse[MouseLeft] = (state == Glut.GLUT_DOWN);
-            }
-
-            if (button == Glut.GLUT_MIDDLE_BUTTON) {
-                Mouse[MouseMiddle] = (state == Glut.GLUT_DOWN);
-            }
-
-            if (button == Glut.GLUT_RIGHT_BUTTON) {
-                Mouse[MouseRight] = (state == Glut.GLUT_DOWN);
-            }
-
-            MouseX = mx;
-            MouseY = my;
-        }
-        private static void OnKeyboardDown(byte key, int x, int y) {
-            Keys[key] = true;
-            KeysTyped[key] = true;
-            KeysTypedCooldown[key].Reset();
-        }
-        private static void OnKeyboardUp(byte key, int x, int y) {
-            Keys[key] = false;
-        }
-        #endregion Glut Callbacks
+        #endregion
     }
 }

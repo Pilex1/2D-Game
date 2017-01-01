@@ -1,5 +1,6 @@
 ﻿using System;
-using OpenGL;
+using Pencil.Gaming.Graphics;
+using Pencil.Gaming.MathUtils;
 using System.Collections.Generic;
 using Game.Entities;
 using Game.Assets;
@@ -8,9 +9,10 @@ using System.Diagnostics;
 using Game.Terrains.Logics;
 using Game.Core;
 using Game.Terrains.Terrain_Generation;
-using Game.Core.World_Serialization;
+using Game.Core.world_Serialization;
 using Game.Terrains.Fluids;
 using Game.Terrains.Lighting;
+using Game.Main.GLConstructs;
 
 namespace Game.Terrains {
 
@@ -62,8 +64,8 @@ namespace Game.Terrains {
 
         public static void LoadShaders() {
             Shader = new ShaderProgram(Shaders.TerrainVert, Shaders.TerrainFrag);
-            Console.WriteLine("Terrain Shader Log: ");
-            Console.WriteLine(Shader.ProgramLog);
+            Shader.AddUniform("viewMatrix");
+            Shader.AddUniform("projectionMatrix");
         }
 
 
@@ -120,18 +122,16 @@ namespace Game.Terrains {
         #endregion
 
         #region Matrices
-        public static void UpdateViewMatrix(Matrix4 mat) {
-            Debug.Assert(Shader != null);
-            Gl.UseProgram(Shader.ProgramID);
-            Shader["viewMatrix"].SetValue(mat);
-            Gl.UseProgram(0);
+        public static void UpdateViewMatrix(Matrix mat) {
+            GL.UseProgram(Shader.ID);
+            Shader.SetUniform4m("viewMatrix", mat);
+            GL.UseProgram(0);
         }
 
-        public static void SetProjectionMatrix(Matrix4 mat) {
-            Debug.Assert(Shader != null);
-            Gl.UseProgram(Shader.ProgramID);
-            Shader["projectionMatrix"].SetValue(mat);
-            Gl.UseProgram(0);
+        public static void SetProjectionMatrix(Matrix mat) {
+            GL.UseProgram(Shader.ID);
+            Shader.SetUniform4m("projectionMatrix", mat);
+            GL.UseProgram(0);
         }
         #endregion
 
@@ -416,13 +416,13 @@ namespace Game.Terrains {
         #region Update & Render
         public static void Render() {
             GameTime.TerrainTimer.Start();
-            Gl.UseProgram(Shader.ProgramID);
-            Gl.BindVertexArray(vao.ID);
-            Gl.BindTexture(Textures.TerrainTexture.TextureTarget, Textures.TerrainTexture.TextureID);
-            Gl.DrawElements(BeginMode.Triangles, vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
-            Gl.BindTexture(Textures.TerrainTexture.TextureTarget, 0);
-            Gl.BindVertexArray(0);
-            Gl.UseProgram(0);
+            GL.UseProgram(Shader.ID);
+            GL.BindVertexArray(vao.ID);
+            GL.BindTexture(Textures.TerrainTexture.TextureTarget, Textures.TerrainTexture.TextureID);
+            GL.DrawElements(BeginMode.Triangles, vao.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+            GL.BindTexture(Textures.TerrainTexture.TextureTarget, 0);
+            GL.BindVertexArray(0);
+            GL.UseProgram(0);
             GameTime.TerrainTimer.Pause();
         }
 
@@ -452,12 +452,6 @@ namespace Game.Terrains {
             vao.UpdateData(vertices, elements, uvs, lightings);
             GameTime.TerrainTimer.Pause();
         }
-
-        public static void CleanUp() {
-            Shader.DisposeChildren = true;
-            Shader.Dispose();
-        }
-
         #endregion
 
     }

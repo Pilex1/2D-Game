@@ -1,4 +1,4 @@
-﻿using OpenGL;
+﻿using Pencil.Gaming.MathUtils;
 using System;
 
 namespace Game.Util {

@@ -1,9 +1,9 @@
 ﻿using Game.Terrains.Terrain_Generation;
 using System;
 using Game.Terrains;
-using OpenGL;
+using Pencil.Gaming.MathUtils;
 
-namespace Game.Core.World_Serialization {
+namespace Game.Core.world_Serialization {
 
     [Serializable]
     internal class ChunkData {

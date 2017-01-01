@@ -1,9 +1,5 @@
-﻿using OpenGL;
+﻿using Pencil.Gaming.MathUtils;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Game.Terrains;
 using Game.Util;
 
@@ -24,7 +20,7 @@ namespace Game.Entities.Particles {
             EntityManager.RemoveEntity(this);
         }
 
-        Vector3 ILight.Colour() => data.colour.Xyz;
+        Vector3 ILight.Colour() => data.colour.xyz;
         int ILight.Radius() => 8;
         float ILight.Strength() => 0.25f;
     }
@@ -35,7 +31,7 @@ namespace Game.Entities.Particles {
         private int freq;
 
         public FireworkLauncher(Vector2 pos, Vector4 colour, int freq) : base(EntityID.WhiteFill, pos) {
-            data.vel.val = new Vector2(0, 0.5);
+            data.vel.val = new Vector2(0, 0.5f);
             data.grav = 0;
             data.airResis = 1;
             data.life = new BoundedFloat(35, 0, 35);
@@ -62,7 +58,7 @@ namespace Game.Entities.Particles {
             Explode();
         }
 
-        Vector3 ILight.Colour() => data.colour.Xyz;
+        Vector3 ILight.Colour() => data.colour.xyz;
         int ILight.Radius() => 8;
         float ILight.Strength() => 0.25f;
 

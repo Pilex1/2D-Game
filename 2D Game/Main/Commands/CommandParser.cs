@@ -4,7 +4,7 @@ using Game.Entities;
 using Game.Items;
 using Game.Terrains.Fluids;
 using Game.Terrains.Terrain_Generation;
-using OpenGL;
+using Pencil.Gaming.MathUtils;
 using System;
 using System.Reflection;
 

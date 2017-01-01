@@ -1,6 +1,5 @@
 ﻿using System;
-using OpenGL;
-using Tao.FreeGlut;
+using Pencil.Gaming.Graphics;
 using System.Diagnostics;
 using Game.Util;
 using Game.Core;
@@ -8,6 +7,8 @@ using Game.TitleScreen;
 using Game.Interaction;
 using Game.Assets;
 using System.Threading;
+using Pencil.Gaming;
+using Game.Main.GLConstructs;
 
 namespace Game {
 
@@ -16,39 +17,43 @@ namespace Game {
     }
     static class Program {
 
-        public static Random Rand = new Random();
+        public static int Width, Height;
+        internal static GlfwWindowPtr window;
+        internal static GlfwMonitorPtr monitor;
 
-        public static int ScreenWidth, ScreenHeight;
-        public static int Width = 1280, Height = 720;
+        public static Random Rand = new Random();
         public static float AspectRatio => (float)Width / Height;
         public static ProgramMode Mode { get; private set; }
-
         internal static string worldname { get; private set; }
 
         static void Main() {
             Init();
-            Glut.glutMainLoop();
+            while (!Glfw.WindowShouldClose(window))
+                MainGameLoop();
             Dispose();
-            while (GameLogic.saving) Thread.Sleep(1);
         }
 
         private static void Init() {
-            Glut.glutInit();
-            Glut.glutInitDisplayMode(Glut.GLUT_DOUBLE | Glut.GLUT_DEPTH);
-            Glut.glutInitWindowSize(Width, Height);
 
-            ScreenWidth = Glut.glutGet(Glut.GLUT_SCREEN_WIDTH);
-            ScreenHeight = Glut.glutGet(Glut.GLUT_SCREEN_HEIGHT);
+            if (!Glfw.Init()) {
+                throw new Exception("Unable to initialise GLFW");
+            }
+            monitor = Glfw.GetPrimaryMonitor();
+            GlfwVidMode mode = Glfw.GetVideoMode(monitor);
 
-            Glut.glutInitWindowPosition((ScreenWidth - Width) / 2, (ScreenHeight - Height) / 2);
-            Glut.glutCreateWindow("Plexico 2D Game - Copyright Alex Tan 2016");
-            //Glut.glutGameModeString(Width+"x"+Height+":32@60");
+            //FULLSCREEN
+            //window = Glfw.CreateWindow(mode.Width, mode.Height, "Plexico 2D Game - Copyright Alex Tan 2017", monitor, GlfwWindowPtr.Null);
+            //Width = mode.Width;
+            //Height = mode.Height;
 
-            Glut.glutSetOption(Glut.GLUT_ACTION_ON_WINDOW_CLOSE, Glut.GLUT_ACTION_CONTINUE_EXECUTION);
-            Gl.Viewport(0, 0, Width, Height);
-            Glut.glutReshapeFunc(OnReshape);
-            Glut.glutDisplayFunc(() => { });
-            Glut.glutIdleFunc(MainGameLoop);
+            //WINDOWED
+            Width = 1280;
+            Height = 720;
+            window = Glfw.CreateWindow(Width, Height, "Plexico 2D Game - Copyright Alex Tan 2017", GlfwMonitorPtr.Null, GlfwWindowPtr.Null);
+
+            Glfw.MakeContextCurrent(window);
+            Glfw.SetErrorCallback(OnError);
+            Input.Init();
 
             //Console.SetWindowSize(Console.LargestWindowWidth / 4, Console.LargestWindowHeight / 4);
             //Console.SetWindowPosition(0, 0);
@@ -61,10 +66,10 @@ namespace Game {
             SwitchToTitleScreen();
         }
 
-        private static void OnReshape(int width, int height) {
-            Width = width;
-            Height = height;
+        private static void OnError(GlfwError code, string desc) {
+            throw new ArgumentException("OpenGL Error: " + code + " - " + desc);
         }
+
 
         public static void SwitchToTitleScreen() {
             GameLogic.Reset();
@@ -97,11 +102,10 @@ namespace Game {
 
 
         private static void MainGameLoop() {
-            Gl.ClearColor(1, 1, 1, 1);
-            Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            ErrorCode error = Gl.GetError();
+            GL.ClearColor(1, 1, 1, 1);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            ErrorCode error = GL.GetError();
             Debug.Assert(error == ErrorCode.NoError);
-
             GameTime.Update();
             CooldownTimer.Update();
 
@@ -126,15 +130,19 @@ namespace Game {
             GameTime.GuiTimer.Stop();
 
             Input.Update();
-            Glut.glutSwapBuffers();
+            Glfw.PollEvents();
+            Glfw.SwapBuffers(window);
         }
 
 
         private static void Dispose() {
-            GameLogic.CleanUp();
-            Gui.Dispose();
+            GameLogic.SaveWorld();
+            ResourceManager.CleanUp();
 
+            Glfw.DestroyWindow(window);
+            Glfw.Terminate();
 
+            while (GameLogic.saving) Thread.Sleep(1);
         }
     }
 }

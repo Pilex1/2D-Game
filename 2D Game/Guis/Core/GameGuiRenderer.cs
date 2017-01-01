@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using OpenGL;
+using Pencil.Gaming.Graphics;
+using Pencil.Gaming.MathUtils;
 using Game.TitleScreen;
 using Game.Core;
 using Game.Fonts;
@@ -8,6 +9,7 @@ using Game.Guis;
 using Game.Assets;
 using Game.Util;
 using Game.Items;
+using Game.Main.GLConstructs;
 
 namespace Game.Interaction {
     static class GameGuiRenderer {
@@ -27,17 +29,17 @@ namespace Game.Interaction {
             TextFont.Init();
 
             TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.45f, 2f, int.MaxValue, 1f, new Vector3(1, 1, 1));
-            DebugText = new Text("", style, new Vector2(-0.99, 0.97));
-            Healthbar = GuiModel.CreateRectangle(new Vector2(0.52, 0.03), TextureUtil.ColourFromVec4(new Vector4(0.88, 0.3, 0.1, 0.8)));
-            HealthbarTexture = GuiModel.CreateRectangle(new Vector2(0.55, 0.04875), Textures.HealthbarTexture);
+            DebugText = new Text("", style, new Vector2(-0.99f, 0.97f));
+            Healthbar = GuiModel.CreateRectangle(new Vector2(0.52f, 0.03f), TextureUtil.ColourFromVec4(new Vector4(0.88f, 0.3f, 0.1f, 0.8f)));
+            HealthbarTexture = GuiModel.CreateRectangle(new Vector2(0.55f, 0.04875f), Textures.HealthbarTexture);
             Background = GuiModel.CreateRectangle(new Vector2(1, 1), Textures.GameBackgroundTex);
-            PausedOverlay = GuiModel.CreateRectangle(new Vector2(1, 1), TextureUtil.ColourFromVec4(new Vector4(0.2, 0.2, 0.2, 0.9)));
+            PausedOverlay = GuiModel.CreateRectangle(new Vector2(1, 1), TextureUtil.ColourFromVec4(new Vector4(0.2f, 0.2f, 0.2f, 0.9f)));
             PausedText = new Text("Paused", new TextStyle(TextAlignment.Top, TextFont.LucidaConsole, 1.3f, 2f, 1, 1f, new Vector3(1, 1, 1)), new Vector2(0, 1));
-            TxtInput = new InGameTextbox(new Vector2(-0.3, -0.5), new Vector2(0.7f, 0.03), TextFont.LucidaConsole, 0.5f);
+            TxtInput = new InGameTextbox(new Vector2(-0.3f, -0.5f), new Vector2(0.7f, 0.03f), TextFont.LucidaConsole, 0.5f);
 
             Buttons = new HashSet<Button>();
-            btn_BackToTitle = new Button(new Vector2(0, -0.2), new Vector2(0.4, 0.04), "Save and Quit", TextStyle.LucidaConsole_SingleLine_Small, () => {
-                GameLogic.SaveWorld();
+            btn_BackToTitle = new Button(new Vector2(0, -0.2f), new Vector2(0.4f, 0.04f), "Save and Quit", TextStyle.LucidaConsole_SingleLine_Small, () => {
+                GameLogic.SaveWorldAsync();
                 Program.SwitchToTitleScreen();
             });
             Buttons.Add(btn_BackToTitle);
@@ -67,24 +69,24 @@ namespace Game.Interaction {
         }
 
         public static void RenderBackground() {
-            Gl.UseProgram(Gui.shader.ProgramID);
+            GL.UseProgram(Gui.shader.ID);
             float ratio = Player.Instance.data.pos.y / Terrains.Terrain.Tiles.GetLength(1);
             ratio = CalcBackgroundColour(ratio);
             RenderInstance(Background, new Vector2(0, 0), new Vector3(ratio, ratio, ratio));
-            Gl.UseProgram(0);
+            GL.UseProgram(0);
         }
 
         public static void Render() {
-            Gl.LineWidth(7);
+            GL.LineWidth(7);
 
-            Gl.UseProgram(Gui.shader.ProgramID);
+            GL.UseProgram(Gui.shader.ID);
 
-            Gl.Enable(EnableCap.Blend);
-            Gl.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
             //healthbar
-            RenderInstance(Healthbar, new Vector2(0, -0.68));
-            RenderInstance(HealthbarTexture, new Vector2(0, -0.68));
+            RenderInstance(Healthbar, new Vector2(0f, -0.68f));
+            RenderInstance(HealthbarTexture, new Vector2(0f, -0.68f));
             Healthbar.size.x = Player.Instance.data.life.val / Player.Instance.data.life.max * 0.52f;
 
             //inventory
@@ -106,7 +108,7 @@ namespace Game.Interaction {
                     RenderInstance(inv.SelectedDisplay, inv.Pos + new Vector2(cx * inv.SizeX, cy * inv.SizeY * Program.AspectRatio));
                 }
 
-                var textpos = new Vector2(inv.Pos.x, inv.Pos.y + 2 * (inv.Items.GetLength(1) - 0.5) * inv.SizeY) - new Vector2(0, 2 * inv.SizeY - 0.01);
+                var textpos = new Vector2(inv.Pos.x, inv.Pos.y + 2 * (inv.Items.GetLength(1) - 0.5f) * inv.SizeY) - new Vector2(0, 2 * inv.SizeY - 0.01f);
                 RenderInstance(inv.InvTextBackground, textpos);
                 RenderInstance(inv.InvTextLine, textpos);
                 RenderText(inv.InvText);
@@ -132,17 +134,17 @@ namespace Game.Interaction {
             RenderText(TxtInput.text);
 
             if (GameLogic.State == GameLogic.GameState.Paused) {
-                RenderInstance(PausedOverlay, new Vector2(0, 0), new Vector4(0.5, 0.5, 0.5, 0.8));
+                RenderInstance(PausedOverlay, new Vector2(0, 0), new Vector4(0.5f, 0.5f, 0.5f, 0.8f));
 
                 RenderInstance(PausedText.model, PausedText.pos, PausedText.style.colour);
                 RenderInstance(btn_BackToTitle.model, btn_BackToTitle.pos, btn_BackToTitle.colour);
                 RenderInstance(btn_BackToTitle.text.model, btn_BackToTitle.text.pos, btn_BackToTitle.text.style.colour);
             }
 
-            Gl.UseProgram(0);
+            GL.UseProgram(0);
 
-            Gl.LineWidth(1);
-            Gl.Disable(EnableCap.Blend);
+            GL.LineWidth(1);
+            GL.Disable(EnableCap.Blend);
 
         }
 
@@ -160,19 +162,14 @@ namespace Game.Interaction {
 
         private static void RenderInstance(GuiModel model, Vector2 position, Vector4 colour) {
             ShaderProgram shader = Gui.shader;
-            shader["position"].SetValue(position);
-            shader["size"].SetValue(model.size);
-            shader["colour"].SetValue(colour);
-            Gl.BindVertexArray(model.vao.ID);
-            Gl.BindTexture(model.texture.TextureTarget, model.texture.TextureID);
-            Gl.DrawElements(model.drawmode, model.vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
-            Gl.BindTexture(model.texture.TextureTarget, 0);
-            Gl.BindVertexArray(0);
-        }
-
-        public static void Dispose() {
-            if (PlayerInventory.Instance != null)
-                PlayerInventory.Instance.Dispose();
+            shader.SetUniform2f("position", position);
+            shader.SetUniform2f("size", model.size);
+            shader.SetUniform4f("colour", colour);
+            GL.BindVertexArray(model.vao.ID);
+            GL.BindTexture(model.texture.TextureTarget, model.texture.TextureID);
+            GL.DrawElements(model.drawmode, model.vao.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+            GL.BindTexture(model.texture.TextureTarget, 0);
+            GL.BindVertexArray(0);
         }
     }
 }

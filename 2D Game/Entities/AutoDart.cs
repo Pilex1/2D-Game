@@ -1,6 +1,6 @@
 ﻿using Game.Core;
 using Game.Util;
-using OpenGL;
+using Pencil.Gaming.MathUtils;
 using System;
 using Game.Terrains;
 

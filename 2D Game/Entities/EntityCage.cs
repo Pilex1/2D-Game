@@ -1,5 +1,5 @@
 ﻿using Game.Core;
-using OpenGL;
+using Pencil.Gaming.MathUtils;
 using System;
 
 namespace Game.Entities {
@@ -21,7 +21,7 @@ namespace Game.Entities {
             } else {
                 CapturedEntity.data.vel.val = Vector2.Zero;
                 CapturedEntity.data.pos.val = data.pos + new Vector2(0, 1);
-                CapturedEntity.data.colour = new Vector4(0.8, 0.8, 0.8, 0.5);
+                CapturedEntity.data.colour = new Vector4(0.8f, 0.8f, 0.8f, 0.5f);
                 CapturedEntity.data.invulnerable = true;
             }
         }

@@ -1,11 +1,12 @@
 ﻿using System;
-using OpenGL;
+using Pencil.Gaming.MathUtils;
 using Game.Entities;
 using Game.Terrains;
 using Game.Util;
 using Game.Terrains.Terrain_Generation;
 using Game.Items;
 using Game.Terrains.Lighting;
+using Pencil.Gaming;
 
 namespace Game.Core {
 
@@ -39,25 +40,25 @@ namespace Game.Core {
                 Tile tile = Terrain.TileAt(vi);
                 if (tile != null) {
                     var lighting = LightingManager.GetLighting(vi.x, vi.y);
-                    GameLogic.AdditionalDebugText = tile.ToString() + Environment.NewLine + tile.tileattribs.ToString() + "Position: "+ vi.x+", "+vi.y+Environment.NewLine + "Lighting: Red " + StringUtil.TruncateTo(lighting.x, 4)+" Blue " + StringUtil.TruncateTo(lighting.y, 4) + " Green " + StringUtil.TruncateTo(lighting.z, 4);
+                    GameLogic.AdditionalDebugText = tile.ToString() + Environment.NewLine + tile.tileattribs.ToString() + "Position: " + vi.x + ", " + vi.y + Environment.NewLine + "Lighting: Red " + StringUtil.TruncateTo(lighting.x, 4) + " Blue " + StringUtil.TruncateTo(lighting.y, 4) + " Green " + StringUtil.TruncateTo(lighting.z, 4);
 
-                    if (Input.Mouse[Input.MouseLeft]) {
+                    if (Input.MouseDown(MouseButton.LeftButton)) {
                         tile.tileattribs.Destroy(vi.x, vi.y, PlayerInventory.Instance);
                     }
-                    if (Input.Mouse[Input.MouseRight]) {
+                    if (Input.MouseDown(MouseButton.RightButton)) {
                         PlayerInventory.Instance.CurrentlySelectedItem().rawitem.attribs.Use(PlayerInventory.Instance, new Vector2i(PlayerInventory.Instance.CurSelectedSlot, 0), new Vector2(vi.x, vi.y), Input.RayCast());
                         Terrain.TileAt(vi.x, vi.y).tileattribs.OnInteract(vi.x, vi.y);
                     }
-                    if (Input.Mouse[Input.MouseMiddle]) {
+                    if (Input.MouseDown(MouseButton.MiddleButton)) {
 
                     }
                 }
 
             }
-            if (Input.Keys['a']) Instance.MoveLeft();
-            if (Input.Keys['d']) Instance.MoveRight();
-            if (Input.Keys['w']) Instance.Jump();
-            if (Input.Keys['s']) Instance.Fall();
+            if (Input.KeyDown(Key.A)) Instance.MoveLeft();
+            if (Input.KeyDown(Key.D)) Instance.MoveRight();
+            if (Input.KeyDown(Key.W)) Instance.Jump();
+            if (Input.KeyDown(Key.S)) Instance.Fall();
 
             Instance.UpdatePosition();
         }
@@ -67,7 +68,11 @@ namespace Game.Core {
             float y = Instance.data.pos.y - pos.y;
             return (float)Math.Sqrt(x * x + y * y);
         }
-        public static Vector2 ToPlayer(Vector2 pos) { return new Vector2(Instance.data.pos.x - pos.x, Instance.data.pos.y - pos.y).Normalize(); }
+        public static Vector2 ToPlayer(Vector2 pos) {
+            Vector2 v = new Vector2(Instance.data.pos.x - pos.x, Instance.data.pos.y - pos.y);
+            v.Normalize();
+            return v;
+        }
 
         public static bool InRange(Entity entity, float maxDist) {
             float x = entity.data.pos.x, y = entity.data.pos.y;

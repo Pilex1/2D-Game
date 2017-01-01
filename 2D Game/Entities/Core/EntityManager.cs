@@ -1,10 +1,12 @@
 ﻿using Game.Core;
 using Game.Entities.Particles;
+using Game.Main.GLConstructs;
 using Game.Terrains;
 using Game.Terrains.Lighting;
 using Game.Terrains.Terrain_Generation;
 using Game.Util;
-using OpenGL;
+using Pencil.Gaming.Graphics;
+using Pencil.Gaming.MathUtils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,7 +24,7 @@ namespace Game.Entities {
 
         public static int LoadedEntities { get; private set; }
         internal static HashSet<Entity>[,] EntityGrid;
-        public static ShaderProgram shader;
+        public static ShaderProgram Shader;
         #endregion
 
         #region Initialisation
@@ -33,9 +35,11 @@ namespace Game.Entities {
         }
 
         public static void LoadShaders() {
-            shader = new ShaderProgram(Assets.Shaders.EntityVert, Assets.Shaders.EntityFrag);
-            Console.WriteLine("Entity Shader Log: ");
-            Console.WriteLine(shader.ProgramLog);
+            Shader = new ShaderProgram(Assets.Shaders.EntityVert, Assets.Shaders.EntityFrag);
+            Shader.AddUniform("viewMatrix");
+            Shader.AddUniform("projectionMatrix");
+            Shader.AddUniform("modelMatrix");
+            Shader.AddUniform("clr");
         }
 
         public static void Init() {
@@ -51,19 +55,17 @@ namespace Game.Entities {
 
         #region Matrices
 
-        public static void UpdateViewMatrix(Matrix4 mat) {
-            Debug.Assert(shader != null);
-            Gl.UseProgram(shader.ProgramID);
-            shader["viewMatrix"].SetValue(mat);
-            Gl.UseProgram(0);
+        public static void UpdateViewMatrix(Matrix mat) {
+            GL.UseProgram(Shader.ID);
+            Shader.SetUniform4m("viewMatrix", mat);
+            GL.UseProgram(0);
         }
 
 
-        public static void SetProjectionMatrix(Matrix4 mat) {
-            Debug.Assert(shader != null);
-            Gl.UseProgram(shader.ProgramID);
-            shader["projectionMatrix"].SetValue(mat);
-            Gl.UseProgram(0);
+        public static void SetProjectionMatrix(Matrix mat) {
+            GL.UseProgram(Shader.ID);
+            Shader.SetUniform4m("projectionMatrix", mat);
+            GL.UseProgram(0);
         }
 
         #endregion
@@ -79,7 +81,7 @@ namespace Game.Entities {
             var search = new HashSet<Entity>();
             for (int i = 0; i < Math.Ceiling(size.x / GridX) + 1; i++) {
                 for (float j = 0; j < Math.Ceiling(size.y / GridY) + 1; j++) {
-                    var grid = GetGridArray(pos + new Vector2(i, j) * new Vector2(GridX, GridY));
+                    var grid = GetGridArray(pos + new Vector2(i * GridX, j * GridY));
                     var entities = EntityGrid[grid.x, grid.y];
                     foreach (var e in entities) {
                         search.Add(e);
@@ -239,7 +241,7 @@ namespace Game.Entities {
         public static void Render() {
             if (Player.Instance == null) return;
             GameTime.EntityRenderTimer.Start();
-            Gl.UseProgram(shader.ProgramID);
+            GL.UseProgram(Shader.ID);
 
             int minx, maxx, miny, maxy;
             Terrain.Range(out minx, out maxx, out miny, out maxy);
@@ -271,28 +273,28 @@ namespace Game.Entities {
 
             LoadedEntities = 0;
 
-            Gl.Enable(EnableCap.Blend);
-            Gl.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            Gl.BindTexture(Assets.Textures.EntityTexture.TextureTarget, Assets.Textures.EntityTexture.TextureID);
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.BindTexture(Assets.Textures.EntityTexture.TextureTarget, Assets.Textures.EntityTexture.TextureID);
             foreach (EntityID entityId in EntitiesMap.Keys) {
                 EntityModel model = Assets.Models.GetModel(entityId);
-                Gl.BindVertexArray(model.vao.ID);
+                GL.BindVertexArray(model.VAO.ID);
 
 
                 foreach (Entity e in EntitiesMap[entityId]) {
                     LoadedEntities++;
-                    shader["modelMatrix"].SetValue(e.ModelMatrix());
+                    Shader.SetUniform4m("modelMatrix", e.ModelMatrix());
                     if (e.data.recentDmg > 0) {
                         float offsetval = 1 - e.data.recentDmg / EntityData.maxRecentDmgTime;
                         offsetval /= 2;
-                        Vector4 colouroffset = TextureUtil.ToVec4(Color.DarkGoldenrod) * new Vector4(offsetval, offsetval, offsetval, 1);
+                        Vector4 colouroffset = Vector4.Multiply(TextureUtil.ToVec4(Color.DarkGoldenrod), new Vector4(offsetval, offsetval, offsetval, 1));
                         colouroffset += e.data.colour;
-                        shader["clr"].SetValue(colouroffset);
+                        Shader.SetUniform4f("clr", colouroffset);
                     } else {
-                        shader["clr"].SetValue(e.data.colour);
+                        Shader.SetUniform4f("clr", e.data.colour);
                     }
 
-                    Gl.DrawElements(model.drawmode, model.vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+                    GL.DrawElements(model.Drawmode, model.VAO.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
                 }
 
 
@@ -300,21 +302,21 @@ namespace Game.Entities {
 
             if (GameLogic.RenderHitboxes) {
                 var model = Assets.Models.GetModel(EntityID.BlackOutline);
-                Gl.BindVertexArray(model.vao.ID);
+                GL.BindVertexArray(model.VAO.ID);
                 foreach (EntityID entityId in EntitiesMap.Keys) {
                     foreach (Entity e in EntitiesMap[entityId]) {
                         var h = e.hitbox;
-                        shader["modelMatrix"].SetValue(MathUtil.ModelMatrix(h.Size, 0, h.Position));
-                        Gl.DrawElements(model.drawmode, model.vao.count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+                        Shader.SetUniform4m("modelMatrix", MathUtil.ModelMatrix(h.Size, 0, h.Position));
+                        GL.DrawElements(model.Drawmode, model.VAO.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
                     }
                 }
-                Gl.BindVertexArray(0);
+                GL.BindVertexArray(0);
             }
 
-            Gl.BindTexture(Assets.Textures.EntityTexture.TextureTarget, 0);
-            Gl.Disable(EnableCap.Blend);
-            Gl.BindVertexArray(0);
-            Gl.UseProgram(0);
+            GL.BindTexture(Assets.Textures.EntityTexture.TextureTarget, 0);
+            GL.Disable(EnableCap.Blend);
+            GL.BindVertexArray(0);
+            GL.UseProgram(0);
             GameTime.EntityRenderTimer.Pause();
         }
 
@@ -328,9 +330,9 @@ namespace Game.Entities {
         }
 
         public static void CleanUp() {
-            Gl.DeleteShader(shader.FragmentShader.ShaderID);
-            Gl.DeleteShader(shader.VertexShader.ShaderID);
-            Gl.DeleteProgram(shader.ProgramID);
+            GL.DeleteShader(Shader.FragID);
+            GL.DeleteShader(Shader.VertID);
+            GL.DeleteProgram(Shader.ID);
         }
 
         #endregion

@@ -1,6 +1,5 @@
 ﻿using Game.Core;
-using Game.Entities;
-using OpenGL;
+using Pencil.Gaming.MathUtils;
 using System;
 
 namespace Game.Entities.Particles {
@@ -19,7 +18,7 @@ namespace Game.Entities.Particles {
         public float deltaRot;
 
         public Particle(EntityID model, Vector2 pos) : base(model, pos) {
-            Vector2 size = Assets.Models.GetModel(model).size;
+            Vector2 size = Assets.Models.GetModel(model).Size;
             data.calcTerrainCollisions = false;
             data.pos.val = pos;
             EntityManager.AddEntity(this);

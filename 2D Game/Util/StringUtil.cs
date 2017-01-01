@@ -6,38 +6,62 @@ using System.Text.RegularExpressions;
 namespace Game.Util {
     class StringUtil {
 
-        public static bool IsStdKeySymbol(string s) {
+        /// <summary>
+        /// Returns true if the string contains symbols found on a standard keyboard except for the underscore
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        public static bool ContainsStdSymbolU(string s) {
+            string select = "!@#$%^&*()+-=[]{}\\|;:\'\"<>,.?/~`";
+            foreach (char c in s) {
+                if (!select.Contains(c)) return false;
+            }
+            return true;
+        }
+        public static bool ContainsStdSymbolU(char c) { return ContainsStdSymbol(c.ToString()); }
+
+        /// <summary>
+        /// Returns true if the string contains symbols found on a standard keyboard
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        public static bool ContainsStdSymbol(string s) {
             string select = "!@#$%^&*()_+-=[]{}\\|;:\'\"<>,.?/~`";
             foreach (char c in s) {
                 if (!select.Contains(c)) return false;
             }
             return true;
         }
-        public static bool IsStdKeySymbol(char c) { return IsStdKeySymbol(c.ToString()); }
+        public static bool ContainsStdSymbol(char c) { return ContainsStdSymbol(c.ToString()); }
 
-        public static bool IsSymbol(string s) {
+        /// <summary>
+        /// Returns true if the string contains any Unicode defined symbols
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        public static bool ContainsSymbol(string s) {
             foreach (char c in s) {
                 if (!char.IsSymbol(c)) return false;
             }
             return true;
         }
-        public static bool IsSymbol(char c) { return IsSymbol(c.ToString()); }
+        public static bool ContainsSymbol(char c) { return ContainsSymbol(c.ToString()); }
 
-        public static bool IsLetter(string s) {
+        public static bool ContainsLetter(string s) {
             foreach (char c in s) {
                 if (!char.IsLetter(c)) return false;
             }
             return true;
         }
-        public static bool IsLetter(char c) { return IsLetter(c.ToString()); }
+        public static bool IsLetter(char c) { return ContainsLetter(c.ToString()); }
 
-        public static bool IsDigit(string s) {
+        public static bool ContainsDigit(string s) {
             foreach (char c in s) {
                 if (!char.IsDigit(c)) return false;
             }
             return true;
         }
-        public static bool IsDigit(char c) { return IsDigit(c.ToString()); }
+        public static bool IsDigit(char c) { return ContainsDigit(c.ToString()); }
 
 
 

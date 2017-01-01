@@ -2,7 +2,7 @@
 using Game.Entities;
 using Game.Items;
 
-namespace Game.Core.World_Serialization {
+namespace Game.Core.world_Serialization {
 
     [Serializable]
     public class EntitiesData {

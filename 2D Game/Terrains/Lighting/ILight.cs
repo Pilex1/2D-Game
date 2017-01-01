@@ -1,4 +1,4 @@
-﻿using OpenGL;
+﻿using Pencil.Gaming.MathUtils;
 
 namespace Game.Terrains {
 

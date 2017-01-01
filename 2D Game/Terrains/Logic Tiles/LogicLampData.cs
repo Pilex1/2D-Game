@@ -1,7 +1,7 @@
 ﻿using System;
 using Game.Util;
 using Game.Items;
-using OpenGL;
+using Pencil.Gaming.MathUtils;
 
 namespace Game.Terrains.Logics {
 
@@ -38,6 +38,6 @@ namespace Game.Terrains.Logics {
 
         float ILight.Strength() => 1f;
 
-        Vector3 ILight.Colour() => state ? new Vector3(1, 0.9, 0.9) : Vector3.Zero;
+        Vector3 ILight.Colour() => state ? new Vector3(1, 0.9f, 0.9f) : Vector3.Zero;
     }
 }

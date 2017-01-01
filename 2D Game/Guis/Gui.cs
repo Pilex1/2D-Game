@@ -1,15 +1,20 @@
 ﻿using Game.Assets;
 using Game.Guis;
 using Game.Interaction;
-using OpenGL;
-
+using Game.Main.GLConstructs;
+using Pencil.Gaming.Graphics;
 namespace Game.TitleScreen {
     static class Gui {
 
         public static ShaderProgram shader { get; private set; }
 
         public static void Init() {
-            shader = new ShaderProgram(Shaders.GuiVert,Shaders.GuiFrag);
+            shader = new ShaderProgram(Shaders.GuiVert, Shaders.GuiFrag);
+            shader.AddUniform("position");
+            shader.AddUniform("size");
+            shader.AddUniform("colour");
+            shader.AddUniform("aspectRatio");
+
             TextFont.Init();
             GameGuiRenderer.Init();
             TitleScreenRenderer.Init();
@@ -36,14 +41,8 @@ namespace Game.TitleScreen {
                     break;
             }
 
-            Gl.UseProgram(shader);
-            Gl.UseProgram(0);
-
-        }
-
-        public static void Dispose() {
-            TitleScreenRenderer.Dispose();
-            GameGuiRenderer.Dispose();
+            GL.UseProgram(shader.ID);
+            GL.UseProgram(0);
         }
     }
 }

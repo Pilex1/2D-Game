@@ -1,7 +1,7 @@
 ﻿using Game.Core;
 using Game.Terrains;
 using Game.Util;
-using OpenGL;
+using Pencil.Gaming.MathUtils;
 
 namespace Game.Entities {
     class Warder : Entity {

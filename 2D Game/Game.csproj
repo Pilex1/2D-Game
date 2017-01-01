@@ -39,22 +39,13 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="OpenGL, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\OpenGL.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
-    <Reference Include="Tao.FreeGlut, Version=2.4.0.2, Culture=neutral, PublicKeyToken=6e602a6ad6c0d06d, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\Tao.FreeGlut.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Asset.cs" />
+    <Compile Include="Assets\AssetsManager.cs" />
     <Compile Include="Entities\AutoDart.cs" />
     <Compile Include="Entities\EntityCage.cs" />
     <Compile Include="Entities\Core\EntityData.cs" />
@@ -66,8 +57,13 @@
     <Compile Include="Guis\Inventory\ItemID.cs" />
     <Compile Include="Main\Commands\CommandParser.cs" />
     <Compile Include="Main\GameTime.cs" />
+    <Compile Include="Main\GLConstructs\EBO.cs" />
+    <Compile Include="Main\GLConstructs\ResourceManager.cs" />
+    <Compile Include="Main\GLConstructs\ShaderProgram.cs" />
+    <Compile Include="Main\GLConstructs\Texture.cs" />
+    <Compile Include="Main\GLConstructs\VBO.cs" />
     <Compile Include="Main\Input.cs" />
-    <Compile Include="Main\Vao.cs" />
+    <Compile Include="Main\GLConstructs\VAO.cs" />
     <Compile Include="Main\Model.cs" />
     <Compile Include="Main\World Serialization\EntityData.cs" />
     <Compile Include="Main\World Serialization\Serialization.cs" />
@@ -176,6 +172,18 @@
     <None Include="Assets\Shaders\Entity.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="natives32\GLFW_LINUX_BROKEN.so">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="natives32\liblua.dylib">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="natives32\liblua.so">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="natives32\libopenal.so">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -209,7 +217,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\Fonts\runnable-hiero.jar" />
-    <Content Include="Assets\Screenshots\Bridge.png" />
+    <Content Include="Assets\Screenshots\Bridge.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\Screenshots\Cave.png" />
     <Content Include="Assets\Screenshots\Fireworks.png" />
     <Content Include="Assets\Textures\DesertBackground.png">
@@ -254,19 +264,27 @@
     <Content Include="Assets\Textures\TitleScreenBackground2.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="freeglut.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="Main\Commands\Command templates.txt" />
-    <Content Include="OpenGL.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <Content Include="natives32\glfw.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Tao.FreeGlut.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <Content Include="natives32\lua.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="natives32\openal32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="natives32\wrap_oal.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Todo.txt" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\Other libraries\GLFW\Pencil.Gaming\Pencil.Gaming.csproj">
+      <Project>{DDB6DB6D-E5DE-4BDB-8AC8-26DF800E9FF0}</Project>
+      <Name>Pencil.Gaming</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

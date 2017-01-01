@@ -1,5 +1,5 @@
 ﻿using System;
-using OpenGL;
+using Pencil.Gaming.MathUtils;
 using Game.Core;
 using Game.Entities;
 using Game.Util;

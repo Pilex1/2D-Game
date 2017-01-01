@@ -1,7 +1,7 @@
 ﻿using Game.Entities;
 using Game.Items;
 using Game.Util;
-using OpenGL;
+using Pencil.Gaming.MathUtils;
 using System;
 using System.Text;
 

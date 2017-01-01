@@ -10,15 +10,21 @@ namespace Test_Program {
         static void Main(string[] args) {
             Program p = new Program();
 
-            p.DoWork();
-
-            for (int i = 0; i < 1000; i++) {
-                Console.Write(".");
-                Thread.Sleep(100);
+            for (int i = 0; i < 256; i++) {
+                Console.WriteLine(i + "\t" + (char)i);
             }
-
-
             Console.ReadLine();
+
+
+            //p.DoWork();
+
+            //for (int i = 0; i < 1000; i++) {
+            //    Console.Write(".");
+            //    Thread.Sleep(100);
+            //}
+
+
+            //Console.ReadLine();
         }
 
 

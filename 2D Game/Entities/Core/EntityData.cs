@@ -1,6 +1,6 @@
 ﻿using Game.Terrains.Terrain_Generation;
 using Game.Util;
-using OpenGL;
+using Pencil.Gaming.MathUtils;
 using System;
 
 namespace Game.Entities {

@@ -1,53 +1,8 @@
-﻿using OpenGL;
+﻿using Pencil.Gaming.MathUtils;
 using System;
 using System.Linq;
 
 namespace Game.Util {
-    [Serializable]
-    struct Vector2i {
-
-        public static Vector2i Zero = new Vector2i(0, 0);
-
-        public int x, y;
-        public Vector2i(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        public override string ToString() {
-            return x + ", " + y;
-        }
-
-        public static bool operator ==(Vector2i a, Vector2i b) {
-            return a.x == b.x && a.y == b.y;
-        }
-
-        public static bool operator !=(Vector2i a, Vector2i b) {
-            return !(a == b);
-        }
-
-        public override bool Equals(object obj) {
-            if (obj == null || GetType() != obj.GetType()) {
-                return false;
-            }
-
-            Vector2i v = (Vector2i)obj;
-            return v.x == x && v.y == y;
-        }
-
-        //unique hashing for x, y < 2^16 = 65536
-        public override int GetHashCode() {
-            return x << 16 + y;
-        }
-
-        public float AngleTo(Vector2i src, Vector2i dest) {
-            return (float)Math.Atan2(dest.y - src.y, dest.x - src.x);
-        }
-
-        public static implicit operator Vector2(Vector2i val) {
-            return new Vector2(val.x, val.y);
-        }
-    }
 
     class Line {
         private double m, b;
@@ -256,15 +211,15 @@ namespace Game.Util {
         }
 
         public static Vector2 Vec2FromAngle(float theta) {
-            return new Vector2(Math.Cos(theta), Math.Sin(theta));
+            return new Vector2((float)Math.Cos(theta), (float)Math.Sin(theta));
         }
 
-        public static Matrix4 ModelMatrix(Vector2 scale, float rotation, Vector2 translation) {
+        public static Matrix ModelMatrix(Vector2 scale, float rotation, Vector2 translation) {
             return ModelMatrix(new Vector3(scale.x, scale.y, 0), new Vector3(0, 0, rotation), new Vector3(translation.x, translation.y, 0));
         }
 
-        public static Matrix4 ModelMatrix(Vector3 scale, Vector3 rotation, Vector3 translation) {
-            return Matrix4.CreateScaling(scale) * Matrix4.CreateRotationX(rotation.x) * Matrix4.CreateRotationY(rotation.y) * Matrix4.CreateRotationZ(rotation.z) * Matrix4.CreateTranslation(translation);
+        public static Matrix ModelMatrix(Vector3 scale, Vector3 rotation, Vector3 translation) {
+            return Matrix.CreateScale(scale) * Matrix.CreateRotationX(rotation.x) * Matrix.CreateRotationY(rotation.y) * Matrix.CreateRotationZ(rotation.z) * Matrix.CreateTranslation(translation);
         }
     }
 }

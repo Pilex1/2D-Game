@@ -1,5 +1,5 @@
 ﻿using Game.Terrains.Core;
-using Game.Util;
+using Pencil.Gaming.MathUtils;
 using System.Collections.Generic;
 
 namespace Game.Terrains.Logics {

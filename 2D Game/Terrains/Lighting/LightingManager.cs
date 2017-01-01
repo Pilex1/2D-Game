@@ -1,6 +1,6 @@
 ﻿using Game.Util;
 using System.Collections.Generic;
-using OpenGL;
+using Pencil.Gaming.MathUtils;
 using Game.Terrains.Terrain_Generation;
 
 namespace Game.Terrains.Lighting {
@@ -15,7 +15,7 @@ namespace Game.Terrains.Lighting {
         internal const int MaxLightRadius = 24;
         internal const int SunRadius = 12;
         internal const float SunStrength = 0.1f;
-        internal static readonly Vector3 SunColour = new Vector3(1, 0.9, 0.95);
+        internal static readonly Vector3 SunColour = new Vector3(1, 0.9f, 0.95f);
 
         private static int[] Heights;
         private static Vector3[,] Lightings;
@@ -136,7 +136,7 @@ namespace Game.Terrains.Lighting {
                     if (t.enumId != TileID.Air) {
                         switch (GameLogic.LightingOption.Get()) {
                             case LightingOption.None:
-                                lightingsList.AddRange(new Vector3[] { Vector3.Identity, Vector3.Identity, Vector3.Identity, Vector3.Identity });
+                                lightingsList.AddRange(new Vector3[] { Vector3.One, Vector3.One, Vector3.One, Vector3.One });
                                 break;
                             case LightingOption.Jagged:
                                 lightingsList.AddRange(JaggedLighting(i, j));
