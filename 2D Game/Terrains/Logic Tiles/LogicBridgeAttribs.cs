@@ -1,17 +1,19 @@
 ﻿using Game.Items;
+using Game.Terrains.Lighting;
 using Game.Util;
+using Pencil.Gaming.MathUtils;
 using System;
 using System.Text;
 
 namespace Game.Terrains.Logics {
 
     [Serializable]
-    class LogicBridgeAttribs : PowerTransmitterData {
+    class LogicBridgeAttribs : PowerTransmitterData, IMultiLight {
 
-        public bool stateHorz { get; private set; }
-        public bool stateVert { get; private set; }
+        protected bool stateHorz;
+        protected bool stateVert;
 
-        public LogicBridgeAttribs():base(delegate() { return RawItem.WireBridge; }) {
+        public LogicBridgeAttribs() : base(delegate () { return RawItem.WireBridge; }) {
             poweroutL.max = poweroutR.max = poweroutU.max = poweroutD.max = 64;
             powerinL.max = powerinR.max = powerinU.max = powerinD.max = 64;
             stateHorz = stateVert = false;
@@ -22,10 +24,7 @@ namespace Game.Terrains.Logics {
             BoundedFloat bufferHorz = new BoundedFloat(0, 0, powerinL.max + powerinR.max);
             BoundedFloat bufferVert = new BoundedFloat(0, 0, powerinU.max + powerinD.max);
 
-            powerInLCache = powerinL.val;
-            powerInRCache = powerinR.val;
-            powerInUCache = powerinU.val;
-            powerInDCache = powerinD.val;
+            CacheInputs();
 
             BoundedFloat.MoveVals(ref powerinL, ref bufferHorz, powerinL.val);
             BoundedFloat.MoveVals(ref powerinR, ref bufferHorz, powerinR.val);
@@ -43,11 +42,11 @@ namespace Game.Terrains.Logics {
             if (neighbourHorz != 0) {
                 float transval = bufferHorz / neighbourHorz;
 
-                if (base.IsLogicL(x, y)) {
+                if (IsLogicL(x, y)) {
                     BoundedFloat.MoveVals(ref bufferHorz, ref poweroutL, transval);
                 }
 
-                if (base.IsLogicR(x, y)) {
+                if (IsLogicR(x, y)) {
                     BoundedFloat.MoveVals(ref bufferHorz, ref poweroutR, transval);
                 }
             }
@@ -61,15 +60,17 @@ namespace Game.Terrains.Logics {
                 }
             }
 
-            powerOutLCache = poweroutL.val;
-            powerOutRCache = poweroutR.val;
-            powerOutUCache = poweroutU.val;
-            powerOutDCache = poweroutD.val;
+            CacheOutputs();
 
             stateHorz = poweroutL > 0 || poweroutR > 0;
             stateVert = poweroutU > 0 || poweroutD > 0;
 
-            base.UpdateAll(x, y);
+            int state = 0;
+            if (stateHorz ^ stateVert) state = 1;
+            else if (stateHorz && stateVert) state = 2;
+            UpdateMultiLight(x, y, state, this);
+
+           UpdateAll(x, y);
 
             Terrain.TileAt(x, y).enumId = stateHorz ? (stateVert ? TileID.WireBridgeHorzVertOn : TileID.WireBridgeHorzOn) : (stateVert ? TileID.WireBridgeVertOn : TileID.WireBridgeOff);
         }
@@ -82,6 +83,9 @@ namespace Game.Terrains.Logics {
             sb.AppendLine(string.Format("Down: In {0} / Out {1}", powerInDCache, powerOutDCache));
             return sb.ToString();
         }
+
+        ILight[] IMultiLight.Lights() => new ILight[] { new CLight(0, 0, Vector3.Zero), new CLight(4, 0.1f, new Vector3(1, 0.2f, 0.5f)), new CLight(4, 0.2f, new Vector3(1, 0.2f, 0.5f)) };
+        int IMultiLight.State { get; set; }
     }
 }
 ;

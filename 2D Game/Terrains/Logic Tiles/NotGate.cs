@@ -24,7 +24,7 @@ namespace Game.Terrains.Logics {
 
             base.powerInLCache = powerinL;
 
-            base.EmptyOutputs();
+            EmptyOutputs();
 
             if (powerinL > 0) {
                 poweroutR.val = 0;

@@ -1,4 +1,5 @@
 ﻿using Game.Items;
+using Game.Terrains.Lighting;
 using Game.Util;
 using System;
 using System.Text;
@@ -56,6 +57,27 @@ namespace Game.Terrains.Logics {
             poweroutR.Empty();
             poweroutU.Empty();
             poweroutD.Empty();
+        }
+
+        protected void CacheInputs() {
+            powerInLCache = powerinL.val;
+            powerInRCache = powerinR.val;
+            powerInUCache = powerinU.val;
+            powerInDCache = powerinD.val;
+        }
+
+        protected void CacheOutputs() {
+            powerOutLCache = poweroutL.val;
+            powerOutRCache = poweroutR.val;
+            powerOutUCache = poweroutU.val;
+            powerOutDCache = poweroutD.val;
+        }
+
+        protected void MovePowerIn(ref BoundedFloat buffer) {
+            BoundedFloat.MoveVals(ref powerinL, ref buffer, powerinL.val);
+            BoundedFloat.MoveVals(ref powerinR, ref buffer, powerinR.val);
+            BoundedFloat.MoveVals(ref powerinU, ref buffer, powerinU.val);
+            BoundedFloat.MoveVals(ref powerinD, ref buffer, powerinD.val);
         }
 
         internal BoundedFloat powerinD = BoundedFloat.Zero;
@@ -131,6 +153,22 @@ namespace Game.Terrains.Logics {
 
             return count;
         }
+
+        protected void UpdateMultiLight(int x, int y, int newState, IMultiLight light) {
+            if (newState == light.State) return;
+            LightingManager.RemoveLight(x, y, light.Lights()[light.State]);
+            light.State = newState;
+            LightingManager.AddLight(x, y, light.Lights()[light.State]);
+        }
+
+        public override string ToString() {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(string.Format("Left: In {0} / Out {1}", powerInLCache, powerOutLCache));
+            sb.AppendLine(string.Format("Right: In {0} / Out {1}", powerInRCache, powerOutRCache));
+            sb.AppendLine(string.Format("Up: In {0} / Out {1}", powerInUCache, powerOutUCache));
+            sb.AppendLine(string.Format("Down: In {0} / Out {1}", powerInDCache, powerOutDCache));
+            return sb.ToString();
+        }
     }
 
     [Serializable]
@@ -160,6 +198,13 @@ namespace Game.Terrains.Logics {
             powerInRCache = powerinR.val;
             powerInUCache = powerinU.val;
             powerInDCache = powerinD.val;
+        }
+
+        protected void UpdateMultiLight(int x, int y, int newState, IMultiLight light) {
+            if (newState == light.State) return;
+            LightingManager.RemoveLight(x, y, light.Lights()[light.State]);
+            light.State = newState;
+            LightingManager.AddLight(x, y, light.Lights()[light.State]);
         }
 
         public override string ToString() {

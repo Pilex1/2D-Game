@@ -7,6 +7,18 @@ namespace Game.Util {
     class StringUtil {
 
         /// <summary>
+        /// Returns true if the entire array is comprised of empty lines
+        /// </summary>
+        /// <param name="arr"></param>
+        /// <returns></returns>
+        public static bool AreEmpty(string[] arr) {
+            foreach (var s in arr) {
+                if (s != "") return false;
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Returns true if the string contains symbols found on a standard keyboard except for the underscore
         /// </summary>
         /// <param name="s"></param>

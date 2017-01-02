@@ -9,7 +9,7 @@ namespace Game.Entities {
     [Serializable]
     class AutoDart : Entity {
 
-        public AutoDart(Vector2 pos, Vector2 vel) : base(EntityID.AutoDart, pos) {
+        public AutoDart(Vector2 pos, Vector2 vel) : base(EntityID.AutoDart, pos, Vector2.One) {
             data.vel.val = vel;
             data.airResis = 0.999f;
             data.grav = 0f;

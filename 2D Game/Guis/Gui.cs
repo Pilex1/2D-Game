@@ -1,6 +1,6 @@
 ﻿using Game.Assets;
 using Game.Guis;
-using Game.Interaction;
+using Game.Guis.Renderers;
 using Game.Main.GLConstructs;
 using Pencil.Gaming.Graphics;
 namespace Game.TitleScreen {

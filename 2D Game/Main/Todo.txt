@@ -1,5 +1,5 @@
 ﻿Bugs:
  - residue fluids in FluidManager when fluids seem to have stabilised (infinite loop of fluids being transferred?)
-
+ - deleting a world sometimes results in an AccessViolationException (i think because of multithreading accessing OpenGL)
 
  Ocean seed - 429818298

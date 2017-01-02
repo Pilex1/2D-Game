@@ -1,16 +1,17 @@
-﻿using System;
+﻿using Game.Items;
+using Game.Terrains.Lighting;
 using Game.Util;
-using Game.Items;
 using Pencil.Gaming.MathUtils;
+using System;
 
 namespace Game.Terrains.Logics {
 
     [Serializable]
-    class LogicLampAttribs : PowerDrainData, ILight {
+    class LogicLampAttribs : PowerDrainData, IMultiLight {
 
-        public bool state { get; protected set; }
+        protected bool state;
 
-        public LogicLampAttribs():base(delegate() { return RawItem.LogicLamp; }) {
+        public LogicLampAttribs() : base(delegate () { return RawItem.LogicLamp; }) {
             powerinL.max = powerinR.max = powerinU.max = powerinD.max = 16;
             cost = 2;
             state = false;
@@ -30,14 +31,12 @@ namespace Game.Terrains.Logics {
             EmptyInputs();
 
             state = buffer.IsFull();
+            UpdateMultiLight(x, y, state ? 1 : 0, this);
 
             Terrain.TileAt(x, y).enumId = state ? TileID.LogicLampOn : TileID.LogicLampOff;
         }
 
-        int ILight.Radius() => 6;
-
-        float ILight.Strength() => 1f;
-
-        Vector3 ILight.Colour() => state ? new Vector3(1, 0.9f, 0.9f) : Vector3.Zero;
+        ILight[] IMultiLight.Lights() => new ILight[] { new CLight(0, 0, Vector3.Zero), new CLight(6, 1f, new Vector3(1, 0.9f, 0.9f)) };
+        int IMultiLight.State { get; set; }
     }
 }

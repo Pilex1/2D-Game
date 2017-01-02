@@ -11,14 +11,12 @@ namespace Game.Core {
 
         public EntityVAO VAO;
         public BeginMode Drawmode;
-        public Vector2 Size;
 
         private const int EntityTextureSize = 16;
 
-        public EntityModel(EntityVAO vao, BeginMode drawmode, Vector2 size) {
+        public EntityModel(EntityVAO vao, BeginMode drawmode) {
             this.VAO = vao;
             this.Drawmode = drawmode;
-            this.Size = size;
         }
 
         public static EntityModel CreateHitboxRectangle() {
@@ -31,10 +29,10 @@ namespace Game.Core {
             float h = 1f / (EntityTextureSize * EntityTextureSize * 2);
             Vector2[] uvs = new Vector2[] { new Vector2(x + h, y + s - h), new Vector2(x + h, y + h), new Vector2(x + s - h, y + h), new Vector2(x + s - h, y + s - h) };
             var vao = new EntityVAO(vertices, elements, uvs);
-            return new EntityModel(vao, BeginMode.LineStrip, new Vector2(1, 1));
+            return new EntityModel(vao, BeginMode.LineStrip);
         }
 
-        public static EntityModel CreateRectangle(Vector2 size, EntityID texid) {
+        public static EntityModel CreateRectangle(EntityID texid) {
             Vector2[] vertices = new Vector2[] { new Vector2(0, 1), new Vector2(0, 0), new Vector2(1, 0), new Vector2(1, 1) };
             int[] elements = new int[] { 0, 1, 2, 3, 0 };
             Vector2[] uvs;
@@ -55,7 +53,7 @@ namespace Game.Core {
                 uvs = new Vector2[] { new Vector2(x + h, y + 2 * s - h), new Vector2(x + h, y + h), new Vector2(x + s - h, y + h), new Vector2(x + s - h, y + 2 * s - h) };
             }
             EntityVAO vao = new EntityVAO(vertices, elements, uvs);
-            return new EntityModel(vao, BeginMode.TriangleStrip, size);
+            return new EntityModel(vao, BeginMode.TriangleStrip);
         }
     }
 

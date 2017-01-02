@@ -11,7 +11,7 @@ namespace Game.Terrains {
         public WardedTileAttribs() : base(delegate () { return RawItem.WardedTile; }) { }
 
         public override void OnEntityCollision(int x, int y, Direction side, Entity e) {
-            if (e is Projectile || e is Shooter || e is Squisher) return;
+            if (e is ShooterProjectile || e is Shooter || e is Squisher) return;
             base.OnEntityCollision(x, y, side, e);
         }
     }

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using Game.Entities;
 using Game.Assets;
 using Game.Util;
-using System.Diagnostics;
 using Game.Terrains.Logics;
 using Game.Core;
 using Game.Terrains.Terrain_Generation;
@@ -251,6 +250,22 @@ namespace Game.Terrains {
 
         #region Collision
 
+        /// <summary>
+        /// Returns true if any directly adjacent tiles or the tile itself is solid
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public static bool HasNeighbouringSolidTiles(int x, int y) {
+            Tile l = TileAt(x - 1, y), r = TileAt(x + 1, y), u = TileAt(x, y + 1), d = TileAt(x, y - 1), m = TileAt(x, y);
+            if (l != null && l.tileattribs.solid) return true;
+            if (r != null && r.tileattribs.solid) return true;
+            if (d != null && d.tileattribs.solid) return true;
+            if (u != null && u.tileattribs.solid) return true;
+            if (m != null && m.tileattribs.solid) return true;
+            return false;
+        }
+
         public static Tuple<Vector2i, Tile>[] CalcFutureCollision(Entity entity, Vector2 offset) {
             return CalcFutureCollision(entity.hitbox, offset);
         }
@@ -345,7 +360,9 @@ namespace Game.Terrains {
             FluidManager.Instance.UpdateAround(x, y);
 
             ILight light = tile.tileattribs as ILight;
-            if (light != null) LightingManager.AddLight(x, y, light.Radius(), light.Strength(), light.Colour());
+            IMultiLight togglelight = tile.tileattribs as IMultiLight;
+            if (togglelight != null) LightingManager.AddLight(x, y, togglelight.Lights()[togglelight.State]);
+            else if (light != null) LightingManager.AddLight(x, y, light);
 
             ChunksUpdated[GetChunkAt(x)] = true;
 
@@ -370,10 +387,9 @@ namespace Game.Terrains {
 
             if (!generating) {
                 ILight light = tile.tileattribs as ILight;
-                if (light != null) {
-                    LightingManager.RemoveLight(x, y, light.Radius(), light.Strength(), light.Colour());
-                }
-                LightingManager.RemoveTile(x, y);
+                IMultiLight togglelight = tile.tileattribs as IMultiLight;
+                if (togglelight != null) LightingManager.RemoveLight(x, y, togglelight.Lights()[togglelight.State]);
+                else if (light != null) LightingManager.RemoveLight(x, y, light);
             }
             return tile;
         }

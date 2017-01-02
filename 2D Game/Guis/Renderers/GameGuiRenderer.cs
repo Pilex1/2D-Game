@@ -11,7 +11,7 @@ using Game.Util;
 using Game.Items;
 using Game.Main.GLConstructs;
 
-namespace Game.Interaction {
+namespace Game.Guis.Renderers {
     static class GameGuiRenderer {
 
         private static GuiModel PausedOverlay;
@@ -22,20 +22,26 @@ namespace Game.Interaction {
         private static GuiModel HealthbarTexture;
         private static Button btn_BackToTitle;
         internal static InGameTextbox TxtInput;
+        internal static Text TextLog;
+
+        private static Vector2 HealthBarSize = new Vector2(0.52f, 0.03f);
+        private static Vector2 HealthBarTextureSize = new Vector2(0.55f, 0.04875f);
+        private static Vector2 HealthBarPos = new Vector2(0f, -0.7f);
 
         private static HashSet<Button> Buttons;
 
         public static void Init() {
             TextFont.Init();
 
-            TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.45f, 2f, int.MaxValue, 1f, new Vector3(1, 1, 1));
+            TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.35f, 2f, int.MaxValue, 1f, new Vector3(1, 1, 1));
             DebugText = new Text("", style, new Vector2(-0.99f, 0.97f));
-            Healthbar = GuiModel.CreateRectangle(new Vector2(0.52f, 0.03f), TextureUtil.ColourFromVec4(new Vector4(0.88f, 0.3f, 0.1f, 0.8f)));
-            HealthbarTexture = GuiModel.CreateRectangle(new Vector2(0.55f, 0.04875f), Textures.HealthbarTexture);
+            Healthbar = GuiModel.CreateRectangle(HealthBarSize, TextureUtil.ColourFromVec4(new Vector4(0.88f, 0.3f, 0.1f, 0.8f)));
+            HealthbarTexture = GuiModel.CreateRectangle(HealthBarTextureSize, Textures.HealthbarTexture);
             Background = GuiModel.CreateRectangle(new Vector2(1, 1), Textures.GameBackgroundTex);
             PausedOverlay = GuiModel.CreateRectangle(new Vector2(1, 1), TextureUtil.ColourFromVec4(new Vector4(0.2f, 0.2f, 0.2f, 0.9f)));
             PausedText = new Text("Paused", new TextStyle(TextAlignment.Top, TextFont.LucidaConsole, 1.3f, 2f, 1, 1f, new Vector3(1, 1, 1)), new Vector2(0, 1));
-            TxtInput = new InGameTextbox(new Vector2(-0.3f, -0.5f), new Vector2(0.7f, 0.03f), TextFont.LucidaConsole, 0.5f);
+            TxtInput = new InGameTextbox(new Vector2(0, -0.5f), new Vector2(1f, 0.03f), TextFont.LucidaConsole, 0.5f);
+            TextLog = new Text("a\r\na\r\na\r\na\r\na", new TextStyle(TextAlignment.BottomLeft,TextFont.LucidaConsole,0.35f,2,20,1f, Vector3.One), new Vector2(-1 + Textbox.TextOffset.x, -0.4f));
 
             Buttons = new HashSet<Button>();
             btn_BackToTitle = new Button(new Vector2(0, -0.2f), new Vector2(0.4f, 0.04f), "Save and Quit", TextStyle.LucidaConsole_SingleLine_Small, () => {
@@ -85,8 +91,8 @@ namespace Game.Interaction {
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
             //healthbar
-            RenderInstance(Healthbar, new Vector2(0f, -0.68f));
-            RenderInstance(HealthbarTexture, new Vector2(0f, -0.68f));
+            RenderInstance(Healthbar, HealthBarPos);
+            RenderInstance(HealthbarTexture, HealthBarPos);
             Healthbar.size.x = Player.Instance.data.life.val / Player.Instance.data.life.max * 0.52f;
 
             //inventory
@@ -132,6 +138,9 @@ namespace Game.Interaction {
 
             RenderInstance(TxtInput.model, TxtInput.pos, TxtInput.colour);
             RenderText(TxtInput.text);
+            if (GameLogic.State == GameLogic.GameState.Text) {
+                RenderText(TextLog);
+            }
 
             if (GameLogic.State == GameLogic.GameState.Paused) {
                 RenderInstance(PausedOverlay, new Vector2(0, 0), new Vector4(0.5f, 0.5f, 0.5f, 0.8f));

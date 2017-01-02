@@ -4,11 +4,12 @@ using System.Diagnostics;
 using Game.Util;
 using Game.Core;
 using Game.TitleScreen;
-using Game.Interaction;
 using Game.Assets;
 using System.Threading;
 using Pencil.Gaming;
 using Game.Main.GLConstructs;
+using Game.Guis.Renderers;
+using Game.Core.world_Serialization;
 
 namespace Game {
 
@@ -18,6 +19,7 @@ namespace Game {
     static class Program {
 
         public static int Width, Height;
+        public static int ScreenWidth, ScreenHeight;
         internal static GlfwWindowPtr window;
         internal static GlfwMonitorPtr monitor;
 
@@ -40,6 +42,8 @@ namespace Game {
             }
             monitor = Glfw.GetPrimaryMonitor();
             GlfwVidMode mode = Glfw.GetVideoMode(monitor);
+            ScreenWidth = mode.Width;
+            ScreenHeight = mode.Height;
 
             //FULLSCREEN
             //window = Glfw.CreateWindow(mode.Width, mode.Height, "Plexico 2D Game - Copyright Alex Tan 2017", monitor, GlfwWindowPtr.Null);
@@ -50,6 +54,7 @@ namespace Game {
             Width = 1280;
             Height = 720;
             window = Glfw.CreateWindow(Width, Height, "Plexico 2D Game - Copyright Alex Tan 2017", GlfwMonitorPtr.Null, GlfwWindowPtr.Null);
+            Glfw.SetWindowPos(window, (ScreenWidth - Width) / 2, (ScreenHeight - Height) / 2);
 
             Glfw.MakeContextCurrent(window);
             Glfw.SetErrorCallback(OnError);
@@ -63,6 +68,7 @@ namespace Game {
             Input.Init();
             Gui.Init();
             GameTime.Init();
+            Serialization.CreateSaveFolder();
             SwitchToTitleScreen();
         }
 

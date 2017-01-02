@@ -32,7 +32,7 @@ namespace Game.Terrains.Logics {
 
             EmptyInputs();
 
-            base.EmptyOutputs();
+            EmptyOutputs();
 
             if (cond) {
                 BoundedFloat.MoveVals(ref bufferPower, ref poweroutR, bufferPower);

@@ -13,7 +13,7 @@ namespace Game.Entities {
 
         private Vector2 initialVel = Vector2.Zero;
 
-        public Squisher(Vector2 position) : base(EntityID.Squisher, position) {
+        public Squisher(Vector2 position) : base(EntityID.Squisher, position, Vector2.One) {
             trackTimer = new CooldownTimer(20);
             dmgTimer = new CooldownTimer(50);
             data.speed = 0;

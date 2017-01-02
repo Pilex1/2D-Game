@@ -1,6 +1,5 @@
 ﻿using Pencil.Gaming.Graphics;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;

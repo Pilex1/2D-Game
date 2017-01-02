@@ -1,10 +1,8 @@
 ﻿using System;
 using Pencil.Gaming.Graphics;
 using Pencil.Gaming.MathUtils;
-using System.Runtime.InteropServices;
 using Game.TitleScreen;
 using Game.Terrains;
-using System.Diagnostics;
 using Game.Entities;
 
 namespace Game.Main.GLConstructs {

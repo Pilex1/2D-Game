@@ -9,7 +9,6 @@ using Pencil.Gaming.Graphics;
 using Pencil.Gaming.MathUtils;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 
 namespace Game.Entities {
@@ -146,9 +145,8 @@ namespace Game.Entities {
             return list.ToArray();
         }
 
-        public static void UpdateAll() {
+        private static void OnEachLoadedEntity(Action<Entity> action) {
             if (Player.Instance == null) return;
-            GameTime.EntityUpdatesTimer.Start();
             int minx, maxx, miny, maxy;
             Terrain.Range(out minx, out maxx, out miny, out maxy);
 
@@ -165,151 +163,106 @@ namespace Game.Entities {
                 for (int j = mingy; j <= maxgy; j++) {
                     HashSet<Entity> set = EntityGrid[i, j];
                     foreach (Entity e in new List<Entity>(set)) {
-                        e.data.recentDmg -= GameTime.DeltaTime;
-                        e.data.recentDmg = Math.Max(e.data.recentDmg, 0);
-
-                        e.UpdateHitbox();
-                        e.Update();
-
-                        if (e.data.life.IsEmpty() && !e.data.invulnerable) {
-                            e.OnDeath();
-                        }
+                        action(e);
                     }
                 }
             }
+        }
+
+        public static void UpdateAll() {
+            GameTime.EntityUpdatesTimer.Start();
+            OnEachLoadedEntity(e => {
+                e.data.recentDmg -= GameTime.DeltaTime;
+                e.data.recentDmg = Math.Max(e.data.recentDmg, 0);
+
+                e.UpdateHitbox();
+                e.Update();
+
+                if (e.data.life.IsEmpty() && !e.data.invulnerable) {
+                    e.OnDeath();
+                }
+            });
             GameTime.EntityUpdatesTimer.Pause();
         }
 
         public static void UpdateLightEmittingBefore() {
-            if (Player.Instance == null) return;
             GameTime.EntityUpdatesTimer.Start();
-            int minx, maxx, miny, maxy;
-            Terrain.Range(out minx, out maxx, out miny, out maxy);
-
-            int mingx = (int)Math.Floor((float)minx / GridX);
-            int mingy = (int)Math.Floor((float)miny / GridY);
-            int maxgx = (int)Math.Ceiling((float)maxx / GridX);
-            int maxgy = (int)Math.Ceiling((float)maxy / GridY);
-            mingx = MathUtil.Clamp(mingx, 0, EntityGrid.GetLength(0) - 1);
-            mingy = MathUtil.Clamp(mingy, 0, EntityGrid.GetLength(1) - 1);
-            maxgx = MathUtil.Clamp(maxgx, 0, EntityGrid.GetLength(0) - 1);
-            maxgy = MathUtil.Clamp(maxgy, 0, EntityGrid.GetLength(1) - 1);
-
-            for (int i = mingx; i <= maxgx; i++) {
-                for (int j = mingy; j <= maxgy; j++) {
-                    HashSet<Entity> set = EntityGrid[i, j];
-                    foreach (Entity e in new List<Entity>(set)) {
-                        ILight l = e as ILight;
-                        if (l != null) {
-                            LightingManager.AddLight((int)e.data.pos.x, (int)e.data.pos.y, l.Radius(), l.Strength(), l.Colour());
-                        }
-                    }
+            OnEachLoadedEntity(e => {
+                ILight l = e as ILight;
+                if (l != null) {
+                    LightingManager.AddLight((int)e.data.pos.x, (int)e.data.pos.y, l.Radius(), l.Strength(), l.Colour());
                 }
-            }
+            });
             GameTime.EntityUpdatesTimer.Pause();
         }
 
         public static void UpdateLightEmittingAfter() {
-            if (Player.Instance == null) return;
             GameTime.EntityUpdatesTimer.Start();
-            int minx, maxx, miny, maxy;
-            Terrain.Range(out minx, out maxx, out miny, out maxy);
-
-            int mingx = (int)Math.Floor((float)minx / GridX);
-            int mingy = (int)Math.Floor((float)miny / GridY);
-            int maxgx = (int)Math.Ceiling((float)maxx / GridX);
-            int maxgy = (int)Math.Ceiling((float)maxy / GridY);
-            mingx = MathUtil.Clamp(mingx, 0, EntityGrid.GetLength(0) - 1);
-            mingy = MathUtil.Clamp(mingy, 0, EntityGrid.GetLength(1) - 1);
-            maxgx = MathUtil.Clamp(maxgx, 0, EntityGrid.GetLength(0) - 1);
-            maxgy = MathUtil.Clamp(maxgy, 0, EntityGrid.GetLength(1) - 1);
-
-            for (int i = mingx; i <= maxgx; i++) {
-                for (int j = mingy; j <= maxgy; j++) {
-                    HashSet<Entity> set = EntityGrid[i, j];
-                    foreach (Entity e in new List<Entity>(set)) {
-                        ILight l = e as ILight;
-                        if (l != null) {
-                            LightingManager.RemoveLight((int)e.data.pos.x, (int)e.data.pos.y, l.Radius(), l.Strength(), l.Colour());
-                        }
-                    }
+            OnEachLoadedEntity(e => {
+                ILight l = e as ILight;
+                if (l != null) {
+                    LightingManager.RemoveLight((int)e.data.pos.x, (int)e.data.pos.y, l.Radius(), l.Strength(), l.Colour());
                 }
-            }
+            });
             GameTime.EntityUpdatesTimer.Pause();
         }
 
         public static void Render() {
-            if (Player.Instance == null) return;
             GameTime.EntityRenderTimer.Start();
-            GL.UseProgram(Shader.ID);
-
-            int minx, maxx, miny, maxy;
-            Terrain.Range(out minx, out maxx, out miny, out maxy);
-            int mingx = (int)Math.Floor((float)minx / GridX);
-            int mingy = (int)Math.Floor((float)miny / GridY);
-            int maxgx = (int)Math.Ceiling((float)maxx / GridX);
-            int maxgy = (int)Math.Ceiling((float)maxy / GridY);
-            mingx = MathUtil.Clamp(mingx, 0, EntityGrid.GetLength(0) - 1);
-            mingy = MathUtil.Clamp(mingy, 0, EntityGrid.GetLength(1) - 1);
-            maxgx = MathUtil.Clamp(maxgx, 0, EntityGrid.GetLength(0) - 1);
-            maxgy = MathUtil.Clamp(maxgy, 0, EntityGrid.GetLength(1) - 1);
-
+            //categorising entities based on their ID so that the models for the same entity type are only loaded once
             Dictionary<EntityID, HashSet<Entity>> EntitiesMap = new Dictionary<EntityID, HashSet<Entity>>();
-            for (int i = mingx; i <= maxgx; i++) {
-                for (int j = mingy; j <= maxgy; j++) {
-                    HashSet<Entity> set = EntityGrid[i, j];
-                    foreach (Entity e in set) {
-                        HashSet<Entity> setbatch;
-                        if (EntitiesMap.TryGetValue(e.entityId, out setbatch)) {
-                            setbatch.Add(e);
-                        } else {
-                            setbatch = new HashSet<Entity>();
-                            setbatch.Add(e);
-                            EntitiesMap.Add(e.entityId, setbatch);
-                        }
-                    }
+            OnEachLoadedEntity(e => {
+                HashSet<Entity> setbatch;
+                if (EntitiesMap.TryGetValue(e.entityId, out setbatch)) {
+                    setbatch.Add(e);
+                } else {
+                    setbatch = new HashSet<Entity>();
+                    setbatch.Add(e);
+                    EntitiesMap.Add(e.entityId, setbatch);
                 }
-            }
+            });
 
-            LoadedEntities = 0;
-
+            GL.UseProgram(Shader.ID);
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GL.BindTexture(Assets.Textures.EntityTexture.TextureTarget, Assets.Textures.EntityTexture.TextureID);
+            LoadedEntities = 0;
             foreach (EntityID entityId in EntitiesMap.Keys) {
                 EntityModel model = Assets.Models.GetModel(entityId);
                 GL.BindVertexArray(model.VAO.ID);
-
-
                 foreach (Entity e in EntitiesMap[entityId]) {
                     LoadedEntities++;
                     Shader.SetUniform4m("modelMatrix", e.ModelMatrix());
                     if (e.data.recentDmg > 0) {
                         float offsetval = 1 - e.data.recentDmg / EntityData.maxRecentDmgTime;
-                        offsetval /= 2;
-                        Vector4 colouroffset = Vector4.Multiply(TextureUtil.ToVec4(Color.DarkGoldenrod), new Vector4(offsetval, offsetval, offsetval, 1));
-                        colouroffset += e.data.colour;
+                        Vector4 colouroffset = Vector4.Multiply(Color4.DarkGoldenrod.ToVec4(), new Vector4(offsetval, offsetval, offsetval, 1));
+                        colouroffset = Vector4.Multiply(colouroffset, e.data.colour);
                         Shader.SetUniform4f("clr", colouroffset);
                     } else {
                         Shader.SetUniform4f("clr", e.data.colour);
                     }
-
                     GL.DrawElements(model.Drawmode, model.VAO.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
                 }
-
-
             }
 
+            var outline = Assets.Models.GetModel(EntityID.BlackOutline);
             if (GameLogic.RenderHitboxes) {
-                var model = Assets.Models.GetModel(EntityID.BlackOutline);
-                GL.BindVertexArray(model.VAO.ID);
+                GL.BindVertexArray(outline.VAO.ID);
                 foreach (EntityID entityId in EntitiesMap.Keys) {
                     foreach (Entity e in EntitiesMap[entityId]) {
                         var h = e.hitbox;
-                        Shader.SetUniform4m("modelMatrix", MathUtil.ModelMatrix(h.Size, 0, h.Position));
-                        GL.DrawElements(model.Drawmode, model.VAO.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+                        Shader.SetUniform4m("modelMatrix", MathUtil.CalculateModelMatrix(h.Size, 0, h.Position));
+                        GL.DrawElements(outline.Drawmode, outline.VAO.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
                     }
                 }
+                GL.BindVertexArray(0);
+            }
+
+            //terrain selection
+            if (Player.Instance.SelectedTile!=null) {
+                GL.BindVertexArray(outline.VAO.ID);
+                Shader.SetUniform4m("modelMatrix", MathUtil.CalculateModelMatrix(Vector2.One, 0, ((Vector2i)Player.Instance.SelectedTile).ToVector2()));
+                GL.DrawElements(outline.Drawmode, outline.VAO.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
                 GL.BindVertexArray(0);
             }
 
@@ -327,12 +280,6 @@ namespace Game.Entities {
                 }
             }
             AddEntity(Player.Instance);
-        }
-
-        public static void CleanUp() {
-            GL.DeleteShader(Shader.FragID);
-            GL.DeleteShader(Shader.VertID);
-            GL.DeleteProgram(Shader.ID);
         }
 
         #endregion

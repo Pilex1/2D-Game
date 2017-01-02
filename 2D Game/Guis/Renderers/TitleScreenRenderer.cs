@@ -12,8 +12,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Game.Main.GLConstructs;
 using Pencil.Gaming;
+using Game.TitleScreen;
 
-namespace Game.TitleScreen {
+namespace Game.Guis.Renderers {
     static class TitleScreenRenderer {
 
         #region Fields

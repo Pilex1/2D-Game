@@ -13,7 +13,7 @@ namespace Game {
 
         private int projlife;
 
-        public Shooter(Vector2 position, int shootCooldown, int projlife) : base(EntityID.Shooter, position) {
+        public Shooter(Vector2 position, int shootCooldown, int projlife) : base(EntityID.Shooter, position, new Vector2(1, 2)) {
             data.speed = 0;
             data.jumppower = 0;
             data.life = new BoundedFloat(50, 0, 50);
@@ -36,7 +36,7 @@ namespace Game {
             Vector2 vel = Player.ToPlayer(data.pos.val);
             vel.x += MathUtil.RandFloat(Program.Rand, -0.1, 0.1);
             vel /= 5;
-            Projectile proj = new Projectile(data.pos.val, vel, projlife);
+            ShooterProjectile proj = new ShooterProjectile(data.pos.val, vel, projlife);
 
             if (!proj.Colliding()) EntityManager.AddEntity(proj);
         }

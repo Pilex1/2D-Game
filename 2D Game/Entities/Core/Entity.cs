@@ -12,23 +12,25 @@ namespace Game.Entities {
     [Serializable]
     abstract class Entity {
 
-        public EntityID entityId;
-        public Hitbox hitbox { get; protected set; }
-        public EntityData data = new EntityData { };
+        public EntityID entityId { get; private set; }
+        public Hitbox hitbox { get; private set; }
+        public EntityData data { get; private set; }
 
         #region Initialisation
-        protected Entity(EntityID entityId, Hitbox hitbox, EntityData data) {
+        protected Entity(EntityID entityId, EntityData data) {
             this.data = data;
             this.entityId = entityId;
-            this.hitbox = hitbox;
-            this.hitbox.Position = data.pos;
-            this.hitbox.Size.x -= MathUtil.Epsilon;
-            this.hitbox.Size.y -= MathUtil.Epsilon;
+            CalculateHitbox();
         }
-        protected Entity(EntityID entityId, Hitbox hitbox, Vector2 position) : this(entityId, hitbox, new EntityData()) {
+        protected Entity(EntityID entityId, Vector2 position, Vector2 size) : this(entityId, new EntityData()) {
             data.pos.val = position;
+            data.size = size;
+            CalculateHitbox();
         }
-        protected Entity(EntityID entityId, Vector2 position) : this(entityId, new RectangularHitbox(position, Assets.Models.GetModel(entityId).Size), position) { }
+
+        private void CalculateHitbox() {
+            hitbox = new RectangularHitbox(data.pos.val, data.size - MathUtil.Epsilon * Vector2.One);
+        }
 
         #endregion
 
@@ -52,7 +54,7 @@ namespace Game.Entities {
             data.vel.x += data.speed * GameTime.DeltaTime;
         }
         public void Jump() {
-            var col = Array.FindAll(CalcTerrainCollision(), t => t.Item2.tileattribs is FluidAttribs);
+            var col = Array.FindAll(GetTerrainCollisions(), t => t.Item2.tileattribs is FluidAttribs);
             float mvt = 0;
             if (col.Length > 0) {
                 mvt = col.Average(t => ((FluidAttribs)t.Item2.tileattribs).mvtFactor);
@@ -169,7 +171,7 @@ namespace Game.Entities {
             data.vel.y -= data.grav * GameTime.DeltaTime;
             data.vel.x *= (float)Math.Pow(data.airResis, GameTime.DeltaTime);
 
-            if (Array.Exists(CalcTerrainCollision(), t => t.Item2.tileattribs is FluidAttribs)) {
+            if (Array.Exists(GetTerrainCollisions(), t => t.Item2.tileattribs is FluidAttribs)) {
                 data.mvtState = MovementState.Fluid;
             }
 
@@ -199,7 +201,7 @@ namespace Game.Entities {
             return Terrain.CalcCollision(this).Length != 0;
         }
 
-        public Tuple<Vector2i, Tile>[] CalcTerrainCollision() {
+        public Tuple<Vector2i, Tile>[] GetTerrainCollisions() {
             return Terrain.CalcCollision(this);
         }
 
@@ -259,38 +261,91 @@ namespace Game.Entities {
             data.life.Fill();
         }
 
+        /// <summary>
+        /// Reduces life by the specified amount with no physical indication
+        /// </summary>
+        /// <param name="dmg"></param>
         public void DamageNatural(float dmg) {
             if (data.invulnerable) return;
             data.life.val -= dmg;
         }
 
+        /// <summary>
+        /// Reduces life by the specified amount and adds a physical indication
+        /// </summary>
+        /// <param name="dmg"></param>
         public void Damage(float dmg) {
             DamageNatural(dmg);
             if (data.invulnerable) return;
             data.recentDmg = EntityData.maxRecentDmgTime;
         }
 
+        /// <summary>
+        /// Heals life by specified amount up to the maximum life
+        /// </summary>
+        /// <param name="dmg"></param>
         public void Heal(float dmg) {
             data.life.val += dmg;
         }
 
+        /// <summary>
+        /// Sets the maximum life to the specified value and heals fully
+        /// </summary>
+        /// <param name="life"></param>
+        public void SetMaxLifeFull(float life) {
+            data.life = new BoundedFloat(life, 0, life);
+        }
+
+        /// <summary>
+        /// Decreases maximum life by specified value and updates current health if required
+        /// </summary>
+        /// <param name="decr"></param>
         public void DecrMaxLife(float decr) {
             data.life.max -= decr;
             if (data.life.max < 0) data.life.max = 0;
             data.life.val += 0;
         }
 
+        /// <summary>
+        /// Increases maximum life by specified value
+        /// </summary>
+        /// <param name="incr"></param>
         public void IncrMaxLife(float incr) {
             data.life.max += incr;
         }
 
         #endregion
 
-        public virtual Matrix ModelMatrix() { return MathUtil.ModelMatrix(Assets.Models.GetModel(entityId).Size, data.rot, data.pos); }
+        public Matrix ModelMatrix() => MathUtil.CalculateModelMatrix(data.size, data.rot, data.pos);
+
+        /// <summary>
+        /// Called when the entity is being deserialized to add any cooldown timers to the CooldownTimer class
+        /// </summary>
         public virtual void InitTimers() { }
+
+        /// <summary>
+        /// Executed every frame.
+        /// Don't forget to call UpdatePosition() if required
+        /// </summary>
         public abstract void Update();
-        public virtual void UpdateHitbox() { hitbox.Position = data.pos; }
+
+        /// <summary>
+        /// Executed every frame to update the entity's hitbox. By default, the hitbox position is set to the entity's position as defined by its entity data.
+        /// </summary>
+        public virtual void UpdateHitbox() => hitbox.Position = data.pos;
+
+        /// <summary>
+        /// Executed when the entity collides with terrain
+        /// </summary>
+        /// <param name="x">The x coordinate of the terrain collision</param>
+        /// <param name="y">The y coordinate of the terrain collision</param>
+        /// <param name="d">The direction in which the entity collided on</param>
+        /// <param name="t">The tile in which the entity collided with</param>
         public virtual void OnTerrainCollision(int x, int y, Direction d, Tile t) { }
-        public virtual void OnDeath() { EntityManager.RemoveEntity(this); }
+
+        /// <summary>
+        /// Executed on entity's death. By default, the entity is removed.
+        /// </summary>
+        public virtual void OnDeath() => EntityManager.RemoveEntity(this);
     }
 }

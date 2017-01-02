@@ -1,6 +1,7 @@
 ﻿using Game.Core;
 using Game.Guis;
 using Game.Main.GLConstructs;
+using Game.Util;
 using Pencil.Gaming.Graphics;
 using Pencil.Gaming.MathUtils;
 using System;
@@ -103,8 +104,10 @@ namespace Game.Fonts {
                     int textwidth = TextWidth(word);
 
                     //if it will overflow
-                    if (xptr + textwidth > style.maxwidth) {
+                    if (xptr + textwidth > style.maxwidth && k + 1 < style.maxlines) {
+
                         //new line
+
                         if (xptr > actualmaxwidth) {
                             actualmaxwidth = xptr;
                         }
@@ -118,7 +121,7 @@ namespace Game.Fonts {
                         CharacterInfo info = null;
                         if (style.font.charSet.ContainsKey(c)) {
                             info = style.font.charSet[c];
-                        }else {
+                        } else {
                             info = style.font.charSet[' '];
                         }
 
@@ -147,8 +150,9 @@ namespace Game.Fonts {
                 line++;
             }
 
-
-
+            //something wrong here with aligning to the bottom
+            // float f = 1.85f;
+            float f = 1f;
 
             if (line == 0)
                 actualmaxwidth = xptr;
@@ -173,13 +177,13 @@ namespace Game.Fonts {
                     pos = new Vector2(relpos.x - actualmaxwidth * size, relpos.y);
                     break;
                 case TextAlignment.BottomLeft:
-                    pos = new Vector2(relpos.x, relpos.y + style.font.lineHeight * size);
+                    pos = new Vector2(relpos.x, relpos.y + style.font.lineHeight * f * line * size);
                     break;
                 case TextAlignment.Bottom:
-                    pos = new Vector2(relpos.x - actualmaxwidth / 2 * size, relpos.y + style.font.lineHeight * size);
+                    pos = new Vector2(relpos.x - actualmaxwidth / 2 * size, relpos.y + style.font.lineHeight * f * line * size);
                     break;
                 case TextAlignment.BottomRight:
-                    pos = new Vector2(relpos.x - actualmaxwidth * size, relpos.y + style.font.lineHeight * size);
+                    pos = new Vector2(relpos.x - actualmaxwidth * size, relpos.y + style.font.lineHeight * f * line * size);
                     break;
             }
 
@@ -201,6 +205,7 @@ namespace Game.Fonts {
             }
 
         }
+
 
         private void UpdateModel() {
             Vector2[] vertices;
@@ -232,6 +237,18 @@ namespace Game.Fonts {
 
         public void InsertCharacter(int index, char c) {
             sb_text.Insert(index, c);
+            UpdateModel();
+        }
+
+        public void Append(string s) {
+            if (s == "") return;
+            sb_text.Append(s);
+            UpdateModel();
+        }
+
+        public void AppendLine(string s) {
+            if (s == "") return;
+            sb_text.AppendLine(s);
             UpdateModel();
         }
 

@@ -12,7 +12,7 @@ namespace Game.Terrains.Logics {
             Instance = new LogicManager();
         }
 
-        public override void Update() {
+        protected override void OnUpdate() {
             if (!cooldown.Ready()) return;
             cooldown.Reset();
 

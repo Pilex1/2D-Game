@@ -9,13 +9,13 @@ namespace Game.Entities {
 
         public Entity CapturedEntity { get; private set; }
 
-        public EntityCage(Vector2 position) : base(EntityID.EntityCage, position) {
+        public EntityCage(Vector2 position) : base(EntityID.EntityCage, position, new Vector2(1, 2)) {
             data.invulnerable = true;
         }
 
         public override void Update() {
             if (CapturedEntity == null) {
-                var entities = EntityManager.GetEntitiesAt(data.pos, new Vector2(1, 2), e => !(e is EntityCage || e is Player || e is Projectile));
+                var entities = EntityManager.GetEntitiesAt(data.pos, new Vector2(1, 2), e => !(e is EntityCage || e is Player || e is ShooterProjectile));
                 if (entities.Length == 0) return;
                 CapturedEntity = entities[0];
             } else {

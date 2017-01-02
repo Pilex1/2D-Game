@@ -50,7 +50,13 @@ namespace Game.Terrains.Core {
             Clear();
         }
 
-        public abstract void Update();
+        public void Update() {
+            if (!cooldown.Ready()) return;
+            OnUpdate();
+            cooldown.Reset();
+        }
+
+        protected abstract void OnUpdate();
 
     }
 }

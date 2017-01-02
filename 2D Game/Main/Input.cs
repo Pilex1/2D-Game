@@ -1,5 +1,4 @@
-﻿using System;
-using Game.Util;
+﻿using Game.Util;
 using Pencil.Gaming;
 using Pencil.Gaming.MathUtils;
 using System.Collections.Generic;
@@ -10,8 +9,9 @@ namespace Game.Core {
         #region Fields
         public const int MaxKey = 511;
         private static bool[] Keys;
-        public static bool[] KeysTyped { get; private set; }
-        private static CooldownTimer[] KeysTypedCooldown;
+        private static bool backspace;
+        //public static bool Backspace => (backspacefirst && backspace) ? true : backspace &&BackspaceCooldown.Ready();
+        private static CooldownTimer BackspaceCooldown;
         public static Queue<char> CharsTyped;
         private static bool[] Mouse;
         public static int MouseX { get; private set; }
@@ -27,12 +27,8 @@ namespace Game.Core {
         #region Init
         public static void Init() {
             Keys = new bool[MaxKey];
-            KeysTyped = new bool[MaxKey];
-            KeysTypedCooldown = new CooldownTimer[MaxKey];
+            BackspaceCooldown = new CooldownTimer(20);
             CharsTyped = new Queue<char>();
-            for (int i = 0; i < KeysTypedCooldown.Length; i++) {
-                KeysTypedCooldown[i] = new CooldownTimer(3);
-            }
             Mouse = new bool[8];
 
             Glfw.SetKeyCallback(Program.window, KeyCallback);
@@ -60,10 +56,14 @@ namespace Game.Core {
         }
 
         private static void KeyCallback(GlfwWindowPtr wnd, Key key, int scanCode, KeyAction action, KeyModifiers mods) {
+            if (key < 0) return;
             if (action == KeyAction.Press) {
                 Keys[(int)key] = true;
-                KeysTyped[(int)key] = true;
-                KeysTypedCooldown[(int)key].Reset();
+                if (key == Key.Backspace) {
+                    CharsTyped.Enqueue('\b');
+                    backspace = true;
+                    BackspaceCooldown.Reset();
+                }
                 int i = (int)mods;
                 if (i >= 8) {
                     Mod_Super = true;
@@ -84,6 +84,10 @@ namespace Game.Core {
             } else if (action == KeyAction.Release) {
                 Keys[(int)key] = false;
                 int i = (int)mods;
+                if (key == Key.Backspace) {
+                    backspace = false;
+                    BackspaceCooldown.Reset();
+                }
                 if (i >= 8) {
                     Mod_Super = false;
                     i -= 8;
@@ -116,9 +120,8 @@ namespace Game.Core {
         #region Update
         public static void Update() {
             MouseScroll = 0;
-            for (int i = 0; i < KeysTyped.Length; i++) {
-                if (KeysTypedCooldown[i].Ready())
-                    KeysTyped[i] = false;
+            if (backspace && BackspaceCooldown.Ready()) {
+                CharsTyped.Enqueue('\b');
             }
             Mod_Shift = Mod_Ctrl = Mod_Alt = Mod_Super = false;
         }
@@ -131,17 +134,6 @@ namespace Game.Core {
 
         public static bool KeyDown(Key k) {
             return Keys[(int)k];
-        }
-
-        public static bool KeyTyped(char c) {
-            if (char.IsUpper(c)) {
-                char lower = char.ToLower(c);
-                if (lower >= KeysTyped.Length) return false;
-                return Mod_Shift && KeysTyped[lower];
-            } else {
-                if (c >= KeysTyped.Length) return false;
-                return !Mod_Shift && KeysTyped[c];
-            }
         }
 
         public static Vector2 RayCast() {

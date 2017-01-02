@@ -214,7 +214,7 @@ namespace Game.Util {
             return new Vector2((float)Math.Cos(theta), (float)Math.Sin(theta));
         }
 
-        public static Matrix ModelMatrix(Vector2 scale, float rotation, Vector2 translation) {
+        public static Matrix CalculateModelMatrix(Vector2 scale, float rotation, Vector2 translation) {
             return ModelMatrix(new Vector3(scale.x, scale.y, 0), new Vector3(0, 0, rotation), new Vector3(translation.x, translation.y, 0));
         }
 

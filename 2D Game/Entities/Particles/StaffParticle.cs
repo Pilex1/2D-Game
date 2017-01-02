@@ -11,7 +11,7 @@ namespace Game.Entities.Particles {
     [Serializable]
     abstract class StaffParticle : Particle {
         public StaffParticle(EntityID model, Vector2 pos, Vector2 vel)
-            : base(model, pos) {
+            : base(model, pos, 0.5f * Vector2.One) {
             data.vel.val = vel;
             deltaRot = 0.01f;
         }

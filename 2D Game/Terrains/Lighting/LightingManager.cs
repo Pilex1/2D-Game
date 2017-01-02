@@ -1,7 +1,7 @@
-﻿using Game.Util;
-using System.Collections.Generic;
+﻿using Game.Terrains.Terrain_Generation;
+using Game.Util;
 using Pencil.Gaming.MathUtils;
-using Game.Terrains.Terrain_Generation;
+using System.Collections.Generic;
 
 namespace Game.Terrains.Lighting {
 
@@ -102,15 +102,17 @@ namespace Game.Terrains.Lighting {
             }
         }
 
+        public static void AddLight(int x, int y, ILight light) => AddLight(x, y, light.Radius(), light.Strength(), light.Colour());
         public static void AddLight(int x, int y, int radius, float strength, Vector3 colour) {
             radius = MathUtil.Clamp(radius, 0, MaxLightRadius);
-            for (int i = -(radius-1); i <= (radius - 1); i++) {
+            for (int i = -(radius - 1); i <= (radius - 1); i++) {
                 for (int j = -(radius - 1); j <= (radius - 1); j++) {
                     AddLighting(x + i, y + j, strength * LightingRegion.Regions[radius].GetLighting(i, j) * colour);
                 }
             }
         }
 
+        public static void RemoveLight(int x, int y, ILight light) => RemoveLight(x, y, light.Radius(), light.Strength(), light.Colour());
         public static void RemoveLight(int x, int y, int radius, float strength, Vector3 colour) {
             AddLight(x, y, radius, -strength, colour);
         }
@@ -165,7 +167,7 @@ namespace Game.Terrains.Lighting {
         //origin at bottom left
         private static Vector3 AverageAroundSquare(int i, int j) {
             if (i < 0 || i >= Lightings.GetLength(0) || j < 0 || j >= Lightings.GetLength(1)) return Vector3.Zero;
-            if (AveragedAroundSquare_Cache[i,j] != null) {
+            if (AveragedAroundSquare_Cache[i, j] != null) {
                 return (Vector3)AveragedAroundSquare_Cache[i, j];
             }
             Vector3 avg = (GetLighting(i, j) + GetLighting(i + 1, j) + GetLighting(i, j + 1) + GetLighting(i + 1, j + 1)) / 4;

@@ -8,7 +8,7 @@ namespace Game.Entities.Particles {
     [Serializable]
     class FireworkParticle : Particle, ILight {
 
-        public FireworkParticle(Vector2 pos, Vector2 vel, float life, Vector4 colour) : base(EntityID.WhiteFill, pos) {
+        public FireworkParticle(Vector2 pos, Vector2 vel, float life, Vector4 colour) : base(EntityID.WhiteFill, pos, new Vector2(0.4f, 0.4f)) {
             data.airResis = 0.995f;
             data.grav = 0.01f;
             data.vel.val = vel;
@@ -30,7 +30,7 @@ namespace Game.Entities.Particles {
 
         private int freq;
 
-        public FireworkLauncher(Vector2 pos, Vector4 colour, int freq) : base(EntityID.WhiteFill, pos) {
+        public FireworkLauncher(Vector2 pos, Vector4 colour, int freq) : base(EntityID.WhiteFill, pos, new Vector2(0.4f, 0.4f)) {
             data.vel.val = new Vector2(0, 0.5f);
             data.grav = 0;
             data.airResis = 1;

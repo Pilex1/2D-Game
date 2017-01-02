@@ -3,7 +3,6 @@ using Game.Entities;
 using Game.Terrains;
 using Game.Core;
 using Game.Util;
-using Game.Interaction;
 using System.Text;
 using Game.Core.world_Serialization;
 using Game.Items;
@@ -17,6 +16,8 @@ using System.Threading;
 using System;
 using System.Diagnostics;
 using Pencil.Gaming;
+using Game.Guis.Renderers;
+using Game.Entities.Particles;
 
 namespace Game {
 
@@ -50,6 +51,7 @@ namespace Game {
 
             FluidManager.Init();
             LogicManager.Init();
+            TerrainParticlesManager.Init();
         }
 
 
@@ -69,7 +71,7 @@ namespace Game {
             #region Entities
 
             EntityManager.Init();
-            Player.CreateNew();
+            Player.CreateNewPlayer();
             EntityManager.AddEntity(Player.Instance);
             Player.Instance.CorrectTerrainCollision();
             PlayerInventory.Init();
@@ -77,12 +79,16 @@ namespace Game {
 
             for (int i = 0; i <= 300; i++) {
                 Shooter s = new Shooter(new Vector2(MathUtil.RandFloat(Program.Rand, 0, TerrainGen.SizeX - 1), 0), 100, 250);
-                EntityManager.AddEntity(s);
-                s.CorrectTerrainCollision();
-
+                if (EntityManager.GetEntitiesAt(s.data.pos).Length == 0) {
+                    EntityManager.AddEntity(s);
+                    s.CorrectTerrainCollision();
+                }
+               
                 Squisher sq = new Squisher(new Vector2(MathUtil.RandFloat(Program.Rand, 0, TerrainGen.SizeX - 1), 0));
-                EntityManager.AddEntity(sq);
-                sq.CorrectTerrainCollision();
+                if (EntityManager.GetEntitiesAt(sq.data.pos).Length == 0) {
+                    EntityManager.AddEntity(sq);
+                    sq.CorrectTerrainCollision();
+                }
             }
 
             #endregion
@@ -200,8 +206,6 @@ namespace Game {
                         State = GameState.Text;
                     } else if (State == GameState.Text) {
                         GameGuiRenderer.TxtInput.Execute();
-                        GameGuiRenderer.TxtInput.disabled = true;
-                        State = GameState.Normal;
                     }
                     StateChanged_Enter = true;
                 }
@@ -263,7 +267,7 @@ namespace Game {
             sb.AppendLine("Terrain Rendering: " + StringUtil.TruncateTo(GameTime.TerrainTimer.ElaspedTime, 4) + " ms");
             sb.AppendLine("Lighting Calculations: " + StringUtil.TruncateTo(GameTime.LightingsTimer.ElaspedTime, 4) + " ms");
             sb.AppendLine("Entity Updates: " + StringUtil.TruncateTo(GameTime.EntityUpdatesTimer.ElaspedTime, 4) + " ms");
-            sb.AppendLine("Entity Rendering: " + StringUtil.TruncateTo(GameTime.EntityUpdatesTimer.ElaspedTime, 4) + " ms");
+            sb.AppendLine("Entity Rendering: " + StringUtil.TruncateTo(GameTime.EntityRenderTimer.ElaspedTime, 4) + " ms");
             sb.AppendLine("Fluid Updates: " + StringUtil.TruncateTo(GameTime.FluidsTimer.ElaspedTime, 4) + " ms");
             sb.AppendLine("Logic Updates: " + StringUtil.TruncateTo(GameTime.LogicTimer.ElaspedTime, 4) + " ms");
             sb.AppendLine("GUI Updates & Rendering: " + StringUtil.TruncateTo(GameTime.GuiTimer.ElaspedTime, 4) + " ms");

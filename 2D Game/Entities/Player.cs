@@ -14,46 +14,52 @@ namespace Game.Core {
 
         public static Player Instance { get; private set; }
 
-        private Player() : base(EntityID.PlayerSimple, new Vector2(TerrainGen.SizeX / 2, 0)) {
+        public Vector2i? SelectedTile { get; private set; }
+
+        private Player() : base(EntityID.PlayerSimple, new Vector2(TerrainGen.SizeX / 2, 0), new Vector2(1, 2)) {
             data.speed = 0.10f;
             data.jumppower = 0.5f;
             data.life = new BoundedFloat(20, 0, 20);
         }
+        private Player(EntityData data) : base(EntityID.PlayerSimple, data) { }
 
-        public static void CreateNew() {
+        public static void CreateNewPlayer() {
             Instance = new Player();
         }
 
         public static void LoadPlayer(EntityData data) {
-            CreateNew();
-            Instance.data = data;
+            Instance = new Player(data);
         }
 
         public override void Update() {
 
             Heal(0.002f * GameTime.DeltaTime);
 
+
             if (!PlayerInventory.Instance.InventoryOpen) {
                 Vector2 v = Input.TerrainIntersect();
-                Vector2i vi = new Vector2i((int)v.x, (int)v.y);
+                int ix = (int)v.x;
+                int iy = (int)v.y;
+                if (Terrain.HasNeighbouringSolidTiles(ix, iy) && EntityManager.GetEntitiesAt(new Vector2(ix, iy)).Length == 0) {
+                    SelectedTile = new Vector2i((int)v.x, (int)v.y);
+                    Vector2i STile = (Vector2i)SelectedTile;
 
-                Tile tile = Terrain.TileAt(vi);
-                if (tile != null) {
-                    var lighting = LightingManager.GetLighting(vi.x, vi.y);
-                    GameLogic.AdditionalDebugText = tile.ToString() + Environment.NewLine + tile.tileattribs.ToString() + "Position: " + vi.x + ", " + vi.y + Environment.NewLine + "Lighting: Red " + StringUtil.TruncateTo(lighting.x, 4) + " Blue " + StringUtil.TruncateTo(lighting.y, 4) + " Green " + StringUtil.TruncateTo(lighting.z, 4);
+                    Tile tile = Terrain.TileAt(STile);
+                    if (tile != null) {
+                        var lighting = LightingManager.GetLighting(STile.x, STile.y);
+                        GameLogic.AdditionalDebugText = tile.ToString() + Environment.NewLine + tile.tileattribs.ToString() + "Position: " + STile.x + ", " + STile.y + Environment.NewLine + "Lighting: Red " + StringUtil.TruncateTo(lighting.x, 4) + " Blue " + StringUtil.TruncateTo(lighting.y, 4) + " Green " + StringUtil.TruncateTo(lighting.z, 4);
 
-                    if (Input.MouseDown(MouseButton.LeftButton)) {
-                        tile.tileattribs.Destroy(vi.x, vi.y, PlayerInventory.Instance);
+                        if (Input.MouseDown(MouseButton.LeftButton)) {
+                            tile.tileattribs.Destroy(STile.x, STile.y, PlayerInventory.Instance);
+                        }
+                        if (Input.MouseDown(MouseButton.RightButton)) {
+                            PlayerInventory.Instance.CurrentlySelectedItem().rawitem.attribs.Use(PlayerInventory.Instance, new Vector2i(PlayerInventory.Instance.CurSelectedSlot, 0), new Vector2(STile.x, STile.y), Input.RayCast());
+                            Terrain.TileAt(STile.x, STile.y).tileattribs.OnInteract(STile.x, STile.y);
+                        }
                     }
-                    if (Input.MouseDown(MouseButton.RightButton)) {
-                        PlayerInventory.Instance.CurrentlySelectedItem().rawitem.attribs.Use(PlayerInventory.Instance, new Vector2i(PlayerInventory.Instance.CurSelectedSlot, 0), new Vector2(vi.x, vi.y), Input.RayCast());
-                        Terrain.TileAt(vi.x, vi.y).tileattribs.OnInteract(vi.x, vi.y);
-                    }
-                    if (Input.MouseDown(MouseButton.MiddleButton)) {
-
-                    }
+                } else {
+                    SelectedTile = null;
                 }
-
             }
             if (Input.KeyDown(Key.A)) Instance.MoveLeft();
             if (Input.KeyDown(Key.D)) Instance.MoveRight();

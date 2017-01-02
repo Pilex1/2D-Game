@@ -28,8 +28,7 @@ namespace Game.Terrains.Fluids {
             }
         }
 
-
-        public override void Update() {
+        protected override void OnUpdate() {
             if (!Terrain.generating) {
                 if (!cooldown.Ready()) return;
                 cooldown.Reset();
@@ -43,7 +42,5 @@ namespace Game.Terrains.Fluids {
                 fluid.Update(f.x, f.y);
             }
         }
-
-
     }
 }

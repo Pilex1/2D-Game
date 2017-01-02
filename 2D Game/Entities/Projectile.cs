@@ -8,9 +8,9 @@ using Game.Util;
 namespace Game {
 
     [Serializable]
-    class Projectile : Entity {
+    class ShooterProjectile : Entity {
 
-        public Projectile(Vector2 position, Vector2 velocity, int maxlife) : base(EntityID.ShooterProjectile, position) {
+        public ShooterProjectile(Vector2 position, Vector2 velocity, int maxlife) : base(EntityID.ShooterProjectile, position, new Vector2(0.8f, 0.8f)) {
             data.speed = 0;
             data.jumppower = 0;
             data.life = new BoundedFloat(100, 0, 100);

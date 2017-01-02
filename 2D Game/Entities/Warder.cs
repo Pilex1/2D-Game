@@ -11,7 +11,7 @@ namespace Game.Entities {
         private const int rangex = 8;
         private const int rangey = 6;
 
-        public Warder(Vector2 pos) : base(EntityID.Warder, pos) {
+        public Warder(Vector2 pos) : base(EntityID.Warder, pos, new Vector2(1, 2)) {
             data.life = new BoundedFloat(100, 0, 100);
             tileTimer = new CooldownTimer(40);
         }

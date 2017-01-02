@@ -44,8 +44,21 @@ namespace Game.Items {
         public override void Use(Inventory inv, Vector2i invslot, Vector2 position, Vector2 direction) {
             int x = (int)position.x;
             int y = (int)position.y;
-            if (!Terrain.TileAt(x, y).tileattribs.solid && !(Terrain.TileAt(x, y).tileattribs is FluidAttribs) && EntityManager.GetEntitiesAt(position).Length == 0 && inv.RemoveItem(invslot.x, invslot.y))
-                Terrain.SetTile(x, y, tile());
+            if (CanBePlaced(position)) {
+                if (inv.RemoveItem(invslot.x, invslot.y)) {
+                    Terrain.SetTile(x, y, tile());
+                }
+            }
+        }
+
+        private bool CanBePlaced(Vector2 position) {
+            int x = (int)position.x;
+            int y = (int)position.y;
+            if (Terrain.TileAt(x, y).tileattribs.solid) return false;
+            if (Terrain.TileAt(x, y).tileattribs is FluidAttribs) return false;
+            if (EntityManager.GetEntitiesAt(position).Length > 0) return false;
+            //if (!Terrain.HasNeighbouringSolidTiles(x, y)) return false;
+            return true;
         }
     }
 

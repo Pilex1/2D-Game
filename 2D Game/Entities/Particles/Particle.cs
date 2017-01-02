@@ -17,8 +17,7 @@ namespace Game.Entities.Particles {
 
         public float deltaRot;
 
-        public Particle(EntityID model, Vector2 pos) : base(model, pos) {
-            Vector2 size = Assets.Models.GetModel(model).Size;
+        public Particle(EntityID model, Vector2 pos, Vector2 size) : base(model, pos, size) {
             data.calcTerrainCollisions = false;
             data.pos.val = pos;
             EntityManager.AddEntity(this);
