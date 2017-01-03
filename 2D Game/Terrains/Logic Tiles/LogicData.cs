@@ -200,6 +200,13 @@ namespace Game.Terrains.Logics {
             powerInDCache = powerinD.val;
         }
 
+        protected void MovePowerIn(ref BoundedFloat buffer) {
+            BoundedFloat.MoveVals(ref powerinL, ref buffer, powerinL.val);
+            BoundedFloat.MoveVals(ref powerinR, ref buffer, powerinR.val);
+            BoundedFloat.MoveVals(ref powerinU, ref buffer, powerinU.val);
+            BoundedFloat.MoveVals(ref powerinD, ref buffer, powerinD.val);
+        }
+
         protected void UpdateMultiLight(int x, int y, int newState, IMultiLight light) {
             if (newState == light.State) return;
             LightingManager.RemoveLight(x, y, light.Lights()[light.State]);

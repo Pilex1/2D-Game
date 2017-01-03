@@ -1,11 +1,17 @@
-﻿using Pencil.Gaming.MathUtils;
+﻿using Game.Entities;
+using Game.Util;
+using Pencil.Gaming.MathUtils;
 using System;
 
 namespace Game.Terrains.Fluids {
     [Serializable]
     class LavaAttribs : FlowFluidAttribs, ILight {
+
+        private float damage;
+
         public LavaAttribs(int increments = 8) : base(increments, 8, Tile.Lava) {
             mvtFactor = 0.02f;
+            damage = 0.04f;
         }
 
         protected override void UpdateFinal(int x, int y) {
@@ -20,6 +26,10 @@ namespace Game.Terrains.Fluids {
                 Terrain.BreakTile(srcx, srcy);
                 Terrain.SetTile(srcx, srcy, Tile.Obsidian);
             }
+        }
+
+        public override void OnEntityCollision(int x, int y, Direction side, Entity e) {
+            e.Damage(damage);
         }
 
         int ILight.Radius() => 12;

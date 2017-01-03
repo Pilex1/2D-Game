@@ -1,11 +1,11 @@
-﻿using System;
-using Pencil.Gaming.MathUtils;
+﻿using Game.Core;
 using Game.Terrains;
-using System.Collections.Generic;
-using Game.Core;
-using Game.Util;
-using System.Linq;
 using Game.Terrains.Fluids;
+using Game.Util;
+using Pencil.Gaming.MathUtils;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Game.Entities {
 
@@ -120,6 +120,15 @@ namespace Game.Entities {
 
             } else {
                 //collision with fluid
+
+                foreach (var tuple in futureCollision) {
+                    Vector2i pos = tuple.Item1;
+                    Tile tile = tuple.Item2;
+                    if (x >= 0)
+                        OnTerrainCollision(pos.x, pos.y, Direction.Right, tile);
+                    else
+                        OnTerrainCollision(pos.x, pos.y, Direction.Left, tile);
+                }
 
                 data.pos.val += offset;
                 data.mvtState = MovementState.Fluid;

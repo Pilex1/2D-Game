@@ -1,12 +1,12 @@
-﻿using System;
-using Pencil.Gaming.MathUtils;
-using Game.Entities;
-using Game.Terrains;
-using Game.Util;
-using Game.Terrains.Terrain_Generation;
+﻿using Game.Entities;
 using Game.Items;
+using Game.Terrains;
 using Game.Terrains.Lighting;
+using Game.Terrains.Terrain_Generation;
+using Game.Util;
 using Pencil.Gaming;
+using Pencil.Gaming.MathUtils;
+using System;
 
 namespace Game.Core {
 
@@ -14,7 +14,8 @@ namespace Game.Core {
 
         public static Player Instance { get; private set; }
 
-        public Vector2i? SelectedTile { get; private set; }
+        public Vector2i SelectedTilePos { get; private set; }
+        public bool CanPlaceTile { get; private set; }
 
         private Player() : base(EntityID.PlayerSimple, new Vector2(TerrainGen.SizeX / 2, 0), new Vector2(1, 2)) {
             data.speed = 0.10f;
@@ -40,26 +41,24 @@ namespace Game.Core {
                 Vector2 v = Input.TerrainIntersect();
                 int ix = (int)v.x;
                 int iy = (int)v.y;
-                if (Terrain.HasNeighbouringSolidTiles(ix, iy) && EntityManager.GetEntitiesAt(new Vector2(ix, iy)).Length == 0) {
-                    SelectedTile = new Vector2i((int)v.x, (int)v.y);
-                    Vector2i STile = (Vector2i)SelectedTile;
+                SelectedTilePos = new Vector2i((int)v.x, (int)v.y);
+                CanPlaceTile = Terrain.HasNeighbouringSolidTiles(SelectedTilePos) && EntityManager.GetEntitiesAt(SelectedTilePos.ToVector2()).Length == 0;
 
-                    Tile tile = Terrain.TileAt(STile);
-                    if (tile != null) {
-                        var lighting = LightingManager.GetLighting(STile.x, STile.y);
-                        GameLogic.AdditionalDebugText = tile.ToString() + Environment.NewLine + tile.tileattribs.ToString() + "Position: " + STile.x + ", " + STile.y + Environment.NewLine + "Lighting: Red " + StringUtil.TruncateTo(lighting.x, 4) + " Blue " + StringUtil.TruncateTo(lighting.y, 4) + " Green " + StringUtil.TruncateTo(lighting.z, 4);
-
-                        if (Input.MouseDown(MouseButton.LeftButton)) {
-                            tile.tileattribs.Destroy(STile.x, STile.y, PlayerInventory.Instance);
-                        }
-                        if (Input.MouseDown(MouseButton.RightButton)) {
-                            PlayerInventory.Instance.CurrentlySelectedItem().rawitem.attribs.Use(PlayerInventory.Instance, new Vector2i(PlayerInventory.Instance.CurSelectedSlot, 0), new Vector2(STile.x, STile.y), Input.RayCast());
-                            Terrain.TileAt(STile.x, STile.y).tileattribs.OnInteract(STile.x, STile.y);
-                        }
+                Tile tile = Terrain.TileAt(SelectedTilePos);
+                if (EntityManager.GetEntitiesAt(new Vector2(ix, iy)).Length == 0) {
+                   
+                    if (Input.MouseDown(MouseButton.RightButton)) {
+                        Terrain.TileAt(SelectedTilePos.x, SelectedTilePos.y).tileattribs.OnInteract(SelectedTilePos.x, SelectedTilePos.y);
+                        PlayerInventory.Instance.CurrentlySelectedItem().rawitem.attribs.Use(PlayerInventory.Instance, new Vector2i(PlayerInventory.Instance.CurSelectedSlot, 0), new Vector2(SelectedTilePos.x, SelectedTilePos.y), Input.RayCast());
                     }
-                } else {
-                    SelectedTile = null;
+                    if (Input.MouseDown(MouseButton.LeftButton)) {
+                        tile.tileattribs.Destroy(SelectedTilePos.x, SelectedTilePos.y, PlayerInventory.Instance);
+                    }
                 }
+
+                var lighting = LightingManager.GetLighting(SelectedTilePos.x, SelectedTilePos.y);
+                GameLogic.AdditionalDebugText = tile.ToString() + Environment.NewLine + tile.tileattribs.ToString() + "Position: " + SelectedTilePos.x + ", " + SelectedTilePos.y + Environment.NewLine + "Lighting: Red " + StringUtil.TruncateTo(lighting.x, 4) + " Blue " + StringUtil.TruncateTo(lighting.y, 4) + " Green " + StringUtil.TruncateTo(lighting.z, 4);
+
             }
             if (Input.KeyDown(Key.A)) Instance.MoveLeft();
             if (Input.KeyDown(Key.D)) Instance.MoveRight();

@@ -1,23 +1,22 @@
-﻿using Pencil.Gaming.MathUtils;
-using Game.Entities;
-using Game.Terrains;
-using Game.Core;
-using Game.Util;
-using System.Text;
+﻿using Game.Core;
 using Game.Core.world_Serialization;
+using Game.Entities;
+using Game.Entities.Particles;
+using Game.Guis.Renderers;
 using Game.Items;
-
-using Game.Terrains.Logics;
+using Game.Terrains;
 using Game.Terrains.Fluids;
 using Game.Terrains.Lighting;
+using Game.Terrains.Logics;
 using Game.Terrains.Terrain_Generation;
-using System.Threading.Tasks;
-using System.Threading;
+using Game.Util;
+using Pencil.Gaming;
+using Pencil.Gaming.MathUtils;
 using System;
 using System.Diagnostics;
-using Pencil.Gaming;
-using Game.Guis.Renderers;
-using Game.Entities.Particles;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Game {
 
@@ -83,7 +82,7 @@ namespace Game {
                     EntityManager.AddEntity(s);
                     s.CorrectTerrainCollision();
                 }
-               
+
                 Squisher sq = new Squisher(new Vector2(MathUtil.RandFloat(Program.Rand, 0, TerrainGen.SizeX - 1), 0));
                 if (EntityManager.GetEntitiesAt(sq.data.pos).Length == 0) {
                     EntityManager.AddEntity(sq);
@@ -204,6 +203,7 @@ namespace Game {
                     if (State == GameState.Normal) {
                         GameGuiRenderer.TxtInput.disabled = false;
                         State = GameState.Text;
+                        Input.CharsTyped.Clear();
                     } else if (State == GameState.Text) {
                         GameGuiRenderer.TxtInput.Execute();
                     }

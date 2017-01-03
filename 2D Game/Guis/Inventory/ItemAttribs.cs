@@ -57,7 +57,7 @@ namespace Game.Items {
             if (Terrain.TileAt(x, y).tileattribs.solid) return false;
             if (Terrain.TileAt(x, y).tileattribs is FluidAttribs) return false;
             if (EntityManager.GetEntitiesAt(position).Length > 0) return false;
-            //if (!Terrain.HasNeighbouringSolidTiles(x, y)) return false;
+            if (!Terrain.HasNeighbouringSolidTiles(x, y)) return false;
             return true;
         }
     }
@@ -144,7 +144,7 @@ namespace Game.Items {
 
     [Serializable]
     class Item_BlueStaff_Attribs : ItemStaffParticleAttribs {
-        public Item_BlueStaff_Attribs() : base("Staff of .Water") {
+        public Item_BlueStaff_Attribs() : base("Staff of Water") {
         }
         public override void Use(Inventory inv, Vector2i invslot, Vector2 position, Vector2 direction) {
             SParc_Water.Create(CalculatePos(), CalculateVel());

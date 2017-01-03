@@ -23,10 +23,7 @@ namespace Game.Terrains.Logics {
 
             CachePowerLevels();
 
-            BoundedFloat.MoveVals(ref powerinL, ref buffer, powerinL.val);
-            BoundedFloat.MoveVals(ref powerinR, ref buffer, powerinR.val);
-            BoundedFloat.MoveVals(ref powerinU, ref buffer, powerinU.val);
-            BoundedFloat.MoveVals(ref powerinD, ref buffer, powerinD.val);
+            MovePowerIn(ref buffer);
 
             EmptyInputs();
 

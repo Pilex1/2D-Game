@@ -13,9 +13,6 @@ namespace Game.Terrains.Logics {
         }
 
         protected override void OnUpdate() {
-            if (!cooldown.Ready()) return;
-            cooldown.Reset();
-
             var list = new List<Vector2i>(dict.Keys);
             foreach (Vector2i v in list) {
                 LogicAttribs logic;

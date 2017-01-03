@@ -1,15 +1,15 @@
-﻿using System;
-using Pencil.Gaming.Graphics;
-using System.Diagnostics;
-using Game.Util;
+﻿using Game.Assets;
 using Game.Core;
-using Game.TitleScreen;
-using Game.Assets;
-using System.Threading;
-using Pencil.Gaming;
-using Game.Main.GLConstructs;
-using Game.Guis.Renderers;
 using Game.Core.world_Serialization;
+using Game.Guis.Renderers;
+using Game.Main.GLConstructs;
+using Game.TitleScreen;
+using Game.Util;
+using Pencil.Gaming;
+using Pencil.Gaming.Graphics;
+using System;
+using System.Diagnostics;
+using System.Threading;
 
 namespace Game {
 
@@ -23,6 +23,7 @@ namespace Game {
         internal static GlfwWindowPtr window;
         internal static GlfwMonitorPtr monitor;
 
+        public static int MainThreadID { get; private set; }
         public static Random Rand = new Random();
         public static float AspectRatio => (float)Width / Height;
         public static ProgramMode Mode { get; private set; }
@@ -36,7 +37,7 @@ namespace Game {
         }
 
         private static void Init() {
-
+            MainThreadID = Thread.CurrentThread.ManagedThreadId;
             if (!Glfw.Init()) {
                 throw new Exception("Unable to initialise GLFW");
             }

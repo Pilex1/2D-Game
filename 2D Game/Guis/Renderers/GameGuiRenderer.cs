@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using Pencil.Gaming.Graphics;
-using Pencil.Gaming.MathUtils;
-using Game.TitleScreen;
+﻿using Game.Assets;
 using Game.Core;
 using Game.Fonts;
-using Game.Guis;
-using Game.Assets;
-using Game.Util;
 using Game.Items;
 using Game.Main.GLConstructs;
+using Game.TitleScreen;
+using Game.Util;
+using Pencil.Gaming.Graphics;
+using Pencil.Gaming.MathUtils;
+using System;
+using System.Collections.Generic;
 
 namespace Game.Guis.Renderers {
     static class GameGuiRenderer {
@@ -41,7 +40,7 @@ namespace Game.Guis.Renderers {
             PausedOverlay = GuiModel.CreateRectangle(new Vector2(1, 1), TextureUtil.ColourFromVec4(new Vector4(0.2f, 0.2f, 0.2f, 0.9f)));
             PausedText = new Text("Paused", new TextStyle(TextAlignment.Top, TextFont.LucidaConsole, 1.3f, 2f, 1, 1f, new Vector3(1, 1, 1)), new Vector2(0, 1));
             TxtInput = new InGameTextbox(new Vector2(0, -0.5f), new Vector2(1f, 0.03f), TextFont.LucidaConsole, 0.5f);
-            TextLog = new Text("a\r\na\r\na\r\na\r\na", new TextStyle(TextAlignment.BottomLeft,TextFont.LucidaConsole,0.35f,2,20,1f, Vector3.One), new Vector2(-1 + Textbox.TextOffset.x, -0.4f));
+            TextLog = new Text("", new TextStyle(TextAlignment.BottomLeft, TextFont.LucidaConsole, 0.35f, 2, 20, 1f, Vector3.One), new Vector2(-1 + Textbox.TextOffset.x, -0.4f));
 
             Buttons = new HashSet<Button>();
             btn_BackToTitle = new Button(new Vector2(0, -0.2f), new Vector2(0.4f, 0.04f), "Save and Quit", TextStyle.LucidaConsole_SingleLine_Small, () => {

@@ -14,7 +14,17 @@ namespace Game.Guis {
         internal Vector2 pos;
         internal Vector4 colour;
         internal bool hoveredover = false;
-        internal bool disabled = true;
+        private bool _disabled;
+        internal bool disabled {
+            get { return _disabled; }
+            set {
+                if (_disabled == value) return;
+                if (value == false) {
+                    Input.CharsTyped.Clear();
+                }
+                _disabled = value;
+            }
+        }
 
         internal GuiModel model;
         internal Text text;
@@ -34,6 +44,7 @@ namespace Game.Guis {
             model = GenModel();
             cooldown = new CooldownTimer(20);
             textcooldown = new CooldownTimer(3);
+            disabled = true;
         }
 
         protected virtual GuiModel GenModel() {

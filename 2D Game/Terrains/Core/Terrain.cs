@@ -1,17 +1,17 @@
-﻿using System;
-using Pencil.Gaming.Graphics;
-using Pencil.Gaming.MathUtils;
-using System.Collections.Generic;
-using Game.Entities;
-using Game.Assets;
-using Game.Util;
-using Game.Terrains.Logics;
+﻿using Game.Assets;
 using Game.Core;
-using Game.Terrains.Terrain_Generation;
 using Game.Core.world_Serialization;
+using Game.Entities;
+using Game.Main.GLConstructs;
 using Game.Terrains.Fluids;
 using Game.Terrains.Lighting;
-using Game.Main.GLConstructs;
+using Game.Terrains.Logics;
+using Game.Terrains.Terrain_Generation;
+using Game.Util;
+using Pencil.Gaming.Graphics;
+using Pencil.Gaming.MathUtils;
+using System;
+using System.Collections.Generic;
 
 namespace Game.Terrains {
 
@@ -22,8 +22,6 @@ namespace Game.Terrains {
         internal static Biome[] TerrainBiomes;
         private static bool[] LoadedChunks;
         private static bool[] ChunksUpdated;
-
-        public static bool generating { get; private set; }
 
         public static TerrainVAO vao;
 
@@ -55,9 +53,7 @@ namespace Game.Terrains {
         /// </summary>
         /// <param name="seed"></param>
         public static void CreateNew(int seed) {
-            generating = true;
             TerrainGen.Generate(seed);
-            generating = false;
         }
 
 
@@ -256,6 +252,14 @@ namespace Game.Terrains {
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
+        public static bool HasNeighbouringSolidTiles(Vector2i v) => HasNeighbouringSolidTiles(v.x, v.y);
+
+        /// <summary>
+        /// Returns true if any directly adjacent tiles or the tile itself is solid
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
         public static bool HasNeighbouringSolidTiles(int x, int y) {
             Tile l = TileAt(x - 1, y), r = TileAt(x + 1, y), u = TileAt(x, y + 1), d = TileAt(x, y - 1), m = TileAt(x, y);
             if (l != null && l.tileattribs.solid) return true;
@@ -366,7 +370,7 @@ namespace Game.Terrains {
 
             ChunksUpdated[GetChunkAt(x)] = true;
 
-            if (!generating) {
+            if (!TerrainGen.generating) {
                 LightingManager.AddTile(x, y);
             }
         }
@@ -385,7 +389,7 @@ namespace Game.Terrains {
 
             ChunksUpdated[GetChunkAt(x)] = true;
 
-            if (!generating) {
+            if (!TerrainGen.generating) {
                 ILight light = tile.tileattribs as ILight;
                 IMultiLight togglelight = tile.tileattribs as IMultiLight;
                 if (togglelight != null) LightingManager.RemoveLight(x, y, togglelight.Lights()[togglelight.State]);

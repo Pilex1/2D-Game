@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
-using Game.Terrains.Core;
+﻿using Game.Terrains.Core;
+using Game.Terrains.Terrain_Generation;
 using Pencil.Gaming.MathUtils;
+using System.Collections.Generic;
 
 namespace Game.Terrains.Fluids {
     class FluidManager : UpdateTileManager<FluidAttribs> {
@@ -29,10 +30,7 @@ namespace Game.Terrains.Fluids {
         }
 
         protected override void OnUpdate() {
-            if (!Terrain.generating) {
-                if (!cooldown.Ready()) return;
-                cooldown.Reset();
-            }
+            if (TerrainGen.generating) return;
 
             var list = new List<Vector2i>(dict.Keys);
             foreach (var f in list) {

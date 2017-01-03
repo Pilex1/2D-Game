@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 using Game.Main.GLConstructs;
 using Pencil.Gaming;
 using Game.TitleScreen;
+using System.Diagnostics;
+using System.Threading;
 
 namespace Game.Guis.Renderers {
     static class TitleScreenRenderer {
@@ -77,10 +79,12 @@ namespace Game.Guis.Renderers {
                     btnLaunchWorld.disabled = true;
                     btnDeleteWorld.disabled = true;
 
-                    await Task.Factory.StartNew(() => Serialization.DeleteWorld(w));
-
+                    Debug.Assert(Thread.CurrentThread.ManagedThreadId == Program.MainThreadID);
                     worlds.Remove(w);
                     btnLaunchWorld.SetText("");
+
+                    await Task.Factory.StartNew(() => Serialization.DeleteWorld(w));
+
                     btnNewWorld.disabled = false;
                 }
                 );
@@ -171,6 +175,7 @@ namespace Game.Guis.Renderers {
         #endregion
 
         public static void Reset() {
+            Input.CharsTyped.Clear();
             SwitchTo(State.Main);
             LoadWorldPickers();
             txtbx_NewWorld_Name.ClearText();

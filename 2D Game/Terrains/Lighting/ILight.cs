@@ -8,7 +8,7 @@ namespace Game.Terrains {
         Vector3 Colour();
     }
 
-    class CLight : ILight {
+    sealed class CLight : ILight {
         private int radius;
         private float strength;
         private Vector3 colour;

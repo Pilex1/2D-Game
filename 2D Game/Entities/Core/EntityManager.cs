@@ -9,7 +9,6 @@ using Pencil.Gaming.Graphics;
 using Pencil.Gaming.MathUtils;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 
 namespace Game.Entities {
     static class EntityManager {
@@ -233,14 +232,17 @@ namespace Game.Entities {
                 foreach (Entity e in EntitiesMap[entityId]) {
                     LoadedEntities++;
                     Shader.SetUniform4m("modelMatrix", e.ModelMatrix());
+                    Vector4 colour = e.data.colour;
                     if (e.data.recentDmg > 0) {
                         float offsetval = 1 - e.data.recentDmg / EntityData.maxRecentDmgTime;
-                        Vector4 colouroffset = Vector4.Multiply(Color4.DarkGoldenrod.ToVec4(), new Vector4(offsetval, offsetval, offsetval, 1));
-                        colouroffset = Vector4.Multiply(colouroffset, e.data.colour);
-                        Shader.SetUniform4f("clr", colouroffset);
-                    } else {
-                        Shader.SetUniform4f("clr", e.data.colour);
+                        Vector4 colouroffset = new Vector4(offsetval, offsetval, offsetval, 1);
+                        colour = Vector4.Multiply(colour, colouroffset);
                     }
+                    //Vector2i pos = new Vector2i((int)e.data.pos.x, (int)e.data.pos.y);
+                    //Vector4 lighting = new Vector4(LightingManager.GetLighting(pos.x, pos.y), 1);
+                    //lighting = MathUtil.ClampElementWise(lighting, 0.2f, int.MaxValue);
+                    //colour = Vector4.Multiply(colour, lighting );
+                    Shader.SetUniform4f("clr", colour);
                     GL.DrawElements(model.Drawmode, model.VAO.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
                 }
             }
@@ -259,9 +261,9 @@ namespace Game.Entities {
             }
 
             //terrain selection
-            if (Player.Instance.SelectedTile!=null) {
+            if (Player.Instance.CanPlaceTile || GameLogic.RenderDebugText) {
                 GL.BindVertexArray(outline.VAO.ID);
-                Shader.SetUniform4m("modelMatrix", MathUtil.CalculateModelMatrix(Vector2.One, 0, ((Vector2i)Player.Instance.SelectedTile).ToVector2()));
+                Shader.SetUniform4m("modelMatrix", MathUtil.CalculateModelMatrix(Vector2.One, 0, ((Vector2i)Player.Instance.SelectedTilePos).ToVector2()));
                 GL.DrawElements(outline.Drawmode, outline.VAO.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
                 GL.BindVertexArray(0);
             }

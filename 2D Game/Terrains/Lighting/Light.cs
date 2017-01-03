@@ -7,11 +7,18 @@ namespace Game.Terrains.Lightings {
     [Serializable]
     class LightAttribs : TileAttribs, ILight {
 
-        public LightAttribs() : base(() => RawItem.Light) {
+        protected int radius;
+        protected Vector3 colour;
+        protected float strength;
+
+        public LightAttribs(int radius, Vector3 colour, float strength, Func<RawItem> dropItem) : base(dropItem) {
+            this.radius = radius;
+            this.colour = colour;
+            this.strength = strength;
         }
 
-        int ILight.Radius() => 8;
-        Vector3 ILight.Colour() => new Vector3(1, 1, 1);
-        float ILight.Strength() => 1f;
+        int ILight.Radius() => radius;
+        Vector3 ILight.Colour() => colour;
+        float ILight.Strength() => strength;
     }
 }

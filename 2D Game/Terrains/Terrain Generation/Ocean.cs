@@ -36,7 +36,7 @@ namespace Game.Terrains.Terrain_Generation {
             }
 
             for (int x = posX; x < posX + size * TerrainGen.widthfactor; x++) {
-                for (int y = Terrain.HighestPoint(x) + 1; y < 64; y++) {
+                for (int y = Terrain.HighestPoint(x); y < 64; y++) {
                     Terrain.SetTile(x, y, Tile.Water(), false);
                 }
             }

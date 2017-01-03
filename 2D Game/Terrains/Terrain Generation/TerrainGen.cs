@@ -1,8 +1,7 @@
-﻿using System;
+﻿using Game.Terrains.Fluids;
 using Game.Util;
-
+using System;
 using System.Diagnostics;
-using Game.Terrains.Fluids;
 
 namespace Game.Terrains.Terrain_Generation {
 
@@ -24,8 +23,10 @@ namespace Game.Terrains.Terrain_Generation {
 
         internal static Random rand;
         internal static int seed;
+        internal static bool generating { get; private set; }
 
         internal static void Generate(int seed) {
+            generating = true;
             TerrainGen.seed = seed;
             rand = new Random(seed);
             Stopwatch watch = new Stopwatch();
@@ -55,7 +56,7 @@ namespace Game.Terrains.Terrain_Generation {
             watch.Stop();
             Console.WriteLine("Terrain generation finished in " + watch.ElapsedMilliseconds + " ms");
 
-            watch.Reset();
+            generating = false;
             watch.Start();
             Console.WriteLine("Settling " + FluidManager.Instance.GetCount() + " fluids");
 
