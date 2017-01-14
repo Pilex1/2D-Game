@@ -3,7 +3,6 @@ using Game.Core;
 using Game.Fonts;
 using Game.Guis;
 using Game.Main.GLConstructs;
-using Game.Terrains;
 using Game.Util;
 using Pencil.Gaming;
 using Pencil.Gaming.Graphics;
@@ -64,7 +63,7 @@ namespace Game.Items {
 
         private PlayerInventory(int x, int y) : base(x, y) {
             //inventory
-            Pos = new Vector2(((2 - x * SizeX) / 2),0)+InventoryPosOffset;
+            Pos = new Vector2(((2 - x * SizeX) / 2), 0) + InventoryPosOffset;
             HotbarPos = new Vector2(Pos.x, -0.98f);
             TextPosOffset = new Vector2(0.115f, 0.03f);
 
@@ -75,7 +74,7 @@ namespace Game.Items {
             ItemCountText = new Text[x, y - 1];
             for (int i = 0; i < ItemCountText.GetLength(0); i++) {
                 for (int j = 0; j < ItemCountText.GetLength(1); j++) {
-                    ItemCountText[i, j] = new Text("", textStyle, ItemCountTextOffset+new Vector2(i * SizeX, 2 * j * (SizeY - ItemTextureOffset)));
+                    ItemCountText[i, j] = new Text("", textStyle, ItemCountTextOffset + new Vector2(i * SizeX, 2 * j * (SizeY - ItemTextureOffset)));
                 }
             }
             HotbarItemCountText = new Text[x];
@@ -100,7 +99,7 @@ namespace Game.Items {
             HotbarBackground = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, SizeY), TextureUtil.CreateTexture(new Vector4(0.3f, 0.3f, 0.3f, 0.8f)));
 
             TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.6f, 1f, 1, 1f, new Vector3(1, 1, 1));
-            InvText = new Text("Inventory", style, InventoryLabelOffset+new Vector2( Pos.x, Pos.y  + 2 * y * (SizeY - 2 * ItemTextureOffset)));
+            InvText = new Text("Inventory", style, InventoryLabelOffset + new Vector2(Pos.x, Pos.y + 2 * y * (SizeY - 2 * ItemTextureOffset)));
             InvTextBackground = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, SizeY / 2), TextureUtil.CreateTexture(new Vector4(0.3f, 0.3f, 0.3f, 0.7f)));
             InvTextLine = GuiModel.CreateLine(new Vector2(x * SizeX, 0), TextureUtil.CreateTexture(new Vector4(0.05f, 0.05f, 0.1f, 0.9f)));
             var itemnamestyle = TextStyle.LucidaConsole_SingleLine_Small;
@@ -137,13 +136,12 @@ namespace Game.Items {
             Items[0, row] = new Item(RawItem.Sapling, RawItem.Sapling.attribs.stackSize);
             Items[1, row] = new Item(RawItem.GrassDeco, RawItem.GrassDeco.attribs.stackSize);
             Items[2, row] = new Item(RawItem.Bounce, RawItem.Bounce.attribs.stackSize);
-            Items[3, row] = new Item(RawItem.Accelerator, RawItem.Accelerator.attribs.stackSize);
+            Items[3, row] = new Item(RawItem.WardedTile, RawItem.WardedTile.attribs.stackSize);
             Items[4, row] = new Item(RawItem.Water, RawItem.Water.attribs.stackSize);
             Items[5, row] = new Item(RawItem.Lava, RawItem.Lava.attribs.stackSize);
             Items[6, row] = new Item(RawItem.BounceFluid, RawItem.BounceFluid.attribs.stackSize);
             Items[7, row] = new Item(RawItem.Light, RawItem.Light.attribs.stackSize);
             Items[8, row] = new Item(RawItem.LightVoid, RawItem.LightVoid.attribs.stackSize);
-            //Items[5, row] = new Item(RawItem.WardedTile, RawItem.WardedTile.attribs.stackSize);
 
             row++;
             Items[0, row] = new Item(RawItem.Brick, RawItem.Brick.attribs.stackSize);
@@ -399,8 +397,8 @@ namespace Game.Items {
             float x = Input.NDCMouseX, y = Input.NDCMouseY;
             //y -= 24f / Program.Height;
 
-            int cx = (int)(1f/SizeX * (x - Pos.x));
-            int cy = (int)(1f/SizeY / Program.AspectRatio * (y - Pos.y));
+            int cx = (int)(1f / SizeX * (x - Pos.x));
+            int cy = (int)(1f / SizeY / Program.AspectRatio * (y - Pos.y));
             if (cx < 0 || cx >= Items.GetLength(0) || cy < 0 || cy >= Items.GetLength(1) - 1 || !InventoryOpen) {
                 Selected = null;
                 return;

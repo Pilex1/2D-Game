@@ -7,29 +7,23 @@ using System;
 namespace Game.Terrains.Logics {
 
     [Serializable]
-    class LogicLampAttribs : PowerDrainData, IMultiLight {
+    class LogicLampAttribs : PowerDrain, IMultiLight {
 
         protected bool state;
 
         public LogicLampAttribs() : base(delegate () { return RawItem.LogicLamp; }) {
-            powerinL.max = powerinR.max = powerinU.max = powerinD.max = 16;
+            powerIn.SetPowerAll(new BoundedFloat(16));
             cost = 2;
             state = false;
         }
 
-        internal override void Update(int x, int y) {
-
+        protected override void UpdateMechanics(int x, int y) {
             BoundedFloat buffer = new BoundedFloat(0, 0, cost);
-
-            CachePowerLevels();
-
-            MovePowerIn(ref buffer);
-
+            CacheInputs();
+            powerIn.GivePowerAll(ref buffer);
             EmptyInputs();
-
             state = buffer.IsFull();
             UpdateMultiLight(x, y, state ? 1 : 0, this);
-
             Terrain.TileAt(x, y).enumId = state ? TileID.LogicLampOn : TileID.LogicLampOff;
         }
 

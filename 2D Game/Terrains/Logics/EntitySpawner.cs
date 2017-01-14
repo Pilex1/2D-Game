@@ -8,7 +8,7 @@ using System.Text;
 namespace Game.Terrains.Logics {
 
     [Serializable]
-    class EntitySpawnerAttribs : PowerDrainData {
+    class EntitySpawnerAttribs : PowerDrain {
 
         [NonSerialized]
         private CooldownTimer cooldown;
@@ -18,8 +18,8 @@ namespace Game.Terrains.Logics {
         public EntityCage entityCage;
 
         public EntitySpawnerAttribs() : base(delegate () { return RawItem.EntitySpawner; }) {
-            powerinL.max = powerinR.max = powerinD.max = 16;
-            powerinU.max = 0;
+            powerIn.SetPowerAll(new BoundedFloat(16));
+            powerIn.SetPower(Direction.Up, BoundedFloat.Zero);
             cost = 8;
             state = false;
         }
@@ -34,7 +34,7 @@ namespace Game.Terrains.Logics {
             entityCage = null;
         }
 
-        internal override void Update(int x, int y) {
+        protected override void UpdateMechanics(int x, int y) {
             if (entityCage == null) {
                 entityCage = new EntityCage(new Vector2(x, y + 1));
                 EntityManager.AddEntity(entityCage);
@@ -45,12 +45,10 @@ namespace Game.Terrains.Logics {
 
             BoundedFloat buffer = new BoundedFloat(0, 0, cost);
 
-            CachePowerLevels();
+            CacheInputs();
 
-            if (powerinL + powerinR + powerinD >= buffer.max) {
-                BoundedFloat.MoveVals(ref powerinL, ref buffer, powerinL);
-                BoundedFloat.MoveVals(ref powerinR, ref buffer, powerinR);
-                BoundedFloat.MoveVals(ref powerinD, ref buffer, powerinD);
+            if (powerIn.TotalPower() >= buffer.max) {
+                powerIn.GivePowerAll(ref buffer);
             }
 
             EmptyInputs();
@@ -66,12 +64,6 @@ namespace Game.Terrains.Logics {
             }
 
             Terrain.TileAt(x, y).enumId = state ? TileID.EntitySpawnerOn : TileID.EntitySpawnerOff;
-        }
-
-        public override string ToString() {
-            StringBuilder sb = new StringBuilder(base.ToString());
-            sb.AppendLine("Captured Entity: " + (entityCage.CapturedEntity == null ? "None" : entityCage.CapturedEntity.GetType().ToString()));
-            return sb.ToString();
         }
 
         private void Spawn(int x, int y) {
@@ -93,6 +85,12 @@ namespace Game.Terrains.Logics {
         private void SpawnEntity(Entity e) {
             if (e.Colliding()) return;
             EntityManager.AddEntity(e);
+        }
+
+        public override string ToString() {
+            StringBuilder sb = new StringBuilder(base.ToString());
+            sb.AppendLine("Captured Entity: " + (entityCage.CapturedEntity == null ? "None" : entityCage.CapturedEntity.GetType().ToString()));
+            return sb.ToString();
         }
     }
 }

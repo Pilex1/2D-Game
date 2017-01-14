@@ -2,6 +2,7 @@
 using Game.Entities;
 using Game.Util;
 using Game.Items;
+using Game.Core;
 
 namespace Game.Terrains {
 
@@ -11,7 +12,7 @@ namespace Game.Terrains {
         public WardedTileAttribs() : base(delegate () { return RawItem.WardedTile; }) { }
 
         public override void OnEntityCollision(int x, int y, Direction side, Entity e) {
-            if (e is ShooterProjectile || e is Shooter || e is Squisher) return;
+            if (e.GetType() != typeof(Player)) return;
             base.OnEntityCollision(x, y, side, e);
         }
     }

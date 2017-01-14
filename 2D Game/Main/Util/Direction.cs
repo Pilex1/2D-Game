@@ -30,7 +30,21 @@ namespace Game.Util {
                 return Direction.Down;
             if (angle <= Math.PI / 4 && angle >= -Math.PI / 4)
                 return Direction.Right;
-            throw new Exception();
+            throw new ArgumentException();
+        }
+
+        public static Vector2i ToVector2i(Direction d) {
+            switch (d) {
+                case Direction.Up:
+                    return new Vector2i(0, 1);
+                case Direction.Right:
+                    return new Vector2i(1, 0);
+                case Direction.Down:
+                    return new Vector2i(0, -1);
+                case Direction.Left:
+                    return new Vector2i(-1, 0);
+            }
+            throw new ArgumentException();
         }
     }
 }

@@ -60,8 +60,8 @@ namespace Game.Terrains {
         public static Tile GateOr() => new Tile(TileID.GateOr, new OrGateAttribs());
         public static Tile GateNot() => new Tile(TileID.GateNot, new NotGateAttribs());
         public static Tile WireBridge() => new Tile(TileID.WireBridgeOff, new LogicBridgeAttribs());
-        public static Tile TilePusher() => new Tile(TileID.TilePusherOff, new StickyTilePusherAttribs());
-        public static Tile TilePuller() => new Tile(TileID.TilePullerOff, new StickyTilePullerAttribs());
+        //public static Tile TilePusher() => new Tile(TileID.TilePusherOff, new StickyTilePusherAttribs());
+        //public static Tile TilePuller() => new Tile(TileID.TilePullerOff, new StickyTilePullerAttribs());
         public static Tile SingleTilePusher() => new Tile(TileID.SingleTilePusherOff, new SingleTilePusherAttribs());
         public static Tile TileBreaker() => new Tile(TileID.TileBreakerOff, new TileBreakerAttribs());
         public static Tile EntitySpawner() => new Tile(TileID.EntitySpawnerOff, new EntitySpawnerAttribs());

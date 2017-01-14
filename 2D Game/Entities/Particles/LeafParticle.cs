@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Pencil.Gaming.MathUtils;
+﻿using Pencil.Gaming.MathUtils;
 
 namespace Game.Entities.Particles {
     abstract class LeafParticle : TerrainParticle {

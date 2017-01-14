@@ -32,11 +32,7 @@ namespace Game.Core {
             Instance = new Player(data);
         }
 
-        public override void Update() {
-
-            Heal(0.002f * GameTime.DeltaTime);
-
-
+        private void HandleItemUsage() {
             if (!PlayerInventory.Instance.InventoryOpen) {
                 Vector2 v = Input.TerrainIntersect();
                 int ix = (int)v.x;
@@ -45,8 +41,9 @@ namespace Game.Core {
                 CanPlaceTile = Terrain.HasNeighbouringSolidTiles(SelectedTilePos) && EntityManager.GetEntitiesAt(SelectedTilePos.ToVector2()).Length == 0;
 
                 Tile tile = Terrain.TileAt(SelectedTilePos);
+                if (tile == null) return;
                 if (EntityManager.GetEntitiesAt(new Vector2(ix, iy)).Length == 0) {
-                   
+
                     if (Input.MouseDown(MouseButton.RightButton)) {
                         Terrain.TileAt(SelectedTilePos.x, SelectedTilePos.y).tileattribs.OnInteract(SelectedTilePos.x, SelectedTilePos.y);
                         PlayerInventory.Instance.CurrentlySelectedItem().rawitem.attribs.Use(PlayerInventory.Instance, new Vector2i(PlayerInventory.Instance.CurSelectedSlot, 0), new Vector2(SelectedTilePos.x, SelectedTilePos.y), Input.RayCast());
@@ -60,10 +57,20 @@ namespace Game.Core {
                 GameLogic.AdditionalDebugText = tile.ToString() + Environment.NewLine + tile.tileattribs.ToString() + "Position: " + SelectedTilePos.x + ", " + SelectedTilePos.y + Environment.NewLine + "Lighting: Red " + StringUtil.TruncateTo(lighting.x, 4) + " Blue " + StringUtil.TruncateTo(lighting.y, 4) + " Green " + StringUtil.TruncateTo(lighting.z, 4);
 
             }
+        }
+
+        private void HandleKeys() {
             if (Input.KeyDown(Key.A)) Instance.MoveLeft();
             if (Input.KeyDown(Key.D)) Instance.MoveRight();
             if (Input.KeyDown(Key.W)) Instance.Jump();
             if (Input.KeyDown(Key.S)) Instance.Fall();
+        }
+
+        public override void Update() {
+            Heal(0.002f * GameTime.DeltaTime);
+
+            HandleItemUsage();
+            HandleKeys();
 
             Instance.UpdatePosition();
         }

@@ -1,7 +1,6 @@
 ﻿using Game.Core;
 using Game.Guis;
 using Game.Main.GLConstructs;
-using Game.Util;
 using Pencil.Gaming.Graphics;
 using Pencil.Gaming.MathUtils;
 using System;
@@ -11,43 +10,6 @@ using System.Text;
 
 namespace Game.Fonts {
 
-    enum TextAlignment {
-        TopLeft, Top, TopRight, Left, Center, Right, BottomLeft, Bottom, BottomRight
-    }
-
-    struct TextStyle {
-        public TextAlignment alignment;
-        public TextFont font;
-        public float size;
-        public float maxwidth;
-        public int maxlines;
-        public float linespacing;
-        public Vector4 colour;
-
-        public TextStyle(TextAlignment alignment, TextFont font, float size, float maxwidth, int maxlines, float linespacing, Vector3 colour) : this(alignment, font, size, maxwidth, maxlines, linespacing, new Vector4(colour, 1)) { }
-        public TextStyle(TextAlignment alignment, TextFont font, float size, float maxwidth, int maxlines, float linespacing, Vector4 colour) {
-            this.alignment = alignment;
-            this.font = font;
-            this.maxwidth = maxwidth * font.fontTexture.Size.Width / size;
-            this.size = size / font.fontTexture.Size.Width;
-            this.maxlines = maxlines;
-            this.colour = colour;
-            this.linespacing = linespacing;
-        }
-
-        #region Constants
-        public static readonly TextStyle Chiller_SingleLine_Large = new TextStyle(TextAlignment.Center, TextFont.Chiller, 1f, 2f, 1, 1f, new Vector3(1, 1, 1));
-        public static readonly TextStyle Chiller_SingleLine_Small = new TextStyle(TextAlignment.Center, TextFont.Chiller, 0.6f, 2f, 1, 1f, new Vector3(1, 1, 1));
-        public static readonly TextStyle Chiller_MultiLine_Large = new TextStyle(TextAlignment.Center, TextFont.Chiller, 1f, 2f, 1 << 30, 1f, new Vector3(1, 1, 1));
-        public static readonly TextStyle Chiller_MultiLine_Small = new TextStyle(TextAlignment.Center, TextFont.Chiller, 0.6f, 2f, 1 << 30, 1f, new Vector3(1, 1, 1));
-
-        public static readonly TextStyle LucidaConsole_SingleLine_Large = new TextStyle(TextAlignment.Center, TextFont.LucidaConsole, 1f, 2f, 1, 1f, new Vector3(1, 1, 1));
-        public static readonly TextStyle LucidaConsole_SingleLine_Small = new TextStyle(TextAlignment.Center, TextFont.LucidaConsole, 0.5f, 2f, 1, 1f, new Vector3(1, 1, 1));
-        public static readonly TextStyle LucidaConsole_MultiLine_Large = new TextStyle(TextAlignment.Center, TextFont.LucidaConsole, 1f, 2f, 1 << 30, 1f, new Vector3(1, 1, 1));
-        public static readonly TextStyle LucidaConsole_MultiLine_Small = new TextStyle(TextAlignment.Center, TextFont.LucidaConsole, 0.5f, 2f, 1 << 30, 1f, new Vector3(1, 1, 1));
-        #endregion
-
-    }
 
     class Text {
         internal GuiModel model;
@@ -72,7 +34,7 @@ namespace Game.Fonts {
             Vector2[] vertices;
             int[] elements;
             Vector2[] uvs;
-            SetTextHelper(style.font.fontTexture.Size.Width, style.size, style.font.fontTexture.Size.Height, out vertices, out elements, out uvs);
+            SetTextHelper(out vertices, out elements, out uvs);
             GuiVAO vao = new GuiVAO(vertices, elements, uvs);
             model = new GuiModel(vao, style.font.fontTexture, BeginMode.Triangles, new Vector2(style.size, style.size));
         }
@@ -82,7 +44,12 @@ namespace Game.Fonts {
             UpdateModel();
         }
 
-        private void SetTextHelper(int texwidth, float size, int texheight, out Vector2[] vertices, out int[] elements, out Vector2[] uvs) {
+        private void SetTextHelper(out Vector2[] vertices, out int[] elements, out Vector2[] uvs) {
+
+            int texwidth = style.font.fontTexture.Size.Width;
+            float size = style.size;
+            int texheight = style.font.fontTexture.Size.Height;
+
             string s = sb_text.ToString();
             vertices = new Vector2[s.Length * 4];
             uvs = new Vector2[s.Length * 4];
@@ -103,11 +70,9 @@ namespace Game.Fonts {
                     string word = words[i];
                     int textwidth = TextWidth(word);
 
-                    //if it will overflow
+                    //on line overflow
                     if (xptr + textwidth > style.maxwidth && k + 1 < style.maxlines) {
-
                         //new line
-
                         if (xptr > actualmaxwidth) {
                             actualmaxwidth = xptr;
                         }
@@ -117,6 +82,7 @@ namespace Game.Fonts {
 
                     for (int j = 0; j < word.Length; j++) {
 
+                        //gets the character info of the current character if it exists in the char set, otherwise defaults to whitespace
                         char c = word[j];
                         CharacterInfo info = null;
                         if (style.font.charSet.ContainsKey(c)) {
@@ -150,40 +116,47 @@ namespace Game.Fonts {
                 line++;
             }
 
-            //something wrong here with aligning to the bottom
-            // float f = 1.85f;
-            float f = 1f;
-
             if (line == 0)
                 actualmaxwidth = xptr;
 
+
+            float left = relpos.x;
+            float h_mid = relpos.x - actualmaxwidth * size / 2;
+            float right = relpos.x - actualmaxwidth * size;
+
+            float top = relpos.y - lineheight * size;
+            float v_mid = relpos.y;
+
+            //not aligning correctly!
+            float bottom = relpos.y + 1.1f * line * lineheight * size;
+
             switch (style.alignment) {
                 case TextAlignment.TopLeft:
-                    pos = new Vector2(relpos.x, relpos.y - style.font.lineHeight * size);
+                    pos = new Vector2(left, top);
                     break;
                 case TextAlignment.Top:
-                    pos = new Vector2(relpos.x - actualmaxwidth / 2 * size, relpos.y - style.font.lineHeight * size);
+                    pos = new Vector2(h_mid, top);
                     break;
                 case TextAlignment.TopRight:
-                    pos = new Vector2(relpos.x - actualmaxwidth / 2 * size, relpos.y - style.font.lineHeight * size);
+                    pos = new Vector2(right, top);
                     break;
                 case TextAlignment.Left:
-                    pos = new Vector2(relpos.x, relpos.y);
+                    pos = new Vector2(left, v_mid);
                     break;
                 case TextAlignment.Center:
-                    pos = new Vector2(relpos.x - actualmaxwidth / 2 * size, relpos.y);
+                    pos = new Vector2(h_mid, v_mid);
                     break;
                 case TextAlignment.Right:
-                    pos = new Vector2(relpos.x - actualmaxwidth * size, relpos.y);
+                    pos = new Vector2(right, v_mid);
                     break;
                 case TextAlignment.BottomLeft:
-                    pos = new Vector2(relpos.x, relpos.y + style.font.lineHeight * f * line * size);
+                    pos = new Vector2(left, bottom);
                     break;
                 case TextAlignment.Bottom:
-                    pos = new Vector2(relpos.x - actualmaxwidth / 2 * size, relpos.y + style.font.lineHeight * f * line * size);
+                    pos = new Vector2(h_mid, bottom);
                     break;
                 case TextAlignment.BottomRight:
-                    pos = new Vector2(relpos.x - actualmaxwidth * size, relpos.y + style.font.lineHeight * f * line * size);
+                    pos = new Vector2(right, bottom);
                     break;
             }
 
@@ -211,7 +184,7 @@ namespace Game.Fonts {
             Vector2[] vertices;
             int[] elements;
             Vector2[] uvs;
-            SetTextHelper(style.font.fontTexture.Size.Width, style.size, style.font.fontTexture.Size.Height, out vertices, out elements, out uvs);
+            SetTextHelper(out vertices, out elements, out uvs);
             model.vao.UpdateAll(vertices, elements, uvs);
 
         }

@@ -48,8 +48,6 @@ namespace Game.Util {
         public float val {
             get { return _val; }
             set {
-                if (Math.Abs(value) < MathUtil.Epsilon) value = 0;
-                if (double.IsNaN(value)) value = 0;
                 if (value < min) value = min;
                 if (value > max) value = max;
                 _val = value;
@@ -62,8 +60,9 @@ namespace Game.Util {
 
         public float min, max;
 
+        public BoundedFloat(float max) : this(0, 0, max) { }
+
         public BoundedFloat(float val, float min, float max) {
-            if (Math.Abs(val) < MathUtil.Epsilon) val = 0;
             _val = val;
             this.min = min;
             this.max = max;
@@ -96,14 +95,26 @@ namespace Game.Util {
             return val / max;
         }
 
+        /// <summary>
+        /// Fills value to maximum capacity
+        /// </summary>
         public void Fill() {
             val = max;
         }
 
+        /// <summary>
+        /// EMpties value to minmum capacity
+        /// </summary>
         public void Empty() {
             val = min;
         }
 
+        /// <summary>
+        /// Moves up to val from source to the destination
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="dest"></param>
+        /// <param name="val"></param>
         public static void MoveVals(ref BoundedFloat src, ref BoundedFloat dest, float val) {
             if (val > src._val) val = src._val;
             if (dest._val + val > dest.max) val = dest.max - dest._val;
@@ -111,6 +122,13 @@ namespace Game.Util {
             dest._val += val;
             src._val -= val;
         }
+
+        /// <summary>
+        /// Moves as much values from the source to the destination
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="dest"></param>
+        public static void MoveVals(ref BoundedFloat src, ref BoundedFloat dest) => MoveVals(ref src, ref dest, src.val);
 
         public static implicit operator float(BoundedFloat f) {
             return f.val;

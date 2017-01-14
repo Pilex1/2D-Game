@@ -1,6 +1,5 @@
 ﻿using Game.Core;
 using Game.Util;
-using Pencil.Gaming.MathUtils;
 using Game.Entities;
 using Game.Main.GLConstructs;
 

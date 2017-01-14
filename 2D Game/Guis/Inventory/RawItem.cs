@@ -66,8 +66,8 @@ namespace Game.Items {
         public static readonly RawItem GateOr = new RawItem(ItemID.GateOr, new ItemAttribs_DirectionalTile("OR Gate", Tile.GateOr));
         public static readonly RawItem GateNot = new RawItem(ItemID.GateNot, new ItemAttribs_DirectionalTile("NOT Gate", Tile.GateNot));
         public static readonly RawItem WireBridge = new RawItem(ItemID.WireBridge, new ItemAttribs_Tile("Wire Bridge", Tile.WireBridge));
-        public static readonly RawItem StickyTilePusher = new RawItem(ItemID.StickyTilePusher, new ItemAttribs_DirectionalTile("Sticky Tile Pusher", Tile.TilePusher));
-        public static readonly RawItem StickyTilePuller = new RawItem(ItemID.StickyTilePuller, new ItemAttribs_DirectionalTile("Sticky Tile Puller", Tile.TilePuller));
+        //public static readonly RawItem StickyTilePusher = new RawItem(ItemID.StickyTilePusher, new ItemAttribs_DirectionalTile("Sticky Tile Pusher", Tile.TilePusher));
+        //public static readonly RawItem StickyTilePuller = new RawItem(ItemID.StickyTilePuller, new ItemAttribs_DirectionalTile("Sticky Tile Puller", Tile.TilePuller));
         public static readonly RawItem SingleTilePusher = new RawItem(ItemID.SingleTilePusher, new ItemAttribs_DirectionalTile("Single Tile Pusher", Tile.SingleTilePusher));
         public static readonly RawItem TileBreaker = new RawItem(ItemID.TileBreaker, new ItemAttribs_DirectionalTile("Tile Breaker", Tile.TileBreaker));
         public static readonly RawItem EntitySpawner = new RawItem(ItemID.EntitySpawner, new ItemAttribs_Tile("Entity Spawner", Tile.EntitySpawner));

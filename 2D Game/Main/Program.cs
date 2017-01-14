@@ -65,16 +65,16 @@ namespace Game {
             //Console.SetWindowPosition(0, 0);
             Mode = ProgramMode.None;
 
+            Serialization.CreateSaveFolder();
             AssetsManager.Init();
             Input.Init();
             Gui.Init();
             GameTime.Init();
-            Serialization.CreateSaveFolder();
             SwitchToTitleScreen();
         }
 
         private static void OnError(GlfwError code, string desc) {
-            throw new ArgumentException("OpenGL Error: " + code + " - " + desc);
+            throw new ArgumentException("GLFW Error: " + code + " - " + desc);
         }
 
 

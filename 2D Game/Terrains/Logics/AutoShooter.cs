@@ -8,7 +8,7 @@ using System;
 namespace Game.Terrains.Logics {
 
     [Serializable]
-    class AutoShooterAttribs : PowerDrainData {
+    class AutoShooterAttribs : PowerDrain {
 
         [NonSerialized]
         private CooldownTimer cooldown;
@@ -17,24 +17,21 @@ namespace Game.Terrains.Logics {
         public bool state;
 
         public AutoShooterAttribs() : base(delegate () { return RawItem.AutoShooter; }) {
-            powerinL.max = powerinR.max = powerinU.max = powerinD.max = 16;
+            powerIn.SetPowerAll(new BoundedFloat(16));
             cost = 8;
             state = false;
         }
 
-        internal override void Update(int x, int y) {
+        protected override void UpdateMechanics(int x, int y) {
 
             if (cooldown == null) cooldown = new CooldownTimer(30);
 
             BoundedFloat buffer = new BoundedFloat(0, 0, cost);
 
-            CachePowerLevels();
+            CacheInputs();
 
-            if (powerinL + powerinR + powerinD + powerinU >= buffer.max) {
-                BoundedFloat.MoveVals(ref powerinL, ref buffer, powerinL);
-                BoundedFloat.MoveVals(ref powerinR, ref buffer, powerinR);
-                BoundedFloat.MoveVals(ref powerinD, ref buffer, powerinD);
-                BoundedFloat.MoveVals(ref powerinU, ref buffer, powerinU);
+            if (powerIn.TotalPower() >= cost) {
+                powerIn.GivePowerAll(ref buffer);
             }
 
             EmptyInputs();

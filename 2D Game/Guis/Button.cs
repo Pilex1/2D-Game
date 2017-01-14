@@ -6,7 +6,7 @@ using Game.Core;
 using System.Diagnostics;
 using Pencil.Gaming;
 
-namespace Game.TitleScreen {
+namespace Game.Guis {
 
     class Button {
 
@@ -22,7 +22,6 @@ namespace Game.TitleScreen {
         public bool disabled;
 
         public Button(Vector2 pos, Vector2 size, string textstring, TextStyle style, Action OnPress) {
-            Debug.Assert(style.font.fontTexture.TextureID != 0);
             this.pos = pos;
             this.OnPress = OnPress;
             text = new Text(textstring, style, new Vector2(pos.x, pos.y + 0.02f));

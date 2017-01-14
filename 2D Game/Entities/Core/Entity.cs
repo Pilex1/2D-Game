@@ -99,7 +99,22 @@ namespace Game.Entities {
                 data.pos.val += offset;
                 data.mvtState = MovementState.Air;
 
-            } else if (Array.Exists(futureCollision, t => !(t.Item2.tileattribs is FluidAttribs))) {
+            } else if (Array.TrueForAll(futureCollision, t => t.Item2.tileattribs is FluidAttribs)) {
+
+                //collision with fluid
+
+                foreach (var tuple in futureCollision) {
+                    Vector2i pos = tuple.Item1;
+                    Tile tile = tuple.Item2;
+                    if (x >= 0)
+                        OnTerrainCollision(pos.x, pos.y, Direction.Right, tile);
+                    else
+                        OnTerrainCollision(pos.x, pos.y, Direction.Left, tile);
+                }
+
+                data.pos.val += offset;
+                data.mvtState = MovementState.Fluid;
+            } else {
                 //collision with non-fluid tiles
 
                 foreach (var tuple in futureCollision) {
@@ -117,21 +132,6 @@ namespace Game.Entities {
                         OnTerrainCollision(pos.x, pos.y, Direction.Left, tile);
                     }
                 }
-
-            } else {
-                //collision with fluid
-
-                foreach (var tuple in futureCollision) {
-                    Vector2i pos = tuple.Item1;
-                    Tile tile = tuple.Item2;
-                    if (x >= 0)
-                        OnTerrainCollision(pos.x, pos.y, Direction.Right, tile);
-                    else
-                        OnTerrainCollision(pos.x, pos.y, Direction.Left, tile);
-                }
-
-                data.pos.val += offset;
-                data.mvtState = MovementState.Fluid;
             }
         }
 
@@ -145,7 +145,23 @@ namespace Game.Entities {
                 data.pos.val += offset;
                 data.mvtState = MovementState.Air;
 
-            } else if (Array.Exists(futureCollision, t => !(t.Item2.tileattribs is FluidAttribs))) {
+            } else if (Array.TrueForAll(futureCollision, t => t.Item2.tileattribs is FluidAttribs)) {
+
+                //collision with fluid
+
+                foreach (var tuple in futureCollision) {
+                    Vector2i pos = tuple.Item1;
+                    Tile tile = tuple.Item2;
+                    if (y >= 0)
+                        OnTerrainCollision(pos.x, pos.y, Direction.Up, tile);
+                    else
+                        OnTerrainCollision(pos.x, pos.y, Direction.Down, tile);
+                }
+
+                data.pos.val += offset;
+                data.mvtState = MovementState.Fluid;
+
+            } else  {
                 //collision with non-fluid tiles
 
                 foreach (var tuple in futureCollision) {
@@ -155,21 +171,15 @@ namespace Game.Entities {
                         if (data.calcTerrainCollisions)
                             tile.tileattribs.OnEntityCollision(pos.x, pos.y, Direction.Up, this);
 
-                        OnTerrainCollision(pos.x, pos.y, Direction.Right, tile);
+                        OnTerrainCollision(pos.x, pos.y, Direction.Up, tile);
                     } else {
                         if (data.calcTerrainCollisions)
                             tile.tileattribs.OnEntityCollision(pos.x, pos.y, Direction.Down, this);
 
-                        OnTerrainCollision(pos.x, pos.y, Direction.Left, tile);
-                        data.mvtState = MovementState.Ground;
+                        OnTerrainCollision(pos.x, pos.y, Direction.Down, tile);
                     }
                 }
 
-            } else {
-                //collision with fluid
-
-                data.pos.val += offset;
-                data.mvtState = MovementState.Fluid;
             }
         }
 

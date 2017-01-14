@@ -7,37 +7,30 @@ using System.Linq;
 
 namespace Game.Terrains.Logics {
     [Serializable]
-    class SingleTilePusherAttribs : PowerDrainData {
+    class SingleTilePusherAttribs : PowerDrain {
 
         [NonSerialized]
         private CooldownTimer cooldown;
 
         private const int MaxTiles = 32;
-
         public bool state { get; private set; }
 
-        public SingleTilePusherAttribs() : base(delegate () { return RawItem.SingleTilePusher; }) {
-            powerinL.max = powerinR.max = powerinU.max = powerinD.max = 64;
+        public SingleTilePusherAttribs() : base(() => RawItem.SingleTilePusher) {
+            powerIn.SetPowerAll(new BoundedFloat(64));
             cost = 8;
         }
 
-        internal override void Update(int x, int y) {
-            if (cooldown == null)
-                cooldown = new CooldownTimer(40);
+        protected override void UpdateMechanics(int x, int y) {
+            if (cooldown == null) cooldown = new CooldownTimer(40);
 
             BoundedFloat buffer = new BoundedFloat(0, 0, cost);
+            CacheInputs();
 
-            CachePowerLevels();
-
-            if (powerinL + powerinR + powerinU + powerinD >= buffer.max) {
-                BoundedFloat.MoveVals(ref powerinL, ref buffer, powerinL);
-                BoundedFloat.MoveVals(ref powerinR, ref buffer, powerinR);
-                BoundedFloat.MoveVals(ref powerinU, ref buffer, powerinU);
-                BoundedFloat.MoveVals(ref powerinD, ref buffer, powerinD);
+            if (powerIn.TotalPower() >= buffer.max) {
+                powerIn.GivePowerAll(ref buffer);
             }
 
             EmptyInputs();
-
             if (buffer.IsFull()) {
                 state = true;
                 if (cooldown.Ready()) {
@@ -46,7 +39,6 @@ namespace Game.Terrains.Logics {
                         var list = done.ToList();
                         list.Sort(new TilePositionComparer(rotation));
                         foreach (var v in list) {
-                            //here
                             Terrain.MoveTile(v.x, v.y, rotation);
                         }
                         cooldown.Reset();

@@ -289,8 +289,6 @@ namespace Game.Terrains {
                     }
                 }
             }
-
-            var array = cols.ToArray();
             return cols.ToArray();
         }
 
