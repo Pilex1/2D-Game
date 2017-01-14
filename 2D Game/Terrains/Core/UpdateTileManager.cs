@@ -8,14 +8,11 @@ namespace Game.Terrains.Core {
         protected CooldownTimer cooldown;
         protected Dictionary<Vector2i, T> dict;
 
-        protected UpdateTileManager(float cooldowntime) {
+        protected UpdateTileManager(float cooldowntime, Dictionary<Vector2i, T> dict) {
             cooldown = new CooldownTimer(cooldowntime);
-            dict = new Dictionary<Vector2i, T>();
+            this.dict = dict;
         }
 
-        public void LoadDict(Dictionary<Vector2i, T> f) {
-            dict = f;
-        }
         public Dictionary<Vector2i, T> GetDict() {
             return dict;
         }

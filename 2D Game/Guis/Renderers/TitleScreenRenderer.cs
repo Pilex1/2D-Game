@@ -1,19 +1,19 @@
-﻿using Game.Fonts;
-using System;
-using System.Collections.Generic;
+﻿using Game.Assets;
+using Game.Core;
+using Game.Core.world_Serialization;
+using Game.Fonts;
+using Game.Main.GLConstructs;
+using Game.TitleScreen;
+using Game.Util;
+using Pencil.Gaming;
 using Pencil.Gaming.Graphics;
 using Pencil.Gaming.MathUtils;
-using Game.Core;
-using Game.Util;
-using Game.Assets;
-using Game.Core.world_Serialization;
-using System.Linq;
-using System.Threading.Tasks;
-using Game.Main.GLConstructs;
-using Pencil.Gaming;
-using Game.TitleScreen;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Game.Guis.Renderers {
     static class TitleScreenRenderer {
@@ -296,6 +296,8 @@ namespace Game.Guis.Renderers {
             }
 
             backgroundhue += GameTime.DeltaTime / 25;
+
+
 
             SetWorldPickerDisabledState(Program.worldname, GameLogic.saving);
 

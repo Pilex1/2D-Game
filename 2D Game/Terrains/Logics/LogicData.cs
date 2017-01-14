@@ -41,10 +41,10 @@ namespace Game.Terrains.Logics {
             Direction d_other = DirectionUtil.TurnClockwise(t_other.tileattribs.rotation, d_opp_cur);
 
             PowerTransmitter transmitter = t_other.tileattribs as PowerTransmitter;
-            if (transmitter != null) BoundedFloat.MoveVals(ref powerOut.power[(int)d_cur], ref transmitter.powerIn.power[(int)d_other]);
+            if (transmitter != null) powerOut.GivePower(d_cur, ref transmitter.powerIn.power[(int)d_other]);
 
             PowerDrain drain = t_other.tileattribs as PowerDrain;
-            if (drain != null) BoundedFloat.MoveVals(ref powerOut.power[(int)d_cur], ref drain.powerIn.power[(int)d_other]);
+            if (drain != null) powerOut.GivePower(d_cur, ref drain.powerIn.power[(int)d_other]);
         }
 
         protected void TransferPowerAll(int x, int y) {

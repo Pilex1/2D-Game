@@ -1,7 +1,6 @@
 ﻿using Game.Core;
 using Game.Core.world_Serialization;
 using Game.Entities;
-using Game.Entities.Particles;
 using Game.Guis.Renderers;
 using Game.Items;
 using Game.Terrains;
@@ -12,7 +11,6 @@ using Game.Terrains.Terrain_Generation;
 using Game.Util;
 using Pencil.Gaming;
 using Pencil.Gaming.MathUtils;
-using System;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
@@ -48,9 +46,8 @@ namespace Game {
             LightingOption = new Switch<LightingManager.LightingOption>(LightingManager.LightingOption.Smooth, 30);
             cancelWorldLoading = new CancellationTokenSource();
 
-            FluidManager.Init();
-            LogicManager.Init();
-            TerrainParticlesManager.Init();
+
+            //TerrainParticlesManager.Init();
         }
 
 
@@ -58,6 +55,8 @@ namespace Game {
             InitBefore();
 
             #region Terrain
+            FluidManager.Init(null);
+            LogicManager.Init(null);
 
             Terrain.Init();
 
@@ -101,9 +100,10 @@ namespace Game {
             InitBefore();
 
             #region Terrain
+            FluidManager.Init(Serialization.LoadFluids(world));
+            LogicManager.Init(Serialization.LoadLogics(world));
 
             Terrain.Init();
-
 
             #endregion
 
@@ -295,34 +295,40 @@ namespace Game {
 
 
 
-        public static async void SaveWorldAsync() {
+        public static async void SaveAndExit() {
             saving = true;
 
             //cancel world loading and wait until it finishes before saving world
             cancelWorldLoading.Cancel();
             try {
-                taskWorldLoading.Wait();
-            } catch (Exception) { } finally {
+                if (taskWorldLoading != null)
+                    taskWorldLoading.Wait();
+            } finally {
                 cancelWorldLoading.Dispose();
             }
+
+            Program.SwitchToTitleScreen();
+            Reset();
             await Task.Factory.StartNew(() => {
                 ChunkData[] chunks = Terrain.GetChunkData();
                 EntitiesData entitydata = new EntitiesData(Player.Instance.data, PlayerInventory.Instance.Items, EntityManager.GetAllEntities());
                 Serialization.SaveWorld(Program.worldname, chunks, entitydata, FluidManager.Instance.GetDict(), LogicManager.Instance.GetDict());
                 saving = false;
+                FluidManager.Instance.CleanUp();
+                LogicManager.Instance.CleanUp();
             });
+
+
         }
 
         public static void SaveWorld() {
             if (Program.Mode != ProgramMode.Game) return;
-            SaveWorldAsync();
+            SaveAndExit();
         }
 
 
         internal static void Reset() {
             if (Program.Mode != ProgramMode.Game) return;
-            FluidManager.Instance.CleanUp();
-            LogicManager.Instance.CleanUp();
             StateChanged_Enter = StateChanged_Escape = false;
             State = GameState.Normal;
             RenderHitboxes.ForceSet(false);

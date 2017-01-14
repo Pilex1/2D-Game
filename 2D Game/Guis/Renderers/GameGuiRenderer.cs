@@ -44,8 +44,7 @@ namespace Game.Guis.Renderers {
 
             Buttons = new HashSet<Button>();
             btn_BackToTitle = new Button(new Vector2(0, -0.2f), new Vector2(0.4f, 0.04f), "Save and Quit", TextStyle.LucidaConsole_SingleLine_Small, () => {
-                GameLogic.SaveWorldAsync();
-                Program.SwitchToTitleScreen();
+                GameLogic.SaveAndExit();
             });
             Buttons.Add(btn_BackToTitle);
         }

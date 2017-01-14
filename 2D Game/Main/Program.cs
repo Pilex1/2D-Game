@@ -79,13 +79,18 @@ namespace Game {
 
 
         public static void SwitchToTitleScreen() {
-            GameLogic.Reset();
             Mode = ProgramMode.TitleScreen;
             TitleScreenRenderer.Reset();
         }
 
+        private static void WaitForSaving() {
+            while (GameLogic.saving) {
+                Thread.Sleep(1);
+            }
+        }
 
         public static void LoadGame_New(string worldname, int seed) {
+            WaitForSaving();
             Mode = ProgramMode.Game;
             Program.worldname = worldname;
 
@@ -97,6 +102,7 @@ namespace Game {
         }
 
         public static void LoadGame_FromSave(string worldname) {
+            WaitForSaving();
             Mode = ProgramMode.Game;
             Program.worldname = worldname;
 

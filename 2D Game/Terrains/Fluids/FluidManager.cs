@@ -7,9 +7,13 @@ namespace Game.Terrains.Fluids {
     class FluidManager : UpdateTileManager<FluidAttribs> {
 
         public static FluidManager Instance { get; private set; }
-        private FluidManager() : base(1000f / 60) { }
-        public static void Init() {
-            Instance = new FluidManager();
+        private FluidManager(Dictionary<Vector2i, FluidAttribs> dict) : base(1000f / 60, dict) { }
+        public static void Init(Dictionary<Vector2i, FluidAttribs> dict) {
+            if (dict == null) {
+                Instance = new FluidManager(new Dictionary<Vector2i, FluidAttribs>());
+            } else {
+                Instance = new FluidManager(dict);
+            }
         }
 
         public void UpdateAround(int x, int y) {

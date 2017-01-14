@@ -7,9 +7,13 @@ namespace Game.Terrains.Logics {
     class LogicManager : UpdateTileManager<LogicAttribs> {
 
         public static LogicManager Instance { get; private set; }
-        public LogicManager() : base(1000f / 60) { }
-        public static void Init() {
-            Instance = new LogicManager();
+        private LogicManager(Dictionary<Vector2i, LogicAttribs> dict) : base(1000f / 60, dict) { }
+        public static void Init(Dictionary<Vector2i, LogicAttribs> dict) {
+            if (dict == null) {
+                Instance = new LogicManager(new Dictionary<Vector2i, LogicAttribs>());
+            } else {
+                Instance = new LogicManager(dict);
+            }
         }
 
         protected override void OnUpdate() {
