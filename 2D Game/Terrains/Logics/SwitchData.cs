@@ -32,7 +32,7 @@ namespace Game.Terrains.Logics {
             power.Fill();
             powerOut.TakePowerAll(ref power);
             CacheOutputs();
-            TransferPowerAll(x, y);
+            TransferPowerAll(x, y, ref power);
             
             Terrain.TileAt(x, y).enumId = state ? TileID.SwitchOn : TileID.SwitchOff;
         }

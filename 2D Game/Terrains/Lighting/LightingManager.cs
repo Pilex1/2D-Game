@@ -2,6 +2,7 @@
 using Game.Util;
 using Pencil.Gaming.MathUtils;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Game.Terrains.Lighting {
 
@@ -13,11 +14,12 @@ namespace Game.Terrains.Lighting {
 
         #region Fields
         internal const int MaxLightRadius = 24;
+
         internal const int SunRadius = 12;
-        internal const float SunStrength = 0.1f;
-        internal static readonly Vector3 SunColour = new Vector3(1, 0.9f, 0.95f);
+        internal static Vector3 SunColour = new Vector3(42, 1, 1);
 
         private static int[] Heights;
+        private static List<float>[,] Hues;
         private static Vector3[,] Lightings;
 
         private static Vector3?[,] AveragedAroundSquare_Cache;
@@ -83,54 +85,69 @@ namespace Game.Terrains.Lighting {
 
         public static void AddTile(int x, int y) {
             if (y > Heights[x]) {
-                RemoveLight(x, Heights[x], SunRadius, SunStrength, SunColour);
-                AddLight(x, y, SunRadius, SunStrength, SunColour);
+                RemoveLight(x, Heights[x], SunRadius, SunHue, SunStrength);
+                AddLight(x, y, SunRadius, SunHue, SunStrength);
                 Heights[x] = y;
             }
         }
 
         public static void RemoveTile(int x, int y) {
             if (y == Heights[x]) {
-                RemoveLight(x, y, SunRadius, SunStrength, SunColour);
+                RemoveLight(x, y, SunRadius, SunHue, SunStrength);
                 for (int j = y - 1; j >= 0; j--) {
                     if (Terrain.TileAt(x, j).enumId != TileID.Air) {
                         Heights[x] = j;
-                        AddLight(x, j, SunRadius, SunStrength, SunColour);
+                        AddLight(x, j, SunRadius, SunHue, SunStrength);
                         break;
                     }
                 }
             }
         }
 
-        public static void AddLight(int x, int y, ILight light) => AddLight(x, y, light.Radius(), light.Strength(), light.Colour());
-        public static void AddLight(int x, int y, int radius, float strength, Vector3 colour) {
+        public static void AddLight(int x, int y, ILight light) => AddLight(x, y, light.Radius(), light.Hue(), light.Strength());
+        public static void AddLight(int x, int y, int radius, float hue, float strength) {
             radius = MathUtil.Clamp(radius, 0, MaxLightRadius);
             for (int i = -(radius - 1); i <= (radius - 1); i++) {
                 for (int j = -(radius - 1); j <= (radius - 1); j++) {
-                    AddLighting(x + i, y + j, strength * LightingRegion.Regions[radius].GetLighting(i, j) * colour);
+                    AddLighting(x + i, y + j, hue, strength * LightingRegion.Regions[radius].GetLighting(i, j));
                 }
             }
         }
-
-        public static void RemoveLight(int x, int y, ILight light) => RemoveLight(x, y, light.Radius(), light.Strength(), light.Colour());
-        public static void RemoveLight(int x, int y, int radius, float strength, Vector3 colour) {
-            AddLight(x, y, radius, -strength, colour);
+        private static void AddLighting(int x, int y, float hue, float brightness) {
+            if (!Terrain.WithinBounds(x, y)) return;
+            Brightnesses[x, y] += brightness;
+            Hues[x, y].Add(hue);
+            AveragedHues[x, y] = Hues[x, y].Average();
         }
 
-        private static void AddLighting(int x, int y, Vector3 lighting) {
-            if (x < 0 || x >= Lightings.GetLength(0) || y < 0 || y >= Lightings.GetLength(1)) return;
-            Lightings[x, y] += lighting;
+        public static void RemoveLight(int x, int y, ILight light) => RemoveLight(x, y, light.Radius(), light.Hue(), light.Stre());
+        public static void RemoveLight(int x, int y, int radius, float hue, float strength) {
+            radius = MathUtil.Clamp(radius, 0, MaxLightRadius);
+            for (int i = -(radius - 1); i <= (radius - 1); i++) {
+                for (int j = -(radius - 1); j <= (radius - 1); j++) {
+                    AddLighting(x + i, y + j, hue, strength * LightingRegion.Regions[radius].GetLighting(i, j));
+                }
+            }
         }
+        private static void RemoveLighting(int x, int y, float hue, float brightness) {
+            if (!Terrain.WithinBounds(x, y)) return;
+            Brightnesses[x, y] -= brightness;
+            Hues[x, y].Remove(hue);
+            AveragedHues[x, y] = Hues[x, y].Average();
+        }
+
+        
 
         #endregion
 
         #region Updates
 
-        internal static Vector3[] CalcMesh() {
-            AveragedAroundSquare_Cache = new Vector3?[Lightings.GetLength(0), Lightings.GetLength(1)];
+        internal static void CalcMesh(out float[] hues, out float[] brightnesses) {
+            //AveragedAroundSquare_Cache = new Vector3?[Lightings.GetLength(0), Lightings.GetLength(1)];
             int startX, endX, startY, endY;
             Terrain.Range(out startX, out endX, out startY, out endY);
-            List<Vector3> lightingsList = new List<Vector3>();
+            var huesList = new List<float>();
+            var brightnessesList = new List<float>();
             for (int i = startX; i <= endX; i++) {
                 for (int j = startY; j <= endY; j++) {
                     Tile t = Terrain.Tiles[i, j];
@@ -138,7 +155,8 @@ namespace Game.Terrains.Lighting {
                     if (t.enumId != TileID.Air) {
                         switch (GameLogic.LightingOption.Get()) {
                             case LightingOption.None:
-                                lightingsList.AddRange(new Vector3[] { Vector3.One, Vector3.One, Vector3.One, Vector3.One });
+                                huesList.AddRange(new float[] { 0, 0, 0, 0 });
+                                brightnessesList.AddRange(new float[] { 0, 0, 0, 0 });
                                 break;
                             case LightingOption.Jagged:
                                 lightingsList.AddRange(JaggedLighting(i, j));
@@ -153,7 +171,7 @@ namespace Game.Terrains.Lighting {
                     }
                 }
             }
-            return lightingsList.ToArray();
+            
         }
 
         //top left, bottom left, bottom right, top right

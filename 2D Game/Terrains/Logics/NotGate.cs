@@ -31,7 +31,7 @@ namespace Game.Terrains.Logics {
 
             CacheOutputs();
 
-            TransferPowerAll(x, y);
+            //TransferPowerAll(x, y);
         }
     }
 }

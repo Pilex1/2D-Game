@@ -340,7 +340,11 @@ namespace Game.Terrains {
 
         #region Tile Interaction
         public static Tile TileAt(Vector2i v) { return TileAt(v.x, v.y); }
-        public static Tile TileAt(int x, int y) { return x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1) ? Tile.Invalid : Tiles[x, y]; }
+        public static Tile TileAt(int x, int y) {
+            if (x < 0 || x >= Tiles.GetLength(0) || y < 0 || y >= Tiles.GetLength(1)) return Tile.Invalid;
+            if (Tiles[x, y] == null) return Tile.Invalid;
+            return Tiles[x, y];
+        }
         public static Tile TileAt(float x, float y) { return TileAt((int)x, (int)y); }
 
         public static void SetTile(int x, int y, Tile tile, Vector2 v, bool overwrite = false) {
@@ -472,5 +476,7 @@ namespace Game.Terrains {
         }
         #endregion
 
+        public static bool WithinBounds(int x, int y) => x >= 0 && x < Tiles.GetLength(0) && y >= 0 && y < Tiles.GetLength(1);
+        public static bool WithinBounds(Vector2i v) => WithinBounds(v.x, v.y);
     }
 }

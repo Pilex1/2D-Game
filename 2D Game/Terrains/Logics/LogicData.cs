@@ -25,7 +25,7 @@ namespace Game.Terrains.Logics {
             powerInCache = new PowerCache();
         }
 
-        private void TransferPower(int x, int y, Direction d) {
+        private void TransferPower(int x, int y, Direction d, float amt) {
 
             //direction of current block with rotation taken into account
             Direction d_cur = DirectionUtil.TurnClockwise(d, rotation);
@@ -41,23 +41,29 @@ namespace Game.Terrains.Logics {
             Direction d_other = DirectionUtil.TurnClockwise(t_other.tileattribs.rotation, d_opp_cur);
 
             PowerTransmitter transmitter = t_other.tileattribs as PowerTransmitter;
-            if (transmitter != null) powerOut.GivePower(d_cur, ref transmitter.powerIn.power[(int)d_other]);
+            if (transmitter != null) powerOut.GivePower(d_cur, ref transmitter.powerIn.power[(int)d_other], amt);
 
             PowerDrain drain = t_other.tileattribs as PowerDrain;
-            if (drain != null) powerOut.GivePower(d_cur, ref drain.powerIn.power[(int)d_other]);
+            if (drain != null) powerOut.GivePower(d_cur, ref drain.powerIn.power[(int)d_other], amt);
         }
 
-        protected void TransferPowerAll(int x, int y) {
-            TransferPower(x, y, Direction.Up);
-            TransferPower(x, y, Direction.Right);
-            TransferPower(x, y, Direction.Down);
-            TransferPower(x, y, Direction.Left);
+        protected void TransferPower(int x, int y, ref BoundedFloat buffer, params Direction[] sides) {
+            int c = CountTransmitters(x, y, sides) + CountDrains(x, y, sides);
+            if (c == 0) return;
+            float amt = buffer.val / c;
+            foreach (Direction d in sides) {
+                powerOut.TakePower(d, ref buffer, amt);
+                TransferPower(x, y, d, amt);
+            }
         }
+
+        protected void TransferPowerAll(int x, int y, ref BoundedFloat buffer) => TransferPower(x, y, ref buffer, Direction.Up, Direction.Right, Direction.Down, Direction.Left);
 
         private TileAttribs GetAttribs(Vector2i vi, Direction d) {
             Vector2i v = DirectionUtil.ToVector2i(d);
             return Terrain.TileAt(vi + v).tileattribs;
         }
+        private TileAttribs GetAttribs(int x, int y, Direction d) => GetAttribs(new Vector2i(x, y), d);
 
         protected bool IsLogic(Vector2i v, Direction d) => GetAttribs(v, d) is LogicAttribs;
         protected bool IsLogic(int x, int y, Direction d) => IsLogic(new Vector2i(x, y), d);
@@ -71,41 +77,33 @@ namespace Game.Terrains.Logics {
         protected bool IsDrain(Vector2i v, Direction d) => GetAttribs(v, d) is PowerDrain;
         protected bool IsDrain(int x, int y, Direction d) => IsDrain(new Vector2i(x, y), d);
 
-        protected int CountNeighbouringLogic(Vector2i v) {
-            int sum = 0;
-            for (int i = 0; i < 4; i++) {
-                sum += IsLogic(v, (Direction)i) ? 1 : 0;
+        private int Count(Func<Vector2i, Direction, bool> pred, Vector2i v, params Direction[] dirs) {
+            int c = 0;
+            foreach (Direction dir in dirs) {
+                c += pred(v, dir) ? 1 : 0;
             }
-            return sum;
+            return c;
         }
+
+        protected int CountNeighbouringLogic(Vector2i v) => CountLogics(v, Direction.Up, Direction.Right, Direction.Down, Direction.Left);
         protected int CountNeighbouringLogic(int x, int y) => CountNeighbouringLogic(new Vector2i(x, y));
+        protected int CountLogics(int x, int y, params Direction[] dirs) => CountLogics(new Vector2i(x, y), dirs);
+        protected int CountLogics(Vector2i v, params Direction[] dirs) => Count(IsLogic, v, dirs);
 
-        protected int CountNeighbouringSource(Vector2i v) {
-            int sum = 0;
-            for (int i = 0; i < 4; i++) {
-                sum += IsSource(v, (Direction)i) ? 1 : 0;
-            }
-            return sum;
-        }
-        protected int CountNeighbouringSource(int x, int y) => CountNeighbouringSource(new Vector2i(x, y));
+        protected int CountNeighbouringSources(Vector2i v) => CountSources(v, Direction.Up, Direction.Right, Direction.Down, Direction.Left);
+        protected int CountNeighbouringSources(int x, int y) => CountNeighbouringSources(new Vector2i(x, y));
+        protected int CountSources(int x, int y, params Direction[] dirs) => CountSources(new Vector2i(x, y), dirs);
+        protected int CountSources(Vector2i v, params Direction[] dirs) => Count(IsSource, v, dirs);
 
-        protected int CountNeighbouringTransmitter(Vector2i v) {
-            int sum = 0;
-            for (int i = 0; i < 4; i++) {
-                sum += IsTransmitter(v, (Direction)i) ? 1 : 0;
-            }
-            return sum;
-        }
-        protected int CountNeighbouringTransmitter(int x, int y) => CountNeighbouringTransmitter(new Vector2i(x, y));
+        protected int CountNeighbouringTransmitters(Vector2i v) => CountTransmitters(v, Direction.Up, Direction.Right, Direction.Down, Direction.Left);
+        protected int CountNeighbouringTransmitters(int x, int y) => CountNeighbouringTransmitters(new Vector2i(x, y));
+        protected int CountTransmitters(int x, int y, params Direction[] dirs) => CountTransmitters(new Vector2i(x, y), dirs);
+        protected int CountTransmitters(Vector2i v, params Direction[] dirs) => Count(IsTransmitter, v, dirs);
 
-        protected int CountNeighbouringDrain(Vector2i v) {
-            int sum = 0;
-            for (int i = 0; i < 4; i++) {
-                sum += IsDrain(v, (Direction)i) ? 1 : 0;
-            }
-            return sum;
-        }
-        protected int CountNeighbouringDrain(int x, int y) => CountNeighbouringDrain(new Vector2i(x, y));
+        protected int CountNeighbouringDrains(Vector2i v) => CountDrains(v, Direction.Up, Direction.Right, Direction.Down, Direction.Left);
+        protected int CountNeighbouringDrains(int x, int y) => CountNeighbouringDrains(new Vector2i(x, y));
+        protected int CountDrains(int x, int y, params Direction[] dirs) => CountDrains(new Vector2i(x, y), dirs);
+        protected int CountDrains(Vector2i v, params Direction[] dirs) => Count(IsDrain, v, dirs);
 
         protected virtual void EmptyInputs() => powerIn.Empty();
         protected virtual void EmptyOutputs() => powerOut.Empty();

@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Game.Entities;
+using Game.Terrains;
+using Game.TitleScreen;
 using Pencil.Gaming.Graphics;
 using Pencil.Gaming.MathUtils;
-using Game.TitleScreen;
-using Game.Terrains;
-using Game.Entities;
+using System;
 
 namespace Game.Main.GLConstructs {
 

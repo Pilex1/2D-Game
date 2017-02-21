@@ -21,14 +21,17 @@ namespace Game.Terrains.Logics {
         protected override void UpdateMechanics(int x, int y) {
             BoundedFloat buffer = new BoundedFloat(0, 0, 256);
             CacheInputs();
+            state = powerIn.GetPower(Direction.Left).val > 0 || powerIn.GetPower(Direction.Right).val > 0 || powerIn.GetPower(Direction.Up).val > 0 || powerIn.GetPower(Direction.Down).val > 0;
             powerIn.GivePowerAll(ref buffer);
             EmptyInputs();
             buffer -= dissipate;
 
-            TransferPowerAll(x, y);
-            state = powerOut.GetPower(Direction.Left).val > 0 || powerOut.GetPower(Direction.Right).val > 0 || powerOut.GetPower(Direction.Up).val > 0 || powerOut.GetPower(Direction.Down).val > 0;
+
+
+            TransferPowerAll(x, y, ref buffer);
+            
             CacheOutputs();
-            EmptyOutputs();
+          //  EmptyOutputs();
 
             UpdateMultiLight(x, y, state ? 1 : 0, this);
             Terrain.TileAt(x, y).enumId = state ? TileID.WireOn : TileID.WireOff;

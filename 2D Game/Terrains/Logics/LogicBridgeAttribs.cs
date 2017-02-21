@@ -73,7 +73,7 @@ namespace Game.Terrains.Logics {
             else if (stateHorz && stateVert) state = 2;
             UpdateMultiLight(x, y, state, this);
 
-            TransferPowerAll(x, y);
+            //TransferPowerAll(x, y);
 
             Terrain.TileAt(x, y).enumId = stateHorz ? (stateVert ? TileID.WireBridgeHorzVertOn : TileID.WireBridgeHorzOn) : (stateVert ? TileID.WireBridgeVertOn : TileID.WireBridgeOff);
         }

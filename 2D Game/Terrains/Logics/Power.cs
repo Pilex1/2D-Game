@@ -41,8 +41,16 @@ namespace Game.Terrains.Logics {
         /// </summary>
         /// <param name="dir"></param>
         /// <param name="b"></param>
-        public void GivePower(Direction dir, ref BoundedFloat b) {
-            BoundedFloat.MoveVals(ref power[(int)DirectionUtil.TurnClockwise(this.dir, dir)], ref b);
+        public void GivePower(Direction dir, ref BoundedFloat b) => GivePower(dir, ref b, power[(int)DirectionUtil.TurnClockwise(this.dir, dir)].val);
+
+        /// <summary>
+        /// Gives the buffer power from the given side up to the given amount
+        /// </summary>
+        /// <param name="dir"></param>
+        /// <param name="b"></param>
+        /// <param name="amt"></param>
+        public void GivePower(Direction dir, ref BoundedFloat b, float amt) {
+            BoundedFloat.MoveVals(ref power[(int)DirectionUtil.TurnClockwise(this.dir, dir)], ref b, amt);
         }
 
         /// <summary>

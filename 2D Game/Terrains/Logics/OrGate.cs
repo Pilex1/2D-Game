@@ -32,7 +32,7 @@ namespace Game.Terrains.Logics {
                 powerIn.TakePower(Direction.Right, ref buffer);
             }
             CacheOutputs();
-            TransferPowerAll(x, y);
+            //TransferPowerAll(x, y);
         }
     }
 }
