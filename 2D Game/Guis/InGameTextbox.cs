@@ -1,6 +1,7 @@
 ﻿using Game.Core;
 using Game.Guis.Renderers;
 using Game.Main;
+using Game.Main.Util;
 using Game.Util;
 using Pencil.Gaming.MathUtils;
 using System;
@@ -40,8 +41,8 @@ namespace Game.Guis {
                 return;
             textcooldown.Reset();
 
-            text.style.colour = disabled ? new Vector4(0, 0, 0, 0) : new Vector4(1, 1, 1, 1);
-            colour = disabled ? new Vector4(0, 0, 0, 0) : new Vector4(0.2f, 0.2f, 0.2f, 0.8f);
+            text.style.colour = disabled ? new ColourRGBA(0, 0, 0, 0) : new ColourRGBA(255,255,255, 1);
+            colour = disabled ? new ColourRGBA(0, 0, 0, 0) : new ColourRGBA(51, 51, 51, 0.8f);
             if (disabled) return;
 
             HandleInputs();

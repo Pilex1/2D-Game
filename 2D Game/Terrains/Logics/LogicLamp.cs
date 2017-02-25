@@ -1,4 +1,5 @@
 ﻿using Game.Items;
+using Game.Main.Util;
 using Game.Terrains.Lighting;
 using Game.Util;
 using Pencil.Gaming.MathUtils;
@@ -27,7 +28,7 @@ namespace Game.Terrains.Logics {
             Terrain.TileAt(x, y).enumId = state ? TileID.LogicLampOn : TileID.LogicLampOff;
         }
 
-        ILight[] IMultiLight.Lights() => new ILight[] { new CLight(0, 0, Vector3.Zero), new CLight(6, 1f, new Vector3(1, 0.9f, 0.9f)) };
+        ILight[] IMultiLight.Lights() => new ILight[] { new CLight(0, new ColourRGB(0, 0, 0)), new CLight(6, new ColourRGB(255, 230, 230)) };
         int IMultiLight.State { get; set; }
     }
 }

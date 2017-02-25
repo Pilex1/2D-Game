@@ -18,7 +18,7 @@ namespace Game.Entities.Particles {
 
         public override void Update() {
             base.Update();
-            data.colour.w = data.life.val / data.life.max;
+            data.colour.Alpha = data.life.val / data.life.max;
         }
 
         public override void OnTerrainCollision(int x, int y, Direction d, Tile t) {

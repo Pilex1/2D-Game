@@ -3,8 +3,8 @@ using Pencil.Gaming.MathUtils;
 using Game.Util;
 using Game.Fonts;
 using Game.Core;
-using System.Diagnostics;
 using Pencil.Gaming;
+using Game.Main.Util;
 
 namespace Game.Guis {
 
@@ -15,7 +15,7 @@ namespace Game.Guis {
         internal Text text;
         internal Action OnPress;
         internal CooldownTimer cooldown;
-        internal Vector4 colour;
+        internal ColourRGBA colour;
 
         private bool hoveredover = false;
 
@@ -26,7 +26,7 @@ namespace Game.Guis {
             this.OnPress = OnPress;
             text = new Text(textstring, style, new Vector2(pos.x, pos.y + 0.02f));
 
-            colour = new Vector4(1, 1, 1, 1);
+            colour = new ColourRGBA(255,255,255, 1);
             model = GuiModel.CreateRectangle(size, Assets.Textures.ButtonTex);
             cooldown = new CooldownTimer(20);
         }
@@ -53,13 +53,13 @@ namespace Game.Guis {
 
             text.style.colour = colour =
                 //disabled
-                disabled ? new Vector4(0.25f, 0.25f, 0.25f, 1) :
+                disabled ? new ColourRGBA(63, 63, 63, 1) :
 
                 //hovered over
-                hoveredover ? new Vector4(0.75f, 0.75f, 0.75f, 1) :
+                hoveredover ? new ColourRGBA(191,191,191, 1) :
 
                 //active
-                new Vector4(1, 1, 1, 1);
+                new ColourRGBA(255,255,255, 1);
         }
 
         public override string ToString() {

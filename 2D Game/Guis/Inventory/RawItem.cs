@@ -1,5 +1,6 @@
 ﻿using Game.Entities;
 using Game.Entities.Particles;
+using Game.Main.Util;
 using Game.Terrains;
 using Game.Util;
 using Pencil.Gaming.MathUtils;
@@ -54,7 +55,6 @@ namespace Game.Items {
 
         #region Lights
         public static readonly RawItem Light = new RawItem(ItemID.Light, new ItemAttribs_Tile("Light", () => Tile.Light));
-        public static readonly RawItem LightVoid = new RawItem(ItemID.LightVoid, new ItemAttribs_Tile("Light Void", () => Tile.LightVoid));
         #endregion
 
         #region Logic
@@ -92,7 +92,7 @@ namespace Game.Items {
         public static readonly RawItem Firework = new RawItem(ItemID.Firework, new ItemAttribs_OverideableUse(999, "Fireworks", (Inventory inv, Vector2i invslot, Vector2 position, Vector2 direction) => {
             if (!Terrain.HasNeighbouringSolidTiles((int)position.x, (int)position.y)) return;
             if (EntityManager.GetEntitiesAt(position).Length > 0) return;
-            Vector4 colour = new Vector4(MathUtil.RandVector3(Program.Rand, 0, 1), 0.3f);
+            ColourHSBA colour = new ColourHSBA(MathUtil.RandFloat(Program.Rand, 0, 360), 1, 1, 0.3f);
             FireworkLauncher f = new FireworkLauncher(position, colour, 50);
             EntityManager.AddEntity(f);
             inv.RemoveItem(invslot.x, invslot.y);

@@ -3,6 +3,7 @@ using Game.Core;
 using Game.Fonts;
 using Game.Guis;
 using Game.Main.GLConstructs;
+using Game.Main.Util;
 using Game.Util;
 using Pencil.Gaming;
 using Pencil.Gaming.Graphics;
@@ -98,7 +99,7 @@ namespace Game.Items {
             Background = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, (y - 1) * SizeY), TextureUtil.CreateTexture(new Vector4(0.3f, 0.3f, 0.3f, 0.8f)));
             HotbarBackground = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, SizeY), TextureUtil.CreateTexture(new Vector4(0.3f, 0.3f, 0.3f, 0.8f)));
 
-            TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.6f, 1f, 1, 1f, new Vector3(1, 1, 1));
+            TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.6f, 1f, 1, 1f, new ColourRGBA(255,255,255));
             InvText = new Text("Inventory", style, InventoryLabelOffset + new Vector2(Pos.x, Pos.y + 2 * y * (SizeY - 2 * ItemTextureOffset)));
             InvTextBackground = GuiModel.CreateRectangleTopLeft(new Vector2(x * SizeX, SizeY / 2), TextureUtil.CreateTexture(new Vector4(0.3f, 0.3f, 0.3f, 0.7f)));
             InvTextLine = GuiModel.CreateLine(new Vector2(x * SizeX, 0), TextureUtil.CreateTexture(new Vector4(0.05f, 0.05f, 0.1f, 0.9f)));
@@ -141,7 +142,6 @@ namespace Game.Items {
             Items[5, row] = new Item(RawItem.Lava, RawItem.Lava.attribs.stackSize);
             Items[6, row] = new Item(RawItem.BounceFluid, RawItem.BounceFluid.attribs.stackSize);
             Items[7, row] = new Item(RawItem.Light, RawItem.Light.attribs.stackSize);
-            Items[8, row] = new Item(RawItem.LightVoid, RawItem.LightVoid.attribs.stackSize);
 
             row++;
             Items[0, row] = new Item(RawItem.Brick, RawItem.Brick.attribs.stackSize);

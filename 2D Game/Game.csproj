@@ -23,7 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IntermediateOutputPath>C:\Users\Brain\AppData\Local\Temp\vsCF68.tmp\Debug\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\torcm\AppData\Local\Temp\vs1FDB.tmp\Debug\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,7 +33,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IntermediateOutputPath>C:\Users\Brain\AppData\Local\Temp\vsCF68.tmp\Release\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\torcm\AppData\Local\Temp\vs1FDB.tmp\Release\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -74,6 +74,8 @@
     <Compile Include="Main\Input.cs" />
     <Compile Include="Main\GLConstructs\VAO.cs" />
     <Compile Include="Main\GLConstructs\Model.cs" />
+    <Compile Include="Main\Util\ColourHSB.cs" />
+    <Compile Include="Main\Util\ColourRGB.cs" />
     <Compile Include="Main\World Serialization\EntityData.cs" />
     <Compile Include="Main\World Serialization\Serialization.cs" />
     <Compile Include="Entities\Core\EntityManager.cs" />

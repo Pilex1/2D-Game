@@ -131,7 +131,7 @@ namespace Game.Terrains {
         #endregion
 
         #region Mesh
-        internal static void Range(out int minx, out int maxx, out int miny, out int maxy) {
+        internal static void GetRange(out int minx, out int maxx, out int miny, out int maxy) {
             float posX = (int)Player.Instance.data.pos.x;
             float posY = (int)Player.Instance.data.pos.y;
 
@@ -147,7 +147,7 @@ namespace Game.Terrains {
 
         public static void CalculateMesh(out Vector2[] vertices, out int[] elements, out Vector2[] uvs) {
             int startX, endX, startY, endY;
-            Range(out startX, out endX, out startY, out endY);
+            GetRange(out startX, out endX, out startY, out endY);
             List<Vector2> verticesList = new List<Vector2>((endX - startX + 1) * (endY - startY + 1));
             List<Vector2> uvList = new List<Vector2>((endX - startX + 1) * (endY - startY + 1));
             for (int i = startX; i <= endX; i++) {

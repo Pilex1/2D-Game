@@ -1,7 +1,4 @@
-﻿using Game.Terrains.Core;
-using System.Collections.Generic;
-
-namespace Game.Entities.Particles {
+﻿namespace Game.Entities.Particles {
 
     ////todo - when chunks are properly implemented
     //class TerrainParticlesManager : UpdateTileManager<HashSet<TerrainParticleGenerator>> {

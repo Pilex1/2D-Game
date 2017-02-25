@@ -1,4 +1,5 @@
 ﻿using Game.Core;
+using Game.Main.Util;
 using Pencil.Gaming.MathUtils;
 using System;
 
@@ -21,7 +22,7 @@ namespace Game.Entities {
             } else {
                 CapturedEntity.data.vel.val = Vector2.Zero;
                 CapturedEntity.data.pos.val = data.pos + new Vector2(0, 1);
-                CapturedEntity.data.colour = new Vector4(0.8f, 0.8f, 0.8f, 0.5f);
+                CapturedEntity.data.colour = new ColourRGBA(204, 204, 204, 0.5f);
                 CapturedEntity.data.invulnerable = true;
             }
         }
@@ -29,7 +30,7 @@ namespace Game.Entities {
         public void Release() {
             if (CapturedEntity == null) return;
             CapturedEntity.data.invulnerable = false;
-            CapturedEntity.data.colour = new Vector4(1, 1, 1, 1);
+            CapturedEntity.data.colour = new ColourRGBA(255, 255, 255, 1);
         }
 
     }

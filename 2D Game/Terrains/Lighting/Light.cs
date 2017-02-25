@@ -1,6 +1,6 @@
 ﻿using System;
 using Game.Items;
-using Pencil.Gaming.MathUtils;
+using Game.Main.Util;
 
 namespace Game.Terrains.Lightings {
 
@@ -8,17 +8,15 @@ namespace Game.Terrains.Lightings {
     class LightAttribs : TileAttribs, ILight {
 
         protected int radius;
-        protected Vector3 colour;
-        protected float strength;
+        protected ColourHSB colour;
 
-        public LightAttribs(int radius, Vector3 colour, float strength, Func<RawItem> dropItem) : base(dropItem) {
+        public LightAttribs(int radius, ColourHSB colour, Func<RawItem> dropItem) : base(dropItem) {
             this.radius = radius;
             this.colour = colour;
-            this.strength = strength;
         }
 
         int ILight.Radius() => radius;
-        Vector3 ILight.Colour() => colour;
-        float ILight.Strength() => strength;
+        ColourHSB ILight.Colour() => colour;
+
     }
 }

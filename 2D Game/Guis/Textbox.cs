@@ -1,6 +1,7 @@
 ﻿using Game.Assets;
 using Game.Core;
 using Game.Fonts;
+using Game.Main.Util;
 using Game.Util;
 using Pencil.Gaming;
 using Pencil.Gaming.MathUtils;
@@ -12,7 +13,7 @@ namespace Game.Guis {
 
         internal Vector2 size;
         internal Vector2 pos;
-        internal Vector4 colour;
+        internal ColourRGBA colour;
         internal bool hoveredover = false;
         private bool _disabled;
         internal bool disabled {
@@ -37,7 +38,7 @@ namespace Game.Guis {
             textpos.y += 2 * size.y + TextOffset.y;
             textpos.x += TextOffset.x;
             textpos.x -= size.x;
-            TextStyle style = new TextStyle(TextAlignment.TopLeft, font, textsize, size.x * 2 - 0.07f, 1, 1f, new Vector3(0.5f, 0f, 1f));
+            TextStyle style = new TextStyle(TextAlignment.TopLeft, font, textsize, size.x * 2 - 0.07f, 1, 1f, new ColourRGBA(127, 0, 255));
             text = new Text("_", style, textpos);
             this.pos = pos;
             this.size = size;
@@ -86,8 +87,8 @@ namespace Game.Guis {
 
 
             text.style.colour = colour =
-            !disabled ? new Vector4(1, 1, 1, 1) :
-            hoveredover ? new Vector4(0.75f, 0.75f, 0.75f, 1) : new Vector4(0.5f, 0.5f, 0.5f, 1);
+            !disabled ? new ColourRGBA(255,255,255, 1) :
+            hoveredover ? new ColourRGBA(191, 191, 191, 1) : new ColourRGBA(127, 127, 127, 1);
 
             if (disabled) {
                 if (text.ToString().EndsWith("_")) {

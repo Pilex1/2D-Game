@@ -3,6 +3,7 @@ using Game.Core;
 using Game.Core.world_Serialization;
 using Game.Fonts;
 using Game.Main.GLConstructs;
+using Game.Main.Util;
 using Game.TitleScreen;
 using Game.Util;
 using Pencil.Gaming;
@@ -110,7 +111,7 @@ namespace Game.Guis.Renderers {
             #endregion
 
             #region Background
-            txt_Main_Title = new Text("HIC TITULUS EST", new TextStyle(TextAlignment.Center, TextFont.Chiller, 3f, 2f, 1, 1f, new Vector3(1, 1, 1)), new Vector2(0, 1));
+            txt_Main_Title = new Text("HIC TITULUS EST", new TextStyle(TextAlignment.Center, TextFont.Chiller, 3f, 2f, 1, 1f, new ColourRGBA(255,255,255)), new Vector2(0, 1));
             backgroundpos = Vector2.Zero;
             float s = 1f / Program.AspectRatio;
             float imageAspectRatio = (float)Textures.TitleBackgroundTex.Size.Width / Textures.TitleBackgroundTex.Size.Height;
@@ -124,7 +125,7 @@ namespace Game.Guis.Renderers {
             #endregion
 
             #region Credits
-            TextStyle tstyle = new TextStyle(TextAlignment.Center, TextFont.LucidaConsole, 0.6f, 1.8f, 1 << 30, 1f, new Vector3(1, 1, 1));
+            TextStyle tstyle = new TextStyle(TextAlignment.Center, TextFont.LucidaConsole, 0.6f, 1.8f, 1 << 30, 1f, new ColourRGBA(255,255,255));
             txt_CreditsInfo = new Text("Copyright Alex Tan (2016). Apache License. https://github.com/Pilex1/2D-Game/blob/master/LICENSE" + Environment.NewLine + Environment.NewLine + "- code, bugs, game design, bugs, graphics, bugs, everything you see here, bugs. Did I mention bugs?" + Environment.NewLine + Environment.NewLine + "Help me continue making these projects:" + Environment.NewLine + Environment.NewLine + "Visit my github repositories to view and download the full source code plus my other projects" + Environment.NewLine + " - https://github.com/Pilex1" + Environment.NewLine + " - https://github.com/Pilex1/2D-Game" + Environment.NewLine + Environment.NewLine + "Subscribe to my youtube channel where I post videos of Mandelbrot renders and game development" + Environment.NewLine + " - https://www.youtube.com/channel/UCroZnM6MzqyREXszaksefBw", tstyle, new Vector2(0, 0.9f));
             #endregion
 
@@ -317,14 +318,14 @@ namespace Game.Guis.Renderers {
 
             shader.SetUniform1f("aspectRatio", Program.AspectRatio);
 
-            RenderInstance(background, backgroundpos, new Vector4(TextureUtil.HSVToRGB_Vec3(backgroundhue, 0.5f, 1f), 1));
+            RenderInstance(background, backgroundpos, new ColourHSBA(backgroundhue, 1, 1, 1));
             // Debug.WriteLine(backgroundhue);
 
             foreach (var b in CurButtons)
                 RenderInstance(b.model, b.pos, b.colour);
 
             foreach (Label l in CurLabels)
-                RenderInstance(l.model, l.pos, new Vector4(1, 1, 1, 1));
+                RenderInstance(l.model, l.pos, new ColourRGBA(255, 255, 255, 1));
 
 
             foreach (Textbox t in CurTextboxes)
@@ -347,7 +348,7 @@ namespace Game.Guis.Renderers {
             return true;
         }
 
-        private static void RenderInstance(GuiModel model, Vector2 pos, Vector4 colour) {
+        private static void RenderInstance(GuiModel model, Vector2 pos, ColourRGBA colour) {
             ShaderProgram shader = Gui.shader;
 
             GL.Enable(EnableCap.Blend);
@@ -355,7 +356,7 @@ namespace Game.Guis.Renderers {
 
             shader.SetUniform2f("position", pos);
             shader.SetUniform2f("size", model.size);
-            shader.SetUniform4f("colour", colour);
+            shader.SetUniform4f("colour", colour.ToVec4());
             GL.BindVertexArray(model.vao.ID);
             GL.BindTexture(model.texture.TextureTarget, model.texture.TextureID);
             GL.DrawElements(model.drawmode, model.vao.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);

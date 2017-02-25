@@ -2,6 +2,7 @@
 using Game.Entities;
 using Game.Util;
 using Pencil.Gaming.MathUtils;
+using Game.Main.Util;
 
 namespace Game.Terrains.Fluids {
 
@@ -16,7 +17,6 @@ namespace Game.Terrains.Fluids {
         }
 
         int ILight.Radius() => 4;
-        Vector3 ILight.Colour() => new Vector3(0.2f, 1, 0.6f);
-        float ILight.Strength() => 0.04f;
+        ColourHSB ILight.Colour() => new ColourRGB(2, 10, 6);
     }
 }

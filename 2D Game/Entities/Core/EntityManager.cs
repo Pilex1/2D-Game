@@ -1,6 +1,7 @@
 ﻿using Game.Core;
 using Game.Entities.Particles;
 using Game.Main.GLConstructs;
+using Game.Main.Util;
 using Game.Terrains;
 using Game.Terrains.Lighting;
 using Game.Terrains.Terrain_Generation;
@@ -147,7 +148,7 @@ namespace Game.Entities {
         private static void OnEachLoadedEntity(Action<Entity> action) {
             if (Player.Instance == null) return;
             int minx, maxx, miny, maxy;
-            Terrain.Range(out minx, out maxx, out miny, out maxy);
+            Terrain.GetRange(out minx, out maxx, out miny, out maxy);
 
             int mingx = (int)Math.Floor((float)minx / GridX);
             int mingy = (int)Math.Floor((float)miny / GridY);
@@ -189,7 +190,7 @@ namespace Game.Entities {
             OnEachLoadedEntity(e => {
                 ILight l = e as ILight;
                 if (l != null) {
-                    LightingManager.AddLight((int)e.data.pos.x, (int)e.data.pos.y, l.Radius(), l.Strength(), l.Colour());
+                    LightingManager.AddLight((int)e.data.pos.x, (int)e.data.pos.y, l);
                 }
             });
             GameTime.EntityUpdatesTimer.Pause();
@@ -200,7 +201,7 @@ namespace Game.Entities {
             OnEachLoadedEntity(e => {
                 ILight l = e as ILight;
                 if (l != null) {
-                    LightingManager.RemoveLight((int)e.data.pos.x, (int)e.data.pos.y, l.Radius(), l.Strength(), l.Colour());
+                    LightingManager.RemoveLight((int)e.data.pos.x, (int)e.data.pos.y, l);
                 }
             });
             GameTime.EntityUpdatesTimer.Pause();
@@ -232,17 +233,18 @@ namespace Game.Entities {
                 foreach (Entity e in EntitiesMap[entityId]) {
                     LoadedEntities++;
                     Shader.SetUniform4m("modelMatrix", e.ModelMatrix());
-                    Vector4 colour = e.data.colour;
+                    ColourRGBA colour = e.data.colour.Copy();
                     if (e.data.recentDmg > 0) {
                         float offsetval = 1 - e.data.recentDmg / EntityData.maxRecentDmgTime;
-                        Vector4 colouroffset = new Vector4(offsetval, offsetval, offsetval, 1);
-                        colour = Vector4.Multiply(colour, colouroffset);
+                        colour.Red *= offsetval;
+                        colour.Green *= offsetval;
+                        colour.Blue *= offsetval;
                     }
                     //Vector2i pos = new Vector2i((int)e.data.pos.x, (int)e.data.pos.y);
                     //Vector4 lighting = new Vector4(LightingManager.GetLighting(pos.x, pos.y), 1);
                     //lighting = MathUtil.ClampElementWise(lighting, 0.2f, int.MaxValue);
                     //colour = Vector4.Multiply(colour, lighting );
-                    Shader.SetUniform4f("clr", colour);
+                    Shader.SetUniform4f("clr", colour.ToVec4());
                     GL.DrawElements(model.Drawmode, model.VAO.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
                 }
             }

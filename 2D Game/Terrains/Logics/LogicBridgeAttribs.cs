@@ -1,4 +1,5 @@
 ﻿using Game.Items;
+using Game.Main.Util;
 using Game.Terrains.Lighting;
 using Game.Util;
 using Pencil.Gaming.MathUtils;
@@ -78,7 +79,7 @@ namespace Game.Terrains.Logics {
             Terrain.TileAt(x, y).enumId = stateHorz ? (stateVert ? TileID.WireBridgeHorzVertOn : TileID.WireBridgeHorzOn) : (stateVert ? TileID.WireBridgeVertOn : TileID.WireBridgeOff);
         }
 
-        ILight[] IMultiLight.Lights() => new ILight[] { new CLight(0, 0, Vector3.Zero), new CLight(4, 0.1f, new Vector3(1, 0.2f, 0.5f)), new CLight(4, 0.2f, new Vector3(1, 0.2f, 0.5f)) };
+        ILight[] IMultiLight.Lights() => new ILight[] { new CLight(0, new ColourRGB(0, 0, 0)), new CLight(4, new ColourRGB(26, 5, 13)), new CLight(4, new ColourRGB(51, 10, 26)) };
         int IMultiLight.State { get; set; }
     }
 }

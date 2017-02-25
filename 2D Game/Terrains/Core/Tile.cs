@@ -1,5 +1,6 @@
 ﻿
 using Game.Items;
+using Game.Main.Util;
 using Game.Terrains.Fluids;
 using Game.Terrains.Lightings;
 using Game.Terrains.Logics;
@@ -84,9 +85,7 @@ namespace Game.Terrains {
 
         public static Tile Accelerator = new Tile(TileID.Accelerator, () => RawItem.Accelerator);
 
-        public static readonly Tile Light = new Tile(TileID.Light, new LightAttribs(8, Vector3.One, 1f, () => RawItem.Light));
-        public static readonly Tile LightVoid = new Tile(TileID.LightVoid, new LightAttribs(8, -0.5f * Vector3.One, 1f, () => RawItem.LightVoid));
-
+        public static readonly Tile Light = new Tile(TileID.Light, new LightAttribs(8, new ColourRGB(255,255,255), () => RawItem.Light));
 
         public override string ToString() {
             return enumId.ToString();

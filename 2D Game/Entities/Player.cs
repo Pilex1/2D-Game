@@ -54,7 +54,7 @@ namespace Game.Core {
                 }
 
                 var lighting = LightingManager.GetLighting(SelectedTilePos.x, SelectedTilePos.y);
-                GameLogic.AdditionalDebugText = tile.ToString() + Environment.NewLine + tile.tileattribs.ToString() + "Position: " + SelectedTilePos.x + ", " + SelectedTilePos.y + Environment.NewLine + "Lighting: Red " + StringUtil.TruncateTo(lighting.x, 4) + " Blue " + StringUtil.TruncateTo(lighting.y, 4) + " Green " + StringUtil.TruncateTo(lighting.z, 4);
+                GameLogic.AdditionalDebugText = tile.ToString() + Environment.NewLine + tile.tileattribs.ToString() + "Position: " + SelectedTilePos.x + ", " + SelectedTilePos.y + Environment.NewLine + "Lighting: Hue " + StringUtil.TruncateTo(lighting.Hue, 4) + " Saturation " + StringUtil.TruncateTo(lighting.Saturation, 4) + " Brightness " + StringUtil.TruncateTo(lighting.Brightness, 4);
 
             }
         }

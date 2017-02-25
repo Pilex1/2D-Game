@@ -3,6 +3,8 @@ using Game.Core;
 using Game.Fonts;
 using Game.Items;
 using Game.Main.GLConstructs;
+using Game.Main.Util;
+using Game.Terrains.Terrain_Generation;
 using Game.TitleScreen;
 using Game.Util;
 using Pencil.Gaming.Graphics;
@@ -32,15 +34,15 @@ namespace Game.Guis.Renderers {
         public static void Init() {
             TextFont.Init();
 
-            TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.35f, 2f, int.MaxValue, 1f, new Vector3(1, 1, 1));
+            TextStyle style = new TextStyle(TextAlignment.TopLeft, TextFont.LucidaConsole, 0.35f, 2f, int.MaxValue, 1f, new ColourRGBA(255, 255, 255));
             DebugText = new Text("", style, new Vector2(-0.99f, 0.97f));
             Healthbar = GuiModel.CreateRectangle(HealthBarSize, TextureUtil.ColourFromVec4(new Vector4(0.88f, 0.3f, 0.1f, 0.8f)));
             HealthbarTexture = GuiModel.CreateRectangle(HealthBarTextureSize, Textures.HealthbarTexture);
             Background = GuiModel.CreateRectangle(new Vector2(1, 1), Textures.GameBackgroundTex);
             PausedOverlay = GuiModel.CreateRectangle(new Vector2(1, 1), TextureUtil.ColourFromVec4(new Vector4(0.2f, 0.2f, 0.2f, 0.9f)));
-            PausedText = new Text("Paused", new TextStyle(TextAlignment.Top, TextFont.LucidaConsole, 1.3f, 2f, 1, 1f, new Vector3(1, 1, 1)), new Vector2(0, 1));
+            PausedText = new Text("Paused", new TextStyle(TextAlignment.Top, TextFont.LucidaConsole, 1.3f, 2f, 1, 1f, new ColourRGBA(255, 255, 255)), new Vector2(0, 1));
             TxtInput = new InGameTextbox(new Vector2(0, -0.5f), new Vector2(1f, 0.03f), TextFont.LucidaConsole, 0.5f);
-            TextLog = new Text("", new TextStyle(TextAlignment.BottomLeft, TextFont.LucidaConsole, 0.35f, 2, 20, 1f, Vector3.One), new Vector2(-1 + Textbox.TextOffset.x, -0.4f));
+            TextLog = new Text("", new TextStyle(TextAlignment.BottomLeft, TextFont.LucidaConsole, 0.35f, 2, 20, 1f, new ColourRGBA(255, 255, 255)), new Vector2(-1 + Textbox.TextOffset.x, -0.4f));
 
             Buttons = new HashSet<Button>();
             btn_BackToTitle = new Button(new Vector2(0, -0.2f), new Vector2(0.4f, 0.04f), "Save and Quit", TextStyle.LucidaConsole_SingleLine_Small, () => {
@@ -74,9 +76,9 @@ namespace Game.Guis.Renderers {
 
         public static void RenderBackground() {
             GL.UseProgram(Gui.shader.ID);
-            float ratio = Player.Instance.data.pos.y / Terrains.Terrain.Tiles.GetLength(1);
+            float ratio = 255 * Player.Instance.data.pos.y / TerrainGen.SizeY;
             ratio = CalcBackgroundColour(ratio);
-            RenderInstance(Background, new Vector2(0, 0), new Vector3(ratio, ratio, ratio));
+            RenderInstance(Background, new Vector2(0, 0), new ColourRGBA(ratio, ratio, ratio));
             GL.UseProgram(0);
         }
 
@@ -141,7 +143,7 @@ namespace Game.Guis.Renderers {
             }
 
             if (GameLogic.State == GameLogic.GameState.Paused) {
-                RenderInstance(PausedOverlay, new Vector2(0, 0), new Vector4(0.5f, 0.5f, 0.5f, 0.8f));
+                RenderInstance(PausedOverlay, new Vector2(0, 0), new ColourRGBA(127, 127, 127, 0.8f));
 
                 RenderInstance(PausedText.model, PausedText.pos, PausedText.style.colour);
                 RenderInstance(btn_BackToTitle.model, btn_BackToTitle.pos, btn_BackToTitle.colour);
@@ -156,22 +158,18 @@ namespace Game.Guis.Renderers {
         }
 
         private static void RenderInstance(GuiModel model, Vector2 position) {
-            RenderInstance(model, position, new Vector3(1, 1, 1));
+            RenderInstance(model, position, new ColourRGBA(255, 255, 255));
         }
 
         private static void RenderText(Text t) {
             RenderInstance(t.model, t.pos, t.style.colour);
         }
 
-        private static void RenderInstance(GuiModel model, Vector2 position, Vector3 colour) {
-            RenderInstance(model, position, new Vector4(colour.x, colour.y, colour.z, 1));
-        }
-
-        private static void RenderInstance(GuiModel model, Vector2 position, Vector4 colour) {
+        private static void RenderInstance(GuiModel model, Vector2 position, ColourRGBA colour) {
             ShaderProgram shader = Gui.shader;
             shader.SetUniform2f("position", position);
             shader.SetUniform2f("size", model.size);
-            shader.SetUniform4f("colour", colour);
+            shader.SetUniform4f("colour", colour.ToVec4());
             GL.BindVertexArray(model.vao.ID);
             GL.BindTexture(model.texture.TextureTarget, model.texture.TextureID);
             GL.DrawElements(model.drawmode, model.vao.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);

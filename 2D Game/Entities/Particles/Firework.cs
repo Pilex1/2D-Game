@@ -2,13 +2,14 @@
 using System;
 using Game.Terrains;
 using Game.Util;
+using Game.Main.Util;
 
 namespace Game.Entities.Particles {
 
     [Serializable]
     class FireworkParticle : Particle, ILight {
 
-        public FireworkParticle(Vector2 pos, Vector2 vel, float life, Vector4 colour) : base(EntityID.WhiteFill, pos, new Vector2(0.4f, 0.4f)) {
+        public FireworkParticle(Vector2 pos, Vector2 vel, float life, ColourRGBA colour) : base(EntityID.WhiteFill, pos, new Vector2(0.4f, 0.4f)) {
             data.airResis = 0.995f;
             data.grav = 0.01f;
             data.vel.val = vel;
@@ -20,9 +21,8 @@ namespace Game.Entities.Particles {
             EntityManager.RemoveEntity(this);
         }
 
-        Vector3 ILight.Colour() => data.colour.xyz;
+        ColourHSB ILight.Colour() => data.colour;
         int ILight.Radius() => 8;
-        float ILight.Strength() => 0.25f;
     }
 
     [Serializable]
@@ -30,7 +30,7 @@ namespace Game.Entities.Particles {
 
         private int freq;
 
-        public FireworkLauncher(Vector2 pos, Vector4 colour, int freq) : base(EntityID.WhiteFill, pos, new Vector2(0.4f, 0.4f)) {
+        public FireworkLauncher(Vector2 pos, ColourRGBA colour, int freq) : base(EntityID.WhiteFill, pos, new Vector2(0.4f, 0.4f)) {
             data.vel.val = new Vector2(0, 0.5f);
             data.grav = 0;
             data.airResis = 1;
@@ -58,9 +58,8 @@ namespace Game.Entities.Particles {
             Explode();
         }
 
-        Vector3 ILight.Colour() => data.colour.xyz;
+        ColourHSB ILight.Colour() => data.colour;
         int ILight.Radius() => 8;
-        float ILight.Strength() => 0.25f;
 
     }
 }

@@ -27,7 +27,7 @@ namespace Game {
         public override void Update() {
             UpdatePosition();
             data.life -= GameTime.DeltaTime;
-            data.colour.w = (float)Math.Pow(Math.Sin(Math.PI / 2 * data.life.GetFilledRatio()), 0.25);
+            data.colour.Alpha = (float)Math.Pow(Math.Sin(Math.PI / 2 * data.life.GetFilledRatio()), 0.25);
 
             if (Player.Intersecting(this)) {
                 Player.Instance.Damage(1);
