@@ -8,6 +8,7 @@ using Game.Terrains.Fluids;
 using Game.Terrains.Logics;
 using Game.Terrains.Terrain_Generation;
 using Pencil.Gaming.MathUtils;
+using Game.Terrains;
 
 namespace Game.Core.world_Serialization {
 
@@ -22,6 +23,7 @@ namespace Game.Core.world_Serialization {
         private const string logicFile = "logics";
         private const string chunkFile = "chunk_";
         private const string entityFile = "entities";
+        private const string lightFile = "lights";
         #endregion
 
         #region File IO
@@ -119,7 +121,7 @@ namespace Game.Core.world_Serialization {
         #endregion
 
         #region Save
-        public static void SaveWorld(string file, ChunkData[] chunks, EntitiesData entities, Dictionary<Vector2i, FluidAttribs> fluids, Dictionary<Vector2i, LogicAttribs> logics) {
+        public static void SaveWorld(string file, ChunkData[] chunks, EntitiesData entities, Dictionary<Vector2i, FluidAttribs> fluids, Dictionary<Vector2i, LogicAttribs> logics, Dictionary<Vector2i, ILight> lights) {
             Directory.CreateDirectory(dir + worlddir + file);
 
             foreach (ChunkData c in chunks) {
@@ -129,6 +131,7 @@ namespace Game.Core.world_Serialization {
             Save(dir + worlddir + file + "\\" + entityFile + fileExt, entities);
             Save(dir + worlddir + file + "\\" + fluidFile + fileExt, fluids);
             Save(dir + worlddir + file + "\\" + logicFile + fileExt, logics);
+            Save(dir + worlddir + file + "\\" + lightFile + fileExt, lights);
         }
         #endregion
 
@@ -136,6 +139,7 @@ namespace Game.Core.world_Serialization {
         public static EntitiesData LoadEntities(string world) => (EntitiesData)Load(dir + worlddir + world + "\\" + entityFile + fileExt);
         public static Dictionary<Vector2i, FluidAttribs> LoadFluids(string world) => (Dictionary<Vector2i, FluidAttribs>)Load(dir + worlddir + world + "\\" + fluidFile + fileExt);
         public static Dictionary<Vector2i, LogicAttribs> LoadLogics(string world) => (Dictionary<Vector2i, LogicAttribs>)Load(dir + worlddir + world + "\\" + logicFile + fileExt);
+        public static Dictionary<Vector2i, ILight> LoadLights(string world) => (Dictionary<Vector2i, ILight>)Load(dir + worlddir + world + "\\" + lightFile + fileExt);
         public static ChunkData LoadChunk(string world, int region) => (ChunkData)Load(dir + worlddir + world + "\\" + chunkFile + region + fileExt);
         #endregion
 

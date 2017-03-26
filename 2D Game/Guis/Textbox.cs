@@ -13,7 +13,7 @@ namespace Game.Guis {
 
         internal Vector2 size;
         internal Vector2 pos;
-        internal ColourRGBA colour;
+        internal ColourRGBA colour = new ColourRGBA(255, 255, 255, 1);
         internal bool hoveredover = false;
         private bool _disabled;
         internal bool disabled {

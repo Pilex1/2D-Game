@@ -3,6 +3,8 @@ using Pencil.Gaming.MathUtils;
 using System;
 
 namespace Game.Main.Util {
+
+    [Serializable]
     class ColourRGB {
 
         private float red, green, blue;
@@ -90,6 +92,7 @@ namespace Game.Main.Util {
 
     }
 
+    [Serializable]
     class ColourRGBA : ColourRGB {
 
         private float alpha;

@@ -29,6 +29,9 @@ namespace Game {
         public static ProgramMode Mode { get; private set; }
         internal static string worldname { get; private set; }
 
+        //fake v-sync in case v-sync doesn't work
+        private static Stopwatch watch;
+
         static void Main() {
             Init();
             while (!Glfw.WindowShouldClose(window))
@@ -59,8 +62,12 @@ namespace Game {
 
             Glfw.MakeContextCurrent(window);
             Glfw.SetErrorCallback(OnError);
+            Glfw.SwapInterval(1);
+
             Input.Init();
 
+
+            watch = new Stopwatch();
             //Console.SetWindowSize(Console.LargestWindowWidth / 4, Console.LargestWindowHeight / 4);
             //Console.SetWindowPosition(0, 0);
             Mode = ProgramMode.None;
@@ -115,6 +122,7 @@ namespace Game {
 
 
         private static void MainGameLoop() {
+            watch.Restart();
             GL.ClearColor(1, 1, 1, 1);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             ErrorCode error = GL.GetError();
@@ -145,6 +153,11 @@ namespace Game {
             Input.Update();
             Glfw.PollEvents();
             Glfw.SwapBuffers(window);
+
+            //fake v-sync
+            while (watch.ElapsedMilliseconds < 1000f / 60) {
+                Thread.Sleep(1);
+            }
         }
 
 

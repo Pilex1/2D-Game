@@ -1,9 +1,11 @@
 ﻿using Game.Util;
 using Pencil.Gaming.MathUtils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Game.Main.Util {
+    [Serializable]
     class ColourHSB {
 
         public static ColourHSB White => new ColourHSB(0, 0, 1);
@@ -87,6 +89,7 @@ namespace Game.Main.Util {
 
     }
 
+    [Serializable]
     class ColourHSBA : ColourHSB {
 
         private float alpha;

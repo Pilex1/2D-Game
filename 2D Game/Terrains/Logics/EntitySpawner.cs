@@ -88,6 +88,8 @@ namespace Game.Terrains.Logics {
         }
 
         public override string ToString() {
+            //FIX THIS LATER
+          //  return "";
             StringBuilder sb = new StringBuilder(base.ToString());
             sb.AppendLine("Captured Entity: " + (entityCage.CapturedEntity == null ? "None" : entityCage.CapturedEntity.GetType().ToString()));
             return sb.ToString();

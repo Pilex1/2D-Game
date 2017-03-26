@@ -76,8 +76,9 @@ namespace Game.Guis.Renderers {
 
         public static void RenderBackground() {
             GL.UseProgram(Gui.shader.ID);
-            float ratio = 255 * Player.Instance.data.pos.y / TerrainGen.SizeY;
+            float ratio = Player.Instance.data.pos.y / TerrainGen.SizeY;
             ratio = CalcBackgroundColour(ratio);
+            ratio *= 255;
             RenderInstance(Background, new Vector2(0, 0), new ColourRGBA(ratio, ratio, ratio));
             GL.UseProgram(0);
         }

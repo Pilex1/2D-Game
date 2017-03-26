@@ -1,4 +1,5 @@
 ﻿using Game.Main.Util;
+using System;
 
 namespace Game.Terrains {
 
@@ -7,7 +8,8 @@ namespace Game.Terrains {
         ColourHSB Colour();
     }
 
-    class CLight:ILight {
+    [Serializable]
+    class CLight : ILight {
         int radius;
         ColourHSB colour;
 
@@ -16,9 +18,11 @@ namespace Game.Terrains {
             this.colour = colour;
         }
 
+        public CLight(int radius, float hue, float saturation, float brightness) : this(radius, new ColourHSB(hue, saturation, brightness)) { }
+
         int ILight.Radius() => radius;
         ColourHSB ILight.Colour() => colour;
     }
-    
+
 
 }

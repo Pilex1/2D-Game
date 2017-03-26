@@ -59,11 +59,10 @@ namespace Game {
             LogicManager.Init(null);
 
             Terrain.Init();
-
             Terrain.CreateNew(seed);
-
-            LightingManager.CalcFromNew();
-
+            LightingManager.Init(null);
+            LightingManager.Instance.CalculateAllHeights();
+            LightingManager.Instance.CalculateAllSunlight();
             #endregion
 
             #region Entities
@@ -104,6 +103,8 @@ namespace Game {
             LogicManager.Init(Serialization.LoadLogics(world));
 
             Terrain.Init();
+            LightingManager.Init(Serialization.LoadLights(world));
+
 
             #endregion
 
@@ -312,10 +313,11 @@ namespace Game {
             await Task.Factory.StartNew(() => {
                 ChunkData[] chunks = Terrain.GetChunkData();
                 EntitiesData entitydata = new EntitiesData(Player.Instance.data, PlayerInventory.Instance.Items, EntityManager.GetAllEntities());
-                Serialization.SaveWorld(Program.worldname, chunks, entitydata, FluidManager.Instance.GetDict(), LogicManager.Instance.GetDict());
+                Serialization.SaveWorld(Program.worldname, chunks, entitydata, FluidManager.Instance.GetDict(), LogicManager.Instance.GetDict(), LightingManager.Instance.GetDict());
                 saving = false;
                 FluidManager.Instance.CleanUp();
                 LogicManager.Instance.CleanUp();
+                LightingManager.Instance.CleanUp();
             });
 
 

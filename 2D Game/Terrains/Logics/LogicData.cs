@@ -113,9 +113,9 @@ namespace Game.Terrains.Logics {
 
         protected void UpdateMultiLight(int x, int y, int newState, IMultiLight light) {
             if (newState == light.State) return;
-            LightingManager.RemoveLight(x, y, light.Lights()[light.State]);
+            LightingManager.Instance.RemoveLight(new Vector2i(x, y), light.Lights()[light.State]);
             light.State = newState;
-            LightingManager.AddLight(x, y, light.Lights()[light.State]);
+            LightingManager.Instance.AddLight(new Vector2i(x, y), light.Lights()[light.State]);
         }
 
         internal void Update(int x, int y) {

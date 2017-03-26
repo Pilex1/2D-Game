@@ -53,7 +53,7 @@ namespace Game.Core {
                     }
                 }
 
-                var lighting = LightingManager.GetLighting(SelectedTilePos.x, SelectedTilePos.y);
+                var lighting = LightingManager.Instance.GetLighting(SelectedTilePos.x, SelectedTilePos.y);
                 GameLogic.AdditionalDebugText = tile.ToString() + Environment.NewLine + tile.tileattribs.ToString() + "Position: " + SelectedTilePos.x + ", " + SelectedTilePos.y + Environment.NewLine + "Lighting: Hue " + StringUtil.TruncateTo(lighting.Hue, 4) + " Saturation " + StringUtil.TruncateTo(lighting.Saturation, 4) + " Brightness " + StringUtil.TruncateTo(lighting.Brightness, 4);
 
             }

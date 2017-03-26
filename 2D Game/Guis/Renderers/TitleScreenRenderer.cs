@@ -296,7 +296,7 @@ namespace Game.Guis.Renderers {
                 t.Update();
             }
 
-            backgroundhue += GameTime.DeltaTime / 25;
+            backgroundhue += GameTime.DeltaTime / 2000;
 
 
 

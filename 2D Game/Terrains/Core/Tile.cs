@@ -85,7 +85,7 @@ namespace Game.Terrains {
 
         public static Tile Accelerator = new Tile(TileID.Accelerator, () => RawItem.Accelerator);
 
-        public static readonly Tile Light = new Tile(TileID.Light, new LightAttribs(8, new ColourRGB(255,255,255), () => RawItem.Light));
+        public static readonly Tile Light = new Tile(TileID.Light, new LightAttribs(8, new ColourRGB(255,0,0), () => RawItem.Light));
 
         public override string ToString() {
             return enumId.ToString();

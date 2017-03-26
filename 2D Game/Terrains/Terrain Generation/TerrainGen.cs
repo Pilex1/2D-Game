@@ -12,9 +12,9 @@ namespace Game.Terrains.Terrain_Generation {
     internal static class TerrainGen {
 
         internal const int ChunkSize = 8;
-        public const int ChunksPerWorld = 512;
+        public const int ChunksPerWorld = 128;
         public const int SizeX = ChunkSize * ChunksPerWorld;
-        public const int SizeY = 512;
+        public const int SizeY = 256;
 
         internal const int widthfactor = 10;
         internal const int freq = SizeX / widthfactor;

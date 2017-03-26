@@ -190,7 +190,7 @@ namespace Game.Entities {
             OnEachLoadedEntity(e => {
                 ILight l = e as ILight;
                 if (l != null) {
-                    LightingManager.AddLight((int)e.data.pos.x, (int)e.data.pos.y, l);
+                    LightingManager.Instance.AddLight(new Vector2i((int)e.data.pos.x, (int)e.data.pos.y), l);
                 }
             });
             GameTime.EntityUpdatesTimer.Pause();
@@ -201,7 +201,7 @@ namespace Game.Entities {
             OnEachLoadedEntity(e => {
                 ILight l = e as ILight;
                 if (l != null) {
-                    LightingManager.RemoveLight((int)e.data.pos.x, (int)e.data.pos.y, l);
+                    LightingManager.Instance.RemoveLight(new Vector2i((int)e.data.pos.x, (int)e.data.pos.y), l);
                 }
             });
             GameTime.EntityUpdatesTimer.Pause();

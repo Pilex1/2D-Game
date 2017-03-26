@@ -23,7 +23,7 @@ namespace Game.Terrains {
         private static bool[] LoadedChunks;
         private static bool[] ChunksUpdated;
 
-        public static TerrainVAO vao;
+        public static TerrainVAO terrainVAO;
 
 
         private const int TerrainTextureSize = 16;
@@ -35,10 +35,9 @@ namespace Game.Terrains {
 
 
         public static void Init() {
-            vao = new TerrainVAO(new Vector2[] { }, new int[] { }, new Vector2[] { }, new Vector3[] { });
+            terrainVAO = new TerrainVAO(new Vector2[] { }, new int[] { }, new Vector2[] { }, new Vector3[] { });
             LoadedChunks = new bool[TerrainGen.ChunksPerWorld];
             ChunksUpdated = new bool[TerrainGen.ChunksPerWorld];
-            LightingManager.Init();
 
             if (Tiles == null) {
                 Tiles = new Tile[TerrainGen.SizeX, TerrainGen.SizeY];
@@ -50,7 +49,7 @@ namespace Game.Terrains {
 
         /// <summary>
         /// Generates new terrain using the given seed
-        /// </summary>
+        /// </summary>d
         /// <param name="seed"></param>
         public static void CreateNew(int seed) {
             TerrainGen.Generate(seed);
@@ -75,7 +74,8 @@ namespace Game.Terrains {
                 }
                 TerrainBiomes[x] = data.biomes[i];
             }
-            LightingManager.LoadLightings(data.location, data.lightings);
+            LightingManager.Instance.CalculateHeights(data.location);
+            LightingManager.Instance.CalculateSunlight(data.location);
             LoadedChunks[data.location] = true;
         }
 
@@ -100,7 +100,6 @@ namespace Game.Terrains {
         private static ChunkData CopyRegion(int region) {
             Tile[,] tiles = new Tile[TerrainGen.ChunkSize, Tiles.GetLength(1)];
             Biome[] biomes = new Biome[TerrainGen.ChunkSize];
-            Vector3[,] lightings = new Vector3[TerrainGen.ChunkSize, Tiles.GetLength(1)];
 
             for (int i = 0; i < TerrainGen.ChunkSize; i++) {
                 int x = region * TerrainGen.ChunkSize + i;
@@ -109,10 +108,9 @@ namespace Game.Terrains {
 
                 for (int j = 0; j < Tiles.GetLength(1); j++) {
                     tiles[i, j] = Tiles[x, j];
-                    lightings[i, j] = (Vector3)LightingManager.GetLighting(x, j);
                 }
             }
-            return new ChunkData(region, tiles, biomes, lightings);
+            return new ChunkData { location = region, tiles = tiles, biomes = biomes };
         }
         #endregion
 
@@ -364,17 +362,21 @@ namespace Game.Terrains {
             FluidAttribs fluid = tile.tileattribs as FluidAttribs;
             if (fluid != null) FluidManager.Instance.AddUpdate(x, y, fluid);
             FluidManager.Instance.UpdateAround(x, y);
-
+          
             ILight light = tile.tileattribs as ILight;
             IMultiLight togglelight = tile.tileattribs as IMultiLight;
-            if (togglelight != null) LightingManager.AddLight(x, y, togglelight.Lights()[togglelight.State]);
-            else if (light != null) LightingManager.AddLight(x, y, light);
+            if (togglelight != null) {
+                LightingManager.Instance.AddLight(new Vector2i(x, y), togglelight.Lights()[togglelight.State]);
+            } else if (light != null) {
+                LightingManager.Instance.AddLight(new Vector2i(x, y), light);
+            } else {
+                if (!TerrainGen.generating) {
+                    LightingManager.Instance.OnTilePlace(x, y);
+                }
+            }
 
             ChunksUpdated[GetChunkAt(x)] = true;
 
-            if (!TerrainGen.generating) {
-                LightingManager.AddTile(x, y);
-            }
         }
 
         public static Tile BreakTile(int x, int y) {
@@ -388,14 +390,18 @@ namespace Game.Terrains {
             LogicManager.Instance.RemoveUpdate(x, y);
             FluidManager.Instance.RemoveUpdate(x, y);
             FluidManager.Instance.UpdateAround(x, y);
+            LightingManager.Instance.OnTileRemove(x, y);
 
             ChunksUpdated[GetChunkAt(x)] = true;
 
             if (!TerrainGen.generating) {
                 ILight light = tile.tileattribs as ILight;
                 IMultiLight togglelight = tile.tileattribs as IMultiLight;
-                if (togglelight != null) LightingManager.RemoveLight(x, y, togglelight.Lights()[togglelight.State]);
-                else if (light != null) LightingManager.RemoveLight(x, y, light);
+                if (togglelight != null) {
+                    LightingManager.Instance.RemoveLight(new Vector2i(x, y), togglelight.Lights()[togglelight.State]);
+                } else if (light != null) {
+                    LightingManager.Instance.RemoveLight(new Vector2i(x, y), light);
+                }
             }
             return tile;
         }
@@ -439,9 +445,9 @@ namespace Game.Terrains {
         public static void Render() {
             GameTime.TerrainTimer.Start();
             GL.UseProgram(Shader.ID);
-            GL.BindVertexArray(vao.ID);
+            GL.BindVertexArray(terrainVAO.ID);
             GL.BindTexture(Textures.TerrainTexture.TextureTarget, Textures.TerrainTexture.TextureID);
-            GL.DrawElements(BeginMode.Triangles, vao.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+            GL.DrawElements(BeginMode.Triangles, terrainVAO.Elements.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
             GL.BindTexture(Textures.TerrainTexture.TextureTarget, 0);
             GL.BindVertexArray(0);
             GL.UseProgram(0);
@@ -466,12 +472,12 @@ namespace Game.Terrains {
 
             GameTime.LightingsTimer.Start();
             EntityManager.UpdateLightEmittingBefore();
-            Vector3[] lightings = LightingManager.CalcMesh();
+            Vector3[] lightings = LightingManager.Instance.CalcMesh();
             EntityManager.UpdateLightEmittingAfter();
             GameTime.LightingsTimer.Pause();
 
             GameTime.TerrainTimer.Start();
-            vao.UpdateData(vertices, elements, uvs, lightings);
+            terrainVAO.UpdateData(vertices, elements, uvs, lightings);
             GameTime.TerrainTimer.Pause();
         }
         #endregion
