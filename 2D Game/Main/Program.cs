@@ -10,6 +10,7 @@ using Pencil.Gaming.Graphics;
 using System;
 using System.Diagnostics;
 using System.Threading;
+using System.IO;
 
 namespace Game {
 
@@ -34,6 +35,7 @@ namespace Game {
 
         static void Main() {
             Init();
+
             while (!Glfw.WindowShouldClose(window))
                 MainGameLoop();
             Dispose();
@@ -41,9 +43,16 @@ namespace Game {
 
         private static void Init() {
             MainThreadID = Thread.CurrentThread.ManagedThreadId;
+
             if (!Glfw.Init()) {
                 throw new Exception("Unable to initialise GLFW");
             }
+
+			int major, minor, rev;
+			Glfw.GetVersion (out major, out minor, out rev);
+			Console.WriteLine ("GLFW Version {0}.{1}.{2}", major, minor, rev);
+
+
             monitor = Glfw.GetPrimaryMonitor();
             GlfwVidMode mode = Glfw.GetVideoMode(monitor);
             ScreenWidth = mode.Width;
@@ -63,6 +72,9 @@ namespace Game {
             Glfw.MakeContextCurrent(window);
             Glfw.SetErrorCallback(OnError);
             Glfw.SwapInterval(1);
+
+			Console.WriteLine ("GLSL Version {0}",GL.GetString (StringName.ShadingLanguageVersion));
+
 
             Input.Init();
 
