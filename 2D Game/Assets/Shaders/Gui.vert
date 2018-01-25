@@ -1,4 +1,7 @@
-﻿#version 400 core
+﻿#version 320 es
+
+precision highp float;
+precision highp int;
 
 in vec2 vpos;
 in vec2 vuv;
