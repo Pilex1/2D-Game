@@ -66,7 +66,7 @@ namespace Game {
             //WINDOWED
             Width = 1280;
             Height = 720;
-            window = Glfw.CreateWindow(Width, Height, "Plexico 2D Game - Copyright Alex Tan 2017", GlfwMonitorPtr.Null, GlfwWindowPtr.Null);
+            window = Glfw.CreateWindow(Width, Height, "Plexico 2D Game - Copyright Alex Tan 2019", GlfwMonitorPtr.Null, GlfwWindowPtr.Null);
             Glfw.SetWindowPos(window, (ScreenWidth - Width) / 2, (ScreenHeight - Height) / 2);
 
             Glfw.MakeContextCurrent(window);
