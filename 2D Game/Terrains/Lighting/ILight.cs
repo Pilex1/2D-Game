@@ -1,28 +1,38 @@
 ﻿using Game.Main.Util;
 using System;
+using Pencil.Gaming.MathUtils;
 
 namespace Game.Terrains {
 
-    interface ILight {
-        int Radius();
-        ColourHSB Colour();
-    }
+	interface ILight {
+		int Radius();
 
-    [Serializable]
-    class CLight : ILight {
-        int radius;
-        ColourHSB colour;
+		float Strength();
 
-        public CLight(int radius, ColourHSB colour) {
-            this.radius = radius;
-            this.colour = colour;
-        }
+		Vector3 Colour();
+	}
 
-        public CLight(int radius, float hue, float saturation, float brightness) : this(radius, new ColourHSB(hue, saturation, brightness)) { }
+	[Serializable]
+	class CLight : ILight {
+		private int radius;
+		private float strength;
+		private Vector3 colour;
 
-        int ILight.Radius() => radius;
-        ColourHSB ILight.Colour() => colour;
-    }
+		public CLight(int radius, float strength, Vector3 colour) {
+			this.radius = radius;
+			this.strength = strength;
+			this.colour = colour;
+		}
+
+		public CLight(int radius, float strength, ColourRGB colour) : this (radius, strength, colour.ToVec3 ()) {
+		}
+
+		public int Radius() => radius;
+
+		public float Strength() => strength;
+
+		public Vector3 Colour() => colour;
+	}
 
 
 }

@@ -3,63 +3,70 @@ using System;
 using Game.Terrains;
 using Game.Util;
 using Game.Main.Util;
+using Pencil.Gaming.Graphics;
 
 namespace Game.Entities.Particles {
 
-    [Serializable]
-    class FireworkParticle : Particle, ILight {
+	[Serializable]
+	class FireworkParticle : Particle, ILight {
 
-        public FireworkParticle(Vector2 pos, Vector2 vel, float life, ColourRGBA colour) : base(EntityID.WhiteFill, pos, new Vector2(0.4f, 0.4f)) {
-            data.airResis = 0.995f;
-            data.grav = 0.01f;
-            data.vel.val = vel;
-            data.colour = colour;
-            data.life = new BoundedFloat(life, 0, life);
-        }
+		public FireworkParticle(Vector2 pos, Vector2 vel, float life, ColourRGBA colour) : base (EntityID.WhiteFill, pos, new Vector2 (0.4f, 0.4f)) {
+			data.airResis = 0.995f;
+			data.grav = 0.01f;
+			data.vel.val = vel;
+			data.colour = colour;
+			data.life = new BoundedFloat (life, 0, life);
+		}
 
-        public override void OnTerrainCollision(int x, int y, Direction d, Tile t) {
-            EntityManager.RemoveEntity(this);
-        }
+		public override void OnTerrainCollision(int x, int y, Direction d, Tile t) {
+			EntityManager.RemoveEntity (this);
+		}
 
-        ColourHSB ILight.Colour() => data.colour;
-        int ILight.Radius() => 8;
-    }
+		Vector3 ILight.Colour() => data.colour.ToVec3();
 
-    [Serializable]
-    class FireworkLauncher : Particle, ILight {
+		int ILight.Radius() => 8;
 
-        private int freq;
+		float ILight.Strength() => 0.25f;
+	}
 
-        public FireworkLauncher(Vector2 pos, ColourRGBA colour, int freq) : base(EntityID.WhiteFill, pos, new Vector2(0.4f, 0.4f)) {
-            data.vel.val = new Vector2(0, 0.5f);
-            data.grav = 0;
-            data.airResis = 1;
-            data.life = new BoundedFloat(35, 0, 35);
-            data.colour = colour;
-            this.freq = freq;
-        }
+	[Serializable]
+	class FireworkLauncher : Particle, ILight {
 
-        private void Explode() {
+		private int freq;
 
-            for (int i = 0; i < freq; i++) {
-                Vector2 vel = MathUtil.Vec2FromAngle(MathUtil.RandFloat(Program.Rand, 0, 2 * Math.PI)) / 2;
-                vel *= MathUtil.RandFloat(Program.Rand, 0.8, 1.2);
-                FireworkParticle particle = new FireworkParticle(data.pos, vel, 40, data.colour);
-            }
+		public FireworkLauncher(Vector2 pos, ColourRGBA colour, int freq) : base (EntityID.WhiteFill, pos, new Vector2 (0.4f, 0.4f)) {
+			data.vel.val = new Vector2 (0, 0.5f);
+			data.grav = 0;
+			data.airResis = 1;
+			data.life = new BoundedFloat (35, 0, 35);
+			data.colour = colour;
+			this.freq = freq;
+		}
 
-            EntityManager.RemoveEntity(this);
-        }
+		private void Explode() {
 
-        public override void OnTerrainCollision(int x, int y, Direction d, Tile t) {
-            Explode();
-        }
+			for (int i = 0; i < freq; i++) {
+				Vector2 vel = MathUtil.Vec2FromAngle (MathUtil.RandFloat (Program.Rand, 0, 2 * Math.PI)) / 2;
+				vel *= MathUtil.RandFloat (Program.Rand, 0.8, 1.2);
+				FireworkParticle particle = new FireworkParticle (data.pos, vel, 40, data.colour);
+			}
 
-        public override void OnDeath() {
-            Explode();
-        }
+			EntityManager.RemoveEntity (this);
+		}
 
-        ColourHSB ILight.Colour() => data.colour;
-        int ILight.Radius() => 8;
+		public override void OnTerrainCollision(int x, int y, Direction d, Tile t) {
+			Explode ();
+		}
 
-    }
+		public override void OnDeath() {
+			Explode ();
+		}
+
+		Vector3 ILight.Colour() => data.colour.ToVec3();
+
+		int ILight.Radius() => 8;
+
+		float ILight.Strength() => 0.25f;
+
+	}
 }

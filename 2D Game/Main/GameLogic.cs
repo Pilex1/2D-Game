@@ -66,8 +66,7 @@ namespace Game {
 			Terrain.Init ();
 			Terrain.CreateNew (seed);
 			LightingManager.Init (null);
-			LightingManager.Instance.CalculateAllHeights ();
-			LightingManager.Instance.CalculateAllSunlight ();
+			LightingManager.Instance.CalcFromNew ();
 			#endregion
 
 			#region Entities

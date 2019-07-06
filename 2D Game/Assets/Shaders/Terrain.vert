@@ -24,5 +24,6 @@ vec3 hsv2rgb(vec3 c) {
 void main(void) {
 	gl_Position = projectionMatrix * viewMatrix * vec4(vert_pos, 0.0, 1.0);
 	frag_uv = vert_uv;
-	frag_lighting = hsv2rgb(vert_lighting);
+	// frag_lighting = hsv2rgb(vert_lighting);
+	frag_lighting = vert_lighting;
 }
